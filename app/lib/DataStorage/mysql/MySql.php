@@ -7,6 +7,7 @@
 	class_exists('String') || require('lib/String.php');
 	class_exists('MySqlHasA') || require('MySqlHasA.php');
 	class_exists('MySqlHasMany') || require('MySqlHasMany.php');
+	class_exists('MySqlBelongsTo') || require('MySqlBelongsTo.php');
 	class MySql{
 		private $_config;
 		private $_connectionId;
@@ -50,8 +51,9 @@
 				$sql = $this->constructDelete($command, $obj);
 			}elseif($command != null){
 				$sql = $this->constructDelete($command, $obj);
-			}else
+			}else{
 				return 0;
+			}
 			$this->execute($sql);
 			$affected_rows = $this->getAffectedRows();
 			//$this->disconnect(null);
@@ -65,20 +67,30 @@
 			if(method_exists($obj, 'getPrimaryKey')){
 				$key = $obj->getPrimaryKey();				
 			}
-			
-			$id = $obj->{$key};
-			$id = ($id !== null && strlen($id) === 0) ? null : $id;
-			if($id === null){
-				$sql = $this->constructInsert($obj);
-				$this->execute($sql);
-				$obj->{$key} = $this->getInsertedId();
-			}else{
-				$sql = $this->constructUpdate($findType, $obj);
-				$this->execute($sql);
+			/*$inspector = new ReflectionClass(get_class($obj));
+			$parent = $inspector->getParentClass();
+			if($parent !== false && $parent->getName() !== 'Object'){
+				$parent_obj = $this->save($findType, {$parent->getName()} $obj);
+				$parent_key = strtolower(trim($parent->getName())) . '_id';
+				$pk = $parent_obj->getPrimaryKey();
+				$this->{$parent_key} = $parent_obj->{$pk};
+				return $parent_obj;
+			}*/
+			if(method_exists($obj, 'getTableName')){
+				$id = $obj->{$key};
+				$id = ($id !== null && strlen($id) === 0) ? null : $id;
+				if($id === null){
+					$sql = $this->constructInsert($obj);
+					$this->execute($sql);
+					$obj->{$key} = $this->getInsertedId();
+				}else{
+					$sql = $this->constructUpdate($findType, $obj);
+					$this->execute($sql);
+				}
 			}
 			return $obj;
 		}
-		private function getjoins($obj, $relationships){
+		private function getJoins($obj, $relationships){
 			$joins = array();
 			if(isset($relationships)){
 				$joins = array();
@@ -90,6 +102,10 @@
 							break;
 						case('HasMany'):
 							$r = new MySqlHasMany(array('withWhom'=>$relationship->withWhom, 'through'=>$relationship->through));
+							$joins[] = $r->joinStatement($obj);
+							break;
+						case('BelongsTo'):
+							$r = new MySqlBelongsTo(array('withWhom'=>$relationship->withWhom, 'through'=>$relationship->through));
 							$joins[] = $r->joinStatement($obj);
 							break;
 					}
@@ -111,7 +127,7 @@
 			if(method_exists($obj, 'getTableName')){
 				$tableName = $obj->getTableName();
 			}
-			
+			$key = sprintf("%s.%s", $tableName, $key);
 			switch(get_class($command)){
 				case('BySql'):
 					$sql = $command->sql;
@@ -149,17 +165,17 @@ where ' . $key . ' in (' . implode(', ', $this->sanitize($command->ids)) . ')' .
 						if(is_array($command->value)){
 							if(ctype_digit($command->value[0])){
 								$sql .= '
-where ' . $command->name . ' in (' . implode(', ', $this->sanitize($command->value)) . ')' . (strlen($securedSql) > 0 ? ' and ' . $securedSql : '');
+where ' . $command->name . ' in (' . implode(', ', $this->typeIt($this->sanitize($command->value))) . ')' . (strlen($securedSql) > 0 ? ' and ' . $securedSql : '');
 							}else{
 								$sql .= '
-where ' . $command->name . ' in (\'' . implode('\', \'', $this->sanitize($command->value)) . '\')' . (strlen($securedSql) > 0 ? ' and ' . $securedSql : '');
+where ' . $command->name . ' in (\'' . implode('\', \'', $this->typeIt($this->sanitize($command->value))) . '\')' . (strlen($securedSql) > 0 ? ' and ' . $securedSql : '');
 							}
 						}else{
 							$sql .= '
-where ' . $command->name . '=\'' . $this->sanitize($command->value) . '\'';
+where ' . $command->name . '=' . $this->typeIt($this->sanitize($command->value));
 						}
 					}else{
-						throw new Exception('ByAttribute:value is null.');
+						throw new Exception('ByAttribute:value is null. ' . $command->name.  $sql . $tableName);
 					}
 					break;
 				case('ById'):				
@@ -280,37 +296,42 @@ where ' . $securedSql : '';
 		}
 		private function getSelectList($obj, $relationships){
 			$sql = 'select ';
-			$sql .= $obj->getTableName() . '.*';
-			if(method_exists($obj, 'didCreateSelectList')){
-				$sql = $obj->didCreateSelectList($sql);
+			$list = array();
+			$each_one = array();
+			if(method_exists($obj, 'willCreateSelectList')){
+				$sql = $obj->willCreateSelectList($sql);
 			}
 			$mysqlRelationship = null;
 			if($relationships != null){
 				foreach($relationships as $relationship){
-					switch(get_class($relationship)){
-						case('HasA'):
-							$mysqlRelationship = new MySqlHasA(array('withWhom'=>$relationship->withWhom, 'through'=>$relationship->through));
-							$list[] = $mysqlRelationship->selectList($obj);
-							break;
-						case('HasMany'):
-							$mysqlRelationship = new MySqlHasMany(array('withWhom'=>$relationship->withWhom, 'through'=>$relationship->through));
-							$list[] = $mysqlRelationship->selectList($obj);
-							break;
+					if(method_exists($relationship, 'selectList')){
+						switch(get_class($relationship)){
+							case('HasA'):
+								$mysqlRelationship = new MySqlHasA(array('withWhom'=>$relationship->withWhom, 'through'=>$relationship->through));
+								$list[] = $mysqlRelationship->selectList($obj);
+								break;
+							case('HasMany'):
+								$mysqlRelationship = new MySqlHasMany(array('withWhom'=>$relationship->withWhom, 'through'=>$relationship->through));
+								$list[] = $mysqlRelationship->selectList($obj);
+								break;
+							case('BelongsTo'):
+								$mysqlRelationship = new MySqlBelongsTo(array('withWhom'=>$relationship->withWhom, 'through'=>$relationship->through));
+								$list[] = $mysqlRelationship->selectList($obj);
+								break;
+						}
 					}
 					$mysqlRelationship = null;
 				}
-				if(count($list)>0){
-					$sql .= ', ';
-				}
-				
-				$each_one = array();
 				foreach($list as $columns){
 					$each_one[] = implode(', ', $columns);
 				}
-				if(count($each_one) > 0){
-					$sql .= implode(', ', $each_one);
-				}
 			}
+			if(count($each_one) > 0){
+				$sql .= implode(', ', $each_one);
+			}else{
+				$sql .= $obj->getTableName() . '.*';
+			}
+			
 			return $sql;
 		}
 		public function findBySql($sql){

@@ -49,6 +49,10 @@
 			<input type="text" id="profile[site_description]" name="profile[site_description]" value="<?php echo $person->profile->site_description;?>" />
 		</p>
 		<p>
+			<label for="do_list_in_directory">List in directory?</label>
+			<input type="checkbox" value="true" name="do_list_in_directory" id="do_list_in_directory"<?php echo $person->do_list_in_directory ? 'checked="true"' : null;?> />
+		</p>
+		<p>
 			<button type="submit" name="save_button" id="save_button"><span>Save</span></button>
 		</p>
 		<input type="hidden" id="id" name="id" value="{$person->id}" />

@@ -13,7 +13,7 @@ class_exists('Log') || require('lib/Log.php');
 class_exists('Application') || require('Application.php');
 $application = new Application();
 $front_controller = new FrontController($_REQUEST);
-$front_controller->delegate = $application;
+FrontController::$delegate = $application;
 $logger = new Log('logs/', 0, false, null);
 set_error_handler(array($front_controller, 'errorDidHappen'));
 set_exception_handler(array($front_controller, 'exceptionDidHappen'));

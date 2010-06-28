@@ -45,7 +45,7 @@ class FollowersResource extends AppResource{
 			$this->person = Person::findById($person->id);
 			if($this->person->url !== null && strlen($this->person->url) > 0){
 				$config = new AppConfiguration();
-				$owner = Person::findOwner();
+				$owner = Member::findOwner();
 				$site_path = String::replace('/\/$/', '', FrontController::$site_path);
 				$data = sprintf("email=%s&name=%s&url=%s&created=%s", urlencode($owner->email), urlencode($owner->name),  urlencode(str_replace('http://', '', $site_path)), urlencode(date('c')));
 				$response = NotificationResource::sendNotification($this->person, 'follower', $data, 'post');

@@ -40,6 +40,13 @@
 		public function setTimestamp($val){
 			$this->timestamp = $val;
 		}
+		private $owner_id;
+		public function getOwner_id(){
+			return $this->owner_id;
+		}
+		public function setOwner_id($val){
+			$this->owner_id = $val;
+		}
 		
 		public static function findAll(){
 			$config = new AppConfiguration();				
@@ -111,9 +118,9 @@
 			}
 		}
 		
-		private function add_default_values(){
+		private function add_default_values($owner_id){
 			if(Setting::findByName('home_page_post_id') == null){
-				$this->add(new Setting(array('name'=>'home_page_post_id', 'value'=>null)));				
+				$this->add(new Setting(array('name'=>'home_page_post_id', 'value'=>null, 'owner_id'=>$owner_id)));				
 			}
 			$this->saveAll();
 		}
@@ -126,8 +133,10 @@
 				$table->addColumn('name', 'string', array('is_nullable'=>false, 'size'=>255));
 				$table->addColumn('value', 'string', array('is_nullable'=>true, 'size'=>255));
 				$table->addColumn('timestamp', 'timestamp', array('is_nullable'=>false));		
+				$table->addColumn('owner_id', 'biginteger', array('is_nullable'=>false));
 				
 				$table->addKey('primary', 'id');
+				$table->addKey('key', array('owner_id_key'=>'owner_id'));
 				$table->addKey('unique', array('name_key'=>'name'));
 				$table->addOption('ENGINE=MyISAM DEFAULT CHARSET=utf8');
 				
@@ -140,7 +149,7 @@
 					}
 					throw new Exception($message);
 				}
-				$this->add_default_values();
+				$this->add_default_values(1);
 			}catch(Exception $e){
 				$db->deleteTable($this->getTableName($config));
 				throw $e;

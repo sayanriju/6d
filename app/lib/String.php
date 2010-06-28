@@ -239,6 +239,9 @@
 			$string = preg_replace( array("`[^a-z0-9]`i","`[-]+`") , "-", $string);
 			return strtolower(trim($string, '-'));
 		}
+		public static function toLower($value){
+			return strtolower($value);
+		}
 		public static function encrypt($value){
 			return sha1($value);
 		}
@@ -257,6 +260,9 @@
 				return implode(',', $val);
 			}
 			return $val;
+		}
+		public static function sanitize($val){
+			return filter_var($val, FILTER_SANITIZE_STRING);
 		}
 	}
 ?>

@@ -34,7 +34,7 @@ class PostResource extends AppResource{
 			$view = 'post/edit';
 		}
 		if(count($this->url_parts) > 1){
-			$this->post = Post::findById($this->url_parts[1]);
+			$this->post = Post::findById($this->url_parts[1], $this->current_user->id);
 		}else{
 			$this->post = $post;
 		}
@@ -75,59 +75,70 @@ class PostResource extends AppResource{
 		return $url;		
 	}
 	public function put(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array(), $last_page_viewed = 1){
+		
 		if(!AuthController::isAuthorized()){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
-		}else{
-			$this->last_page_viewed = $last_page_viewed;
-			if($post->id !== null && strlen($post->id) > 0){
-				$this->post = Post::findById($post->id);
-			}			
-			if($this->post !== null){
-				switch($post->post_date){
-					case('today'):
-						$post->post_date = date('c');
-						break;
-					case('tomorrow'):
-						$post->post_date = date('c', strtotime('+1 day'));
-						break;
-					case('yesterday'):
-						$post->post_date = date('c', strtotime('-1 day'));
-						break;
-					case('next week'):
-						$post->post_date = date('c', strtotime('+1 week'));
-						break;
-				}
-				list($post, $errors) = Post::save($post);
-				if($errors == null){
-					if($make_home_page){
-						$setting = Setting::findByName('home_page_post_id');
-						$setting->value = $post->id;
-						Setting::save($setting);
-					}else if($post->isHomePage($this->getHome_page_post_id())){
-						Setting::delete('home_page_post_id');
-					}
-					self::setUserMessage('Post was saved.');
-					$this->sendPostToPeople($groups, $people, $post);
-				}else{
-					$message = 'An error occurred while saving your post:';
-					foreach($errors as $key=>$value){
-						$message .= "$key=$value";
-					}
-					self::setUserMessage($message);
-				}
-			}else{
-				self::setUserMessage("That post doesn't exist.");
+		}
+		
+		$this->last_page_viewed = $last_page_viewed;
+		
+		if($post->id !== null && strlen($post->id) > 0){
+			$this->post = Post::findById($post->id, $this->current_user->id);
+		}
+		
+		if($this->post->owner_id !== $this->current_user->id && !AuthController::isSuperAdmin()){
+			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		}
+		
+		if($this->post !== null){
+			switch($post->post_date){
+				case('today'):
+					$post->post_date = date('c');
+					break;
+				case('tomorrow'):
+					$post->post_date = date('c', strtotime('+1 day'));
+					break;
+				case('yesterday'):
+					$post->post_date = date('c', strtotime('-1 day'));
+					break;
+				case('next week'):
+					$post->post_date = date('c', strtotime('+1 week'));
+					break;
 			}
-			$this->redirectTo('posts/' . $this->last_page_viewed);
-		}		
+			$post->owner_id = $this->current_user->id;
+			list($post, $errors) = Post::save($post);
+			if($errors == null){
+				if($make_home_page){
+					$setting = Setting::findByName('home_page_post_id');
+					$setting->value = $post->id;
+					$setting->owner_id = $this->current_user->id;
+					Setting::save($setting);
+				}else if($post->isHomePage($this->getHome_page_post_id())){
+					Setting::delete('home_page_post_id');
+				}
+				self::setUserMessage('Post was saved.');
+				$this->sendPostToPeople($groups, $people, $post);
+			}else{
+				$message = 'An error occurred while saving your post:';
+				foreach($errors as $key=>$value){
+					$message .= "$key=$value";
+				}
+				self::setUserMessage($message);
+			}
+		}else{
+			self::setUserMessage("That post doesn't exist.");
+		}
+		$this->redirectTo('posts/' . $this->last_page_viewed);
+		
+			
 	}
-	public function post(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array()){
+	public function post(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array()){		
 		$errors = array();
 		if($public_key != null && strlen($public_key)>0){
 			$person = Person::findByPublicKey($public_key);
 			$response = 'ok';
 			if($person != null && $person->is_approved){
-				$existing_post = Post::findByPersonPostId($post->person_post_id);
+				$existing_post = Post::findByPersonPostId($post->person_post_id, $this->current_user->id);
 				if($existing_post != null){
 					$post->id = $existing_post->id;
 					$post->is_published = $existing_post->is_published;
@@ -143,6 +154,7 @@ class PostResource extends AppResource{
 				$post->body = $this->filterBody($post->body);
 				$post->title = $this->filterBody($post->title);
 				$post->body = urldecode($post->body);
+				$post->owner_id = $person->owner_id;
 				list($post, $errors) = Post::save($post);
 				if(count($errors) > 0){
 					foreach($errors as $key=>$error){
@@ -160,11 +172,13 @@ class PostResource extends AppResource{
 			if(strlen($post->post_date) === 0){
 				$post->post_date = date('c');
 			}
+			$post->owner_id = $this->current_user->id;
 			list($post, $errors) = Post::save($post);
 			if($errors == null){
 				if($make_home_page){
 					$setting = Setting::findByName('home_page_post_id');
 					$setting->value = $post->id;
+					$setting->owner_id = $this->current_user->id;
 					Setting::save($setting);
 				}else if($post->isHomePage($this->getHome_page_post_id())){
 					Setting::delete('home_page_post_id');
@@ -183,10 +197,14 @@ class PostResource extends AppResource{
 	}
 	public function delete(Post $post, $last_page_viewed, $q = null){
 		$this->q = $q;
-		if(! AuthController::isAuthorized()){
+		if(!AuthController::isAuthorized()){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}
-		$post = Post::findById($post->id);
+		$post = Post::findById($post->id, $this->current_user->id);
+		if($post->owner_id !== $this->current_user->id && !AuthController::isSuperAdmin()){
+			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		}
+		
 		Post::delete($post);
 		self::setUserMessage(sprintf("'%s' was deleted.", $post->title));
 		if($this->q === null){

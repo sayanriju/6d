@@ -41,15 +41,22 @@
 				$this->config = new AppConfiguration();
 				try{
 					$this->settings = Setting::findAll();
-					$this->owner = Person::findOwner();
+					$this->owner = Application::$member;
 					$this->owner->profile = unserialize($this->owner->profile);
+					if(AuthController::authKey() !== null){
+						$this->current_user = Person::findByEmail(AuthController::authKey());
+					}else{
+						$this->current_user = $this->owner;
+					}
 					$this->title = $this->owner->profile->site_name;
 					$theme_path = FrontController::getRootPath('/' . FrontController::themePath() . '/ThemeController.php');
 					if(file_exists($theme_path)){
 						class_exists('ThemeController') || require($theme_path);
 						$this->theme = new ThemeController($this);
 					}
-				}catch(Exception $e){}
+				}catch(Exception $e){
+					echo $e;
+				}
 			}
 		}
 		
@@ -66,6 +73,8 @@
 		protected $config;
 		protected static $error_html;
 		public $q;
+		public $current_user;
+		
 		public function willReturnValueForKey($key, $obj, $val){
 			return $val;
 		}

@@ -99,7 +99,7 @@ class FollowerResource extends AppResource{
 			$friend_request = new FriendRequest(array('name'=>$this->person->name, 'email'=>$this->person->email, 'public_key'=>$this->person->public_key, 'created'=>date('c'), 'url'=>$this->person->url));
 			$this->save($friend_request, $this->person);
 		}
-		$owner = Person::findOwner();
+		$owner = Member::findOwner();
 		return "Thanks for the request. I'll make sure " . $owner->name . " gets it.";
 	}
 	public function delete(FriendRequest $request){

@@ -26,7 +26,7 @@
 				<h1><a href="<?php echo FrontController::urlFor(null);?>" title="Home"><span><?php echo $this->owner->profile->site_name;?></span></a></h1>
 				<nav>
 					<ul>
-	<?php $pages = Post::findPublishedPages();?>
+	<?php $pages = Post::findPublishedPages($this->current_user->id);?>
 	<?php while($pages != null && $page = array_shift($pages)):?>
 		<?php if(!$page->isHomePage($this->getHome_page_post_id())):?>
 						<li><a href="<?php echo FrontController::urlFor($page->custom_url);?>" title="<?php echo $page->description;?>"><?php echo $page->title;?></a></li>
@@ -37,12 +37,17 @@
 								<input type="search" name="q" value="{$q}" />
 							</form>
 						</li>
+						<li>
+							<?php if(AuthController::isAuthorized()):?>
+							<p>Welcome <?php echo $this->current_user->name;?></p>
+							<?php endif;?>
+						</li>
 					</ul>
 				</nav>
 
 			</header>
 			<aside id="author">
-				<?php $person = Person::findOwner();$person->profile = unserialize($person->profile);?>
+				<?php $person = Member::findOwner();$person->profile = unserialize($person->profile);?>
 				<a href="<?php echo FrontController::urlFor(null);?>" title="Go back to my home page">
 					<img src="<?php echo ProfileResource::getPhotoUrl($person);?>" alt="photo of <?php echo $person->name;?>" class="author" />
 				</a>

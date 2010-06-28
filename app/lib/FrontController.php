@@ -16,7 +16,7 @@ class FrontController extends Object{
 	public $context;
 	public static $site_path;
 	public static $error_html;
-	public $delegate;
+	public static $delegate;
 
 	
 	public static function sendHeaders($headers){
@@ -181,11 +181,17 @@ class FrontController extends Object{
 			$resource .= '?';
             $resource .= implode('&', $query_string);
         }
+		if(self::$delegate !== null && method_exists(self::$delegate, 'willSetUrlFor')){
+			//$resource = self::$delegate->willSetUrlFor($resource);
+		}
 		if($make_secure && $config != null && strlen($config->ssl_path) > 0){
 			$url = sprintf('https://%s/%s', $config->ssl_path, $resource);
 		}else{			
 			$url = $site_path . $resource;
 		}
+		error_log('resource afterwards = ' . $resource );
+		error_log('site_path afterwards = ' . $site_path );
+		
 		return $url;
 	}
 	private function initSitePath(){
@@ -320,7 +326,10 @@ class FrontController extends Object{
 	}
 	public function execute(){
 		$resource_path = 'resources/';
-		$path_info = self::getPathInfo();		
+		$path_info = self::getPathInfo();
+		if(self::$delegate !== null && method_exists(self::$delegate, 'willExecute')){
+			$path_info = self::$delegate->willExecute($path_info);
+		}
 		//echo '<br />' . $path_info;
 		$parts = explode('/', $path_info);
 		$r = null;
@@ -357,7 +366,7 @@ class FrontController extends Object{
 				}catch(Exception $e){
 					switch($e->getCode()){
 						case(401):
-							$this->delegate->unauthorizedRequestHasOccurred($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING']));
+							self::$delegate->unauthorizedRequestHasOccurred($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING']));
 							break;
 						case(301):
 							$matches = String::find('/href\=\"(.*)\"/', $e->getMessage());
@@ -374,7 +383,7 @@ class FrontController extends Object{
 					Resource::sendMessage($obj, 'didFinishLoading');			
 				}
 			}catch(Exception $e){
-				$output .= $this->delegate->exceptionHasOccured($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'exception'=>$e));
+				$output .= self::$delegate->exceptionHasOccured($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'exception'=>$e));
 			}
 			ob_end_flush();
 			$output = $this->trim($output);
@@ -382,7 +391,7 @@ class FrontController extends Object{
 			self::sendHeadersForFileType($file_type, strlen($output));
 			return $output;
 		}else{
-			$output = $this->delegate->resourceOrMethodNotFoundDidOccur($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'server'=>$_SERVER, 'url_parts'=>$url_parts));
+			$output = self::$delegate->resourceOrMethodNotFoundDidOccur($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'server'=>$_SERVER, 'url_parts'=>$url_parts));
 			if($output === null){
 				self::send404Headers('Resource not found');
 			}else{
@@ -391,6 +400,7 @@ class FrontController extends Object{
 			}
 		}
 	}
+	
 	private function trim($text){
 		$lines = preg_split('/\n/', $text);
 		$upper_bounds = count($lines);

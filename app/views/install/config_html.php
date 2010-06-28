@@ -25,7 +25,9 @@
 			<label for="prefix">Table prefix</label>
 			<input type="text" value="{$configuration->prefix}" name="prefix" />
 		</p>
-		
+	</fieldset>
+	<fieldset>
+		<legend>Site Settings</legend>
 		<p>
 			<label for="prefix">Theme</label>
 			<input type="text" value="{$configuration->theme}" name="theme" />
@@ -33,6 +35,10 @@
 		<p>
 			<label for="email">Admin Email</label>
 			<input type="text" value="{$configuration->email}" name="email" />
+		</p>
+		<p>
+			<label for="email">Admin User Name</label>
+			<input type="text" value="{$configuration->site_user_name}" name="site_user_name" />
 		</p>
 		<p>
 			<label for="site_password">Site Password</label>

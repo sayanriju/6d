@@ -1,3 +1,4 @@
+<?php echo AuthController::isAuthorized();?>
 <?php if(AuthController::isAuthorized()):?>
 <nav id="admin_menu" class="main">
 	<a href="<?php echo FrontController::urlFor('post');?>" id="new_post_link" title="new post">new post</a>

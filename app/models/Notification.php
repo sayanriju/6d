@@ -50,9 +50,7 @@
 		public function setTimestamp($val){
 			$this->timestamp = $val;
 		}
-		
-		private static $errors;
-		
+				
 		public function getTableName($config = null){
 			if($config == null){
 				$config = new AppConfiguration();

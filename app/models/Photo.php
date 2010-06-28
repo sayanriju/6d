@@ -74,6 +74,13 @@
 		public function setTimestamp($val){
 			$this->timestamp = $val;
 		}
+		private $owner_id;
+		public function getOwner_id(){
+			return $this->owner_id;
+		}
+		public function setOwner_id($val){
+			$this->owner_id = $val;
+		}
 		
 		// I need a way to tell the data storage whether or not to add the id in the sql statement
 		// when inserting a new record. This is it. The data storage should default it to false, so

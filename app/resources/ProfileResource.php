@@ -20,29 +20,22 @@ class ProfileResource extends AppResource{
 			if(count($matches) > 0){
 				$photo_file_type = $matches[1];
 			}
-			// TODO: Need to secure this.
-			$owner = Person::findOwner();
-			if($owner->profile === null || strlen($owner->profile) === 0){
-				$owner->profile = new Profile(null);
-			}else{
-				$owner->profile = unserialize($owner->profile);
-			}
 			if(!Application::isPhotoPublic()){
 				$person = Person::findByPublicKey(urldecode($person->public_key));
 				if($person !== null && $person->is_approved){
-					$this->person = $owner;
+					$this->person = $this->owner;
 					$this->output = $this->renderView('profile/photo');
 					return $this->renderView('layouts/default');
 				}else{
 					throw new Exception(FrontController::NOTFOUND, 404);
 				}
 			}else{
-				$this->person = $owner;
+				$this->person = $this->owner;
 				$this->output = $this->renderView('profile/photo');
 				return $this->renderView('layouts/default');
 			}
 		}else{
-			$this->person = Person::findByEmail($this->config->email);
+			$this->person = $this->owner;
 			if($this->person === null){
 				$this->person = new Person();
 			}
@@ -51,7 +44,7 @@ class ProfileResource extends AppResource{
 			}
 			$this->title = $this->person->name . "'s profile.";
 			if($state === 'modify'){
-				if(! AuthController::isAuthorized()){
+				if(!AuthController::isAuthorized() || $this->current_user->id !== $this->owner->person_id){
 					throw new Exception(FrontController::UNAUTHORIZED, 401);
 				}
 				$this->output = $this->renderView('profile/edit', null);
@@ -75,23 +68,16 @@ class ProfileResource extends AppResource{
 		}
 	}
 	public function put(Person $person, Profile $profile){
-		if(!AuthController::isAuthorized()){
+		if(!AuthController::isAuthorized() || $this->current_user->id !== $this->owner->person_id){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}
 		$this->person = $person;
 		$this->person->setSession_id(session_id());
-		$owner = Person::findOwner();
-		if($owner !== null){
-			$owner->setIs_owner(false);
-			Person::save($owner);
+		$existing_person = Person::findById($this->current_user->id);
+		if($existing_person === null || $existing_person->id === 0){
+			throw new Exception(FrontController::NOTFOUND, 404);
 		}
-		$this->person->setIs_owner(true);
-		if($this->person->id > 0){
-			$existing_person = Person::findById($this->person->id);
-			$this->person->setUid($existing_person->getUid());
-		}else{
-			$this->person->setUid(uniqid());
-		}
+		$this->person->setUid($existing_person->getUid());
 		if($profile != null){
 			$this->person->setProfile(serialize($profile));
 		}

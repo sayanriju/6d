@@ -69,6 +69,14 @@
 			$this->is_owner = $val;
 		}
 
+		private $do_list_in_directory;
+		public function getDo_list_in_directory(){
+			return $this->do_list_in_directory;
+		}
+		public function setDo_list_in_directory($val){
+			$this->do_list_in_directory = $val;
+		}
+
 		private $password;
 		public function getPassword(){
 			return $this->password;
@@ -100,6 +108,14 @@
 			$this->public_key = $val;
 		}
 		
+		private $owner_id;
+		public function getOwner_id(){
+			return $this->owner_id;
+		}
+		public function setOwner_id($val){
+			$this->owner_id = $val;
+		}
+				
 		public function getTableName($config = null){
 			if($config == null){
 				$config = new AppConfiguration();
@@ -118,12 +134,6 @@
 				return uniqid(null, true);
 			}
 			return $value;			
-		}
-		public static function findOwner(){
-			$config = new AppConfiguration();
-			$db = Factory::get($config->db_type, $config);
-			$person = $db->find(new ByAttribute('is_owner', true, 1), new Person(null));
-			return $person;
 		}
 		public static function findById($id){
 			$config = new AppConfiguration();
@@ -155,7 +165,7 @@
 			$list = $db->find(new ByIds($ids), new Person());
 			return $list;
 		}
-		
+
 		public static function findByEmailAndPassword($email, $password){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
@@ -165,21 +175,23 @@
 		public static function findByPublicKey($public_key){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$list = $db->find(new ByAttribute('public_key', urlencode($public_key), 1, null), new Person());
+			$list = $db->find(new ByAttribute('public_key', $public_key, 1, null), new Person());
 			return $list;
 		}
 		public static function findByEmail($email){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$person = $db->find(new ByAttribute('email', urlencode($email), 1, null), new Person(null));
+			$person = $db->find(new ByAttribute('email', $email, 1, null), new Person(null));
 			return $person;
 		}
+		
 		public static function findByUrl($url){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$list = $db->find(new ByAttribute('url', urlencode($url), 1, null), new Person());
+			$list = $db->find(new ByAttribute('url', $url, 1, null), new Person());
 			return $list;
 		}
+		
 		public static function stringify($text){
 			return sprintf("%s", urlencode($text));
 		}
@@ -205,7 +217,6 @@
 				$person->password = String::encrypt($person->password);
 				$person->confirmation_password = String::encrypt($person->confirmation_password);
 			}
-			
 			$new_person = $db->save(null, $person);
 			$person->id = $new_person->id;
 			self::notify('didSavePerson', $person, $person);
@@ -214,7 +225,10 @@
 
 		public static function canSave(Person $person){
 			$errors = array();
-			$existing_person = Person::findByEmail($person->email);
+			$existing_person = null;
+			if($person->email !== null){
+				$existing_person = Person::findByEmail($person->email);
+			}
 			if($existing_person != null && ($person->id != $existing_person->id)){
 				$errors['email'] = "Please enter a different email address.";
 			}
@@ -271,12 +285,17 @@
 				$table->addColumn('password', 'string', array('is_nullable'=>true, 'size'=>255));
 				$table->addColumn('is_approved', 'boolean', array('is_nullable'=>false, 'default'=>false));
 				$table->addColumn('is_owner', 'boolean', array('is_nullable'=>false, 'default'=>false));
+				$table->addColumn('do_list_in_directory', 'boolean', array('is_nullable'=>false, 'default'=>false));
 				$table->addColumn('profile', 'text', array('is_nullable'=>true));
+				$table->addColumn('owner_id', 'biginteger', array('is_nullable'=>false));
+				
 				
 				$table->addKey('primary', 'id');
 				$table->addKey('key', array('session_id_key'=>'session_id'));
+				$table->addKey('key', array('owner_id_key'=>'owner_id'));
 				$table->addKey('key', array('name_key'=>'name'));
 				$table->addKey('key', array('email_key'=>'email'));
+				$table->addKey('key', array('do_list_in_directory_key'=>'do_list_in_directory'));
 				$table->addOption('ENGINE=MyISAM DEFAULT CHARSET=utf8');
 				$errors = $table->save();
 				if(count($errors) > 0){

@@ -8,7 +8,7 @@ class InfoResource extends AppResource{
 		parent::__destruct();
 	}
 	public $posts;
-	public function get_info(){		
+	public function get(){		
 		$this->title = "PHP info";
 		$this->output = phpinfo();
 		return $this->renderView('layouts/default', null);

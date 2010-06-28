@@ -41,7 +41,7 @@ class Resource extends Object{
 			if(count($__properties) > 0){
 				extract($__properties);
 			}
-
+			
 			if($__data != null){
 				extract($__data);
 			}
@@ -130,6 +130,7 @@ class Resource extends Object{
 	}
 	
 	protected function replace($output, $data){
+		$name = null;
 		foreach($data as $key=>$value){
 			if(is_object($value)){
 				$r = new ReflectionClass(get_class($value));
@@ -150,8 +151,10 @@ class Resource extends Object{
 						$output = str_replace(sprintf("{\$%s->%s}", $key, $property_name), $method->invoke($value), $output);								
 					}
 				}
-				if(property_exists($value, '_attributes')){
-					foreach($value->_attributes as $name=>$val){						
+				$name = null;
+				if(property_exists($value, '_attributes')){					
+					$list = $value->_attributes->getList();
+					foreach($list as $name=>$val){
 						$output = str_replace(sprintf("{\$%s->%s}", $key, $name), $val, $output);								
 					}					
 				}
@@ -162,7 +165,7 @@ class Resource extends Object{
 		}
 		return $output;
 	}
-		
+	
 	public static function sendMessage($obj, $message, $resource_id = 0){
 		$class_name = get_class($obj);
 		$reflector = new ReflectionClass($class_name);
@@ -245,19 +248,19 @@ class Resource extends Object{
 			}else{
 				$obj = self::valueWithCast(self::sanitize_magic_quotes($value), ($param->isDefaultValueAvailable() ? $param->getDefaultValue() : null));
 			}
-		}else{// This else block handles the case where you want to populate an object with a form that has the object property names
-			// as their field names. For instance, I want to save a "post" and the form field names match the attributes on a Post object.			
+		}else{
+			// This else block handles the case where you want to populate an object with a form that has the object property names as their field names. For instance, I want to save a "post" and the form field names match the attributes on a Post object.			
 			if($ref_class != null){
 				$obj = $ref_class->newInstance(null);
 				$is_null = true;
 				foreach($_REQUEST as $key=>$value){
-					if($ref_class->hasProperty($key)){
-						$prop = $ref_class->getProperty($key);
-						if($prop != null){
+					//if($ref_class->hasProperty($key)){
+					//	$prop = $ref_class->getProperty($key);
+					//	if($prop != null){
 							$obj->{$key} = self::valueWithCast(self::sanitize_magic_quotes($value), null);
 							$is_null = false;
-						}
-					}
+					//	}
+					//}
 				}
 				// 2009-12-01, jguerra: I want to handle the situation where the id is passed in the url as a path
 				// value like user/1. Right now, this code assumes that there's a property called id and it's an integer.

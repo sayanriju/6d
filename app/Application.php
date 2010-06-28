@@ -1,6 +1,7 @@
 <?php
 class_exists('AppResource') || require('resources/AppResource.php');
 class_exists('AuthController') || require('controllers/AuthController.php');
+class_exists('Member') || require('models/Member.php');
 class Application{
 	public function __construct(){
 		if (array_key_exists('PHP_AUTH_DIGEST', $_SERVER) && !AuthController::authKey()){
@@ -37,14 +38,22 @@ class Application{
 				$a2 = md5($_SERVER['REQUEST_METHOD'].':'.$data['uri']);
 				$encrypted_response = md5($a1.':'.$data['nonce'].':'.$data['nc'].':'.$data['cnonce'].':'.$data['qop'].':'.$a2);
 				if ($data['response'] === $encrypted_response){
-					AuthController::setAuthKey($data['username'], $encrypted_response);
+					AuthController::setAuthKey($data['username']);
 				}				
 			}
 		}
 	}
 	public function __destruct(){}
+	public static $member;
 	public static function isPhotoPublic(){
 		return true;
+	}
+	public function willSetUrlFor($resource){
+		if(!self::$member->is_owner){
+			error_log(self::$member->is_owner ? self::$member->name . " is the owner " : self::$member->name . "is not the owner");
+			$resource = self::$member->member_name . '/'. $resource;
+		}
+		return $resource;
 	}
 	public function exceptionHasOccured($sender, $args){
 		$e = $args['exception'];
@@ -64,7 +73,7 @@ class Application{
 			$resource->output = $resource->renderView('install/index', array('message'=>$e->getMessage()));
 			return $resource->renderView('layouts/install');
 		}else{
-			Resource::setUserMessage($e->getMessage());
+			Resource::setUserMessage('Exception has occured: ' . $e->getMessage());
 			return $resource->renderView('layouts/default');
 		}
 	}
@@ -74,6 +83,27 @@ class Application{
 //			FrontController::redirectTo('login');			
 		}else{
 		}
+	}
+	public function willExecute($path_info){
+		if(!class_exists('AppConfiguration')){
+			return $path_info;
+		}
+		if($path_info !== null){
+			$path_info = explode('/', $path_info);
+			if(count($path_info) > 1){
+				array_shift($path_info);
+				self::$member = Member::findByMemberName($path_info[0], null);
+				if(self::$member !== null){
+					array_shift($path_info);
+				}
+			}
+			
+			$path_info = implode('/', $path_info);
+		}
+		if(self::$member === null){
+			self::$member = Member::findOwner();
+		}
+		return $path_info;
 	}
 	
 	public function resourceOrMethodNotFoundDidOccur($sender, $args){
@@ -91,9 +121,9 @@ class Application{
 			$resource->output = $resource->renderView('index/' . $page_name);
 		}else{
 			if(AuthController::isAuthorized()){
-				$post = Post::findByAttribute('custom_url', $page_name);
+				$post = Post::findByAttribute('custom_url', $page_name, $resource->owner->person_id);
 			}else{
-				$post = Post::findAllPublished($page_name);
+				$post = Post::findAllPublished($page_name, $resource->owner->person_id);
 			}
 			if($post != null){
 				$resource->output = $resource->renderView('post/show', array('post'=>$post));

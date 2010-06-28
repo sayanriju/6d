@@ -114,6 +114,15 @@
 		public function getTags(){
 			return $this->tags;
 		}
+		private $owner_id;
+		public function getOwner_id(){
+			return $this->owner_id;
+		}
+		public function setOwner_id($val){
+			$this->owner_id = $val;
+		}
+		
+		
 		public function setTags($val){
 			$this->tags = $val;
 		}
@@ -137,7 +146,7 @@
 			return $value;			
 		}
 		
-		public static function searchForPublished($q, $start = 0, $limit = 5, $sort_by = 'post_date', $sort_by_direction = 'desc'){
+		public static function searchForPublished($q, $start = 0, $limit = 5, $sort_by = 'post_date', $sort_by_direction = 'desc', $owner_id){
 			$config = new AppConfiguration();
 			$post = new Post(null);
 			$db = Factory::get($config->db_type, $config);
@@ -145,12 +154,12 @@
 				$sort_by = $post->getTableName() . '.id';
 			}
 			$q = '%' . $q . '%';
-			$query = sprintf("(title like '%s' or description like '%s' or body like '%s') and is_published=1", $q, $q, $q);
+			$query = sprintf("(title like '%s' or description like '%s' or body like '%s') and is_published=1 and owner_id=%d", $q, $q, $q, $owner_id);
 			$list = $db->find(new ByClause($query, $post->relationships, array($start, $limit), array($sort_by=>$sort_by_direction)), $post);
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
 			return $list;
 		}
-		public static function search($q, $start, $limit, $sort_by, $sort_by_direction = 'desc'){
+		public static function search($q, $start, $limit, $sort_by, $sort_by_direction = 'desc', $owner_id){
 			$config = new AppConfiguration();
 			$post = new Post(null);
 			$db = Factory::get($config->db_type, $config);
@@ -158,38 +167,38 @@
 				$sort_by = $post->getTableName() . '.id';
 			}
 			$q = '%' . $q . '%';
-			$query = sprintf("title like '%s' or description like '%s' or body like '%s'", $q, $q, $q);
+			$query = sprintf("(title like '%s' or description like '%s' or body like '%s') and owner_id=%d", $q, $q, $q, $owner_id);
 			$list = $db->find(new ByClause($query, $post->relationsips, array($start, $limit), array($sort_by=>$sort_by_direction)), $post);
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
 			return $list;
 		}
 		
-		public static function findAll(){
+		public static function findAll($owner_id){
 			$config = new AppConfiguration();				
 			$db = Factory::get($config->db_type, $config);
-			$list = $db->find(new All(null, null, 0, null), new Post(null));
+			$list = $db->find(new ByClause(sprintf("owner_id=%d", $owner_id), null, 0, null), new Post(null));
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
 			return $list;
 		}
-		public static function findPublished($start, $limit, $sort_by, $sort_by_direction = 'desc'){
+		public static function findPublished($start, $limit, $sort_by, $sort_by_direction = 'desc', $owner_id){
 			$config = new AppConfiguration();
 			$post = new Post(null);
 			$db = Factory::get($config->db_type, $config);
 			if($sort_by === null || strlen($sort_by) === 0){
 				$sort_by = $post->getTableName() . '.id';
 			}
-			$list = $db->find(new ByAttribute('is_published', true, array($start, $limit), array($sort_by=>$sort_by_direction)), $post);
+			$list = $db->find(new ByClause(sprintf("is_published=1 and owner_id=%d", $owner_id), null, array($start, $limit), array($sort_by=>$sort_by_direction)), $post);
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
 			return $list;
 		}
-		public static function findPublishedPosts($start, $limit, $sort_by, $sort_by_direction = 'desc'){
+		public static function findPublishedPosts($start, $limit, $sort_by, $sort_by_direction = 'desc', $owner_id){
 			$config = new AppConfiguration();
 			$post = new Post(null);
 			$db = Factory::get($config->db_type, $config);
 			if($sort_by === null || strlen($sort_by) === 0){
 				$sort_by = $post->getTableName() . '.id';
 			}
-			$list = $db->find(new ByClause("is_published=1 and type != 'page'", null, array($start, $limit), array($sort_by=>$sort_by_direction, 'id'=>'desc')), $post);
+			$list = $db->find(new ByClause(sprintf("is_published=1 and type != 'page' and owner_id=%d", $owner_id), null, array($start, $limit), array($sort_by=>$sort_by_direction, 'id'=>'desc')), $post);
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
 			return $list;
 		}
@@ -211,7 +220,7 @@
 			$list = ($list == null ? array() : $list);
 			return $list;
 		}
-		public static function findByTag($tag, $start, $limit, $sort_by, $sort_by_direction = 'desc'){
+		public static function findByTag($tag, $start, $limit, $sort_by, $sort_by_direction = 'desc', $owner_id){
 			$config = new AppConfiguration();
 			$post = new Post(null);
 			$db = Factory::get($config->db_type, $config);
@@ -219,11 +228,12 @@
 				$sort_by = $post->getTableName() . '.id';
 			}
 			$tag->text = urlencode($tag->text);
-			$list = $db->find(new ByClause("tags like '%{$tag}%'", null, array($start, $limit), array($sort_by=>$sort_by_direction)), $post);
+			$owner_id = (int)$owner_id;
+			$list = $db->find(new ByClause("tags like '%{$tag}%' and owner_id={$owner_id}", null, array($start, $limit), array($sort_by=>$sort_by_direction)), $post);
 			$list = ($list == null ? array() : $list);
 			return $list;
 		}
-		public static function findPublishedByTag($tag, $start, $limit, $sort_by, $sort_by_direction = 'desc'){
+		public static function findPublishedByTag($tag, $start, $limit, $sort_by, $sort_by_direction = 'desc', $owner_id){
 			$config = new AppConfiguration();
 			$post = new Post(null);
 			$db = Factory::get($config->db_type, $config);
@@ -231,12 +241,13 @@
 				$sort_by = $post->getTableName() . '.id';
 			}
 			$tag->text = urlencode($tag->text);
-			$list = $db->find(new ByClause("tags like '%{$tag->text}%' and is_published=1", null, array($start, $limit), array($sort_by=>$sort_by_direction)), $post);
+			$owner_id = (int)$owner_id;
+			$list = $db->find(new ByClause("tags like '%{$tag->text}%' and is_published=1 and owner_id={$owner_id}", null, array($start, $limit), array($sort_by=>$sort_by_direction)), $post);
 			$list = ($list == null ? array() : $list);
 			return $list;
 		}
 
-		public static function find($start, $limit, $sort_by, $sort_by_direction = 'desc'){
+		public static function find($start, $limit, $sort_by, $sort_by_direction = 'desc', $owner_id){
 			$config = new AppConfiguration();
 			$post = new Post(null);
 			$db = Factory::get($config->db_type, $config);
@@ -249,28 +260,32 @@
 			}else{
 				$start_limit = $limit;
 			}
-			$list = $db->find(new All(null, null, $start_limit, array($sort_by=>$sort_by_direction)), $post);
+			$owner_id = (int)$owner_id;
+			$list = $db->find(new ByClause("owner_id={$owner_id}", null, $start_limit, array($sort_by=>$sort_by_direction)), $post);
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
 			return $list;
 		}
-		public static function findPublishedPages(){
+		public static function findPublishedPages($owner_id){
 			$config = new AppConfiguration();
 			$post = new Post(null);
 			$db = Factory::get($config->db_type, $config);
-			$list = $db->find(new ByClause("type='page' and is_published=1", null, 0, null), $post);
+			$owner_id = (int)$owner_id;
+			$list = $db->find(new ByClause("type='page' and is_published=1 and owner_id={$owner_id}", null, 0, null), $post);
 			return $list;
 		}
-		public static function findAllPublished($custom_url){
+		public static function findAllPublished($custom_url, $owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$post = $db->find(new ByClause(sprintf("is_published=1 and custom_url='%s'", $custom_url), null, 1, null), new Post(null));
+			$cusomt_url = String::sanitize($custom_url);
+			$post = $db->find(new ByClause("is_published=1 and custom_url='{$custom_url}' and owner_id={$owner_id}", null, 1, null), new Post(null));
 			return $post;
 		}
 		
-		public static function findByAttribute($name, $value){
+		public static function findByAttribute($name, $value, $owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$post = $db->find(new ByClause(sprintf("%s='%s'", $name, $value), null, 1, null), new Post(null));
+			$owner_id = (int)$owner_id;
+			$post = $db->find(new ByClause(sprintf("%s='%s' and owner_id=%d", $name, $value, $owner_id), null, 1, null), new Post(null));
 			return $post;
 		}
 	
@@ -280,17 +295,19 @@
 			$post = $db->find(new ById($id), new Post(null));
 			return $post;
 		}
-		public static function findHomePage($id = null){
+		public static function findHomePage($id = null, $owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$post = $db->find(new ByClause(sprintf("id='%s' and is_published=1", $id), null, 1, null), new Post(null));
+			$owner_id = (int)$owner_id;
+			$post = $db->find(new ByClause(sprintf("id='%s' and is_published=1 and owner_id=%d", $id, $owner_id), null, 1, null), new Post(null));
 			return $post;
 		}
 		
-		public static function findByPersonPostId($id = 0){
+		public static function findByPersonPostId($id = 0, $owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$post = $db->find(new ByAttribute('person_post_id', $id, 1, null), new Post(null));
+			$owner_id = (int)$owner_id;
+			$post = $db->find(new ByClause("person_post_id = {$id} and owner_id={$owner_id}", null, 1, null), new Post(null));
 			return $post;
 		}
 		public function getTableName($config = null){
@@ -351,8 +368,10 @@
 				$table->addColumn('custom_url', 'string', array('is_nullable'=>true, 'default'=>'', 'size'=>255));
 				$table->addColumn('tags', 'text', array('is_nullable'=>true));
 				$table->addColumn('is_published', 'boolean', array('is_nullable'=>true, 'default'=>false));
+				$table->addColumn('owner_id', 'biginteger', array('is_nullable'=>false));
 				
 				$table->addKey('primary', 'id');
+				$table->addKey('key', array('owner_id_key'=>'owner_id'));
 				$table->addKey('key', array('title_key'=>'title'));
 				$table->addKey('key', array('custom_url_key'=>'custom_url'));
 				$table->addKey('key', array('is_published_key'=>'is_published'));

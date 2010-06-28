@@ -97,7 +97,13 @@
 		public function setSite_path($val){
 			$this->site_path = $val;
 		}
-		
+		private $site_user_name;
+		public function getSite_user_name(){
+			return $this->site_user_name;
+		}
+		public function setSite_user_name($val){
+			$this->site_user_name = $val;
+		}
 		
 		private $installed;
 		public function getInstalled(){
@@ -128,6 +134,10 @@
 				$errors[] = 'Host is required.';
 			}
 			
+			if(!isset($this->site_user_name)){
+				$errors[] = 'Admin User Name is required.';
+			}
+			
 			return $errors;
 		}
 		
@@ -154,6 +164,7 @@
 		
 		public \$email;
 		public \$site_password;
+		public \$site_user_name;
 		public \$ssl_path;
 		public \$site_path;		
 		public \$installed;
@@ -184,6 +195,7 @@ eos;
 			$this->email = \''. $obj->email . '\';
 			$this->setTheme(\''. $obj->theme . '\');
 			$this->site_password = \''. $obj->site_password . '\';
+			$this->site_user_name = \''. $obj->site_user_name . '\';
 			$this->ssl_path = \''. $obj->ssl_path . '\';
 			$this->site_path = \''. $obj->site_path . '\';
 			$this->installed = '. ($obj->installed ? 'true' : 'false') . ';

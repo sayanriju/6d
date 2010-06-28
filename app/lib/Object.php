@@ -17,7 +17,7 @@
 			$this->_attributes = new Hashtable();
 		}
 		public function __destruct(){}
-		
+		public $errors;
 		private static $observers;
 		public static function addObserver($observer, $notification, $publisher){
 			self::$observers[] = new Observer($observer, $notification, $publisher);

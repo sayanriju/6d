@@ -1,6 +1,7 @@
 <?php
 class_exists('AppResource') || require('AppResource.php');
 class_exists('Person') || require('models/Person.php');
+class_exists('Person') || require('models/Person.php');
 class LoginResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
@@ -27,7 +28,7 @@ class LoginResource extends AppResource{
 		}
 		if($isAuthed){
 			if($email != null && !empty($email)){
-				AuthController::setAuthKey($email, $password);					
+				AuthController::setAuthKey($email);
 			}
 			$this->redirectTo(FrontController::requestedUrl());
 		}else{
@@ -37,16 +38,15 @@ class LoginResource extends AppResource{
 	}
 		
 	public static function doVerification($email, $password){
-		// I'm going to see if this is the admin trying to log, if not check the db to see verify a user.
+		// I'm going to see if this is the admin trying to log, if not check the db to verify a user.
 		$config = new AppConfiguration(null);
 		$password = $password;
 		$email = $email;
 		if($config->email === $email && $config->site_password === $password){
 			return true;
 		}else{
-			$person = Person::findByEmailAndPassword($email, $password);
-			if($person != null){
-				UserResource::setPersonId($person->id);
+			$user = Person::findByEmailAndPassword($email, $password);
+			if($user != null){
 				return true;
 			}else{
 				return false;

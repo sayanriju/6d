@@ -1,6 +1,6 @@
 <?php
 	class_exists('MySqlRelationship') || require('MySqlRelationship.php');
-	class MySqlHasA extends MySqlRelationship{
+	class MySqlBelongsTo extends MySqlRelationship{
 		public function __construct($args){
 			parent::__construct($args);
 		}
@@ -16,7 +16,14 @@
 				throw new Exception("Cannot create a join statement if the object doesn't specify it's table name by implementing getTableName().");
 			}
 			$key = method_exists($this->withWhom, 'getPrimaryKey') ? $this->withWhom->getPrimaryKey() : 'id';
-			return sprintf("inner join %s on %s.%s=%s.%s", $tableName, $tableName, $key, $joinToTableName, $this->through);			
+			
+			return sprintf("inner join %s on %s.%s=%s.%s", $tableName, $tableName, $key, $joinToTableName, $this->through);
+		}
+		
+		public function selectList($obj){
+			$list = array();
+			$list[] = $obj->getTableName() . '.*';
+			return $list;
 		}
 	}
 ?>
