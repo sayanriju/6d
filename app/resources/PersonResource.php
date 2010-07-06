@@ -8,7 +8,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 	class PersonResource extends AppResource{
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
-			if(!AuthController::isAuthorized() || !AuthController::isSuperAdmin()){
+			if(!AuthController::isAuthorized()){
 				throw new Exception(FrontController::UNAUTHORIZED, 401);
 			}
 		}
@@ -24,7 +24,11 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 				$person = new Person(array('id'=>(int)$this->url_parts[1]));
 			}
 			if($person != null && $person->id > 0){
-				$this->person = Person::findById($person->id);
+				if($person->id == $this->current_user->person_id){
+					$this->person = $this->current_user;
+				}else{
+					$this->person = Person::findByIdAndOwner($person->id, $this->current_user->person_id);
+				}
 				$this->title = 'Person: ' . $this->person->email;				
 				$this->output = $this->renderView('person/show', null);				
 				return $this->renderView('layouts/default', null);

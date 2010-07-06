@@ -23,7 +23,7 @@
 	<body>
 		<div class="frame">
 			<header id="banner">
-				<h1><a href="<?php echo FrontController::urlFor(null);?>" title="Home"><span><?php echo $this->owner->profile->site_name;?></span></a></h1>
+				<h1><a href="<?php echo FrontController::urlFor(null);?>" title="Home"><span><?php echo $this->site_member->profile->site_name;?></span></a></h1>
 				<nav>
 					<ul>
 	<?php $pages = Post::findPublishedPages($this->current_user->id);?>

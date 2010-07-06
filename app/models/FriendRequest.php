@@ -41,6 +41,13 @@
 		public function setUrl($val){
 			$this->url = $val;
 		}
+		private $is_owner;
+		public function getIs_owner(){
+			return $this->is_owner;
+		}
+		public function setIs_owner($val){
+			$this->is_owner = $val;
+		}
 		
 		private $created;
 		public function getCreated(){
@@ -68,7 +75,13 @@
 			self::notify('didSaveFriendRequest', $request, $request);
 			return $request;
 		}
-		
+		public static function findAllForOwner($owner_id){
+			$config = new AppConfiguration();
+			$db = Factory::get($config->db_type, $config);
+			$owner_id = (int)$owner_id;
+			$list = $db->find(new ByClause("owner_id={$owner_id}", null, 0, null), new FriendRequest());
+			return $list;
+		}
 		public static function findAll(){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
@@ -119,10 +132,13 @@
 				$table->addColumn('email', 'string', array('is_nullable'=>false, 'default'=>'', 'size'=>255));
 				$table->addColumn('name', 'string', array('is_nullable'=>true, 'size'=>255));
 				$table->addColumn('url', 'string', array('is_nullable'=>false, 'default'=>'', 'size'=>255));
+				$table->addColumn('owner_id', 'biginteger', array('is_nullable'=>false));
 				$table->addColumn('created', 'datetime', array('is_nullable'=>true));
 				$table->addKey('primary', 'id');
 				$table->addKey('key', array('url'=>'url'));
 				$table->addKey('key', array('email'=>'email'));
+				$table->addKey('key', array('owner_id_key'=>'owner_id'));
+				
 				$table->addOption('ENGINE=MyISAM DEFAULT CHARSET=utf8');
 				$errors = $table->save();
 				if(count($errors) > 0){

@@ -644,7 +644,9 @@ UIView.AdminMenu = function(id){
 }
 SDDom.addEventListener(window, 'load', function(){
 	var scripts = SDDom.byTag('script');
-	SDObject.rootUrl = SDArray.collect(scripts, function(script){return script.src.indexOf('default') > -1;})[0].src.replace('js/default.js', '');
+	//SDObject.rootUrl = SDArray.collect(scripts, function(script){return script.src.indexOf('default') > -1;})[0].src.replace('js/default.js', '');
+	SDObject.rootUrl = SDArray.collect(scripts, function(script){return script.src.indexOf('default') > -1;})[0].getAttribute('rel');
+	SDObject.rootUrl = decodeURIComponent(SDObject.rootUrl);
 	if(window.location.href.indexOf('index.php') > -1){
 		SDObject.rootUrl += 'index.php/';
 	}

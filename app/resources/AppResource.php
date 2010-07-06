@@ -41,14 +41,19 @@
 				$this->config = new AppConfiguration();
 				try{
 					$this->settings = Setting::findAll();
-					$this->owner = Application::$member;
-					$this->owner->profile = unserialize($this->owner->profile);
+					$this->site_member = Application::$member;
+					$this->site_member->person->profile = unserialize($this->site_member->person->profile);
+					// I was running into situations where the session was still set, but the 
+					// logged in user had been deleted from the database. So I added code
+					// to automatically log the user out if they're not found in the db.
 					if(AuthController::authKey() !== null){
-						$this->current_user = Person::findByEmail(AuthController::authKey());
-					}else{
-						$this->current_user = $this->owner;
+						$this->current_user = Member::findByEmail(AuthController::authKey());
+						if($this->current_user === null){
+							AuthController::logout();
+							$this->redirectTo(null);
+						}
 					}
-					$this->title = $this->owner->profile->site_name;
+					$this->title = $this->site_member->person->profile->site_name;
 					$theme_path = FrontController::getRootPath('/' . FrontController::themePath() . '/ThemeController.php');
 					if(file_exists($theme_path)){
 						class_exists('ThemeController') || require($theme_path);
@@ -63,7 +68,7 @@
 		public function __destruct(){
 			parent::__destruct();
 		}
-		public $owner;
+		public $member;
 		public $show_notes;
 		public $notes;
 		public $theme;

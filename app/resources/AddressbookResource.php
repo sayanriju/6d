@@ -20,16 +20,22 @@ class AddressbookResource extends AppResource{
 	public $groups;
 	public function get($mini = false){
 		$this->title = 'Address Book';
-		$this->people = Person::findAll();
+		if(AuthController::isSuperAdmin()){
+			$this->people = Person::findAll();
+		}else{
+			$this->people = Person::findAllByOwner($this->current_user->id);
+		}
+		
 		$layout = 'layouts/default';
 		if($this->people == null){
 			$this->people = array();
 		}else{
+			array_walk($this->people, array($this, 'setAsOwner'));
 			usort($this->people, array('Person', 'sort_by_name'));
 		}
 		$all_contacts = new Tag(array('id'=>-1, 'type'=>'group', 'text'=>'All Contacts'));
 		$friend_requests = new Tag(array('id'=>-2, 'type'=>'group', 'text'=>'Friend Requests'));
-		$this->groups = Tag::findAllTagsForGroups();
+		$this->groups = Tag::findAllTagsForGroups($this->current_user->person_id);
 		if($this->groups === null){
 			$this->groups = array();
 		}
@@ -41,6 +47,11 @@ class AddressbookResource extends AppResource{
 		}
 		$this->output = $this->renderView($view);
 		return $this->renderView($layout);
+	}
+	public function setAsOwner($person){
+		if($this->current_user->person_id == $person->id){
+			$person->is_owner = true;
+		}
 	}
 	public function delete(Tag $group = null, Person $person = null){
 		if($group != null){
@@ -55,7 +66,8 @@ class AddressbookResource extends AppResource{
 		if($name != null){
 			$profile = new Profile(array('name'=>$name));
 			$this->person = new Person();
-			$this->person->setProfile(serialize($profile));
+			$this->person->profile = serialize($profile);
+			$this->person->owner_id = $this->current_user->person_id;
 			list($person, $errors) = Person::save($this->person);
 			$this->person->id = $person->id;
 		}

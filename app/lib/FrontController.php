@@ -182,15 +182,13 @@ class FrontController extends Object{
             $resource .= implode('&', $query_string);
         }
 		if(self::$delegate !== null && method_exists(self::$delegate, 'willSetUrlFor')){
-			//$resource = self::$delegate->willSetUrlFor($resource);
+			$resource = self::$delegate->willSetUrlFor($resource);
 		}
 		if($make_secure && $config != null && strlen($config->ssl_path) > 0){
 			$url = sprintf('https://%s/%s', $config->ssl_path, $resource);
 		}else{			
 			$url = $site_path . $resource;
 		}
-		error_log('resource afterwards = ' . $resource );
-		error_log('site_path afterwards = ' . $site_path );
 		
 		return $url;
 	}

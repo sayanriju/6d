@@ -15,10 +15,10 @@
 		
 		private $id;
 		public function getId(){
-			return $this->id;
+			return (int)$this->id;
 		}
 		public function setId($val){
-			$this->id = $val;
+			$this->id = (int)$val;
 		}
 		
 		private $uid;
@@ -141,6 +141,14 @@
 			$person = $db->find(new ById($id), new Person(null));
 			return $person;
 		}
+		public static function findByIdAndOwner($id, $owner_id){
+			$config = new AppConfiguration();
+			$db = Factory::get($config->db_type, $config);
+			$id = (int)$id;
+			$owner_id = (int)$owner_id;
+			$person = $db->find(new ByClause("id={$id} and owner_id={$owner_id}"), new Person(null));
+			return $person;
+		}
 		
 		public static function findByTagText($text){
 			$config = new AppConfiguration();
@@ -153,6 +161,25 @@
 			return $list;
 		}
 		
+		public static function findByTagTextAndOwner($text, $owner_id){
+			$config = new AppConfiguration();
+			$person = new Person(null);
+			$db = Factory::get($config->db_type, $config);
+			$tag = new Tag(null);
+			$owner_id = (int)$owner_id;
+			$query = sprintf("select p.* from {$person->getTableName()} as p, {$tag->getTableName()} as t where t.type='group' and t.parent_id=p.id and t.text = '%s' and p.owner_id=%d", self::stringify($text), $owner_id);
+			$list = $db->find(new All($query, null, 0, array('id'=>'asc')), $person);
+			$list = ($list == null ? array() : $list);
+			return $list;
+		}
+		public static function findAllByOwner($id){
+			$config = new AppConfiguration();
+			$db = Factory::get($config->db_type, $config);
+			$id = (int)$id;
+			$clause = new ByClause(sprintf("owner_id=%d or id=%d", $id, $id), null, 0, null);
+			$list = $db->find($clause, new Person());
+			return $list;
+		}
 		public static function findAll(){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
@@ -235,12 +262,13 @@
 			if($person->email == null || strlen($person->email) == 0){
 				$errors['email'] = "Your email is required to identify your account.";
 			}
+			
 			if($person->id !== null && strlen($person->id) > 0){
 				if(($person->password == null || empty($person->password))){
 					$errors['password'] = "You have to enter your password so you can use it to sign into the site.";
 				}
 
-				if($person->confirmation_password === null || strlen($person->confirmation_password) > 0 || ($person->confirmation_password != $person->password)){
+				if($person->confirmation_password === null || strlen($person->confirmation_password) === 0 || $person->confirmation_password !== $person->password){
 					$errors['confirmation_password'] = "The confirmation password that you entered doesn't match what you entered for your password. We check this just to make sure you're entering what you think since you can't see the password.";
 
 					if(!array_key_exists('password', $errors)){

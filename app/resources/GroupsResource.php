@@ -15,6 +15,33 @@ class GroupsResource extends AppResource{
 	}
 	public $groups;
 	public $group;
+	
+	public function post(Tag $group = null){
+		$view = 'group/index';
+		$errors = array();
+		if($group != null && $group->text != null){
+			$group->type = 'group';
+			if($group->parent_id > 0){
+				$existing_tags = Tag::findTagsByTextAndParent_id($group->text, $group->parent_id);
+			}else{
+				$existing_tags = Tag::findGroupTagsByText($group->text);
+			}
+			$message = null;
+			$errors = array();		
+			if($existing_tags === null){
+				$group->owner_id = $this->current_user->person_id;
+				list($this->group, $errors) = Tag::save($group);				
+			}
+		}
+		
+		if(count($errors) > 0){
+			$message = $this->renderView('error/index', array('message'=>"The following errors occurred when saving groups. Please resolve and try again.", 'errors'=>$errors));
+			self::setUserMessage($message);				
+		}
+		$this->output = $this->renderView($view);
+		return $this->renderView('layouts/default');
+	}
+		
 	public function delete($groups = null, $ids = null, Tag $group = null){
 		if($groups !== null){
 			$this->groups = $groups;
@@ -24,7 +51,7 @@ class GroupsResource extends AppResource{
 			Tag::delete_many_with_parent_ids('group', $ids);
 		}
 		$all_contacts = new Tag(array('id'=>-1, 'type'=>'group', 'text'=>'All Contacts'));
-		$this->groups = Tag::findAllTagsForGroups();
+		$this->groups = Tag::findAllTagsForGroups($this->current_user->person_id);
 		if($this->groups === null){
 			$this->groups = array();
 		}

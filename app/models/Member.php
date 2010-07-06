@@ -51,7 +51,7 @@ class Member extends Object{
 		$config = new AppConfiguration();
 		$db = Factory::get($config->db_type, $config);
 		$existing_member = self::findByMemberName($member->member_name);
-		if($existing_member !== null){
+		if($existing_member !== null && $existing_member->id !== $member->id){
 			$member->errors['member_name'] = 'Member already exists';
 		}else{
 			$person = Person::save($member->person);
@@ -74,6 +74,19 @@ class Member extends Object{
 		$person = $db->find($clause, new Member(null));
 		return $person;
 	}
+	public static function findByEmail($email){
+		$config = new AppConfiguration();
+		$db = Factory::get($config->db_type, $config);
+		$email = urlencode($email);
+		$person = new Person();
+		$member = new Member();
+		$clause = new All("select m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
+		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
+		inner join {$person->getTableName()} p on p.id = m.person_id where p.email = '{$email}'", null, 1, null);
+		$member = $db->find($clause, new Member(null));
+		return $member;
+	}
+	
 	public static function findById($id){
 		$config = new AppConfiguration();
 		$db = Factory::get($config->db_type, $config);
@@ -98,6 +111,7 @@ class Member extends Object{
 		$clause = new All("select m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
 		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
 		inner join {$person->getTableName()} p on p.id = m.person_id where m.member_name = '{$member_name}'", null, 1, null);
+		
 		$member = $db->find($clause, $member);
 		return $member;
 	}

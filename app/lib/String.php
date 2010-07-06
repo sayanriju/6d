@@ -264,5 +264,14 @@
 		public static function sanitize($val){
 			return filter_var($val, FILTER_SANITIZE_STRING);
 		}
+		public static function isNullOrEmpty($val){
+			if($val === null){
+				return true;
+			}else if(strlen($val) === 0){
+				return true;
+			}else{
+				return false;
+			}
+		}
 	}
 ?>

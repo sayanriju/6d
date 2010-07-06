@@ -4,7 +4,7 @@
 	<a class="email" href="mailto:{$person->email}">{$person->email}</a>
 	<address class="adr">
 		<p class="street-address">
-			<?php echo unserialize($person->profile)->address;?>
+			<?php echo $person->profile->address;?>
 		</p>
 		<p class="locality">
 			<?php echo $person->profile->city;?>
@@ -15,6 +15,6 @@
 		<p class="fn org"><?php echo $person->profile->site_name;?></p>
 	</address>
 </section>
-<?php if( AuthController::isAuthorized()):?>
+<?php if(AuthController::isAuthorized() && $this->current_user->id === $this->site_member->person_id):?>
 <a href="<?php echo FrontController::urlFor('profile', array('state'=>'modify'));?>" id="edit_link">edit</a>
 <?php endif;?>

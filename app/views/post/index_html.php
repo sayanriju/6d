@@ -1,7 +1,7 @@
 <?php class_exists('PostResource') || require('resources/PostResource.php');?>
 <?php if($posts == null):?>
 	<article class="hentry">
-		<?php if(AuthController::isAuthorized() && $this->current_user->id === $this->owner->id):?>
+		<?php if(AuthController::isAuthorized() && $this->current_user->person_id === $this->site_member->person_id):?>
 		<p>There are no posts right now.</p>
 		<a href="<?php echo FrontController::urlFor('post');?>">Create a new one</a>
 		<?php else:?>

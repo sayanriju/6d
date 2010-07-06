@@ -49,8 +49,7 @@ class Application{
 		return true;
 	}
 	public function willSetUrlFor($resource){
-		if(!self::$member->is_owner){
-			error_log(self::$member->is_owner ? self::$member->name . " is the owner " : self::$member->name . "is not the owner");
+		if(self::$member !== null && !self::$member->is_owner){
 			$resource = self::$member->member_name . '/'. $resource;
 		}
 		return $resource;
@@ -92,14 +91,14 @@ class Application{
 			$path_info = explode('/', $path_info);
 			if(count($path_info) > 1){
 				array_shift($path_info);
-				self::$member = Member::findByMemberName($path_info[0], null);
+				self::$member = Member::findByMemberName($path_info[0]);
 				if(self::$member !== null){
 					array_shift($path_info);
 				}
 			}
-			
 			$path_info = implode('/', $path_info);
 		}
+		
 		if(self::$member === null){
 			self::$member = Member::findOwner();
 		}
@@ -121,9 +120,9 @@ class Application{
 			$resource->output = $resource->renderView('index/' . $page_name);
 		}else{
 			if(AuthController::isAuthorized()){
-				$post = Post::findByAttribute('custom_url', $page_name, $resource->owner->person_id);
+				$post = Post::findByAttribute('custom_url', $page_name, $resource->site_member->person_id);
 			}else{
-				$post = Post::findAllPublished($page_name, $resource->owner->person_id);
+				$post = Post::findAllPublished($page_name, $resource->site_member->person_id);
 			}
 			if($post != null){
 				$resource->output = $resource->renderView('post/show', array('post'=>$post));

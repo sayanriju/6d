@@ -41,17 +41,16 @@
 		public function setText($val){
 			$this->text = $val;
 		}
-		
-		private $timestamp;
-		public function getTimestamp(){
-			return $this->timestamp;
+		private $owner_id;
+		public function getOwner_id(){
+			return $this->owner_id;
 		}
-		public function setTimestamp($val){
-			$this->timestamp = $val;
+		public function setOwner_id($val){
+			$this->owner_id = $val;
 		}
-		
+
 		public static function findAll(){
-			$config = new AppConfiguration();				
+			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
 			$list = $db->find(new All(null, null, 0, null), new Tag(null));
 			$list = ($list == null ? array() : $list);
@@ -65,11 +64,12 @@
 			return $list;
 		}
 		
-		public static function findAllTagsForGroups(){
+		public static function findAllTagsForGroups($owner_id){
 			$config = new AppConfiguration();				
 			$db = Factory::get($config->db_type, $config);
 			$tag = new Tag();
-			$list = $db->find(new All("select text, count(text) -1 as count from {$tag->getTableName()} where type='group' group by text", null, 0, array('text'=>'asc')), $tag);
+			$owner_id = (int)$owner_id;
+			$list = $db->find(new All("select text, count(text) -1 as count from {$tag->getTableName()} where type='group' and owner_id={$owner_id} group by text", null, 0, array('text'=>'asc')), $tag);
 			$list = ($list == null ? array() : $list);
 			return $list;
 		}
@@ -205,12 +205,14 @@
 				$table->addColumn('parent_id', 'string', array('is_nullable'=>true, 'size'=>255, 'default'=>null));
 				$table->addColumn('type', 'string', array('is_nullable'=>false, 'size'=>80));
 				$table->addColumn('text', 'string', array('is_nullable'=>true, 'size'=>255));
-				$table->addColumn('timestamp', 'timestamp', array('is_nullable'=>false));		
+				$table->addColumn('owner_id', 'biginteger', array('is_nullable'=>false));
 				
 				$table->addKey('primary', 'id');
 				$table->addKey('key', array('parent_id_key'=>'parent_id'));
 				$table->addKey('key', array('type_key'=>'type'));
 				$table->addKey('key', array('text_key'=>'text'));
+				$table->addKey('key', array('owner_id_key'=>'owner_id'));
+				
 				$table->addOption('ENGINE=MyISAM DEFAULT CHARSET=utf8');
 				$errors = $table->save();
 				if(count($errors) > 0){

@@ -387,7 +387,7 @@ UIController.AddressBook = function(views){
 			var person_id = grabbed_item.getAttribute('rel');
 			var group_text = dropped_on_item.getAttribute('rel');
 			(new SDAjax({parameters: 'group[text]=' + group_text + '&group[parent_id]=' + person_id
-				, DONE: [this, this.onItemWasDroppedDONE]})).send(SDObject.rootUrl + 'group.json');
+				, DONE: [this, this.onItemWasDroppedDONE]})).send(SDObject.rootUrl + 'groups.json');
 		}
 	};
 	this.onPersonWasSubmittedDONE = function(request){
@@ -447,7 +447,7 @@ UIController.AddressBook = function(views){
 		if(view.id === 'groups'){
 			var form = e.target;
 			form.method = 'post';
-			form.action = SDObject.rootUrl + 'group.json';
+			form.action = SDObject.rootUrl + 'groups.json';
 			(new SDAjax({method: form.method
 				, parameters: SDDom.toQueryString(form)
 				, DONE: [this, this.onNewGroupSubmitDONE]})).send(form.action);
