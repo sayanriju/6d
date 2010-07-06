@@ -42,6 +42,7 @@ class_exists('Member') || require('models/Member.php');
 			$view = 'member/edit';
 			$this->member = Member::findById($member->id);
 			if($this->member !== null){
+				$this->member->person = Person::findById($this->member->person_id);
 				$this->member->member_name = $member->member_name;
 				$this->member->person->id = $this->member->person_id;
 				$this->member->person->session_id = session_id();
@@ -57,9 +58,9 @@ class_exists('Member') || require('models/Member.php');
 				}
 				$this->member->person->owner_id = $this->current_user->id;				
 				$this->member->person->is_owner = false;
-				if($member->password !== null){
-					$this->member->person->password = $member->password;
-					$this->member->person->confirmation_password = $member->password;
+				if(strlen($member->password) > 0){
+					$this->member->person->password = String::encrypt($member->password);
+					$this->member->person->confirmation_password = String::encrypt($member->password);
 				}
 				if($profile !== null){
 					$this->member->person->profile = serialize($profile);
@@ -87,7 +88,7 @@ class_exists('Member') || require('models/Member.php');
 			// I added this logic to assert that assumption.
 			if($member->id === null || strlen($member->id) === 0){
 				$this->member->person->session_id = session_id();
-				$this->member->person->password = $member->password;
+				$this->member->person->password = String::encrypt($member->password);
 				$this->member->person->name = $member->name;
 				$this->member->person->email = $member->email;
 				$this->member->person->uid = uniqid();

@@ -36,7 +36,7 @@ class GroupsResource extends AppResource{
 		
 		if(count($errors) > 0){
 			$message = $this->renderView('error/index', array('message'=>"The following errors occurred when saving groups. Please resolve and try again.", 'errors'=>$errors));
-			self::setUserMessage($message);				
+			self::setUserMessage($message);
 		}
 		$this->output = $this->renderView($view);
 		return $this->renderView('layouts/default');

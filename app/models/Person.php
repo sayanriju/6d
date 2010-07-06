@@ -176,7 +176,7 @@
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
 			$id = (int)$id;
-			$clause = new ByClause(sprintf("owner_id=%d or id=%d", $id, $id), null, 0, null);
+			$clause = new ByClause(sprintf("owner_id=%d", $id, $id), null, 0, null);
 			$list = $db->find($clause, new Person());
 			return $list;
 		}
@@ -240,10 +240,11 @@
 		public static function save(Person $person){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			if($person->password !== null && strlen($person->password) > 0){
+			/*if($person->password !== null && strlen($person->password) > 0){
 				$person->password = String::encrypt($person->password);
 				$person->confirmation_password = String::encrypt($person->confirmation_password);
 			}
+			*/
 			$new_person = $db->save(null, $person);
 			$person->id = $new_person->id;
 			self::notify('didSavePerson', $person, $person);

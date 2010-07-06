@@ -151,8 +151,8 @@
 				if($person == null){
 					$member = new Member(null);
 					$member->person->email = $config->email;
-					$member->person->password = $config->site_password;
-					$member->person->confirmation_password = $config->password;
+					$member->person->password = String::encrypt($config->site_password);
+					$member->person->confirmation_password = String::encrypt($config->password);
 					$member->person->name = $config->email;
 					$member->person->is_approved = true;
 					$member->person->is_owner = true;
