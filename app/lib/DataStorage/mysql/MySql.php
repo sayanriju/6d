@@ -78,7 +78,7 @@
 			}*/
 			if(method_exists($obj, 'getTableName')){
 				$id = $obj->{$key};
-				$id = ($id !== null && strlen($id) === 0) ? null : $id;
+				$id = (($id !== null && strlen($id) === 0) || $id === 0) ? null : $id;
 				if($id === null){
 					$sql = $this->constructInsert($obj);
 					$this->execute($sql);

@@ -88,11 +88,11 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 			$this->person = $person;
 			// Posting to a resource means you're creating a new object of this type.
 			// I added this logic to assert that assumption.
-			if($person->id === null || strlen($person->id) === 0){
-				$this->person->setSession_id(session_id());
-				$this->person->setUid(uniqid());
-				$this->person->setIs_approved(true);
-				$this->person->setIs_owner(false);
+			if($person->id == null || strlen($person->id) == 0){
+				$this->person->session_id = session_id();
+				$this->person->uid = uniqid();
+				$this->person->is_approved = true;
+				$this->person->is_owner = false;
 				$this->person->do_list_in_directory = false;
 				if($profile !== null){
 					$this->person->profile = serialize($profile);
@@ -106,7 +106,11 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 					}
 					UserResource::setUserMessage('Failed to save person - ' . implode(', ', $message));
 				}else{
-					$this->people = Person::findAll();
+					if(AuthController::isSuperAdmin()){
+						$this->people = Person::findAll();
+					}else{
+						$this->people = Person::findAllByOwner($this->current_user->id);
+					}
 				}
 			}				
 			$this->output = $this->renderView($view, array('errors'=>$errors));

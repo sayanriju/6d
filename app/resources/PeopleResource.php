@@ -34,6 +34,7 @@ class PeopleResource extends AppResource{
 		}else{
 			usort($this->people, array('Person', 'sort_by_name'));
 		}
+		$this->people = Person::makeOwner($this->current_user->id, $this->people);
 		$this->title = 'People';
 		$this->output = $this->renderView('person/index', null);
 		return $this->renderView('layouts/default', null);

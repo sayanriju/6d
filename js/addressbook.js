@@ -459,7 +459,6 @@ UIController.AddressBook = function(views){
 			(new SDAjax({method: form.method
 				, parameters: SDDom.toQueryString(form)
 				, DONE: [this, this.onNewPersonSubmitDONE]})).send(form.action);
-			
 		}
 	};
 	

@@ -135,6 +135,14 @@
 			}
 			return $value;			
 		}
+		public static function makeOwner($owner_id, $people){
+			for($i = 0; $i < count($people); $i++){
+				if(intval($people[$i]->id) == (int)$owner_id){
+					$people[$i]->is_owner = true;
+				}
+			}
+			return $people;
+		}
 		public static function findById($id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
@@ -176,7 +184,7 @@
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
 			$id = (int)$id;
-			$clause = new ByClause(sprintf("owner_id=%d", $id, $id), null, 0, null);
+			$clause = new ByClause(sprintf("owner_id=%d or id=%d", $id, $id), null, 0, null);
 			$list = $db->find($clause, new Person());
 			return $list;
 		}
