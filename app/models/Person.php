@@ -154,7 +154,7 @@
 			$db = Factory::get($config->db_type, $config);
 			$id = (int)$id;
 			$owner_id = (int)$owner_id;
-			$person = $db->find(new ByClause("id={$id} and owner_id={$owner_id}"), new Person(null));
+			$person = $db->find(new ByClause("id={$id} and owner_id={$owner_id}", null, 1, null), new Person(null));
 			return $person;
 		}
 		

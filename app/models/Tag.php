@@ -81,13 +81,13 @@
 			$list = $db->find(new ById($id), new $self_name());
 			return $list;
 		}
-		public static function findGroupTagsByText($text){
+		public static function findGroupTagsByText($text, int $owner_id){
 			$clause = null;
 			if(is_array($text)){
 				$text = array_map(array('Tag', 'stringify'), $text);
-				$clause = new ByClause(sprintf("type='group' and text in (%s)", implode(',', $text)), null, 0, array('text'=>'asc'));
+				$clause = new ByClause(sprintf("type='group' and text in (%s) and owner_id=%d", implode(',', $text), $owner_id), null, 0, array('text'=>'asc'));
 			}else{
-				$clause = new ByClause(sprintf("type='group' and text=%s", self::stringify($text)), null, 0, array('text'=>'asc'));				
+				$clause = new ByClause(sprintf("type='group' and text=%s and owner_id=%d", self::stringify($text), $owner_id), null, 0, array('text'=>'asc'));				
 			}
 			$config = new AppConfiguration();				
 			$db = Factory::get($config->db_type, $config);
@@ -95,8 +95,9 @@
 			return $list;
 		}
 		
-		public static function findTagsByTextAndParent_id($text, $parent_id){
-			$clause = sprintf("text='%s' and parent_id='%s'", urlencode($text), $parent_id);
+		public static function findTagsByTextAndParent_id($text, $parent_id, $owner_id){
+			$owner_id = (int)$owner_id;
+			$clause = sprintf("text='%s' and parent_id='%s' and owner_id=%d", urlencode($text), $parent_id, $owner_id);
 			$config = new AppConfiguration();				
 			$db = Factory::get($config->db_type, $config);
 			$list = $db->find(new ByClause($clause, null, 0, null), new Tag());

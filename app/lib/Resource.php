@@ -18,6 +18,15 @@ class Resource extends Object{
 	public $redirect_parameters;
 	public $url_parts;
 	
+	public static function pathWithoutExtension($url_part){
+		if(stripos($url_part, '.') !== false){
+			$parts = explode('.', $url_part);
+			array_pop($parts);
+			return implode('', $parts);
+		}
+		return $url_part;
+	}
+	
 	protected function redirectTo($resource_name, $query_parameters = null, $make_secure = false){
 		$this->redirect_parameters = array('resource_name'=>$resource_name, 'query_parameters'=>$query_parameters, 'make_secure'=>$make_secure);
 	}

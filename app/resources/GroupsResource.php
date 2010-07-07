@@ -22,9 +22,9 @@ class GroupsResource extends AppResource{
 		if($group != null && $group->text != null){
 			$group->type = 'group';
 			if($group->parent_id > 0){
-				$existing_tags = Tag::findTagsByTextAndParent_id($group->text, $group->parent_id);
+				$existing_tags = Tag::findTagsByTextAndParent_id($group->text, $group->parent_id, $this->current_user->person_id);
 			}else{
-				$existing_tags = Tag::findGroupTagsByText($group->text);
+				$existing_tags = Tag::findGroupTagsByText($group->text, $this->current_user->person_id);
 			}
 			$message = null;
 			$errors = array();		

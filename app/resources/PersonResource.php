@@ -21,8 +21,9 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 		public $person;
 		public function get(Person $person = null){
 			if(count($this->url_parts) > 1){
-				$person = new Person(array('id'=>(int)$this->url_parts[1]));
+				$person = new Person(array('id'=>self::pathWithoutExtension($this->url_parts[1])));
 			}
+			
 			if($person != null && $person->id > 0){
 				if($person->id == $this->current_user->person_id){
 					$this->person = $this->current_user;
