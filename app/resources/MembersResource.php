@@ -92,7 +92,7 @@ class_exists('Member') || require('models/Member.php');
 				$this->member->person->name = $member->name;
 				$this->member->person->email = $member->email;
 				$this->member->person->uid = uniqid();
-				$this->member->person->url = sprintf("%s/%s", $this->current_user->person->url, $this->member->member_name);
+				$this->member->person->url = sprintf("%s/%s", FrontController::urlFor(null), $this->member->member_name);
 				$this->member->person->is_approved = $member->is_approved === null ? false : $member->is_approved;
 				$this->member->person->do_list_in_directory = $member->do_list_in_directory === null ? false : $member->do_list_in_directory;
 				$this->member->person->is_owner = false;

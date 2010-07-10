@@ -36,9 +36,6 @@ class ProfileResource extends AppResource{
 			}
 		}else{
 			$this->person = $this->site_member;
-			if($this->person === null){
-				$this->person = new Person();
-			}
 			if($this->person->profile !== null){
 				$this->person->profile = unserialize($this->person->profile);
 			}
@@ -68,7 +65,7 @@ class ProfileResource extends AppResource{
 		}
 	}
 	public function put(Person $person, Profile $profile){
-		if(!AuthController::isAuthorized() || $this->current_user->id !== $this->site_member->person_id){
+		if(!AuthController::isAuthorized() || $this->current_user->person_id !== $this->site_member->person_id){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}		
 		$this->person = $person;

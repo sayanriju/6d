@@ -15,6 +15,6 @@
 		<p class="fn org"><?php echo $person->profile->site_name;?></p>
 	</address>
 </section>
-<?php if(AuthController::isAuthorized() && $this->current_user->id === $this->site_member->person_id):?>
+<?php if(AuthController::isAuthorized() && $this->current_user->person_id === $this->site_member->person_id):?>
 <a href="<?php echo FrontController::urlFor('profile', array('state'=>'modify'));?>" id="edit_link">edit</a>
 <?php endif;?>
