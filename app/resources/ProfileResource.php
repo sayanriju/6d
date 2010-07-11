@@ -70,7 +70,7 @@ class ProfileResource extends AppResource{
 		}		
 		$this->person = $person;
 		$this->person->session_id = session_id();
-		$existing_person = Person::findById($this->current_user->id);
+		$existing_person = Person::findById($this->current_user->person_id);
 		if($existing_person === null || $existing_person->id === 0){
 			throw new Exception(FrontController::NOTFOUND, 404);
 		}

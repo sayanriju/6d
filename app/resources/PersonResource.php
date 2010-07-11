@@ -69,7 +69,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 				if($profile !== null){
 					$this->person->profile = serialize($profile);
 				}
-				$this->person->owner_id = $this->current_user->id;
+				$this->person->owner_id = $this->current_user->person_id;
 				$this->person = Person::save($this->person);
 				if($errors != null && count($errors) > 0){
 					$message = array();
@@ -86,7 +86,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 		}
 		public function post(Person $person, Profile $profile = null){
 			$view = 'person/index';
-			$this->person = $person;
+			$this->person = $person;			
 			// Posting to a resource means you're creating a new object of this type.
 			// I added this logic to assert that assumption.
 			if($person->id == null || strlen($person->id) == 0){
@@ -98,23 +98,20 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 				if($profile !== null){
 					$this->person->profile = serialize($profile);
 				}
-				$this->person->owner_id = $this->current_user->id;				
-				$this->person = Person::save($this->person);
-				if($errors != null && count($errors) > 0){
-					$message = array();
-					foreach($errors as $key=>$value){
-						$message[] = sprintf("%s: %s", $key, $value);
-					}
-					UserResource::setUserMessage('Failed to save person - ' . implode(', ', $message));
+				$this->person->owner_id = $this->current_user->person_id;
+				$user_message = null;
+				try{
+					$this->person = Person::save($this->person);				
+				}catch(Exception $e){
+					$user_message = $e->getMessage();
+				}
+				if($user_message !== null){
+					UserResource::setUserMessage('Failed to save person - ' . $user_message);
 				}else{
-					if(AuthController::isSuperAdmin()){
-						$this->people = Person::findAll();
-					}else{
-						$this->people = Person::findAllByOwner($this->current_user->id);
-					}
+					$this->people = Person::findAllByOwner($this->current_user->person_id);
 				}
 			}				
-			$this->output = $this->renderView($view, array('errors'=>$errors));
+			$this->output = $this->renderView($view);
 			return $this->renderView('layouts/default');					
 		}
 	}
