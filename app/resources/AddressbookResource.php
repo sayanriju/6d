@@ -7,8 +7,7 @@ class_exists('Tag') || require('models/Tag.php');
 class AddressbookResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
-		if(!AuthController::isAuthorized()){
-			FrontController::setRequestedUrl('addressbook');
+		if(!AuthController::isAuthorized() || $this->current_user->person_id != $this->site_member->person_id){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}
 	}
@@ -20,11 +19,7 @@ class AddressbookResource extends AppResource{
 	public $groups;
 	public function get($mini = false){
 		$this->title = 'Address Book';
-		if(AuthController::isSuperAdmin()){
-			$this->people = Person::findAll();
-		}else{
-			$this->people = Person::findAllByOwner($this->current_user->id);
-		}
+		$this->people = Person::findAllByOwner($this->current_user->person_id);
 		
 		$layout = 'layouts/default';
 		if($this->people == null){

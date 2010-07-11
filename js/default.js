@@ -643,11 +643,11 @@ UIView.AdminMenu = function(id){
 	UIView.apply(this, arguments);
 }
 SDDom.addEventListener(window, 'load', function(){
-	var scripts = SDDom.byTag('script');
-	//SDObject.rootUrl = SDArray.collect(scripts, function(script){return script.src.indexOf('default') > -1;})[0].src.replace('js/default.js', '');
-	SDObject.rootUrl = SDArray.collect(scripts, function(script){return script.src.indexOf('default') > -1;})[0].getAttribute('rel');
-	SDObject.rootUrl = decodeURIComponent(SDObject.rootUrl);
+	/*var scripts = SDDom.byTag('script');
+	SDObject.rootUrl = SDArray.collect(scripts, function(script){return script.src.indexOf('default') > -1;})[0].getAttribute('src');
+	SDObject.rootUrl = SDObject.rootUrl.replace('js/default.js', '');
+	// This should handle not running the app with a url rewriting module.
 	if(window.location.href.indexOf('index.php') > -1){
-		SDObject.rootUrl += 'index.php/';
-	}
+		SDObject.rootUrl += 'index.php?r=';
+	}*/
 });

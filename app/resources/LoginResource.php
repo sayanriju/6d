@@ -21,16 +21,26 @@ class LoginResource extends AppResource{
 		if( AuthController::isAuthorized()){
 			$isAuthed = true;
 		}
+		$user = null;
 		if(empty($email) || empty($password)){
 			$isAuthed = false;
 		}else{
-			$isAuthed = self::doVerification($email, $password);			
+			$user = self::doVerification($email, $password);
+			$isAuthed = $user !== null;		
 		}
 		if($isAuthed){
 			if($email != null && !empty($email)){
 				AuthController::setAuthKey($email);
 			}
-			$this->redirectTo(FrontController::requestedUrl());
+			if(FrontController::requestedUrl() != null){
+				$this->redirectTo(FrontController::requestedUrl());
+			}else{
+				if($this->current_user->is_owner){
+					$this->redirectTo(null);
+				}else{
+					$this->redirectTo($user->member_name);
+				}
+			}
 		}else{
 			self::setUserMessage($this->renderView('error/login', array('errors'=>array('auth'=>'authorization failed'), 'message'=>"Those credentials can't be found. If you're really trying to sign in, please try it again.")));
 			$this->redirectTo('login');
@@ -45,12 +55,8 @@ class LoginResource extends AppResource{
 		if($config->email === $email && $config->site_password === $password){
 			return true;
 		}else{
-			$user = Person::findByEmailAndPassword($email, $password);
-			if($user != null){
-				return true;
-			}else{
-				return false;
-			}
+			$user = Member::findByEmailAndPassword($email, $password);
+			return $user;
 		}
 	}
 	

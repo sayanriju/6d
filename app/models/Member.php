@@ -99,7 +99,8 @@ class Member extends Object{
 		$config = new AppConfiguration();
 		$db = Factory::get($config->db_type, $config);
 		$person = new Person();
-		$person = $db->find(new ByClause(sprintf("%s.email='%s' and %s.password='%s'", $person->getTableName(), $person->getTableName(), urlencode($email), String::encrypt($password)), array(new BelongsTo(array('withWhom'=>$person, 'through'=>'person_id'))), 1, null), $member);
+		$member = new Member();
+		$person = $db->find(new ByClause(sprintf("%s.email='%s' and %s.password='%s'", $person->getTableName(), urlencode($email), $person->getTableName(), String::encrypt($password)), array(new BelongsTo(array('withWhom'=>$person, 'through'=>'person_id'))), 1, null), $member);
 		return $person;
 	}
 	public static function findByMemberName($member_name){

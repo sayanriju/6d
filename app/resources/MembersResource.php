@@ -56,7 +56,6 @@ class_exists('Member') || require('models/Member.php');
 				if($profile !== null){
 					$this->member->person->profile = serialize($profile);
 				}
-				$this->member->person->owner_id = $this->current_user->id;				
 				$this->member->person->is_owner = false;
 				if(strlen($member->password) > 0){
 					$this->member->person->password = String::encrypt($member->password);
@@ -92,14 +91,14 @@ class_exists('Member') || require('models/Member.php');
 				$this->member->person->name = $member->name;
 				$this->member->person->email = $member->email;
 				$this->member->person->uid = uniqid();
-				$this->member->person->url = sprintf("%s/%s", FrontController::urlFor(null), $this->member->member_name);
+				$url = String::replace('/http\:\/\//', '', FrontController::urlFor(null));
+				$this->member->person->url = sprintf("%s%s", $url, $this->member->member_name);
 				$this->member->person->is_approved = $member->is_approved === null ? false : $member->is_approved;
 				$this->member->person->do_list_in_directory = $member->do_list_in_directory === null ? false : $member->do_list_in_directory;
 				$this->member->person->is_owner = false;
 				if($profile !== null){
 					$this->member->person->profile = serialize($profile);
 				}
-				$this->member->person->owner_id = $this->current_user->id;				
 				$this->member->person->is_owner = false;
 				$this->member = Member::save($this->member);
 				if($this->member->errors != null && count($this->member->errors) > 0){

@@ -88,15 +88,14 @@ class Application{
 			return $path_info;
 		}
 		if($path_info !== null){
-			$path_info = explode('/', $path_info);
-			if(count($path_info) > 1){
-				array_shift($path_info);
-				self::$member = Member::findByMemberName($path_info[0]);
+			$path = explode('/', $path_info);			
+			if(count($path) > 0){
+				$member_name = array_shift($path);				
+				self::$member = Member::findByMemberName($member_name);
 				if(self::$member !== null){
-					array_shift($path_info);
+					$path_info = implode('/', $path);
 				}
 			}
-			$path_info = implode('/', $path_info);
 		}
 		
 		if(self::$member === null){

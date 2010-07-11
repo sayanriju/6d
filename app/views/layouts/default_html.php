@@ -14,7 +14,11 @@
 	  	<link rel="stylesheet" type="text/css" href="<?php echo FrontController::urlFor('themes');?>css/default.css" media="screen" />	
 		{$resource_css}
 		<script type="text/javascript" charset="utf-8" src="<?php echo FrontController::urlFor('js');?>NotificationCenter.js"></script>
-		<script type="text/javascript" charset="utf-8" src="<?php echo FrontController::urlFor('js');?>default.js" id="default_script" rel="<?php echo urlencode(FrontController::urlFor(null));?>"></script>
+		<script type="text/javascript" charset="utf-8" src="<?php echo FrontController::urlFor('js');?>default.js" id="default_script"></script>
+		<script type="text/javascript">
+			// This is required so the ajax requests are to the correct url in the multi member case.
+			SDObject.rootUrl = '<?php echo FrontController::urlFor(null);?>';
+		</script>
 		<!--[if IE]>
 		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->

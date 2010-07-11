@@ -24,17 +24,13 @@ class PeopleResource extends AppResource{
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}
 		$this->person = new Person();
-		if(AuthController::isSuperAdmin()){
-			$this->people = $this->getForSuperAdmin($group);
-		}else{
-			$this->people = $this->getForEveryoneElse($group);
-		}
+		$this->people = $this->getPeople($group);
 		if($this->people == null){
 			$this->people = array();
 		}else{
 			usort($this->people, array('Person', 'sort_by_name'));
 		}
-		$this->people = Person::makeOwner($this->current_user->id, $this->people);
+		$this->people = Person::makeOwner($this->current_user->person_id, $this->people);
 		$this->title = 'People';
 		$this->output = $this->renderView('person/index', null);
 		return $this->renderView('layouts/default', null);
@@ -49,16 +45,7 @@ class PeopleResource extends AppResource{
 		$this->output = $this->renderView('person/index', null);
 		return $this->renderView('layouts/default', null);
 	}
-	private function getForSuperAdmin($group){
-		if($group->text !== 'All Contacts'){
-			return Person::findByTagText($group->text);
-		}elseif($this->group->text === 'Friend Requests'){
-			return FriendRequest::findAll();
-		}else{
-			return Person::findAll();
-		}
-	}
-	private function getForEveryoneElse($group){
+	private function getPeople($group){
 		if($group->text !== 'All Contacts'){
 			return Person::findByTagTextAndOwner($group->text, $this->current_user->person_id);
 		}elseif($this->group->text === 'Friend Requests'){

@@ -123,7 +123,7 @@ class FrontController extends Object{
 		return file_exists(self::getRootPath('/.htaccess'));
 	}
 	public static function index_script(){
-		return self::canRewriteUrl() ? null : 'index.php/';
+		return self::canRewriteUrl() ? null : 'index.php';
 	}
 	public static function urlFor($resource = null, $params = null, $make_secure = false){
 		$config = (class_exists('AppConfiguration') ? new AppConfiguration(null) : null);
@@ -148,6 +148,7 @@ class FrontController extends Object{
 			}
 		}
 
+		// Special folders that we don't want to handle resource requests for.
         if(in_array($resource, array('themes', 'js', 'css', 'images', 'media'))){
 			$resource = ($resource === 'themes' ? self::themePath() . '/' : $resource . '/');
             $use_clean_urls = true;
@@ -167,7 +168,7 @@ class FrontController extends Object{
         
 		$url = '';
 		if(!$use_clean_urls){
-			$resource = self::index_script() . ($resource != null ? '' . $resource : null);
+			$resource = self::index_script() . '?r='. ($resource != null ? '' . $resource : null);
 		}else{
 	        $resource =  ($resource !== null ? $resource : null);
 		}
@@ -178,7 +179,7 @@ class FrontController extends Object{
 			$resource .= '/' . $path;
 		}
         if($query_string != null){
-			$resource .= '?';
+			$resource .= '&';
             $resource .= implode('&', $query_string);
         }
 		if(self::$delegate !== null && method_exists(self::$delegate, 'willSetUrlFor')){
@@ -301,35 +302,39 @@ class FrontController extends Object{
 	public static function getPathInfo(){
 		$argv = $_SERVER['argv'];
 		$php_self = '';
+		/*console::log('DOCUMENT_ROOT = ' . $_SERVER['DOCUMENT_ROOT']);
+		console::log('SCRIPT_FILENAME = ' . $_SERVER['SCRIPT_FILENAME']);
+		console::log('REDIRECT_QUERY_STRING = ' . $_SERVER['REDIRECT_QUERY_STRING']);
+		console::log('REDIRECT_URL = ' . $_SERVER['REDIRECT_URL']);
+		console::log('REQUEST_URI = ' . $_SERVER['REQUEST_URI']);
+		console::log('QUERY_STRING = ' . $_SERVER['QUERY_STRING']);
+		console::log('SCRIPT_NAME = ' . $_SERVER['SCRIPT_NAME']);
+		console::log('PHP_SELF = ' . $_SERVER['PHP_SELF']);
+		console::log('REQUEST_TIME = ' . $_SERVER['REQUEST_TIME']);
+		*/
 		$request_uri = $_SERVER['REQUEST_URI'];
-		if(array_key_exists('PATH_INFO', $_SERVER)){
-			$php_self = $_SERVER['PATH_INFO'];
-		}else if(array_key_exists('ORIG_PATH_INFO', $_SERVER)){
-			$php_self = $_SERVER['ORIG_PATH_INFO'];
-		}else if(count($argv) > 0 && stripos($request_uri, 'index.php') === false){
-			if(stripos($argv[0], '?') !== false){
-				$argv = explode('?', $argv[0]);
-				$php_self = $argv[0];
-			}else if(stripos($argv[0], '&') !== false){
-				$argv = explode('&', $argv[0]);
-				$php_self = $argv[0];
-			}else{
-				$php_self = $argv[0];
-			}
+		if(array_key_exists('r', $_GET)){
+			$r = $_GET['r'];
+		}else if(stripos($argv[0], '?') !== false){
+			$argv = explode('?', $argv[0]);
+			$r = $argv[0];
+		}else if(stripos($argv[0], '&') !== false){
+			$argv = explode('&', $argv[0]);
+			$r = $argv[0];
 		}else{
-			$script_name = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
-			$php_self = str_replace($script_name, '', $request_uri);
-		}
-		return $php_self;
+			$r = $argv[0];
+		}		
+		return $r;
 	}
 	public function execute(){
 		$resource_path = 'resources/';
-		$path_info = self::getPathInfo();
+		$path_info = self::getPathInfo();		
 		if(self::$delegate !== null && method_exists(self::$delegate, 'willExecute')){
 			$path_info = self::$delegate->willExecute($path_info);
 		}
 		//echo '<br />' . $path_info;
 		$parts = explode('/', $path_info);
+
 		$r = null;
 		$url_parts = array();
 		if($parts !== null && count($parts) > 0){
@@ -339,10 +344,10 @@ class FrontController extends Object{
 			}
 			$r = $url_parts[0];
 		}
-
 		if($r == null){
 			$r = 'index';
 		}
+		
 		$r = $this->parseForResourceName($r, $url_parts);
 		$file_type = $this->parseForFileType($url_parts);
 		$resource_name = ucwords($r);
@@ -351,7 +356,6 @@ class FrontController extends Object{
 		if(!file_exists($file)){
 			$file = self::getAppPath('/' . $file);
 		}
-
 		if(file_exists($file)){
 			class_exists($class_name) || require($file);
 			try{
@@ -466,5 +470,15 @@ class FrontController extends Object{
 	public function exceptionDidHappen($e){
 		echo $e;
 	}
+	
 }
-?>
+class console{
+	public static $messages = array();
+	public static function log($obj){
+		self::$messages[] = $obj;
+	}
+	public function __destruct(){
+		self::$messages = array();
+	}
+	
+}

@@ -137,7 +137,7 @@
 		}
 		public static function makeOwner($owner_id, $people){
 			for($i = 0; $i < count($people); $i++){
-				if(intval($people[$i]->id) == (int)$owner_id){
+				if($people[$i]->id == (int)$owner_id){
 					$people[$i]->is_owner = true;
 				}
 			}
@@ -324,8 +324,7 @@
 				$table->addColumn('is_owner', 'boolean', array('is_nullable'=>false, 'default'=>false));
 				$table->addColumn('do_list_in_directory', 'boolean', array('is_nullable'=>false, 'default'=>false));
 				$table->addColumn('profile', 'text', array('is_nullable'=>true));
-				$table->addColumn('owner_id', 'biginteger', array('is_nullable'=>false));
-				
+				$table->addColumn('owner_id', 'biginteger', array('is_nullable'=>true, 'default'=>null));
 				
 				$table->addKey('primary', 'id');
 				$table->addKey('key', array('session_id_key'=>'session_id'));
