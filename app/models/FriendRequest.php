@@ -41,12 +41,12 @@
 		public function setUrl($val){
 			$this->url = $val;
 		}
-		private $is_owner;
-		public function getIs_owner(){
-			return $this->is_owner;
+		private $owner_id;
+		public function getOwner_id(){
+			return $this->owner_id;
 		}
-		public function setIs_owner($val){
-			$this->is_owner = $val;
+		public function setOwner_id($val){
+			$this->owner_id = $val;
 		}
 		
 		private $created;
@@ -71,7 +71,8 @@
 		public static function save(FriendRequest $request){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$request = $db->save(null, $request);
+			$new_request = $db->save(null, $request);
+			$request->id = $new_request->id;
 			self::notify('didSaveFriendRequest', $request, $request);
 			return $request;
 		}
@@ -89,16 +90,18 @@
 			return $list;
 		}
 		
-		public static function findById($id){
+		public static function findByIdAndOwnerId($id, $owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$list = $db->find(new ById($id), new FriendRequest());
+			$owner_id = (int)$owner_id;
+			$list = $db->find(new ByClause(sprintf("id=%d and owner_id=%d", $id, $owner_id), null, 1, null), new FriendRequest());
 			return $list;
 		}
-		public static function findByUrl($url){
+		public static function findByUrlAndOwnerId($url, $owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$list = $db->find(new ByAttribute('url', urlencode($url), 1, null), new FriendRequest());
+			$owner_id = (int)$owner_id;
+			$list = $db->find(new ByClause(sprintf("url='%s' and owner_id=%d", urlencode($url), $owner_id), 1, null, null), new FriendRequest());
 			return $list;
 		}
 		
@@ -130,10 +133,10 @@
 				$table = new Table($this->getTableName($config), $db);
 				$table->addColumn('id', 'biginteger', array('is_nullable'=>false, 'auto_increment'=>true));
 				$table->addColumn('email', 'string', array('is_nullable'=>false, 'default'=>'', 'size'=>255));
-				$table->addColumn('name', 'string', array('is_nullable'=>true, 'size'=>255));
+				$table->addColumn('name', 'string', array('is_nullable'=>false, 'size'=>255));
 				$table->addColumn('url', 'string', array('is_nullable'=>false, 'default'=>'', 'size'=>255));
 				$table->addColumn('owner_id', 'biginteger', array('is_nullable'=>false));
-				$table->addColumn('created', 'datetime', array('is_nullable'=>true));
+				$table->addColumn('created', 'datetime', array('is_nullable'=>false));
 				$table->addKey('primary', 'id');
 				$table->addKey('key', array('url'=>'url'));
 				$table->addKey('key', array('email'=>'email'));

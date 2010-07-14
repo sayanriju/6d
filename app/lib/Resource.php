@@ -46,11 +46,10 @@ class Resource extends Object{
 					$name = $property->getName();
 					$__properties[$name] = $this->{$name};
 				}
-			}						
+			}
 			if(count($__properties) > 0){
 				extract($__properties);
 			}
-			
 			if($__data != null){
 				extract($__data);
 			}

@@ -79,10 +79,12 @@
 			if(method_exists($obj, 'getTableName')){
 				$id = $obj->{$key};
 				$id = (($id !== null && strlen($id) === 0) || $id === 0) ? null : $id;
-				if($id === null){
+				if($id === null){					
 					$sql = $this->constructInsert($obj);
 					$this->execute($sql);
-					$obj->{$key} = $this->getInsertedId();
+					if($obj->{$key} === null || $obj->{$key} == 0){
+						$obj->{$key} = $this->getInsertedId();						
+					}
 				}else{
 					$sql = $this->constructUpdate($findType, $obj);
 					$this->execute($sql);
@@ -503,7 +505,7 @@ eos;
 			$values = array();
 			$key = 'id';
 			$should_insert_id = false;
-			$should_ad = false;
+			$should_add = false;
 			if(is_object($obj)){
 				if(method_exists($obj, 'getPrimaryKey')){
 					$key = $obj->getPrimaryKey();
@@ -512,7 +514,6 @@ eos;
 					$should_insert_id = $obj->shouldInsertId();
 				}
 				$methods = $reflector->getMethods();
-				
 				foreach($methods as $method){
 					$method_name = $method->getName();
 					if(!array_search($method_name, $this->excluded_method_names) && $method->isPublic() && strpos($method_name, 'get') === 0){
@@ -521,11 +522,11 @@ eos;
 						if($reflector->hasMethod('set' . $name)){
 							$value = $method->invoke($obj);
 							if($lower_case_name === $key){
-								$should_ad = $should_insert_id;
+								$should_add = $should_insert_id;
 							}else{
-								$should_ad = (!is_object($value) && !is_array($value));
+								$should_add = (!is_object($value) && !is_array($value));
 							}
-							if($should_ad){
+							if($should_add){
 								$columns[] = $lower_case_name;
 
 								if(method_exists($obj, 'willAddFieldToSaveList')){

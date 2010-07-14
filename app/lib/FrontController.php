@@ -323,12 +323,12 @@ class FrontController extends Object{
 			$r = $argv[0];
 		}else{
 			$r = $argv[0];
-		}		
+		}
 		return $r;
 	}
 	public function execute(){
 		$resource_path = 'resources/';
-		$path_info = self::getPathInfo();		
+		$path_info = self::getPathInfo();				
 		if(self::$delegate !== null && method_exists(self::$delegate, 'willExecute')){
 			$path_info = self::$delegate->willExecute($path_info);
 		}
@@ -354,7 +354,7 @@ class FrontController extends Object{
 		$class_name = sprintf('%sResource', $resource_name);
 		$file = $resource_path . $class_name . '.php';
 		if(!file_exists($file)){
-			$file = self::getAppPath('/' . $file);
+			$file = self::getAppPath($file);
 		}
 		if(file_exists($file)){
 			class_exists($class_name) || require($file);

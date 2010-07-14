@@ -114,7 +114,6 @@
 			if($optionalHeaders != null && is_array($optionalHeaders)){
 				$curl_options = array_merge($curl_options, $optionalHeaders);
 			}
-
 			if($method == 'post'){
 				$curl_options[CURLOPT_POST] = true;
 				$curl_options[CURLOPT_POSTFIELDS] = $data;

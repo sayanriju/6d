@@ -141,7 +141,8 @@
 		public function willAddFieldToSaveList($name, $value){
 			
 			if($name === 'id' && ($this->id === null || strlen($this->id) === 0)){
-				return uniqid(null, true);
+				$this->{$name} = uniqid(null, true);
+				return $this->{$name};
 			}
 			return $value;			
 		}
@@ -307,7 +308,7 @@
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
 			$owner_id = (int)$owner_id;
-			$post = $db->find(new ByClause("person_post_id = {$id} and owner_id={$owner_id}", null, 1, null), new Post(null));
+			$post = $db->find(new ByClause("person_post_id = '{$id}' and owner_id={$owner_id}", null, 1, null), new Post(null));
 			return $post;
 		}
 		public function getTableName($config = null){
@@ -327,9 +328,8 @@
 			if(count($errors) == 0){
 				$db = Factory::get($config->db_type, $config);
 				$post->custom_url = String::stringForUrl($post->title);
-				$new_post = $db->save(null, $post);
-				$post->id = $new_post->id;
-				$existing_tags = Tag::findAllForPost($post->id);
+				$db->save(null, $post);
+				$existing_tags = Tag::findAllForPost($post->id, $post->owner_id);
 				if($existing_tags != null){
 					foreach($existing_tags as $tag){
 						Tag::delete($tag);

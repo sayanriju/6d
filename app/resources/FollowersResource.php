@@ -30,24 +30,24 @@ class FollowersResource extends AppResource{
 		//TODO: check remote host against the url to verify who's sending the response.
 		//error_log(sprintf('request from: host=%s, referrer=%s, ip=%s, public key = %s', $_SERVER['HTTP_HOST'], $_SERVER['HTTP_REFERER'], $_SERVER['REMOTE_ADDR'], urlencode($person->public_key)));
 		if($person->public_key !== null && strlen($person->public_key) > 0 && $person->url !== null && strlen($person->url) > 0){
-			$this->person = Person::findByUrl($person->url);
-			$this->person->setPublic_key($person->public_key);
+			$this->person = Person::findByUrlAndOwnerId(urldecode($person->url), $this->site_member->person_id);
+			$this->person->public_key = $person->public_key;
 			$this->person = Person::save($this->person);
+			return 'ok';
+		}else{
+			return "I couldn't find that person.";
 		}
-		return 'ok';
-		
 	}
 	public function post(Person $person){
 		$errors = array();
 		if(!AuthController::isAuthorized()){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}elseif($person->id !== null){
-			$this->person = Person::findById($person->id);
+			$this->person = Person::findByIdAndOwner($person->id, $this->current_user->person_id);
 			if($this->person->url !== null && strlen($this->person->url) > 0){
 				$config = new AppConfiguration();
-				$owner = Member::findOwner();
 				$site_path = String::replace('/\/$/', '', FrontController::$site_path);
-				$data = sprintf("email=%s&name=%s&url=%s&created=%s", urlencode($owner->email), urlencode($owner->name),  urlencode(str_replace('http://', '', $site_path)), urlencode(date('c')));
+				$data = sprintf("email=%s&name=%s&url=%s&created=%s", urlencode($this->current_user->email), urlencode($this->current_user->name),  urlencode(str_replace('http://', '', $site_path)), urlencode(date('c')));
 				$response = NotificationResource::sendNotification($this->person, 'follower', $data, 'post');
 				UserResource::setUserMessage($this->person->name . "'s site responded with " . $response);
 				$this->title = 'Request Sent!';

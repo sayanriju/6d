@@ -112,11 +112,12 @@
 			return $list;
 		}
 		
-		public static function findAllForPost($parent_id){
+		public static function findAllForPost($parent_id, $owner_id){
 			$config = new AppConfiguration();				
 			$db = Factory::get($config->db_type, $config);
 			$parts = array();
-			$clause = sprintf("parent_id='%s' and type='%s'", $parent_id, 'post');
+			$owner_id = (int)$owner_id;
+			$clause = sprintf("parent_id='%s' and type='%s' and owner_id=%d", $parent_id, 'post', $owner_id);
 			$list = $db->find(new ByClause($clause, null, 0, null), new Tag(null));
 			$list = ($list == null ? null : (is_array($list) ? $list : array($list)));
 			return $list;

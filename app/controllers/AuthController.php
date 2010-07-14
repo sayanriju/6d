@@ -1,8 +1,10 @@
 <?php
 class_exists('SuperAdmin') || require('models/SuperAdmin.php');
+class_exists('Member') || require('models/Member.php');
 class AuthController{
 	public function __construct(){}
 	public function __destruct(){}
+	public static $user;
 	public static function isAuthorized(){
 		$sessionAuthKey = self::authKey();
 		return $sessionAuthKey !== null;
@@ -32,4 +34,12 @@ class AuthController{
 		session_destroy();
 	}
 	
+	public static function doVerification($email, $password){
+		// I'm going to see if this is the admin trying to log, if not check the db to verify a user.
+		$config = new AppConfiguration(null);
+		$password = $password;
+		$email = $email;
+		self::$user = Member::findByEmailAndPassword($email, $password);
+		return self::$user;
+	}	
 }

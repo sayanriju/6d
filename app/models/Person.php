@@ -143,12 +143,12 @@
 			}
 			return $people;
 		}
-		public static function findById($id){
+		/*public static function findById($id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
 			$person = $db->find(new ById($id), new Person(null));
 			return $person;
-		}
+		}*/
 		public static function findByIdAndOwner($id, $owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
@@ -207,10 +207,12 @@
 			$person = $db->find(new ByClause(sprintf("email='%s' and password='%s'", urlencode($email), String::encrypt($password)), null, 1, null), new Person(null));
 			return $person;
 		}
-		public static function findByPublicKey($public_key){
+		public static function findByPublicKeyAndUrl($public_key, $url){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$list = $db->find(new ByAttribute('public_key', $public_key, 1, null), new Person());
+			$owner_id = (int)$owner_id;
+			$clause = new ByClause(sprintf("public_key='%s' and url='%s'", urlencode($public_key), urlencode($url)), null, 1, null);			
+			$list = $db->find($clause, new Person());
 			return $list;
 		}
 		public static function findByEmail($email){
@@ -220,10 +222,17 @@
 			return $person;
 		}
 		
-		public static function findByUrl($url){
+		/*public static function findByUrl($url){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
 			$list = $db->find(new ByAttribute('url', $url, 1, null), new Person());
+			return $list;
+		}*/
+		public static function findByUrlAndOwnerId($url, $owner_id){
+			$config = new AppConfiguration();
+			$db = Factory::get($config->db_type, $config);
+			$owner_id = (int)$owner_id;
+			$list = $db->find(new ByClause(sprintf("url='%s' and owner_id=%d", urlencode($url), $owner_id), null, 1, null), new Person());
 			return $list;
 		}
 		

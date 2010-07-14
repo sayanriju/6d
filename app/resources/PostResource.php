@@ -56,7 +56,7 @@ class PostResource extends AppResource{
 	public static function getAuthorUrl(Post $post){
 		$url = null;
 		if($post->source !== null && strlen($post->source) > 0){
-			$person = Person::findByUrl($post->source);
+			$person = Person::findByUrlAndOwnerId($post->source, Application::$member->person_id);
 			if($person !== null){
 				$data = sprintf("public_key=%s", urlencode($person->public_key));
 				$response = NotificationResource::sendNotification($person, 'profile.json', $data, 'get');
@@ -132,18 +132,53 @@ class PostResource extends AppResource{
 		
 			
 	}
+	private function save(Post $post, $people, $groups, $make_home_page){
+		$post->created = date('c');
+		if(strlen($post->post_date) === 0){
+			$post->post_date = date('c');
+		}
+		$post->owner_id = $this->current_user->id;
+		list($post, $errors) = Post::save($post);
+		$post->person_post_id = $post->id;
+		if($errors == null){
+			if($make_home_page){
+				$setting = Setting::findByName('home_page_post_id');
+				$setting->value = $post->id;
+				$setting->owner_id = $this->current_user->id;
+				Setting::save($setting);
+			}else if($post->isHomePage($this->getHome_page_post_id())){
+				Setting::delete('home_page_post_id');
+			}
+			self::setUserMessage('Post was saved.');
+			$this->sendPostToPeople($groups, $people, $post);
+		}else{
+			$message = 'An error occurred while saving your post:';
+			foreach($errors as $key=>$value){
+				$message .= "$key=$value";
+			}
+			self::setUserMessage($message);
+		}
+		$this->redirectTo('posts');
+		
+	}
 	public function post(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array()){		
 		$errors = array();
-		if($public_key != null && strlen($public_key)>0){
-			$person = Person::findByPublicKey($public_key);
+		if(AuthController::isAuthorized()){
+			$post->source = $this->current_user->url;
+			error_log('saving the post and the source is ' . $post->source . ' for member ' . $this->site_member->member_name);
+			$this->save($post, $people, $groups, $make_home_page);
+		}else if($public_key != null && strlen($public_key)>0){
+			$person = Person::findByPublicKeyAndUrl($public_key, $post->source);
 			$response = 'ok';
 			if($person != null && $person->is_approved){
-				$existing_post = Post::findByPersonPostId($post->person_post_id, $this->current_user->id);
+				// This block of code gets an existing post and updates that.
+				$existing_post = Post::findByPersonPostId($post->person_post_id, $this->site_member->person_id);
 				if($existing_post != null){
 					$post->id = $existing_post->id;
 					$post->is_published = $existing_post->is_published;
 				}else{
 					$post->is_published = false;
+					error_log('came from ' . $person->url);
 					$post->source = $person->url;
 					$post->id = null;
 				}
@@ -151,10 +186,10 @@ class PostResource extends AppResource{
 				if($post->post_date === null || strlen($post->post_date) === 0 || $post->post_date === 'today'){
 					$post->post_date = date('c');
 				}
-				$post->body = $this->filterBody($post->body);
-				$post->title = $this->filterBody($post->title);
+				$post->body = $this->filterText($post->body);
+				$post->title = $this->filterText($post->title);
 				$post->body = urldecode($post->body);
-				$post->owner_id = $person->owner_id;
+				$post->owner_id = $this->site_member->person_id;
 				list($post, $errors) = Post::save($post);
 				if(count($errors) > 0){
 					foreach($errors as $key=>$error){
@@ -164,36 +199,10 @@ class PostResource extends AppResource{
 			}else{
 				$response = "Couldn't find a person with the given public key.";
 			}
-			return $response;
-		}elseif(!AuthController::isAuthorized()){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}else{
-			$post->created = date('c');
-			if(strlen($post->post_date) === 0){
-				$post->post_date = date('c');
-			}
-			$post->owner_id = $this->current_user->id;
-			list($post, $errors) = Post::save($post);
-			if($errors == null){
-				if($make_home_page){
-					$setting = Setting::findByName('home_page_post_id');
-					$setting->value = $post->id;
-					$setting->owner_id = $this->current_user->id;
-					Setting::save($setting);
-				}else if($post->isHomePage($this->getHome_page_post_id())){
-					Setting::delete('home_page_post_id');
-				}
-				self::setUserMessage('Post was saved.');
-				$this->sendPostToPeople($groups, $people, $post);
-			}else{
-				$message = 'An error occurred while saving your post:';
-				foreach($errors as $key=>$value){
-					$message .= "$key=$value";
-				}
-				self::setUserMessage($message);
-			}
-			$this->redirectTo('posts');
+			$response = 'My website doesn\'t have you in my system. You\'ll have to send me a <form action="' . FrontController::urlFor($this->site_member->member_name . '/follower') . '" method="post"><button type="submit"><span>Send Friend Request</span></button></form> to add you as a friend before you send me any messages.';
 		}		
+		return $response;
 	}
 	public function delete(Post $post, $last_page_viewed, $q = null){
 		$this->q = $q;
@@ -251,16 +260,4 @@ class PostResource extends AppResource{
 			}
 		}
 	}
-	private function sendToPerson($person, $post){
-		if($person->is_approved){
-			$data = sprintf("person_post_id=%s&title=%s&body=%s&source=%s&is_published=%s&post_date=%s&public_key=%s", urlencode($post->id), urlencode($post->title), urlencode($post->body), urlencode($post->source), $post->is_published, urlencode($post->post_date), urlencode($person->public_key));
-			$response = NotificationResource::sendNotification($person, 'post', $data, 'post');
-			if($response !== 'ok'){
-				UserResource::setUserMessage($response);
-			}
-			$data = null;
-		}
-	}
 }
-
-?>

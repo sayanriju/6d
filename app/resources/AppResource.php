@@ -112,7 +112,7 @@
 			$output = $this->filterFooter($output);
 			return $output;
 		}		
-		protected function filterBody($text){
+		protected function filterText($text){
 			$post_filters = $this->getPlugins('plugins', 'PostPlugin');
 			foreach($post_filters as $filter){
 				$text = $filter->execute($text);

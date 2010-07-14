@@ -25,7 +25,7 @@ class LoginResource extends AppResource{
 		if(empty($email) || empty($password)){
 			$isAuthed = false;
 		}else{
-			$user = self::doVerification($email, $password);
+			$user = AuthController::doVerification($email, $password);
 			$isAuthed = $user !== null;		
 		}
 		if($isAuthed){
@@ -45,20 +45,6 @@ class LoginResource extends AppResource{
 			self::setUserMessage($this->renderView('error/login', array('errors'=>array('auth'=>'authorization failed'), 'message'=>"Those credentials can't be found. If you're really trying to sign in, please try it again.")));
 			$this->redirectTo('login');
 		}
-	}
-		
-	public static function doVerification($email, $password){
-		// I'm going to see if this is the admin trying to log, if not check the db to verify a user.
-		$config = new AppConfiguration(null);
-		$password = $password;
-		$email = $email;
-		if($config->email === $email && $config->site_password === $password){
-			return true;
-		}else{
-			$user = Member::findByEmailAndPassword($email, $password);
-			return $user;
-		}
-	}
-	
+	}	
 }
 ?>

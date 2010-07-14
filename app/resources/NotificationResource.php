@@ -28,7 +28,7 @@
 		}
 		private function getFromFriend(Notification $notification){
 			$type = $notification->name;
-			$url = sprintf("http://%s/index.php?r=%s.json", $notification->appName, strtolower(String::pluralize($notification->name)));
+			$url = sprintf("http://%s/%s.json", $notification->appName, strtolower(String::pluralize($notification->name)));
 			$response = Request::doRequest($url, null, 'get');
 			return $response;
 		}
@@ -49,17 +49,13 @@
 			$urls = array();
 			$responses = array();
 			$config = new AppConfiguration();
-			$segments = explode('/', $_SERVER['SCRIPT_NAME']);
-			array_pop($segments);
-			$path = implode('/', $segments);
 			$appName = sprintf('%s%s', $_SERVER['SERVER_NAME'], $path);
 			foreach($people as $person){
 				$person->url = preg_replace('/\/$/', '', $person->url);
 				$person->url = sprintf("http://%s", $person->url);
 				$urls[] = $person->url;
 			}
-			$path = sprintf("index.php/%s", $resourceName);
-			$responses = Request::doMultiRequests($urls, $path, $datum, $type, null);	
+			$responses = Request::doMultiRequests($urls, $resourceName, $datum, $type, null);	
 			return $responses;
 		}
 		public static function sendNotification($person, $name, $data, $type = 'get'){
@@ -70,7 +66,7 @@
 			$person->url = preg_replace('/\/$/', '', $person->url);
 			$appName = sprintf('%s%s', $_SERVER['SERVER_NAME'], $path);
 			$url = sprintf("http://%s", $person->url);
-			$path = sprintf("index.php/%s", $name);
+			$path = sprintf("%s", $name);
 			/*$aes = new aes128();
 			$key = $aes->makeKey($follower->public_key);
 			error_log($follower->public_key);

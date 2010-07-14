@@ -27,8 +27,6 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 			if($person != null && $person->id > 0){
 				if($person->id == $this->current_user->person_id){
 					$this->person = $this->current_user;
-				}else if(AuthController::isSuperAdmin()){
-					$this->person = Person::findById($person->id);
 				}else{
 					$this->person = Person::findByIdAndOwner($person->id, $this->current_user->person_id);
 				}
@@ -58,7 +56,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 		
 		public function put(Person $person, Profile $profile = null){
 			$view = 'person/show';
-			$this->person = Person::findById($person->id);
+			$this->person = Person::findByIdAndOwner($person->id, $this->current_user->person_id);
 			if($this->person !== null){
 				$this->person->is_approved = $person->is_approved;
 				$this->person->email = $person->email;

@@ -11,6 +11,7 @@ class LogoutResource extends AppResource{
 	public function get(){
 		AuthController::logout();
 		self::setUserMessage("You've been logged out.");
+		Application::$member = null;
 		$this->redirectTo(null);
 	}
 	
