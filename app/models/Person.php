@@ -143,12 +143,12 @@
 			}
 			return $people;
 		}
-		/*public static function findById($id){
+		public static function findById($id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
 			$person = $db->find(new ById($id), new Person(null));
 			return $person;
-		}*/
+		}
 		public static function findByIdAndOwner($id, $owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
