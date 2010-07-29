@@ -86,14 +86,14 @@ class Application{
 	public function willExecute($path_info){
 		if(!class_exists('AppConfiguration')){
 			return $path_info;
-		}
+		}		
 		if($path_info !== null){
 			$path = explode('/', $path_info);			
 			if(count($path) > 0){
 				$member_name = array_shift($path);				
 				self::$member = Member::findByMemberName($member_name);
 				if(self::$member !== null){
-					$path_info = implode('/', $path);
+					$path_info = implode('/', $path);					
 				}
 			}
 		}
@@ -113,7 +113,7 @@ class Application{
 			require('resources/IndexResource.php');
 			$index_resource = new IndexResource(array('file_type'=>'phtml'));
 			$resource->output = $index_resource->get($page_name);
-		}elseif(file_exists(FrontController::themePath() . '/views/index/' . $view)){
+		}elseif(file_exists(FrontController::getThemePath() . '/views/index/' . $view)){
 			$resource->output = $resource->renderView('index/' . $page_name);
 		}elseif(file_exists('index/' . $view)){
 			$resource->output = $resource->renderView('index/' . $page_name);

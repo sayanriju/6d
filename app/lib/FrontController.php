@@ -105,7 +105,7 @@ class FrontController extends Object{
 				break;
 		}
 	}
-	public static function themePath(){
+	public static function getThemePath(){
 		$config = null;
 		if(class_exists('AppConfiguration')){
 			$config = new AppConfiguration();
@@ -133,7 +133,7 @@ class FrontController extends Object{
 			$resource = $path[0];
 			array_shift($path);
 			$path = implode('/', $path);
-		}
+		}		
         $use_clean_urls = self::canRewriteUrl();
         $query_string = null;
 		$resource_id = null;
@@ -149,8 +149,8 @@ class FrontController extends Object{
 		}
 
 		// Special folders that we don't want to handle resource requests for.
-        if(in_array($resource, array('themes', 'js', 'css', 'images', 'media'))){
-			$resource = ($resource === 'themes' ? self::themePath() . '/' : $resource . '/');
+        if(in_array($resource, array('themes', 'js', 'css', 'images'))){
+			$resource = ($resource === 'themes' ? self::getThemePath() . '/' : $resource . '/');
             $use_clean_urls = true;
 			return $site_path . $resource;
 		}
@@ -190,7 +190,6 @@ class FrontController extends Object{
 		}else{			
 			$url = $site_path . $resource;
 		}
-		
 		return $url;
 	}
 	private function initSitePath(){
@@ -284,7 +283,9 @@ class FrontController extends Object{
 	public static function getAppPath($file){
 		return str_replace(sprintf('lib%sFrontController.php', DIRECTORY_SEPARATOR), $file, __FILE__);
 	}
-	
+	public static function getThemedViewPath(){
+		return self::getRootPath() . '/' . self::getThemePath() . '/views/';
+	}
 	public static function getEncoding(){
 		$encoding = $_SERVER["HTTP_ACCEPT_ENCODING"];
 		if(headers_sent()){
@@ -328,13 +329,12 @@ class FrontController extends Object{
 	}
 	public function execute(){
 		$resource_path = 'resources/';
-		$path_info = self::getPathInfo();				
+		$path_info = self::getPathInfo();							
 		if(self::$delegate !== null && method_exists(self::$delegate, 'willExecute')){
 			$path_info = self::$delegate->willExecute($path_info);
 		}
 		//echo '<br />' . $path_info;
 		$parts = explode('/', $path_info);
-
 		$r = null;
 		$url_parts = array();
 		if($parts !== null && count($parts) > 0){
@@ -475,6 +475,8 @@ class FrontController extends Object{
 class console{
 	public static $messages = array();
 	public static function log($obj){
+		error_log(sprintf("%s", $obj));
+		
 		self::$messages[] = $obj;
 	}
 	public function __destruct(){

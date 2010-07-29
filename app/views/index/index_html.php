@@ -1,13 +1,4 @@
 <?php class_exists('PostResource') || require('resources/PostResource.php');?>
-<form method="post" action="<?php echo FrontController::urlFor('post');?>">
-	<fieldset>
-		<legend>Message</legend>
-		<input class="post" type="text" name="body" />
-		<input type="hidden" name="type" value="status" />
-		<input type="hidden" name="is_published" value="true" />
-		<button type="submit"><span>Ok</span></button>
-	</fieldset>
-</form>
 <?php if($posts == null):?>
 	<article class="hentry">
 		<?php if(AuthController::isAuthorized() && $this->current_user->person_id === $this->site_member->person_id):?>
@@ -18,8 +9,8 @@
 		<?php endif;?>
 	</article>
 <?php else:?>
-	<?php foreach($posts as $key=>$post):?>
-	<article class="hentry<?php echo ($key === 0 ? ' first': null);?> <?php echo $post->type;?>">
+<?php $post = $posts[0];?>
+	<article class="hentry first <?php echo $post->type;?>">
 		<?php switch($post->type){
 			case('link'):?>
 		<header class="<?php echo !$post->is_published ? 'private' : null;?>">
@@ -79,17 +70,4 @@
 			</aside>
 		</footer>
 	</article>
-	<?php endforeach;?>
 <?php endif;?>
-	<nav class="pager">
-	<?php if(count($posts) > 0 && $page > 1):?>
-		<a href="<?php echo FrontController::urlFor(($name === 'index' ? null : $name . '/')) . ($page > 1 ? $page-1 : null) . ($this->q !== null ? '?q=' . $this->q : null);?>" title="View newer posts"> ← newer</a>
-	<?php else:?>
-		<span> ← newer</span>
-	<?php endif;?>
-<?php if(count($posts) >= $limit):?>
-		<a href="<?php echo FrontController::urlFor(($name === 'index' ? null : $name . '/')) . ($page === 0 ? $page+2 : $page+1). ($this->q !== null ? '?q=' . $this->q : null);?>" title="View older posts">older → </a>
-<?php else:?>
-		<span>older → </span>
-<?php endif;?>
-	</nav>

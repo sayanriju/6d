@@ -476,7 +476,7 @@ function SDAjax(options){
 			}
 		}
 		if(!SDArray.contains(this.options.method, ['get', 'post'])){
-			this.options.parameters += '&_method=delete';
+			this.options.parameters += '&_method=' + this.options.method;
 			this.options.method = 'post';
 		}
 		request.open(this.options.method.toUpperCase(), url, this.options.asynchronous);		

@@ -70,8 +70,14 @@
 			return $val;
 
 		}
-
-		public function __set($key, $val){			
+		private function setPropertyValue($prop, $key, $val){
+			
+		}
+		public function __set($key, $val){
+			$reflector = new ReflectionClass(get_class($this));
+			$properties = $reflector->getProperties();
+			$obj = null;
+			$name = null;
 			if(count(self::$observers) > 0){
 				$publisher = get_class($this);
 				foreach(self::$observers as $observer){
@@ -83,6 +89,17 @@
 			if($this->_attributes == null){
 				$this->_attributes = new Hashtable();
 			}
+			
+			foreach($properties as $prop){
+				if($prop->isPublic()){
+					$name = $prop->getName();
+					$obj = $this->{$name};
+					if(is_object($obj) && method_exists($obj, 'set'.ucwords($key))){
+						$this->{$name}->$key = $val;
+					}
+				}
+			}
+			
 			$setter = 'set' . ucwords($key);
 			if(method_exists($this, $setter)){
 				$this->{$setter}($val);

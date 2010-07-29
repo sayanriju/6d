@@ -7,11 +7,13 @@ class_exists('LoginResource') || require('LoginResource.php');
 class ProfileResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
+		$this->max_filesize = 1000000;
 	}
 	public function __destruct(){
 		parent::__destruct();
 	}
 	public $person;
+	public $max_filesize;
 	public function get($state = null, Person $person = null){
 		if(count($this->url_parts) > 1){
 			// Get the person's photo.
@@ -61,7 +63,7 @@ class ProfileResource extends AppResource{
 		}else if(strpos($person->profile->photo_url, 'http') !== false){
 			return $person->profile->photo_url;
 		}else if(String::isNullOrEmpty($person->profile->photo_url) !== null){
-			return str_replace('index.php', '', FrontController::urlFor(null)) . $person->profile->photo_url;
+			return '/' . FrontController::getVirtualPath() . '/' . $person->profile->photo_url;
 		}
 	}
 	public function put(Person $person, Profile $profile){
@@ -79,6 +81,13 @@ class ProfileResource extends AppResource{
 		if($profile != null){
 			$this->person->profile = serialize($profile);
 		}
+		if(strlen($person->password) > 0){
+			$this->person->password = String::encrypt($person->password);
+			$this->person->confirmation_password = String::encrypt($person->password);
+		}else{
+			$this->person->password = $existing_person->password;
+		}
+		
 		$this->person->id = $existing_person->id;
 		$this->person->url = String::replace('/http[s]?\:\/\//', '', FrontController::$site_path);
 		$this->person->url = String::replace('/\/$/', '', $this->person->url);

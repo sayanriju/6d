@@ -61,11 +61,11 @@ class Resource extends Object{
 			
 			ob_start();
 			
-			$__theme_view = FrontController::getRootPath('/' . FrontController::themePath() . '/views/' . $__full_path);
+			$__theme_view = FrontController::getRootPath('/' . FrontController::getThemePath() . '/views/' . $__full_path);
 			$__default_view = str_replace(sprintf('lib%sResource.php', DIRECTORY_SEPARATOR), '', __FILE__) . 'views/' . $__full_path;
 			/*printf("root = %s<br />virtual = %s<br />app = %s<br />theme = %s<br /><br />", FrontController::getRootPath()
 				, FrontController::getVirtualPath(), FrontController::getAppPath()
-				, FrontController::themePath());
+				, FrontController::getThemePath());
 				
 			echo $__theme_view . '<br />';
 			echo $__default_view;*/

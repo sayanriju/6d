@@ -35,7 +35,7 @@ class LoginResource extends AppResource{
 			if(FrontController::requestedUrl() != null){
 				$this->redirectTo(FrontController::requestedUrl());
 			}else{
-				if($this->current_user->is_owner){
+				if($user->is_owner){
 					$this->redirectTo(null);
 				}else{
 					$this->redirectTo($user->member_name);

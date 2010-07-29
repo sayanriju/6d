@@ -482,7 +482,7 @@ UIController.Post = function(){
 		}	
 	};
 	
-	this.didUploadPhoto = function(photo_name, file_name, photo_path, width){
+	this.photoDidUpload = function(photo_name, file_name, photo_path, width){
 		$('photo').set('value', null);
 		var dd = new Element('dd', {text: photo_name});
 		var items = $$('#photos dd');
@@ -517,7 +517,7 @@ SDDom.addEventListener(window, 'load', function(e){
 });
 
 function photoWasUploaded(photo_name, file_name, photo_path, width){
-	didUploadPhoto(photo_name, file_name, photo_path, width);
+	photoDidUpload(photo_name, file_name, photo_path, width);
 }
 
 function photoDidChange(e){
@@ -529,7 +529,7 @@ function photoDidChange(e){
 	}
 }
 
-function didUploadPhoto(photo_name, file_name, photo_path, width, error_message){
+function photoDidUpload(photo_name, file_name, photo_path, width, error_message){
 	if(error_message.length > 0){
 		alert(error_message);
 	}else{

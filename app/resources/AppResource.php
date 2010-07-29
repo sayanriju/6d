@@ -14,7 +14,7 @@
 			$this->resource_css = $resource_name . '.css';
 			$this->resource_js = $resource_name . '.js';
 			$root = FrontController::getRootPath();
-			if(file_exists($root . FrontController::themePath() . '/js/' . $this->resource_js)){
+			if(file_exists($root . '/' . FrontController::getThemePath() . '/js/' . $this->resource_js)){				
 				$this->resource_js = FrontController::urlFor('themes') . 'js/' . $this->resource_js;
 				$this->resource_js = $this->to_script_tag('text/javascript', $this->resource_js);
 			}elseif(file_exists($root . '/js/' . $this->resource_js)){
@@ -23,7 +23,7 @@
 			}else{
 				$this->resource_js = null;
 			}
-			if(file_exists(FrontController::themePath() . '/css/' . $this->resource_css)){
+			if(file_exists(FrontController::getThemePath() . '/css/' . $this->resource_css)){
 				$this->resource_css = FrontController::urlFor('themes') . 'css/' . $this->resource_css;
 				$this->resource_css = $this->to_link_tag('stylesheet', 'text/css', $this->resource_css, 'screen,projection');
 			}elseif(file_exists($root . 'css/' . $this->resource_css)){
@@ -54,7 +54,7 @@
 						}
 					}
 					$this->title = $this->site_member->person->profile->site_name;
-					$theme_path = FrontController::getRootPath('/' . FrontController::themePath() . '/ThemeController.php');
+					$theme_path = FrontController::getRootPath('/' . FrontController::getThemePath() . '/ThemeController.php');
 					if(file_exists($theme_path)){
 						class_exists('ThemeController') || require($theme_path);
 						$this->theme = new ThemeController($this);
@@ -126,7 +126,7 @@
 				$output = $filter->execute($output);
 			}
 			if(count(console::$messages) > 0){
-				$output = str_replace('</body>', '<pre id="__6d_console">' . xmlrpc_encode(console::$messages) . '</pre></body>', $output);
+				$output = str_replace('</body>', '<pre id="__6d_console">' . json_encode(console::$messages) . '</pre></body>', $output);
 			}
 			
 			return $output;

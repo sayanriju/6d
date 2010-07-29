@@ -11,8 +11,10 @@ ErrorDocument 404 index.php
 
 RewriteRule ^$ index.php [QSA]
 
+#file_check_start
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ index.php?r=$1 [QSA,L]
+#file_check_end
 
 # This block is required to do HTTP digest authentication in environments where PHP is executed
 # as a CGI.

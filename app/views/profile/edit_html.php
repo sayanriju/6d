@@ -53,6 +53,11 @@
 			<input type="checkbox" value="true" name="do_list_in_directory" id="do_list_in_directory"<?php echo $person->do_list_in_directory ? 'checked="true"' : null;?> />
 		</p>
 		<p>
+			<label for="password">Password</label>
+			<input type="password" id="password" name="password" value="" />
+		</p>
+	
+		<p>
 			<button type="submit" name="save_button" id="save_button"><span>Save</span></button>
 		</p>
 		<input type="hidden" id="id" name="id" value="{$person->id}" />

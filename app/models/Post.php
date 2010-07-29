@@ -274,6 +274,15 @@
 			$list = $db->find(new ByClause("type='page' and is_published=1 and owner_id={$owner_id}", null, 0, null), $post);
 			return $list;
 		}
+		public static function findFriendsPublishedStatii($owner_id){
+			$config = new AppConfiguration();
+			$post = new Post(null);
+			$db = Factory::get($config->db_type, $config);
+			$owner_id = (int)$owner_id;
+			$list = $db->find(new ByClause("type='status' and is_published=1 and owner_id={$owner_id} and person_post_id <> null", null, 0, null), $post);
+			return $list;
+		}
+		
 		public static function findAllPublished($custom_url, $owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
@@ -327,7 +336,6 @@
 			$config = new AppConfiguration();
 			if(count($errors) == 0){
 				$db = Factory::get($config->db_type, $config);
-				$post->custom_url = String::stringForUrl($post->title);
 				$db->save(null, $post);
 				$existing_tags = Tag::findAllForPost($post->id, $post->owner_id);
 				if($existing_tags != null){
@@ -338,7 +346,7 @@
 
 				foreach($post->tags as $tag_text){
 					if($existing_tags == null || !in_array($tag_text, $existing_tags)){
-						Tag::save(new Tag(array('parent_id'=>$post->id, 'type'=>'post', 'text'=>$tag_text)));
+						Tag::save(new Tag(array('parent_id'=>$post->id, 'type'=>'post', 'text'=>$tag_text, 'owner_id'=>$post->owner_id)));
 					}
 				}
 				self::notify('didSavePost', $post, $post);

@@ -51,9 +51,8 @@
 
 			</header>
 			<aside id="author">
-				<?php $person = Member::findOwner();$person->profile = unserialize($person->profile);?>
 				<a href="<?php echo FrontController::urlFor(null);?>" title="Go back to my home page">
-					<img src="<?php echo ProfileResource::getPhotoUrl($person);?>" alt="photo of <?php echo $person->name;?>" class="author" />
+					<img width="52" height="52" src="<?php echo ProfileResource::getPhotoUrl($this->site_member->person);?>" alt="photo of <?php echo $site_member->name;?>" class="author" />
 				</a>
 			  	<footer id="tweets">
 					<nav>

@@ -106,6 +106,9 @@ class PostResource extends AppResource{
 					break;
 			}
 			$post->owner_id = $this->current_user->id;
+			if($post->type !== 'status'){
+				$post->custom_url = String::stringForUrl($post->title);
+			}
 			list($post, $errors) = Post::save($post);
 			if($errors == null){
 				if($make_home_page){
@@ -138,25 +141,30 @@ class PostResource extends AppResource{
 			$post->post_date = date('c');
 		}
 		$post->owner_id = $this->current_user->id;
-		list($post, $errors) = Post::save($post);
-		$post->person_post_id = $post->id;
-		if($errors == null){
-			if($make_home_page){
-				$setting = Setting::findByName('home_page_post_id');
-				$setting->value = $post->id;
-				$setting->owner_id = $this->current_user->id;
-				Setting::save($setting);
-			}else if($post->isHomePage($this->getHome_page_post_id())){
-				Setting::delete('home_page_post_id');
+		if(strlen($post->body) > 0){
+			if($post->type !== 'status'){
+				$post->custom_url = String::stringForUrl($post->title);
 			}
-			self::setUserMessage('Post was saved.');
-			$this->sendPostToPeople($groups, $people, $post);
-		}else{
-			$message = 'An error occurred while saving your post:';
-			foreach($errors as $key=>$value){
-				$message .= "$key=$value";
+			list($post, $errors) = Post::save($post);
+			$post->person_post_id = $post->id;
+			if($errors == null){
+				if($make_home_page){
+					$setting = Setting::findByName('home_page_post_id');
+					$setting->value = $post->id;
+					$setting->owner_id = $this->current_user->id;
+					Setting::save($setting);
+				}else if($post->isHomePage($this->getHome_page_post_id())){
+					Setting::delete('home_page_post_id');
+				}
+				self::setUserMessage('Post was saved.');
+				$this->sendPostToPeople($groups, $people, $post);
+			}else{
+				$message = 'An error occurred while saving your post:';
+				foreach($errors as $key=>$value){
+					$message .= "$key=$value";
+				}
+				self::setUserMessage($message);
 			}
-			self::setUserMessage($message);
 		}
 		$this->redirectTo('posts');
 		
@@ -190,6 +198,9 @@ class PostResource extends AppResource{
 				$post->title = $this->filterText($post->title);
 				$post->body = urldecode($post->body);
 				$post->owner_id = $this->site_member->person_id;
+				if($post->type !== 'status'){
+					$post->custom_url = String::stringForUrl($post->title);
+				}
 				list($post, $errors) = Post::save($post);
 				if(count($errors) > 0){
 					foreach($errors as $key=>$error){

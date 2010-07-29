@@ -18,8 +18,8 @@ class IndexResource extends AppResource{
 	public function get($id = 1, $sort_by = 'post_date', $sort_by_direction = 'desc', $direction = null, $tag = null, $q = null){
 		$this->limit = 4;
 		$this->q = $q;
-		if(file_exists(FrontController::themePath() . '/HomePage.php')){
-			require(FrontController::themePath() . '/HomePage.php');
+		if(file_exists(FrontController::getThemePath() . '/HomePage.php')){
+			require(FrontController::getThemePath() . '/HomePage.php');
 			$home_page = new HomePage();
 			if(method_exists($home_page, 'getLimit')){
 				$this->limit = $home_page->getLimit();
@@ -56,7 +56,7 @@ class IndexResource extends AppResource{
 			}
 		}
 
-		$view = 'post/index';
+		$view = 'index/index';
 		if($this->page < 1){
 			$this->page = 1;
 		}
