@@ -1,5 +1,23 @@
+<style type="text/css">
+	div.canvas{
+		width: 120px;
+		height: 120px;
+		overflow: hidden;
+		position: relative;
+		top: 0;
+		left: 0;
+	}
+	.vcard img{
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
+	
+</style>
 <section class="vcard">
-	<img src="<?php echo ProfileResource::getPhotoUrl($person);?>" alt="photo of {$person->name}" class="photo" id="profile_photo" />
+	<div class="canvas">
+		<img src="<?php echo ProfileResource::getPhotoUrl($person);?>" alt="photo of {$person->name}" class="photo" id="profile_photo" />
+	</div>
 	<span class="fn name">{$person->name}</span>
 <?php if($person->email !== null):?>
 	<a class="email" href="mailto:{$person->email}">{$person->email}</a>
@@ -56,40 +74,56 @@
 	var original_size;
 	var start_position;
 	var user_message;
+	var current_position;
+	var canvas;
+	var xdiff, ydiff;
+	var canvas_position;
 	function init(){
 		photo = SDDom('profile_photo');
-		original_size = {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)};
-		SDDom.addEventListener(photo, 'mousedown', didMouseDown);
-		SDDom.addEventListener(photo, 'mouseup', didMouseUp);
-		SDDom.addEventListener(photo, 'mouseout', didMouseUp);
-		SDDom.addEventListener(photo, 'dblclick', didDoubleClick);
+		canvas = SDDom.findFirst('.canvas');
+		canvas_position = SDDom.getPosition(canvas, window);
+		original_size = {width: SDDom.getWidth(canvas), height: SDDom.getHeight(canvas)};//{width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)};
+		SDDom.addEventListener(canvas, 'mousedown', didMouseDown);
+		SDDom.addEventListener(canvas, 'mouseup', didMouseUp);
+		SDDom.addEventListener(canvas, 'mouseout', didMouseUp);
+		SDDom.addEventListener(canvas, 'dblclick', didDoubleClick);
 		user_message = SDDom('user_message');
 		SDDom.show(user_message);
-		user_message.innerHTML = original_size.width;
 	}
 	function didDoubleClick(e){
-		alert(e);
+		var new_size = {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)};
+		var pos = SDDom.getPosition(photo);
+		var offset = {x: canvas_position.x - pos.x, y: canvas_position.y - pos.y};
+		console.log([offset, new_size]);
 	}
 	function resize(photo, position){
 		var current_size = {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)};
-		var xdiff = position.x - start_position.x;
-		user_message.innerHTML = [position.x, position.y] + ', ' + xdiff;
-		SDDom.setStyles({width: xdiff + 'px'}, photo);
+		var diff = position.x - start_position.x;
+		SDDom.setStyles({width: diff + 'px'}, photo);
+	}
+	function move(photo, position, diff){
+		SDDom.setStyles({left: (position.x - diff.x) + 'px', top: (position.y - diff.y) + 'px'}, photo);
 	}
 	function didMouseMove(e){
-		var position = {x:SDDom.pageX(e), y:SDDom.pageY(e)};
-		resize(photo, position);
-		previous_mouse_position = position;
+		var position = {x: SDDom.pageX(e), y: SDDom.pageY(e)};
+		if(e.shiftKey){
+			resize(photo, position);
+		}else{
+			move(photo, position, {x: xdiff, y:ydiff});
+		}		
 	}
 	function didMouseDown(e){
-		start_position = {x: SDDom.pageX(e) - original_size.width, y: SDDom.pageY(e) - original_size.height};
+		var position = {x: SDDom.pageX(e), y: SDDom.pageY(e)};		
+		var photo_position = SDDom.getPosition(photo);
+		xdiff = position.x - photo_position.x + canvas_position.x;
+		ydiff = position.y - photo_position.y + canvas_position.y;
+		start_position = {x: position.x - original_size.width, y: position.y - original_size.height};
 		SDDom.stop(e);
-		SDDom.addEventListener(photo, 'mousemove', didMouseMove);
+		SDDom.addEventListener(canvas, 'mousemove', didMouseMove);
 	}
 	function didMouseUp(e){
-		SDDom.removeEventListener(photo, 'mousemove', didMouseMove);
+		SDDom.removeEventListener(canvas, 'mousemove', didMouseMove);
 		original_size = {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)};
-		start_position = null;
 	}
 	function photoWasUploaded(photo_name, file_name, photo_path, width){
 		photoDidUpload(photo_name, file_name, photo_path, width);

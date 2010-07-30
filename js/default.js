@@ -357,13 +357,8 @@ SDDom.getPosition = function(elem, from){
 		top += elem.offsetTop  || 0;
 		left += elem.offsetLeft || 0;
 		elem = elem.offsetParent;
-		if (elem) {
-			if (elem.tagName.toLowerCase() == 'body') break;
-			var p = elem.style.position;
-			if (p !== 'static') break;
-		}
-	} while (elem);    
-	return {x:top, y:left};
+	} while (elem && elem.tagName && from !== elem);	
+	return {x:left, y:top};
 };
 SDDom.setStyles = function(styles, elem){
 	if(elem){
