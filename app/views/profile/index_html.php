@@ -77,12 +77,14 @@
 	var current_position;
 	var canvas;
 	var xdiff, ydiff;
+	var photo_size;
 	var canvas_position;
 	function init(){
 		photo = SDDom('profile_photo');
 		canvas = SDDom.findFirst('.canvas');
 		canvas_position = SDDom.getPosition(canvas, window);
-		original_size = {width: SDDom.getWidth(canvas), height: SDDom.getHeight(canvas)};//{width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)};
+		original_size = {width: SDDom.getWidth(canvas), height: SDDom.getHeight(canvas)};
+		photo_size = {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)};
 		SDDom.addEventListener(canvas, 'mousedown', didMouseDown);
 		SDDom.addEventListener(canvas, 'mouseup', didMouseUp);
 		SDDom.addEventListener(canvas, 'mouseout', didMouseUp);
@@ -90,11 +92,15 @@
 		user_message = SDDom('user_message');
 		SDDom.show(user_message);
 	}
+	function photoDidSave(request){
+		alert(request.responseText);
+	}
 	function didDoubleClick(e){
 		var new_size = {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)};
 		var pos = SDDom.getPosition(photo);
-		var offset = {x: canvas_position.x - pos.x, y: canvas_position.y - pos.y};
-		console.log([offset, new_size]);
+		var offset = {x: canvas_position.x - pos.x, y: canvas_position.y - pos.y, ratio: new_size.width/photo_size.width};
+		(new SDAjax({method: 'put', parameters: ['ratio=' + offset.ratio, 'x=' + offset.x, 'y=' + offset.y, 'file_name=' + photo.src].join('&'), DONE: [window, photoDidSave]})).send('<?php echo FrontController::urlFor('photo.phtml');?>');
+		
 	}
 	function resize(photo, position){
 		var current_size = {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)};
