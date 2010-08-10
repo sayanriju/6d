@@ -43,7 +43,7 @@ UIView.List = function(id, options){
 		this.is_active_view = true;
 		var elem = (e.target.nodeName.toLowerCase() === 'li' ? e.target : SDDom.getParent('li', e.target));
 		if(elem && e.target.nodeName.toLowerCase() !== 'input'){
-			if(!e.shiftKey){
+			if(!e.shift){
 				this.deselectAll();
 			}
 			this.select(elem, e);

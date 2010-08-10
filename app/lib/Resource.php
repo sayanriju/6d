@@ -151,19 +151,25 @@ class Resource extends Object{
 					}
 				}				
 				$methods = $r->getMethods();
+				$result = null;
 				foreach($methods as $method){
 					$method_name = $method->getName();
-					if($method->isPublic() && strpos($method_name, 'get') !== false){
+					if($method->isPublic() && strpos($method_name, 'get') !== false && strpos($method_name, '__get') === false){
 						$property_name = str_replace('get', '', $method_name);
 						$property_name = String::decamelize($property_name);
-						$output = str_replace(sprintf("{\$%s->%s}", $key, $property_name), $method->invoke($value), $output);								
+						$result = $method->invoke($value);
+						if(!is_array($result) && !is_object($result)){
+							$output = str_replace(sprintf("{\$%s->%s}", $key, $property_name), $result, $output);								
+						}
 					}
 				}
 				$name = null;
 				if(property_exists($value, '_attributes')){					
 					$list = $value->_attributes->getList();
 					foreach($list as $name=>$val){
-						$output = str_replace(sprintf("{\$%s->%s}", $key, $name), $val, $output);								
+						if(!is_array($val) && !is_object($val)){
+							$output = str_replace(sprintf("{\$%s->%s}", $key, $name), $val, $output);								
+						}
 					}					
 				}
 							
@@ -360,6 +366,13 @@ class Resource extends Object{
 			$result = true;
 		}elseif($value == 'true' || $value == 'false'){
 			$result = ($value == 'true');
+		}
+		
+		if(is_int($value)){
+			$result = intval($value);
+		}
+		if(is_float($value)){
+			$result = floatval($value);
 		}
 		return $result;
 	}

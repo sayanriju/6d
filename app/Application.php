@@ -1,6 +1,7 @@
 <?php
 class_exists('AppResource') || require('resources/AppResource.php');
 class_exists('AuthController') || require('controllers/AuthController.php');
+class_exists('ProfileResource') || require('resources/ProfileResource.php');
 class_exists('Member') || require('models/Member.php');
 class Application{
 	public function __construct(){
@@ -84,6 +85,7 @@ class Application{
 		}
 	}
 	public function willExecute($path_info){
+		Photo::addObserver(new ProfileResource(), 'willDeletePhoto', 'Photo');
 		if(!class_exists('AppConfiguration')){
 			return $path_info;
 		}		
@@ -102,6 +104,9 @@ class Application{
 			self::$member = Member::findOwner();
 		}
 		return $path_info;
+	}
+	public function errorDidHappen($message){
+		error_log($message);
 	}
 	
 	public function resourceOrMethodNotFoundDidOccur($sender, $args){

@@ -1,7 +1,7 @@
 function SDObject(options){
 	var observers = [];
 	var me = this;
-	this.delegate = null;
+	this.delegate = options && options.delegate ? options.delegate : null;
 	this.bind = function(fn) {
 		return function() {
 			var args = new Array();
@@ -58,9 +58,19 @@ function SDObject(options){
     };
     if(options != null && options.nodeName === undefined){
         for(prop in options){
-            this.set(prop, options[prop]);
+			if(isNaN(parseInt(prop))){
+	            this.set(prop, options[prop]);				
+			}
         }
     }
+/*	if(arguments != null && arguments.nodeName === undefined){	
+		for(i = 0; i < arguments.length; i++){
+			for(prop in arguments[i]){
+				this.set(prop, arguments[i][prop]);
+			}
+		}
+	}*/
+	return this;
 }
 SDObject.capitalize = function(text){
 	var words = text.toLowerCase().split('_');
@@ -144,7 +154,7 @@ SDArray.remove = function(item, ary){
 SDArray.find = function(ary, delegate){
 	var i = ary.length;
 	while(item = ary[--i]){
-		if(delegate(item)){
+		if(delegate(item, i)){
 			return item;
 		}
 	}
@@ -152,7 +162,11 @@ SDArray.find = function(ary, delegate){
 };
 
 function SDDom(id){
-	return document.getElementById(id);
+	if(id && id.length > 0){
+		return document.getElementById(id);		
+	}else{
+		return id;
+	}
 }
 // again, from prototype.js, thanks guys.
 SDDom.keys = {
@@ -482,6 +496,7 @@ function SDAjax(options){
 		}
 		request.send(this.options.method === 'post' ? this.options.parameters : null);
 	};
+	return this;
 	
 };
 function UIResponder(){
@@ -532,6 +547,7 @@ function UIResponder(){
 		
 	};
 	this.undoManager = null;	
+	return this;
 }
 
 function UIWindow(){
@@ -556,11 +572,12 @@ function UIWindow(){
 	this.sendEvents = function(){
 		
 	};
+	return this;
 }
 
-function UIView(id){
-	UIResponder.apply(this, arguments);
+function UIView(id, options){	
 	this.container = null;
+	UIResponder.apply(this, [options]);
 	this.activeView = null;
 	if(id){
 		this.container = SDDom(id);
@@ -598,19 +615,23 @@ function UIView(id){
 		this.activeView = null;
 	};
 	this.eventViewDidClose = this.bind(this.viewDidClose);	
+	return this;
 }
 
 function UIController(views){
 	SDObject.apply(this, arguments);
 	this.views = views;
+	return this;
 }
 
 UIView.Panel = function(id){
 	UIView.apply(this, arguments);
+	return this;
 }
 
 UIView.Button = function(id){
 	UIView.apply(this, arguments);
+	return this;
 }
 
 UIView.ContactPanel = function(id){
@@ -619,6 +640,7 @@ UIView.ContactPanel = function(id){
 		alert(e);
 		SDDom.stop(e);
 	}
+	return this;
 }
 
 UIView.ContactLink = function(id){
@@ -626,6 +648,7 @@ UIView.ContactLink = function(id){
 		SDDom.stop(e);
 	};
 	UIView.Button.apply(this, arguments);
+	return this;
 }
 
 UIView.AdminMenu = function(id){
@@ -636,13 +659,185 @@ UIView.AdminMenu = function(id){
 		}
 	};
 	UIView.apply(this, arguments);
+	return this;
 }
+UIView.Slider = function(options){
+	this.direction = null;
+	UIView.apply(this, arguments);
+	var delegate = this.delegate;
+	var container = this.container;
+	var handle_view = null;
+	if(this.container){
+		handle_view = new UIView.Handle(this.container, {delegate: this.delegate, direction: this.direction});	
+	}
+	this.reset = function(){
+		handle_view.reset();
+	};
+	return this;
+}
+UIView.Handle = function(id, options){
+	this.bounds = null;
+	this.direction = null;
+	UIView.apply(this, arguments);
+	var handle = null;
+	init(this.container);
+	var delegate = this.delegate;
+	var container = this.container;
+	var container_position = SDDom.getPosition(this.container);
+	var total_width = SDDom.getWidth(this.container);
+	var total_height = SDDom.getHeight(this.container);
+	var diff = {x: SDDom.getPosition(this.container).x, y: SDDom.getPosition(this.container).y};
+	var bounds = this.bounds || {ux: container_position.x + total_width, uy: container_position.y + total_height, lx: container_position.x, ly: container_position.y};
+	var direction = this.direction;
+	SDDom.setStyles({position: 'relative'}, container);
+	var moveFunc = (this.direction == 'horizontal' ? moveHoriz : this.direction == 'vertical' ? moveVert : moveBoth);
+	function init(container){
+		handle = SDDom.create('span');
+		SDDom.setStyles({display: 'block', height: '15px', width: '15px', background: '#fff', position: 'absolute', left: '0', top: '-6px'}, handle);
+		SDDom.setStyles({position: 'relative'});
+		SDDom.append(container, handle);
+		SDDom.addEventListener(container, 'mousedown', isClickingContainer);
+		SDDom.addEventListener(document, 'mouseup', wasReleased);
+	}
+	
+	function moveHoriz(mouse_position, handle_position, handle){
+		if((mouse_position.x >= bounds.lx && mouse_position.x <= bounds.ux)){
+			SDDom.setStyles({left: handle_position.x + 'px'}, handle);
+		}		
+	}
+	function moveVert(mouse_position, handle_position, handle){
+		if((mouse_position.y >= bounds.ly && mouse_position.y <= bounds.uy)){
+			SDDom.setStyles({top: handle_position.y + 'px'}, handle);
+		}
+	}
+	function moveBoth(mouse_position, handle_position, handle){
+		if((mouse_position.x >= bounds.lx && mouse_position.x <= bounds.ux) && (mouse_position.y >= bounds.ly && mouse_position.y <= bounds.uy)){
+			SDDom.setStyles({left: handle_position.x + 'px', top: handle_position.y + 'px'}, handle);
+		}		
+	}
+	function isClickingContainer(e){
+		var position = {x: SDDom.pageX(e), y: SDDom.pageY(e)};
+		SDDom.addEventListener(document, 'mousemove', mouseIsMoving);
+		move(handle, position, diff);
+		SDDom.stop(e);
+	}	
+	function wasReleased(e){
+		SDDom.removeEventListener(document, 'mousemove', mouseIsMoving);
+	}
+	function move(h, position, d){
+		var width = SDDom.getWidth(h) / 2;
+		var height = SDDom.getHeight(h) / 2;
+		var handle_position = {x: position.x  - d.x - width, y: position.y - d.y - height};
+		moveFunc(position, handle_position, handle);
+		var percent = {x:(handle_position.x / total_width), y: (handle_position.y / total_height)};
+		delegate && delegate.sliderIsMoving ? delegate.sliderIsMoving(percent) : void(0);		
+	}
+	function mouseIsMoving(e){
+		var position = {x: SDDom.pageX(e), y: SDDom.pageY(e)};
+		move(handle, position, diff);
+	}
+	
+	this.reset = function(){
+		SDDom.setStyles({left: 0, top: 0}, handle);
+	};
+	return this;
+}
+UIView.Cropper = function(id, options){
+	this.canvases = null;
+	UIView.apply(this, [id, options]);
+	var canvases = init(this.canvases);
+	this.canvases = canvases;
+	var delegate = this.delegate;
+	start_position = null;
+	function init(canvases){
+		var canvas;
+		var list = [];
+		var photo;
+		for(var i = 0; i < canvases.length; i++){
+			canvas = canvases[i];
+			photo = SDDom.findFirst('img', canvas);
+			list.push({canvas: canvas
+				, photo: photo
+				, start_size: {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)}
+				, original_size: {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)}});
+			observe(canvas);
+		}		
+		return list;
+	}
+	function observe(canvas){
+		var photo = SDDom.findFirst('img', canvas);
+		SDDom.addEventListener(canvas, 'mousedown', isClickingOnPhoto);
+		SDDom.addEventListener(canvas, 'mouseup', wasReleasedOverPhoto);
+		SDDom.addEventListener(canvas, 'mouseout', wasReleasedOverPhoto);
+		SDDom.addEventListener(canvas, 'dblclick', doubleClickedOnPhoto);
+		SDDom.addEventListener(photo, 'load', photoFinishedLoading);
+	}
+	
+	function doubleClickedOnPhoto(e){
+		var new_size = {width: SDDom.getWidth(e.target), height: SDDom.getHeight(e.target)};
+		var pos = SDDom.getPosition(e.target);
+		var view = getCanvas(e.target.src);
+		var canvas_position = SDDom.getPosition(view.canvas);
+		var canvas_size = {width: SDDom.getWidth(view.canvas), height: SDDom.getHeight(view.canvas)};
+		var photo = SDDom.findFirst('img', view.canvas);
+		var offset = {x: canvas_position.x - pos.x, y: canvas_position.y - pos.y, ratio: new_size.width/view.original_size.width};
+		delegate && delegate.photoWasDoubleClicked ? delegate.photoWasDoubleClicked(photo, new_size, pos, offset, canvas_size) : void(0);
+	}
+	function resize(photo, position){
+		var current_size = {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)};
+		var view = getCanvas(photo.src);
+		var diff = position.x - start_position.x;
+		SDDom.setStyles({width: diff + 'px'}, photo);
+	}
+	function move(photo, position, diff){
+		SDDom.setStyles({left: (position.x - diff.x) + 'px', top: (position.y - diff.y) + 'px'}, photo);
+	}
+	function mouseIsMoving(e){
+		var photo = e.target.src ? e.target : SDDom.findFirst('img', e.target);
+		var position = {x: SDDom.pageX(e), y: SDDom.pageY(e)};
+		if(e.shiftKey){
+			resize(photo, position);
+		}else{
+			move(photo, position, {x: xdiff, y:ydiff});
+		}		
+	}
+	function isClickingOnPhoto(e){
+		var position = {x: SDDom.pageX(e), y: SDDom.pageY(e)};		
+		var photo = e.target.src ? e.target : SDDom.findFirst('img', e.target);
+		var view = SDArray.find(canvases, function(c, i){return c.photo.src == photo.src;});
+		var canvas_position = SDDom.getPosition(view.canvas);
+		var photo_position = SDDom.getPosition(photo);
+		xdiff = position.x - photo_position.x + canvas_position.x;
+		ydiff = position.y - photo_position.y + canvas_position.y;
+		start_position = {x: position.x - view.start_size.width, y: position.y - view.start_size.height};
+		SDDom.stop(e);
+		SDDom.addEventListener(view.canvas, 'mousemove', mouseIsMoving);
+	}
+	function wasReleasedOverPhoto(e){
+		var photo = e.target.src ? e.target : SDDom.findFirst('img', e.target);
+		var view = getCanvas(photo.src);
+		view.photo = photo;
+		view.start_size = {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)};
+		SDDom.removeEventListener(view.canvas, 'mousemove', mouseIsMoving);
+	}
+	function photoFinishedLoading(e){
+		var view = getCanvas(e.target.src);
+		view.original_size = {width: SDDom.getWidth(view.photo), height: SDDom.getHeight(view.photo)};
+	}
+	
+	function getCanvas(src){
+		return SDArray.find(canvases, function(c, i){return c.photo.src == src;});
+	}
+	return this;
+}
+
+
 SDDom.addEventListener(window, 'load', function(){
-	/*var scripts = SDDom.byTag('script');
+	var scripts = SDDom.byTag('script');
 	SDObject.rootUrl = SDArray.collect(scripts, function(script){return script.src.indexOf('default') > -1;})[0].getAttribute('src');
 	SDObject.rootUrl = SDObject.rootUrl.replace('js/default.js', '');
 	// This should handle not running the app with a url rewriting module.
 	if(window.location.href.indexOf('index.php') > -1){
 		SDObject.rootUrl += 'index.php?r=';
-	}*/
+	}
 });

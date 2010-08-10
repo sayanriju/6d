@@ -19,6 +19,9 @@ class FollowersResource extends AppResource{
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}else{
 			$this->people = FriendRequest::findAll();
+			if($this->people === null){
+				$this->people = array();
+			}
 			$this->title = 'Friend Requests';
 			$this->output = $this->renderView('follower/index', array('errors'=>$errors));
 			return $this->renderView('layouts/default', null);

@@ -38,6 +38,7 @@
 				$publisher = get_class($sender);
 			}
 			if(self::$observers != null){
+				//error_log('notifying ' . json_encode($info));
 				foreach(self::$observers as $observer){
 					if(method_exists($observer->obj, $notification) && $observer->publisher === $publisher){
 						$observer->obj->{$notification}($sender, $info);

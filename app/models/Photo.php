@@ -101,12 +101,19 @@
 			}
 			return $config->prefix . 'photos';
 		}
-		
-		public function findAll($path = null){
+		public static function delete($file_name_with_path){
+			self::notify('willDeletePhoto', new Photo(), $file_name_with_path);
+			if(file_exists($file_name_with_path)){
+				return unlink($file_name_with_path);
+			}else{
+				return false;
+			}
+		}
+		public static function findAll($path = null){
 			$root = ($path == null ? 'media' : $path);
 			$folder = dir($root);
 			self::$images = array();
-			$this->traverse($root);
+			self::traverse($root);
 			/*while (false !== ($entry = $folder->read())){
 				if(strpos($entry, '.') !== 0){
 					$file_name = $folder->path .'/'. $entry;
@@ -119,7 +126,7 @@
 		}
 		
 		private static $images;
-		private function traverse($path){
+		private static function traverse($path){
 			$root = ($path == null ? 'media' : $path);
 			if(!file_exists($root)){
 				mkdir($root, 0777);
@@ -131,7 +138,7 @@
 					if(strpos($entry, '.') !== 0){
 						$file_name = $folder->path .'/'. $entry;					
 						if(is_dir($file_name)){
-							$this->traverse($file_name);						
+							self::traverse($file_name);						
 						}else{						
 							self::$images[] = new Photo(array('src'=>$file_name));
 						}

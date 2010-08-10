@@ -6,6 +6,7 @@
 	class_exists('Person') || require('models/Person.php');
 	class_exists('Setting') || require('models/Setting.php');
 	class_exists('NotificationCenter') || require('lib/NotificationCenter.php');
+	class_exists('Photo') || require('models/Photo.php');
 	class AppResource extends Resource{
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
@@ -13,7 +14,7 @@
 			$resource_name = strtolower(str_replace('Resource', '', get_class($this)));				
 			$this->resource_css = $resource_name . '.css';
 			$this->resource_js = $resource_name . '.js';
-			$root = FrontController::getRootPath();
+			$root = FrontController::getRootPath(null);
 			if(file_exists($root . '/' . FrontController::getThemePath() . '/js/' . $this->resource_js)){				
 				$this->resource_js = FrontController::urlFor('themes') . 'js/' . $this->resource_js;
 				$this->resource_js = $this->to_script_tag('text/javascript', $this->resource_js);
@@ -35,7 +36,7 @@
 
 			if(!class_exists('AppConfiguration')){
 				if(get_class($this) != 'InstallResource'){					
-					FrontController::redirectTo('install', null);
+					$this->redirectTo('install', null);
 				}
 			}else{
 				$this->config = new AppConfiguration();
@@ -52,6 +53,7 @@
 							AuthController::logout();
 							$this->redirectTo(null);
 						}
+						$this->current_user->profile = unserialize($this->current_user->profile);
 					}
 					$this->title = $this->site_member->person->profile->site_name;
 					$theme_path = FrontController::getRootPath('/' . FrontController::getThemePath() . '/ThemeController.php');
@@ -161,7 +163,7 @@
 			return FrontController::urlFor($resource_name) . $page;
 		}
 		private function getFiles($folder_name, $name){
-			$root = FrontController::getRootPath() . '/' . $folder_name;
+			$root = FrontController::getRootPath('/' . $folder_name);
 			$folders = $this->getFolders($root);
 			$plugin_paths = array();
 			foreach($folders as $folder){

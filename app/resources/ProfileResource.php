@@ -7,14 +7,28 @@ class_exists('LoginResource') || require('LoginResource.php');
 class ProfileResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
-		$this->max_filesize = 1000000;
+		$this->max_filesize = 2000000;
 	}
 	public function __destruct(){
 		parent::__destruct();
 	}
 	public $person;
 	public $max_filesize;
+	public function getState(){
+		return array_key_exists('state', $_SESSION) ? $_SESSION['state'] : null;
+	}
+	public function setState($value){
+		$_SESSION['state'] = $value;
+	}
+	
+	public function post($state = null){
+		$this->setState($state);
+		$this->redirectTo('profile');
+		return '';
+	}
 	public function get($state = null, Person $person = null){
+		$state = $state == null ? $this->getState() : $state;
+		$this->setState($state);
 		if(count($this->url_parts) > 1){
 			// Get the person's photo.
 			$photo_file_type = '.png';
@@ -42,14 +56,14 @@ class ProfileResource extends AppResource{
 				$this->person->profile = unserialize($this->person->profile);
 			}
 			$this->title = $this->person->name . "'s profile.";
-			if($state === 'modify'){
+			if($state === 'edit'){
 				if(!AuthController::isAuthorized() || $this->current_user->person_id !== $this->site_member->person_id){
 					throw new Exception(FrontController::UNAUTHORIZED, 401);
 				}
 				$this->output = $this->renderView('profile/edit', null);
 				return $this->renderView('layouts/default', null);
 			}else{
-				if($this->person->profile === null || strlen($this->person->profile) === 0){
+				if($this->person->profile === null){
 					$this->person->profile = serialize(new Profile(null));
 				}
 				$this->output = $this->renderView('profile/index', null);
@@ -57,7 +71,7 @@ class ProfileResource extends AppResource{
 			}
 		}
 	}
-	public static function getPhotoUrl(Person $person, $photo_file_type = '.png'){
+	public static function getPhotoUrl($person, $photo_file_type = '.png'){
 		if($person->profile === null || String::isNullOrEmpty($person->profile->photo_url)){
 			return FrontController::urlFor('images') . 'nophoto' . $photo_file_type;
 		}else if(strpos($person->profile->photo_url, 'http') !== false){
@@ -69,7 +83,8 @@ class ProfileResource extends AppResource{
 	public function put(Person $person, Profile $profile){
 		if(!AuthController::isAuthorized() || $this->current_user->person_id !== $this->site_member->person_id){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
-		}		
+		}
+		$this->setState(null);
 		$this->person = $person;
 		$this->person->session_id = session_id();
 		$existing_person = Person::findById($this->current_user->person_id);
@@ -93,17 +108,23 @@ class ProfileResource extends AppResource{
 		$this->person->url = String::replace('/\/$/', '', $this->person->url);
 		$this->person->is_owner = $existing_person->is_owner;
 		$this->person->is_approved = true;
-		$this->person = Person::save($this->person);
-		if(count($errors) == 0){
+		try{
+			$this->person = Person::save($this->person);
 			self::setUserMessage('Profile saved');
-		}else{
-			$message = $this->renderView('install/error', array('message'=>"The following errors occurred when saving your profile. Please resolve and try again.", 'errors'=>$errors));					
-			self::setUserMessage($message);
+		}catch(Exception $e){
+			self::setUserMessage($e->getMessage());
 		}
+
 		$this->person->profile = unserialize($this->person->profile);
 		$view = 'profile/index';
-		$this->output = $this->renderView($view, array('errors'=>$errors));
+		$this->output = $this->renderView($view, null);
 		return $this->renderView('layouts/default');
+	}
+	public function willDeletePhoto($sender, $info){
+		if($info === str_replace(FrontController::urlFor(null), '', $this->current_user->profile->photo_url)){
+			$this->current_user->profile->photo_url = null;
+			Profile::save($this->current_user);
+		}
 	}
 }
 

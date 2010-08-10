@@ -65,12 +65,6 @@ UIView.Modal = function(id, options){
 	if(!options.handle){
 		throw new Exception("I need the DOM id of the element who's click event I'll handle to open the modal window.");
 	}
-	this.handle = null;
-	try{
-		this.handle = SDDom(options.handle);		
-	}catch(e){
-		throw new Exception("An exception occurred when I tried to get the DOM element by the id you gave me in options.handle: " + e);
-	}
 	this.overlay = new UIView.Overlay(null);
 	this.onHandleClick = function(e){
 		this.overlay.toggle();
@@ -112,11 +106,17 @@ UIView.Modal = function(id, options){
 			this.delegate.didClickView.apply(this.delegate, [e]);
 		}
 	};
-	UIView.apply(this, [id, options]);
+	UIView.apply(this, [id, options]);	
+	this.handle = null;
+	try{
+		this.handle = SDDom(options.handle);		
+	}catch(e){
+		throw new Exception("An exception occurred when I tried to get the DOM element by the id you gave me in options.handle: " + e);
+	}
 	this.setHtml = function(html){
 		this.div.innerHTML = html;
 	};
-	SDDom.append(this.container, this.div);
+	SDDom.append(this.container, this.div);		
 	SDDom.addEventListener(this.handle, 'click', this.bind(this.onHandleClick));
 	this.closeHandle = SDDom.create('button');
 	var properties = {innerHTML: 'Clear All', value: 'Cancel', id: 'close_button_' + Date.UTC(today.getFullYear(), today.getMonth(), today.getDay())};
@@ -137,7 +137,7 @@ UIView.Modal = function(id, options){
 };
 
 UIView.Modal.AddressBook = function(id, options){
-	UIView.Modal.apply(this, [id, options]);	
+	UIView.Modal.apply(this, [id, options]);
 	this.selectedGroup = null;
 	this.selectedPerson = null;
 	this.people = [];

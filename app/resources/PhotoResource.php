@@ -12,36 +12,47 @@
 		public function __destruct(){
 			parent::__destruct();
 		}
-		public function put($ratio, $x, $y, $file_name){
+		public function delete($src){
+			$src = str_replace(FrontController::urlFor(null), '', $src);
+			$did_delete = Photo::delete($src);
+			if(!$did_delete){
+				self::setUserMessage(sprintf('failed to delete %s', $src));
+			}
+			$this->redirectTo('photos');
+		}
+		public function put($ratio, $offset_x, $offset_y, $dst_w, $dst_h, $file_name){
 			$file_name = str_replace(FrontController::urlFor(null), '', $file_name);
 			$extension = pathinfo($file_name, PATHINFO_EXTENSION);
-			$tmp_image = null;
+			$src_image = null;
 	        if($extension == "jpg" || $extension == "jpeg" || $extension == "JPG"){ 
-	          $tmp_image=imagecreatefromjpeg($file_name); 
+	          $src_image=imagecreatefromjpeg($file_name); 
 	        } 
 	        if($extension == "png") { 
-	          $tmp_image=imagecreatefrompng($file_name); 
+	          $src_image=imagecreatefrompng($file_name); 
 	        }
 	        if($extension == "gif") { 
-	          $tmp_image=imagecreatefromgif($file_name); 
-	        }
-			$width = imagesx($tmp_image);
-			$height = imagesy($tmp_image);
-			$new_width = $ratio * $width;
-			$new_height = $ratio * $height;
-			$new_image = imagecreatetruecolor($new_width,$new_height);
-			ImageCopyResized($new_image, $tmp_image, $x, $y, $x, $y, $new_width, $new_height, $width, $height);
-	        $did_save = false;
+	          $src_image=imagecreatefromgif($file_name); 
+	        }			
+			$src_w = $dst_w/$ratio;
+			$src_h = $dst_h/$ratio;
+			$dst_x = 0;
+			$dst_y = 0;
+			$src_x = $offset_x/$ratio;
+			$src_y = $offset_y/$ratio;
+			$dst_image = imagecreatetruecolor($dst_w,$dst_h);
+			$did_save = imagecopyresampled($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
+			// change the file name to point to the profile folder within media.
+			//$file_name = String::replace('media', 'media/profile', $file_name);
 			if($extension == "jpg" || $extension == "jpeg" || $extension == "JPG"){ 
-	          $did_save = imagejpeg($new_image, $file_name); 
+	          $did_save = imagejpeg($dst_image, $file_name); 
 	        } 
 	        if($extension == "png") { 
-	          $did_save = imagepng($new_image, $file_name); 
+	          $did_save = imagepng($dst_image, $file_name); 
 	        }
 	        if($extension == "gif") { 
-	          $did_save = imagegif($new_image, $file_name); 
+	          $did_save = imagegif($dst_image, $file_name); 
 	        }
-			return implode(',', array($ratio, $x, $y, $file_name, $did_save));
+			return implode(',', array($ratio, $offset_x, $offset_y, $dst_w, $dst_h, $src_w, $src_h, $src_x, $src_y, $file_name, $did_save));
 		}
 		
 		public static function getThumbnailWidth($src){

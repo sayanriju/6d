@@ -6,7 +6,7 @@
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
 			$this->url = FrontController::urlFor(null);
-			$this->max_filesize = 1000000;
+			$this->max_filesize = 2000000;
 		}
 		public function __destruct(){
 			parent::__destruct();
@@ -27,9 +27,10 @@
 				throw new Exception(FrontController::UNAUTHORIZED, 401);
 			}
 			$photo['error_message'] = null;
-			console::log(json_encode($photo));
+			//console::log(json_encode($photo));
 			$path = $photo['type'];
 			$width = 0;
+			$photo_name = null;
 			if(!in_array($photo['type'], array('image/tiff', 'image/jpg', 'image/jpeg', 'image/gif', 'image/png'))){
 				$photo['error_message'] = "I don't accept that type of file.";
 			}else{
@@ -68,7 +69,6 @@
 		  ["error"]=>
 		  int(0)
 		  ["size"]=>*/
-
 			return $this->renderView('photo/show', array('photo'=>$photo, 'photo_name'=>$photo['name'], 'file_name'=>$photo_name, 'photo_path'=>FrontController::urlFor(null) . $path, 'width'=>$width));
 		}
 		

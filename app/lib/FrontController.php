@@ -358,13 +358,13 @@ class FrontController extends Object{
 		}
 		if(file_exists($file)){
 			class_exists($class_name) || require($file);
+			ob_start();
 			try{
 				$obj = new $class_name(array('url_parts'=>$url_parts));		
 				$obj->file_type = $file_type;
 				$method = strtolower((array_key_exists('_method', $_REQUEST) ? $_REQUEST['_method'] : $_SERVER['REQUEST_METHOD']));
-				ob_start();
 				try{					
-					$output = Resource::sendMessage($obj, $method, $resource_id);
+					$output = Resource::sendMessage($obj, $method, null);
 				}catch(Exception $e){
 					switch($e->getCode()){
 						case(401):
@@ -379,18 +379,18 @@ class FrontController extends Object{
 					}
 					throw $e;
 				}
+				Resource::sendMessage($obj, 'didFinishLoading');			
+				
 				if($obj->redirect_parameters != null){
 					self::redirectTo($obj->redirect_parameters['resource_name'], $obj->redirect_parameters['query_parameters'], $obj->redirect_parameters['make_secure']);
-				}else{
-					Resource::sendMessage($obj, 'didFinishLoading');			
 				}
 			}catch(Exception $e){
 				$output .= self::$delegate->exceptionHasOccured($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'exception'=>$e));
 			}
-			ob_end_flush();
 			$output = $this->trim($output);
 			self::$end_time = microtime(true);
 			self::sendHeadersForFileType($file_type, strlen($output));
+			ob_end_flush();
 			return $output;
 		}else{
 			$output = self::$delegate->resourceOrMethodNotFoundDidOccur($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'server'=>$_SERVER, 'url_parts'=>$url_parts));

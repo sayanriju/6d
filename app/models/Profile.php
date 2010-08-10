@@ -72,4 +72,10 @@ class Profile extends Object{
 		$this->site_description = $val;
 	}
 
+	public static function save($person){
+		$profile = $person->profile;
+		$person = Person::findById($person->id);
+		$person->profile = serialize($profile);
+		Person::save($person);
+	}
 }

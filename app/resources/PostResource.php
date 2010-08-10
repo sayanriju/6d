@@ -10,7 +10,7 @@ class_exists('Person') || require('models/Person.php');
 class PostResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
-		$this->max_filesize = str_replace('M', '', ini_get('upload_max_filesize')) * 1000000;
+		$this->max_filesize = 2000000;
 		$this->post = new Post();
 	}
 	public function __destruct(){
