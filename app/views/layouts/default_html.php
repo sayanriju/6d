@@ -35,11 +35,6 @@
 						<li><a href="<?php echo FrontController::urlFor($page->custom_url);?>" title="<?php echo $page->description;?>"><?php echo $page->title;?></a></li>
 		<?php endif;?>
 	<?php endwhile;?>
-						<li id="search">
-							<form action="<?php echo FrontController::urlFor(null);?>" method="get">
-								<input type="search" name="q" value="{$q}" />
-							</form>
-						</li>
 						<li>
 							<?php if(AuthController::isAuthorized()):?>
 							<p>Welcome <?php echo $this->current_user->name;?></p>
