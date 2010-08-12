@@ -392,12 +392,10 @@ UIController.Post = function(){
 	if(!this.list_of_people){
 		this.list_of_people = SDDom.append(this.send_to_list, SDDom.create('ul'));
 	}
-	this.form = SDDom('post_form');
 	this.doSave = function(e){
 		this.form.submit();
 	};
 	this.didAddGroup = function(group){
-		var ul = SDDom.findFirst('ul', SDDom('send_to_list'));
 		var li = SDDom.create('li');
 		li.innerHTML = '<span>' + decodeURIComponent(group).replace('+', ' ') + '</span>';
 		var input = SDDom.create('input');
@@ -406,7 +404,7 @@ UIController.Post = function(){
 		input.id = 'groups_' + this.getUniqueId();
 		input.value = group;
 		SDDom.append(li, input);
-		SDDom.append(ul, li);
+		SDDom.append(this.list_of_people, li);
 	};
 	this.didRemoveGroup = function(group){
 		var fields = SDDom.findAll('input[type=hidden]', SDDom('send_to_list'));
@@ -422,7 +420,6 @@ UIController.Post = function(){
 		}
 	};
 	this.didAddPerson = function(person){
-		var ul = SDDom.findFirst('ul', SDDom('send_to_list'));
 		var li = li = SDDom.create('li');
 		li.id = 'li_person_' + person.id;
 		li.innerHTML = '<span>' + decodeURIComponent(person.name).replace('+', ' ') + '</span>';
@@ -432,13 +429,13 @@ UIController.Post = function(){
 		input.id = 'person_checkbox_' + person.id;
 		input.value = person.id;
 		SDDom.append(li, input);
-		SDDom.append(ul, li);
+		SDDom.append(this.list_of_people, li);
 	};
 	this.didRemovePerson = function(person){
 		SDDom.remove(SDDom('li_person_' + person.id));
 	};
 	this.didClickCancel = function(e){
-		var lis = SDDom.findAll('ul li', SDDom('send_to_list'));
+		var lis = SDDom.findAll('ul li', this.list_of_people);
 		var i = lis.length;
 		while(i > 0){
 			SDDom.remove(lis.item(--i));
@@ -486,5 +483,4 @@ SDDom.addEventListener(window, 'load', function(e){
 	postController = new UIController.Post();
 	textarea.delegate = postController;
 	addressBookController.delegate = postController;
-	SDDom.addEventListener(SDDom('photo'), 'change', photoDidChange);
 });
