@@ -391,7 +391,7 @@ UIController.AddressBook = function(views){
 		}
 	};
 	this.onPersonWasSubmittedDONE = function(request){
-		var user_message = SDDom.findFirst('.user_message');
+		var user_message = SDDom('user_message');
 		var response = JSON.parse(request.responseText);
 		user_message.innerHTML = response.message;
 		SDDom.show(user_message);
@@ -410,7 +410,7 @@ UIController.AddressBook = function(views){
 		SDDom.stop(e);
 	};
 	this.onFollowWasSubmittedDONE = function(request){		
-		var user_message = SDDom.findFirst('.user_message');
+		var user_message = SDDom('user_message');
 		user_message.innerHTML = JSON.parse(request.responseText, false).user_message;
 		SDDom.show(user_message);
 		this.reset();

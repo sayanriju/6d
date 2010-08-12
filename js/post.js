@@ -387,6 +387,11 @@ UIController.AddressBook = function(view){
 
 UIController.Post = function(){
 	UIController.apply(this, arguments);
+	this.send_to_list = SDDom('send_to_list');
+	this.list_of_people = SDDom.findFirst('ul', this.send_to_list);
+	if(!this.list_of_people){
+		this.list_of_people = SDDom.append(this.send_to_list, SDDom.create('ul'));
+	}
 	this.form = SDDom('post_form');
 	this.doSave = function(e){
 		this.form.submit();
@@ -439,38 +444,8 @@ UIController.Post = function(){
 			SDDom.remove(lis.item(--i));
 		}
 	};
-	this.didClickMakeHome = function(e){
-		var link = SDDom.getParent('a', e.target);		
-		SDDom('make_home_page').checked = !SDDom('make_home_page').checked;
-		if(SDDom('make_home_page').checked){
-			SDDom.removeClass('home', link);
-			SDDom.addClass('not_home', link);
-			link.title = 'Make this a regular post.';
-			SDDom.findFirst('span', link).innerHTML = 'Make Post';
-		}else{
-			SDDom.removeClass('not_home', link);
-			SDDom.addClass('home', link);
-			link.title = 'Make this post the home page.';
-			SDDom.findFirst('span', link).innerHTML = 'Make Home';
-		}
-	};
 	this.didClickReblog = function(e){
 		SDDom('is_published').checked = true;
-	};
-	this.didClickMakePrivate = function(e){
-		var link = SDDom.getParent('a', e.target);
-		SDDom('is_published').checked = !SDDom('is_published').checked;
-		if(SDDom('is_published').checked){
-			SDDom.removeClass('private', link);
-			SDDom.addClass('public', link);
-			link.title = 'Make this post private. It will not show up on your public site.';
-			SDDom.findFirst('span', link).innerHTML = 'Make Private';
-		}else{
-			SDDom.removeClass('public', link);
-			SDDom.addClass('private', link);
-			link.title = 'Make this post public. This will show up on your public site.';
-			SDDom.findFirst('span', link).innerHTML = 'Make Public';
-		}	
 	};
 	
 	this.didChangePhoto = function(e){
@@ -494,8 +469,6 @@ UIController.Post = function(){
 		$$('#photos').adopt(dd);
 		$$('#post_form fieldset')[0].adopt(hidden_field);
 	};
-	SDDom.addEventListener(SDDom('make_home_link'), 'click', this.bind(this.didClickMakeHome));
-	SDDom.addEventListener(SDDom('publish_link'), 'click', this.bind(this.didClickMakePrivate));
 	
 	var reblog = SDDom('reblog');
 	if(reblog){
@@ -515,34 +488,3 @@ SDDom.addEventListener(window, 'load', function(e){
 	addressBookController.delegate = postController;
 	SDDom.addEventListener(SDDom('photo'), 'change', photoDidChange);
 });
-
-function photoWasUploaded(photo_name, file_name, photo_path, width){
-	photoDidUpload(photo_name, file_name, photo_path, width);
-}
-
-function photoDidChange(e){
-	if(SDDom('photo_names[' + this.value + ']')){
-		alert("you've already added that photo.");
-		SDDom.stop(e);
-	}else{
-		SDDom('media_form').submit();
-	}
-}
-
-function photoDidUpload(photo_name, file_name, photo_path, width, error_message){
-	if(error_message.length > 0){
-		alert(error_message);
-	}else{
-		SDDom('photo').value = null;
-		var dd = SDDom.create('dd');
-		dd.innerHTML = photo_name;
-		var items = SDDom.findAll('#photos dd');
-		var count = 0;
-		if(items && items.length > 0){
-			count = items.length;
-		}
-		var hidden_field = SDDom.create('input', {"type":"hidden", "value":photo_name + '=' + file_name, "id":"photo_names[" + photo_name + "]", "name":"photo_names[]"});
-		SDDom.append(SDDom('photos'), dd);
-		SDDom.append(SDDom.findFirst('#post_form fieldset'), hidden_field);
-	}
-};

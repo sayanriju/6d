@@ -54,14 +54,11 @@
 		<p class="fn org"><?php echo $person->profile->site_name;?></p>
 <?php endif;?>
 	</div>
+<?php if(AuthController::isAuthorized() && $this->current_user->person_id === $this->site_member->person_id):?>
 	<form action="<?php echo FrontController::urlFor('profile');?>" method="post">
 		<input type="hidden" name="state" value="edit" />
 		<button type="submit"><span>Edit your profile</span></button>
 	</form>
-</section>
-<?php if(AuthController::isAuthorized() && $this->current_user->person_id === $this->site_member->person_id):?>
-<section style="display: none;">
-	<?php require('edit_html.php');?>
-</section>
-
 <?php endif;?>
+
+</section>

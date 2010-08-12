@@ -63,7 +63,7 @@
 				</footer>
 			</aside>
 			<section id="content">
-				<div class="user_message"<?php echo (Resource::getUserMessage()==null ? 'style="display:none;"' : null);?>>
+				<div id="user_message"<?php echo (Resource::getUserMessage()==null ? ' style="display:block;"' : null);?>>
 					<?php echo Resource::getUserMessage();?>
 				</div>
 				{$output}

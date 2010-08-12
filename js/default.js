@@ -839,5 +839,5 @@ SDDom.addEventListener(window, 'load', function(){
 	// This should handle not running the app with a url rewriting module.
 	if(window.location.href.indexOf('index.php') > -1){
 		SDObject.rootUrl += 'index.php?r=';
-	}
+	}	
 });
