@@ -102,6 +102,9 @@ blockquote{font-style: italic;}
 #footer{
 	text-align: center;
 	clear: left;
+	height: 30px;
+	position: absolute;
+	bottom: 0;
 }
 #admin_menu{
 	position: fixed;

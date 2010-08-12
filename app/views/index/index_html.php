@@ -9,7 +9,7 @@
 		<?php endif;?>
 	</article>
 <?php else:?>
-<?php $post = $posts[0];?>
+<?php foreach($posts as $post):?>
 	<article class="hentry first <?php echo $post->type;?>">
 		<?php switch($post->type){
 			case('link'):?>
@@ -70,4 +70,18 @@
 			</aside>
 		</footer>
 	</article>
+<?php endforeach;?>
+	<nav class="pager">
+	<?php if(count($posts) > 0 && $page > 1):?>
+		<a href="<?php echo FrontController::urlFor(null) . ($page > 1 ? $page-1 : null) . ($this->q !== null ? '?q=' . $this->q : null);?>" title="View newer posts"> ← newer</a>
+	<?php else:?>
+		<span> ← newer</span>
+	<?php endif;?>
+<?php if(count($posts) >= $limit):?>
+		<a href="<?php echo FrontController::urlFor(null) . ($page === 0 ? $page+2 : $page+1). ($this->q !== null ? '?q=' . $this->q : null);?>" title="View older posts">older → </a>
+<?php else:?>
+		<span>older → </span>
+<?php endif;?>
+	</nav>
+	
 <?php endif;?>

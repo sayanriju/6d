@@ -70,7 +70,6 @@ class IndexResource extends AppResource{
 				$this->posts = Post::searchForPublished($q, $this->page, $this->limit, $this->sort_by, $this->sort_by_direction, $this->site_member->person_id);
 			}
 		}
-		
 		if($this->posts === null){
 			$this->posts = Post::findPublishedPosts(($this->page-1) * $this->limit, $this->limit, $this->sort_by, $this->sort_by_direction, $this->site_member->person_id);
 		}
