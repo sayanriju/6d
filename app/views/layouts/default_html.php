@@ -10,7 +10,6 @@
 		<meta name="description" content="{$description}"/>
 		<meta name="keywords" content="{$keywords}"/>
 		<meta name="viewport" content="width=980"/>
-  		<link rel="stylesheet" type="text/css" href="<?php echo FrontController::urlFor('themes');?>css/reset.css" media="screen" />
 	  	<link rel="stylesheet" type="text/css" href="<?php echo FrontController::urlFor('themes');?>css/default.css" media="screen" />	
 		{$resource_css}
 		<script type="text/javascript" charset="utf-8" src="<?php echo FrontController::urlFor('js');?>NotificationCenter.js"></script>

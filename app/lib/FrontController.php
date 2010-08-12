@@ -379,11 +379,7 @@ class FrontController extends Object{
 					}
 					throw $e;
 				}
-				Resource::sendMessage($obj, 'didFinishLoading');			
-				
-				if($obj->redirect_parameters != null){
-					self::redirectTo($obj->redirect_parameters['resource_name'], $obj->redirect_parameters['query_parameters'], $obj->redirect_parameters['make_secure']);
-				}
+				Resource::sendMessage($obj, 'didFinishLoading');				
 			}catch(Exception $e){
 				$output .= self::$delegate->exceptionHasOccured($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'exception'=>$e));
 			}
