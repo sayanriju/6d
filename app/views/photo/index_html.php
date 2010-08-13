@@ -1,6 +1,7 @@
 <section id="list-of-photos">
 <?php require('index_phtml.php');?>
 </section>
+<?php if(AuthController::isAuthorized() && $this->current_user->person_id == $this->site_member->person_id):?>
 <form enctype="multipart/form-data" target="upload_target" method="post" id="media_form" action="<?php echo FrontController::urlFor('photos');?>">
 	<fieldset>
 		<legend>Photo Picker</legend>
@@ -13,5 +14,4 @@
 	</fieldset>
 </form>
 <dl id="photos"></dl>
-<script type="text/javascript">
-</script>
+<?php endif;?>

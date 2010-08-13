@@ -69,7 +69,7 @@
 		  ["error"]=>
 		  int(0)
 		  ["size"]=>*/
-			return $this->renderView('photo/show', array('photo'=>$photo, 'photo_name'=>$photo['name'], 'file_name'=>$photo_name, 'photo_path'=>FrontController::urlFor(null) . $path, 'width'=>$width));
+			return $this->renderView('photo/show', array('photo'=>$photo, 'photo_name'=>$photo['name'], 'file_name'=>$photo_name, 'photo_path'=>str_replace($this->site_member->member_name . '/', '', FrontController::urlFor(null)) . $path, 'width'=>$width));
 		}
 		
 	}

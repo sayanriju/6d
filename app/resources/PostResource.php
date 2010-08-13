@@ -63,16 +63,15 @@ class PostResource extends AppResource{
 				$response = json_decode($response);
 				$url = $response->person->photo_url;
 			}
-		}else{
-			$config = new AppConfiguration();
-			$person = Person::findByEmail($config->email);
+		}else{			
+			$person = Person::findById($post->owner_id);
 			$person->profile = unserialize($person->profile);
 			if($person->profile->photo_url !== null && strlen($person->profile->photo_url) > 0){
 				$url = ProfileResource::getPhotoUrl($person);
 			}
 		}
 		$url = ($url === null ? FrontController::urlFor('images') . 'nophoto.png' : $url);
-		return $url;		
+		return $url;
 	}
 	public function put(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array(), $last_page_viewed = 1){
 		
