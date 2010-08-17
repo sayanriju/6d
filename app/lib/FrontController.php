@@ -328,6 +328,7 @@ class FrontController extends Object{
 		return $r;
 	}
 	public function execute(){
+		$output = null;
 		$resource_path = 'resources/';
 		$path_info = self::getPathInfo();							
 		if(self::$delegate !== null && method_exists(self::$delegate, 'willExecute')){
@@ -356,13 +357,19 @@ class FrontController extends Object{
 		if(!file_exists($file)){
 			$file = self::getAppPath($file);
 		}
+		$method = strtolower((array_key_exists('_method', $_REQUEST) ? $_REQUEST['_method'] : $_SERVER['REQUEST_METHOD']));
+		$plugins = PluginController::getPlugins('plugins', 'Resource');
+		foreach($plugins as $plugin){
+			if($plugin->canHandle($class_name, $method)){
+				$output .= $plugin->execute($class_name, $method, $path_info);
+			}
+		}
 		if(file_exists($file)){
 			class_exists($class_name) || require($file);
 			ob_start();
 			try{
 				$obj = new $class_name(array('url_parts'=>$url_parts));		
 				$obj->file_type = $file_type;
-				$method = strtolower((array_key_exists('_method', $_REQUEST) ? $_REQUEST['_method'] : $_SERVER['REQUEST_METHOD']));
 				try{					
 					$output = Resource::sendMessage($obj, $method, null);
 				}catch(Exception $e){
@@ -387,6 +394,8 @@ class FrontController extends Object{
 			self::$end_time = microtime(true);
 			self::sendHeadersForFileType($file_type, strlen($output));
 			ob_end_flush();
+			return $output;
+		}else if($output !== null){
 			return $output;
 		}else{
 			$output = self::$delegate->resourceOrMethodNotFoundDidOccur($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'server'=>$_SERVER, 'url_parts'=>$url_parts));

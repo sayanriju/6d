@@ -1,7 +1,7 @@
 <section class="vcard">
 	<div class="photo">
 		<div class="canvas">
-			<img src="<?php echo ProfileResource::getPhotoUrl($person);?>" alt="photo of {$person->name}" id="profile_photo" />
+			<img class="photo" src="<?php echo ProfileResource::getPhotoUrl($person);?>" alt="photo of {$person->name}" id="profile_photo" />
 		</div>
 		
 <?php if(AuthController::isAuthorized() && $this->current_user->person_id == $person->id && $this->getState() === 'edit'):?>

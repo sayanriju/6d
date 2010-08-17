@@ -7,6 +7,7 @@
 	class_exists('Setting') || require('models/Setting.php');
 	class_exists('NotificationCenter') || require('lib/NotificationCenter.php');
 	class_exists('Photo') || require('models/Photo.php');
+	class_exists('PluginController') || require('lib/PluginController.php');
 	class AppResource extends Resource{
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
@@ -111,6 +112,7 @@
 				$output .= self::$error_html;
 			}
 			//error_log('request uri ' . $layout . ' ' . $_SERVER['REQUEST_URI']);
+			$output = $this->filterHeader($output);
 			$output = $this->filterFooter($output);
 			return $output;
 		}		
@@ -121,7 +123,13 @@
 			}
 			return $text;
 		}
-		
+		private function filterHeader($output){		
+			$filters = PluginController::getPlugins('plugins', 'Header');
+			foreach($filters as $filter){
+				$output = $filter->execute($output);
+			}
+			return $output;
+		}
 		private function filterFooter($output){
 			$filters = $this->getPlugins('filters', 'FooterFilter');
 			foreach($filters as $filter){

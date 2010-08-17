@@ -3,6 +3,8 @@ class_exists('AppResource') || require('AppResource.php');
 class_exists('NotificationResource') || require('resources/NotificationResource.php');
 class_exists('Person') || require('models/Person.php');
 class_exists('FriendRequest') || require('models/FriendRequest.php');
+class_exists('ServicePluginController') || require('controllers/ServicePluginController.php');
+class_exists('IntroductionCommand') || require('commands/IntroductionCommand.php');
 class FollowersResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
@@ -50,8 +52,13 @@ class FollowersResource extends AppResource{
 			if($this->person->url !== null && strlen($this->person->url) > 0){
 				$config = new AppConfiguration();
 				$site_path = String::replace('/\/$/', '', FrontController::$site_path);
+				
+				$response = ServicePluginController::execute(new IntroductionCommand($this->person, $this->current_user));
+				
+				/*
 				$data = sprintf("email=%s&name=%s&url=%s&created=%s", urlencode($this->current_user->email), urlencode($this->current_user->name),  urlencode(str_replace('http://', '', $site_path)), urlencode(date('c')));
 				$response = NotificationResource::sendNotification($this->person, 'follower', $data, 'post');
+				*/
 				UserResource::setUserMessage($this->person->name . "'s site responded with " . $response);
 				$this->title = 'Request Sent!';
 				$this->output = $this->renderView('follower/confirmation');

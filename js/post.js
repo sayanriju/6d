@@ -30,14 +30,14 @@ UIView.TextArea = function(id){
 		SDDom.setStyles({height: (height - 30 ) + 'px'}, SDDom.byTag('iframe', this.container));
 	};
 	this.keypress = function(e){
-		if((e.metaKey || e.ctrlKey) && String.fromCharCode(e.charCode || e.keyCode) === 's'){
+		if((e.metaKey || e.ctrlKey) && String.fromCharCode(e.charCode || e.keyCode).toLowerCase() === 's'){
 			SDDom.stop(e);
 			if(this.delegate && this.delegate.doSave){
 				this.delegate.doSave.apply(this.delegate, [this, e]);
 			}
 		}
 	};
-	this.resize(SDDom.getHeight(window) - SDDom.getPosition(this.container).y - 80);
+	//this.resize(SDDom.getHeight(window) - SDDom.getPosition(this.container).y - 80);
 	this.eventResize = this.bind(this.onResize);
 	SDDom.addEventListener(window, 'resize', this.eventResize);
 	SDDom.addEventListener(this.container, 'keypress', this.bind(this.keypress));
@@ -384,14 +384,55 @@ UIController.AddressBook = function(view){
 	};
 	
 };
-
-UIController.Post = function(){
+UIView.PhotoViewer = function(id, options){
+	var self = UIView.apply(this, arguments);
+	SDDom.setStyles({position: 'absolute', display: 'block', top: 0, left: 0, width: '300px', height: '400px', border: 'solid 5px #fff', background: '#000'}, this.container);
+	var bounds = {ux: SDDom.getWidth(window), lx: 0, uy: SDDom.getHeight(window), ly: 0};
+	console.log(bounds);
+	var handle_view = new UIView.HandleForView(this.container, {delegate: this, bounds: bounds});
+	
+	this.frame = SDDom.create('div');
+	this.close_link = SDDom.create('a', {innerHTML: 'close', href: 'javascript:void(0);', display: 'block', position: 'absolute', top: '0px', left: '0px'});
+	SDDom.append(this.container, this.close_link);
+	SDDom.setStyles({position: 'absolute'}, this.container);
+	SDDom.append(this.container, this.frame);
+	this.isMoving = function(percent){
+		//SDDom.setStyles({top: percent.y * 200 + 'px', left: percent.x * 100 + 'px'}, this.container);
+	};
+	
+	this.photosDidLoad = function(request){
+		this.frame.innerHTML = request.responseText;
+	};
+	
+	this.refresh = function(){
+		(new SDAjax({method: 'get', DONE: [this, this.photosDidLoad]})).send(SDObject.rootUrl + 'photos.phtml');
+	};
+	this.close = function(e){
+		this.toggle();
+	};
+	SDDom.addEventListener(this.close_link, 'click', this.bind(this.close, this));
+	return self;
+};
+UIController.Post = function(views){
 	UIController.apply(this, arguments);
 	this.send_to_list = SDDom('send_to_list');
 	this.list_of_people = SDDom.findFirst('ul', this.send_to_list);
+	this.add_a_photo_link = SDDom('add-a-photo-link');
+	this.view = views[0];
+	this.form = SDDom('post_form');
+	SDDom.append(document.body, SDDom.create('div', {id:'photo_viewer'}));
+	this.photo_viewer = new UIView.PhotoViewer('photo_viewer', {delegate: this});
+	this.photo_viewer.toggle();
 	if(!this.list_of_people){
 		this.list_of_people = SDDom.append(this.send_to_list, SDDom.create('ul'));
 	}
+	this.addPhotoWasClicked = function(e){
+		SDDom.stop(e);
+		SDDom('body').focus();
+		SDDom.setStyles({top: SDDom.pageY(e) + 'px', left: SDDom.pageX(e) + 'px'}, this.photo_viewer.container);
+		this.photo_viewer.refresh();
+		this.photo_viewer.toggle();
+	};
 	this.doSave = function(e){
 		this.form.submit();
 	};
@@ -467,6 +508,10 @@ UIController.Post = function(){
 		$$('#post_form fieldset')[0].adopt(hidden_field);
 	};
 	
+	if(this.add_a_photo_link){
+		SDDom.addEventListener(this.add_a_photo_link, 'click', this.bind(this.addPhotoWasClicked));
+	}
+	
 	var reblog = SDDom('reblog');
 	if(reblog){
 		SDDom.addEventListener(reblog, 'click', this.bind(this.didClickReblog));
@@ -480,7 +525,7 @@ SDDom.addEventListener(window, 'load', function(e){
 	var postMenu = new UIView.PostMenu('post_menu');
 	var textarea = new UIView.TextArea('body');
 	var addressBookController = new UIController.AddressBook(new UIView.Modal.AddressBook('addressbook_modal', {handle: 'address'}));
-	postController = new UIController.Post();
+	postController = new UIController.Post(new Array(SDDom('post_form')));
 	textarea.delegate = postController;
 	addressBookController.delegate = postController;
 });

@@ -358,9 +358,15 @@ SDDom.addEventListener(window, 'unload', function(e){
 });
 
 SDDom.getHeight = function(elem){
+	if(elem === window){
+		return window.innerHeight;
+	}
 	return elem.clientHeight;
 };
 SDDom.getWidth = function(elem){
+	if(elem === window){
+		return window.innerWidth;
+	}
 	return elem.clientWidth;
 };
 // From prototype.js
@@ -675,6 +681,68 @@ UIView.Slider = function(options){
 	};
 	return this;
 }
+UIView.HandleForView = function(id, options){
+	this.bounds = null;
+	this.direction = null;
+	UIView.apply(this, arguments);
+	var handle = null;
+	init(this.container);
+	var delegate = this.delegate;
+	var container = this.container;
+	var container_position = SDDom.getPosition(this.container);
+	var total_width = SDDom.getWidth(this.container);
+	var total_height = SDDom.getHeight(this.container);
+	var mouse_offset = {x: 0, y: 0};
+	var bounds = this.bounds || {ux: container_position.x + total_width, uy: container_position.y + total_height, lx: container_position.x, ly: container_position.y};
+	var direction = this.direction;
+	var moveFunc = (this.direction == 'horizontal' ? moveHoriz : this.direction == 'vertical' ? moveVert : moveBoth);
+	function init(container){
+		handle = SDDom.create('span');
+		SDDom.setStyles({display: 'block', height: options.height || '15px', width: options.width || '100%', background: '#fff', position: 'absolute', left: '0', top: '-6px', cursor: 'move'}, handle);
+		SDDom.setStyles({position: 'relative'});
+		SDDom.append(container, handle);
+		SDDom.addEventListener(handle, 'mousedown', isClickingHandle);
+		SDDom.addEventListener(document, 'mouseup', wasReleased);
+	}
+	
+	function moveHoriz(mouse_position, handle){
+		if((mouse_position.x >= bounds.lx && mouse_position.x <= bounds.ux)){
+			SDDom.setStyles({left: mouse_position.x + 'px'}, handle);
+		}		
+	}
+	function moveVert(mouse_position, handle){
+		if((mouse_position.y >= bounds.ly && mouse_position.y <= bounds.uy)){
+			SDDom.setStyles({top: mouse_position.y + 'px'}, handle);
+		}
+	}
+	function moveBoth(mouse_position, handle){
+		if((mouse_position.x >= bounds.lx && mouse_position.x <= bounds.ux) && (mouse_position.y >= bounds.ly && mouse_position.y <= bounds.uy)){
+			SDDom.setStyles({left: (mouse_position.x + mouse_offset.x) + 'px', top: (mouse_position.y + mouse_offset.y) + 'px'}, handle);
+		}		
+	}
+	function isClickingHandle(e){
+		mouse_offset = {x: SDDom.getPosition(container).x - SDDom.pageX(e), y: SDDom.getPosition(container).y - SDDom.pageY(e)};
+		SDDom.addEventListener(document, 'mousemove', mouseIsMoving);
+		SDDom.stop(e);
+	}	
+	function wasReleased(e){
+		SDDom.removeEventListener(document, 'mousemove', mouseIsMoving);
+	}
+	function move(h, position){
+		moveFunc(position, h);
+		delegate && delegate.isMoving ? delegate.isMoving(position) : void(0);		
+	}
+	function mouseIsMoving(e){
+		var position = {x: SDDom.pageX(e), y: SDDom.pageY(e)};
+		move(container, position);
+	}
+	
+	this.reset = function(){
+		SDDom.setStyles({left: 0, top: 0}, handle);
+	};
+	return this;
+}
+
 UIView.Handle = function(id, options){
 	this.bounds = null;
 	this.direction = null;
@@ -693,7 +761,7 @@ UIView.Handle = function(id, options){
 	var moveFunc = (this.direction == 'horizontal' ? moveHoriz : this.direction == 'vertical' ? moveVert : moveBoth);
 	function init(container){
 		handle = SDDom.create('span');
-		SDDom.setStyles({display: 'block', height: '15px', width: '15px', background: '#fff', position: 'absolute', left: '0', top: '-6px'}, handle);
+		SDDom.setStyles({display: 'block', height: options.height || '15px', width: options.width || '15px', background: '#fff', position: 'absolute', left: '0', top: '-6px'}, handle);
 		SDDom.setStyles({position: 'relative'});
 		SDDom.append(container, handle);
 		SDDom.addEventListener(container, 'mousedown', isClickingContainer);
@@ -710,8 +778,8 @@ UIView.Handle = function(id, options){
 			SDDom.setStyles({top: handle_position.y + 'px'}, handle);
 		}
 	}
-	function moveBoth(mouse_position, handle_position, handle){
-		if((mouse_position.x >= bounds.lx && mouse_position.x <= bounds.ux) && (mouse_position.y >= bounds.ly && mouse_position.y <= bounds.uy)){
+	function moveBoth(mouse_position, handle_position, handle){	
+		if((mouse_position.x >= bounds.lx && mouse_position.x <= bounds.ux) && (mouse_position.y >= bounds.ly && mouse_position.y <= bounds.uy)){			
 			SDDom.setStyles({left: handle_position.x + 'px', top: handle_position.y + 'px'}, handle);
 		}		
 	}
@@ -732,7 +800,7 @@ UIView.Handle = function(id, options){
 		var percent = {x:(handle_position.x / total_width), y: (handle_position.y / total_height)};
 		delegate && delegate.sliderIsMoving ? delegate.sliderIsMoving(percent) : void(0);		
 	}
-	function mouseIsMoving(e){
+	function mouseIsMoving(e){	
 		var position = {x: SDDom.pageX(e), y: SDDom.pageY(e)};
 		move(handle, position, diff);
 	}
