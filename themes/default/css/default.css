@@ -218,3 +218,9 @@ nav.pages{
 nav.pages a{
 	line-height: 23px;
 }
+.vcard .photo .canvas{
+	width: 200px;
+	height: 200px;
+	border: solid 1px rgb(100,100,100);
+	overflow: hidden;
+}

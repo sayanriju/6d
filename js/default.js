@@ -823,7 +823,9 @@ UIView.Cropper = function(id, options){
 		var photo;
 		for(var i = 0; i < canvases.length; i++){
 			canvas = canvases[i];
+			SDDom.setStyles({position: 'relative'}, canvas);
 			photo = SDDom.findFirst('img', canvas);
+			SDDom.setStyles({position: 'absolute', top: 0, left: 0}, photo);
 			list.push({canvas: canvas
 				, photo: photo
 				, start_size: {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)}

@@ -112,3 +112,10 @@
 	background: #ccc;
 	color: #333;
 }
+#toolbar{
+	display: none;
+}
+
+form.delete{
+	display: none;
+}
