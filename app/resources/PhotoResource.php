@@ -73,10 +73,10 @@
 		}
 		
 		public static function getLittleSrc($src){
-			return FrontController::urlFor(null) . $src;
+			return str_replace(Application::$member->member_name, '', FrontController::urlFor(null)) . $src;
 		}
 		public static function getBigSrc($src){
-			return FrontController::urlFor(null) . $src;
+			return str_replace(Application::$member->member_name, '', FrontController::urlFor(null)) . $src;
 		}
 	}
 

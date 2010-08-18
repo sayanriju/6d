@@ -35,11 +35,7 @@ class LoginResource extends AppResource{
 			if(FrontController::requestedUrl() != null){
 				$this->redirectTo(FrontController::requestedUrl());
 			}else{
-				if($user->is_owner){
-					$this->redirectTo(null);
-				}else{
-					$this->redirectTo($user->member_name);
-				}
+				$this->redirectTo(null);
 			}
 		}else{
 			self::setUserMessage($this->renderView('error/login', array('errors'=>array('auth'=>'authorization failed'), 'message'=>"Those credentials can't be found. If you're really trying to sign in, please try it again.")));
