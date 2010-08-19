@@ -1,11 +1,11 @@
 <?php class_exists('PostResource') || require('resources/PostResource.php');?>
 <form method="post" action="<?php echo FrontController::urlFor('post');?>">
 	<fieldset>
-		<legend>Message</legend>
+		<legend>Say what? This public message gets sent to all your contacts. It's a quick way to broadcast your thoughts.</legend>
 		<input class="post" type="text" name="body" />
 		<input type="hidden" name="type" value="status" />
-		<input type="hidden" name="is_published" value="true" />
-		<button type="submit"><span>Ok</span></button>
+		<input type="hidden" name="groups[]" value="All+Contacts" />
+		<button type="submit"><span>Blast it!</span></button>
 	</fieldset>
 </form>
 <?php if($posts == null):?>
@@ -21,6 +21,14 @@
 	<?php foreach($posts as $key=>$post):?>
 	<article class="hentry<?php echo ($key === 0 ? ' first': null);?> <?php echo $post->type;?>">
 		<?php switch($post->type){
+			case('status'):?>
+			<header class="<?php echo !$post->is_published ? 'private' : null;?>">
+				<?php echo $post->body;?>
+			</header>
+			<aside>
+				<?php echo $post->source;?>
+			</aside>
+			<?php break;
 			case('link'):?>
 		<header class="<?php echo !$post->is_published ? 'private' : null;?>">
 			<a href="<?php echo $post->body;?>" title="<?php echo $post->title;?>"><?php echo $post->title;?></a>

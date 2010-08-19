@@ -45,7 +45,7 @@
 			break;
 		}?>
 		<footer class="post-info">
-		<?php if( AuthController::isAuthorized()):?>
+		<?php if($post->canModify($this->current_user)):?>
 			<form action="<?php echo FrontController::urlFor('post');?><?php if($q !== null){echo '?q=' . $q;}?>" method="post" onsubmit="return confirm('Are you sure you want to delete <?php echo $post->title;?>?');">
 				<input type="hidden" name="id" value="<?php echo $post->id;?>" />
 				<input type="hidden" name="_method" value="delete" />

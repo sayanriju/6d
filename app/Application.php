@@ -3,6 +3,7 @@ class_exists('AppResource') || require('resources/AppResource.php');
 class_exists('AuthController') || require('controllers/AuthController.php');
 class_exists('ProfileResource') || require('resources/ProfileResource.php');
 class_exists('Member') || require('models/Member.php');
+class_exists('ProfileController') || require('controllers/ProfileController.php');
 class Application{
 	public function __construct(){
 		if (array_key_exists('PHP_AUTH_DIGEST', $_SERVER) && !AuthController::authKey()){
@@ -42,10 +43,15 @@ class Application{
 					AuthController::setAuthKey($data['username']);
 				}				
 			}
+			
+			if(AuthController::authKey() !== null){
+				self::$current_user = Member::findByEmail(AuthController::authKey());
+			}
 		}
 	}
 	public function __destruct(){}
 	public static $member;
+	public static $current_user;
 	public static function isPhotoPublic(){
 		return true;
 	}
@@ -85,7 +91,7 @@ class Application{
 		}
 	}
 	public function willExecute($path_info){
-		Photo::addObserver(new ProfileResource(), 'willDeletePhoto', 'Photo');
+		Photo::addObserver(new ProfileController(), 'willDeletePhoto', 'Photo');
 		if(!class_exists('AppConfiguration')){
 			return $path_info;
 		}		
@@ -103,6 +109,7 @@ class Application{
 		if(self::$member === null){
 			self::$member = Member::findOwner();
 		}
+		self::$member->profile = unserialize(self::$member->profile);
 		return $path_info;
 	}
 	public function errorDidHappen($message){

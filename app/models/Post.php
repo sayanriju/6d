@@ -11,6 +11,7 @@
 		public function __destruct(){
 			parent::__destruct();
 		}
+		public static $status = 'status';
 		private $date;
 		public function getDate(){
 			return $this->date;
@@ -319,6 +320,9 @@
 			$owner_id = (int)$owner_id;
 			$post = $db->find(new ByClause("person_post_id = '{$id}' and owner_id={$owner_id}", null, 1, null), new Post(null));
 			return $post;
+		}
+		public function canModify($user){
+			return $this->owner_id === $user->person_id;
 		}
 		public function getTableName($config = null){
 			if($config == null){

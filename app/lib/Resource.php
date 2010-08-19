@@ -129,9 +129,12 @@ class Resource extends Object{
 			if(count($__properties) > 0){
 				$__data = array_merge($__data == null ? array() : $__data, $__properties);
 			}
-
 			if($__data != null){
 				$this->output = $this->replace($this->output, $__data);
+			}
+			if($this->file_type == 'json'){
+				$this->output = String::replace('/\n|\t/', '', $this->output);
+				$this->output = String::replace('/\"/', '"', $this->output);
 			}
 		}	
 		return $this->output;

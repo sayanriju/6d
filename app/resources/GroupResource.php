@@ -27,7 +27,7 @@ class GroupResource extends AppResource{
 		if($this->people == null){
 			$this->people = array();
 		}
-		$this->people = Person::makeOwner($this->current_user->id, $this->people);
+		$this->people = Person::removeOwner($this->current_user->id, $this->people);
 		$all_contacts = new Tag(array('id'=>-1, 'type'=>'group', 'text'=>'All Contacts'));
 		$this->groups = Tag::findAllTagsForGroups($this->current_user->person_id);
 		if($this->groups === null){

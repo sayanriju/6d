@@ -51,13 +51,10 @@ class ProfileResource extends AppResource{
 				return $this->renderView('layouts/default');
 			}
 		}else{
-			$this->person = $this->site_member;
-			if($this->person->profile !== null){
-				$this->person->profile = unserialize($this->person->profile);
-			}
+			$this->person = Application::$member;
 			$this->title = $this->person->name . "'s profile.";
 			if($state === 'edit'){
-				if(!AuthController::isAuthorized() || $this->current_user->person_id !== $this->site_member->person_id){
+				if(!AuthController::isAuthorized() || $this->current_user->person_id !== Application::$member->person_id){
 					throw new Exception(FrontController::UNAUTHORIZED, 401);
 				}
 				$this->output = $this->renderView('profile/edit', null);
@@ -119,12 +116,6 @@ class ProfileResource extends AppResource{
 		$view = 'profile/index';
 		$this->output = $this->renderView($view, null);
 		return $this->renderView('layouts/default');
-	}
-	public function willDeletePhoto($sender, $info){
-		if($info === str_replace(FrontController::urlFor(null), '', $this->current_user->profile->photo_url)){
-			$this->current_user->profile->photo_url = null;
-			Profile::save($this->current_user);
-		}
 	}
 }
 

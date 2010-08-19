@@ -7,7 +7,7 @@ class_exists('Tag') || require('models/Tag.php');
 class AddressbookResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
-		if(!AuthController::isAuthorized() || $this->current_user->person_id != $this->site_member->person_id){
+		if(!AuthController::isAuthorized() || $this->current_user->person_id != Application::$member->person_id){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}
 	}
@@ -25,7 +25,7 @@ class AddressbookResource extends AppResource{
 		if($this->people == null){
 			$this->people = array();
 		}else{
-			array_walk($this->people, array($this, 'setAsOwner'));
+			$this->people = Person::removeOwner($this->current_user->id, $this->people);
 			usort($this->people, array('Person', 'sort_by_name'));
 		}
 		$all_contacts = new Tag(array('id'=>-1, 'type'=>'group', 'text'=>'All Contacts'));
@@ -42,11 +42,6 @@ class AddressbookResource extends AppResource{
 		}
 		$this->output = $this->renderView($view);
 		return $this->renderView($layout);
-	}
-	public function setAsOwner($person){
-		if($this->current_user->person_id == $person->id){
-			$person->is_owner = true;
-		}
 	}
 	public function delete(Tag $group = null, Person $person = null){
 		if($group != null){

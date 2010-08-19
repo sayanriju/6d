@@ -62,6 +62,8 @@ class PostResource extends AppResource{
 				$response = NotificationResource::sendNotification($person, 'profile.json', $data, 'get');
 				$response = json_decode($response);
 				$url = $response->person->photo_url;
+			}else{
+				$url = Application::$member->profile->photo_url;
 			}
 		}else{			
 			$person = Person::findById($post->owner_id);
@@ -119,7 +121,8 @@ class PostResource extends AppResource{
 					Setting::delete('home_page_post_id');
 				}
 				self::setUserMessage('Post was saved.');
-				$this->sendPostToPeople($groups, $people, $post);
+				$this->sendPostToGroups($groups, $post);
+				$this->sendPostToPeople($people, $post);
 			}else{
 				$message = 'An error occurred while saving your post:';
 				foreach($errors as $key=>$value){
@@ -148,15 +151,13 @@ class PostResource extends AppResource{
 			$post->person_post_id = $post->id;
 			if($errors == null){
 				if($make_home_page){
-					$setting = Setting::findByName('home_page_post_id');
-					$setting->value = $post->id;
-					$setting->owner_id = $this->current_user->id;
-					Setting::save($setting);
+					$this->makeHomePage($post);
 				}else if($post->isHomePage($this->getHome_page_post_id())){
 					Setting::delete('home_page_post_id');
 				}
 				self::setUserMessage('Post was saved.');
-				$this->sendPostToPeople($groups, $people, $post);
+				$this->sendPostToGroups($groups, $post);
+				$this->sendPostToPeople($people, $post);
 			}else{
 				$message = 'An error occurred while saving your post:';
 				foreach($errors as $key=>$value){
@@ -168,7 +169,14 @@ class PostResource extends AppResource{
 		$this->redirectTo('posts');
 		
 	}
-	public function post(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array()){		
+	private function makeHomePage($post){
+		$setting = Setting::findByName('home_page_post_id');
+		$setting->value = $post->id;
+		$setting->owner_id = $this->current_user->id;
+		Setting::save($setting);
+	}
+	
+	public function post(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array()){
 		$errors = array();
 		if(AuthController::isAuthorized()){
 			$post->source = $this->current_user->url;
@@ -197,7 +205,7 @@ class PostResource extends AppResource{
 				$post->title = $this->filterText($post->title);
 				$post->body = urldecode($post->body);
 				$post->owner_id = $this->site_member->person_id;
-				if($post->type !== 'status'){
+				if($post->type !== Post::$status){
 					$post->custom_url = String::stringForUrl($post->title);
 				}
 				list($post, $errors) = Post::save($post);
@@ -232,22 +240,23 @@ class PostResource extends AppResource{
 			$this->redirectTo('posts', array('page'=>$last_page_viewed, 'q'=>$this->q));
 		}
 	}
-	private function sendPostToPeople($groups, $people, Post $post){
-		$data = null;
+	private function sendPostToGroups($groups, Post $post){
 		if(count($groups) > 0){
 			foreach($groups as $text){
 				if($text === 'All+Contacts'){
-					$this->people = Person::findAll();
+					$this->people = Person::findAllByOwner($this->current_user->person_id);
 				}else{
-					$this->people = Person::findByTagText($text);
+					$this->people = Person::findByTagTextAndOwner($text, $this->current_user->person_id);
 				}
 				$this->sendToPeople($this->people, $post);
 			}
 		}
+	}
+	private function sendPostToPeople($people, Post $post){
 		if(count($people) > 0){
-			$this->people = Person::findByIds($people);
-			if($this->people !== null && count($this->people) > 0){
-				$this->sendToPeople($this->people, $post);
+			$people = Person::findByIds($people);
+			if($people !== null && count($people) > 0){
+				$this->sendToPeople($people, $post);
 			}
 		}		
 	}
@@ -256,8 +265,9 @@ class PostResource extends AppResource{
 		$responses = array();
 		$to = array();
 		foreach($people as $person){
-			if(!$person->is_owner > 0 && $person->is_approved){
-				$datum[] = sprintf("person_post_id=%s&title=%s&body=%s&source=%s&is_published=%s&post_date=%s&public_key=%s", urlencode($post->id), urlencode($post->title), urlencode($post->body), urlencode($post->source), $post->is_published, urlencode($post->post_date), urlencode($person->public_key));
+			if($person->id != $this->current_user->person_id && $person->is_approved){
+				error_log(sprintf("person= %s, current user = %s",$person->name, $this->current_user->name));
+				$datum[] = sprintf("person_post_id=%s&title=%s&body=%s&source=%s&is_published=%s&post_date=%s&public_key=%s&type=%s", urlencode($post->id), urlencode($post->title), urlencode($post->body), urlencode($post->source), $post->is_published, urlencode($post->post_date), urlencode($person->public_key), $post->type);
 				$to[] = $person;
 			}
 		}

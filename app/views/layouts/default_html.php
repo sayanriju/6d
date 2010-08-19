@@ -35,18 +35,18 @@
 						<li><a href="<?php echo FrontController::urlFor($page->custom_url);?>" title="<?php echo $page->description;?>"><?php echo $page->title;?></a></li>
 		<?php endif;?>
 	<?php endwhile;?>
+	<?php if(AuthController::isAuthorized()):?>
 						<li>
-							<?php if(AuthController::isAuthorized()):?>
 							<p>Welcome <?php echo $this->current_user->name;?></p>
-							<?php endif;?>
 						</li>
+	<?php endif;?>
 					</ul>
 				</nav>
 
 			</header>
 			<aside id="author">
 				<a href="<?php echo FrontController::urlFor(null);?>" title="Go back to my home page">
-					<img width="52" height="52" src="<?php echo ProfileResource::getPhotoUrl($this->site_member->person);?>" alt="photo of <?php echo $site_member->name;?>" class="author" />
+					<img width="52" height="52" src="<?php echo Application::$member->profile->photo_url;?>" alt="photo of <?php echo Application::$member->name;?>" class="author" />
 				</a>
 			  	<footer id="tweets">
 					<nav>

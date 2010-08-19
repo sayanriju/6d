@@ -87,7 +87,7 @@ class IndexResource extends AppResource{
 				$this->description .= $post->title . ',';
 			}
 		}
-		$this->title = unserialize($this->site_member->profile)->site_name;
+		$this->title = Application::$member->profile->site_name;
 		return $this->renderView('layouts/home', null);
 	}
 	

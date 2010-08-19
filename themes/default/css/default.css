@@ -83,7 +83,6 @@ h6{font-size: 1em;}
 a{outline: 0;}
 a img{border: 0; text-decoration: none;}
 a:link, a:visited{
-	padding: 0 1px;
 	text-decoration: none;
 }
 a:hover, a:active{
@@ -110,8 +109,8 @@ blockquote{font-style: italic;}
 	position: fixed;
 	top: 0;
 	left: 50%;
-	margin-left: -200px;
-	width: 400px;
+	margin-left: -250px;
+	width: 500px;
 	background: rgba(0,0,0,.5);
 	border-bottom-left-radius: 5px;
 	border-bottom-right-radius: 5px;
@@ -122,16 +121,48 @@ blockquote{font-style: italic;}
 #admin_menu a{
 	color: #fff;
 }
-#banner{
-	text-indent: -9999px;
-	height: 1px;
-	font-size: 6px;
+nav.pager {	position: fixed;bottom: 0;left: 50%;margin-left: -200px;width: 400px;background: rgba(0,0,0,.5);border-top-left-radius: 5px;border-top-right-radius: 5px;-webkit-border-top-left-radius: 5px 5px;-webkit-border-top-right-radius: 5px 5px;-moz-border-top-radius: 5px;text-align: center;}
+#__6d_console {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	background: rgba(0,0,0,.5);
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	-webkit-border-top-left-radius: 5px 5px;
+	-webkit-border-top-right-radius: 5px 5px;
+	-moz-border-top-radius: 5px;
+	text-align: center;
+	color: #fff;
 }
 #login_form{
-	width: 400px;
-	height: 300px;
 	background: rgba(0,0,0,.5);
 	margin: 0 auto;
+	padding: 20px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px 5px;
+	-moz-border-radius: 5px;
+}
+form p, form address p{
+	line-height: 20px;
+	margin: 0 0 15px 0;
+	padding: 0;
+}
+form textarea{
+	font-size: 23px;
+	display: block;
+	width: 100%;
+}
+form p label{
+	display: block;
+}
+form{
+	position: relative;
+}
+form input[type=text], form input[type=password]{
+	font-size: 23px;
+	width: 100%;
 }
 #content{
 	float: right;
@@ -206,9 +237,6 @@ article footer{
 	position: absolute;
 	right: 3px;
 	bottom: 0;
-}
-#content article aside{
-	display: none;
 }
 nav.pages{
 	font-size: 23px;

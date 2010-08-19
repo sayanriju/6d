@@ -143,6 +143,15 @@
 			}
 			return $people;
 		}
+		public static function removeOwner($owner_id, $people){
+			$people_without_owner = array();
+			for($i = 0; $i < count($people); $i++){
+				if($people[$i]->id !== (int)$owner_id){
+					$people_without_owner[] = $people[$i];
+				}
+			}
+			return $people_without_owner;
+		}
 		public static function findById($id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
