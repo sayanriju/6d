@@ -110,6 +110,10 @@ class PostResource extends AppResource{
 			if($post->type !== 'status'){
 				$post->custom_url = String::stringForUrl($post->title);
 			}
+			if(strlen($post->password) === 0){
+				$post->password = null;
+			}
+			console::log('password = ' . $post->password);
 			list($post, $errors) = Post::save($post);
 			if($errors == null){
 				if($make_home_page){

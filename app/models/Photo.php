@@ -146,17 +146,6 @@
 				}
 				$folder->close();
 			}
-		}
-		
-		private function findFileInFolder($file){
-			$folder = dir($file);
-			while(false !== ($entry = $folder->read())){
-				if(is_file($entry)){
-					return $entry;
-				}else{
-					return $this->findFileInFolder($entry);
-				}
-			}
-		}
+		}		
 	}
 ?>

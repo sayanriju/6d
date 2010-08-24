@@ -123,10 +123,22 @@
 			$this->owner_id = $val;
 		}
 		
-		
 		public function setTags($val){
 			$this->tags = $val;
 		}
+		
+		public $password;
+		public function getPassword(){
+			return $this->password;
+		}
+		public function setPassword($val){
+			if($val == null || strlen($val) == 0){
+				$this->password = null;
+			}else{
+				$this->password = String::encrypt($val);
+			}
+		}
+		
 		public function getHowLongAgo(){
 			return $this->post_date;
 		}
@@ -380,6 +392,7 @@
 				$table->addColumn('custom_url', 'string', array('is_nullable'=>true, 'default'=>'', 'size'=>255));
 				$table->addColumn('tags', 'text', array('is_nullable'=>true));
 				$table->addColumn('is_published', 'boolean', array('is_nullable'=>true, 'default'=>false));
+				$table->addColumn('password', 'string', array('is_nullable'=>true, 'size'=>255));
 				$table->addColumn('owner_id', 'biginteger', array('is_nullable'=>false));
 				
 				$table->addKey('primary', 'id');

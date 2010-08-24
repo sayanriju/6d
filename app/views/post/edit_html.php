@@ -45,9 +45,13 @@
 			<textarea name="description" id="description">{$post->description}</textarea>
 		</p>
 		<p>
+			<label for="password">Password protect</label>
+			<input name="password" id="password" type="password" value="" />
+		</p>
+		<p>
 			<label for="post_date">Date posted</label>
 			<input type="text" name="post_date" value="{$post->post_date}" id="post_date" />
-		</p>	
+		</p>
 	</fieldset>
 	<nav>
 		<input type="hidden" name="last_page_viewed" value="{$last_page_viewed}" />

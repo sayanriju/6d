@@ -105,11 +105,12 @@ class Application{
 				}
 			}
 		}
-		
 		if(self::$member === null){
 			self::$member = Member::findOwner();
 		}
-		self::$member->profile = unserialize(self::$member->profile);
+		if(self::$member !== null){
+			self::$member->profile = unserialize(self::$member->profile);
+		}
 		return $path_info;
 	}
 	public function errorDidHappen($message){

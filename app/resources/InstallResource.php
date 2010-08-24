@@ -34,7 +34,7 @@
 
 		public function get_install_configuration(){
 			if(!array_key_exists('configuration', $_SESSION)){
-				$_SESSION['configuration'] = serialize(new Configuration(array('user_name'=>'user name', 'password'=>'pasword', 'host'=>'localhost', 'prefix'=>'sixd_', 'database'=>'database', 'theme'=>'default', 'db_type'=>'MySql', 'email'=>'graphite@joeyguerra.com')));
+				$_SESSION['configuration'] = serialize(new Configuration(array('user_name'=>'sixd', 'password'=>'get6d', 'host'=>'localhost', 'prefix'=>'sixd_', 'database'=>'get6d_development', 'theme'=>'default', 'db_type'=>'MySql', 'email'=>'graphite@joeyguerra.com')));
 			}else if(file_exists('AppConfiguration.php')){
 				class_exists('AppConfiguration') || require('AppConfiguration.php');
 				$_SESSION['configuration'] = serialize(new AppConfiguration(null));
@@ -169,7 +169,7 @@
 					if(count($errors) == 0){
 						$member->person->owner_id = 0;
 						$member->member_name = $config->site_user_name;
-						$member = Member::save($member);
+						$member = Member::saveAsPerson($member);
 						$super_admin = new SuperAdmin(array('person_id'=>$member->person_id));
 						$super_admin = SuperAdmin::save($super_admin);
 					}

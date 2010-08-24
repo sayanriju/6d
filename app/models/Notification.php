@@ -57,6 +57,12 @@
 			}
 			return $config->prefix . 'notifications';
 		}
+		public static function findAll(){
+			$config = new AppConfiguration();
+			$db = Factory::get($config->db_type, $config);
+			$list = $db->find(new All(null, null, 0, null), new Notification());
+			return $list;
+		}
 		
 		public static function save(Notification $notification){
 			$errors = self::canSave($notification);

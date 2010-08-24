@@ -456,11 +456,18 @@ eos;
 			}
 			return false;
 		}
+		public function truncateTable($tableName){
+			$sql = 'TRUNCATE TABLE ' . $tableName;
+			if($this->tableExists($tableName)){	
+				$this->execute($sql);
+				return true;
+			}
+			return false;
+		}
 		public function deleteTable($tableName){
 			$sql = 'DROP TABLE ' . $tableName;
 			if($this->tableExists($tableName)){	
 				$this->execute($sql);
-				//$this->disconnect(null);
 				return true;
 			}
 			return false;

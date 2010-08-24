@@ -21,7 +21,7 @@ class_exists('Member') || require('models/Member.php');
 				$member_name = $this->url_parts[1];
 				$member = Member::findByMemberName($member_name);
 			}else{
-				$this->members = Member::findAll(AuthController::isSuperAdmin() ? null : true);
+				$this->members = Member::findAllAsPerson(AuthController::isSuperAdmin() ? null : true);
 			}
 			if($this->members !== null){
 				$this->title = "6d Directory";	
@@ -63,7 +63,7 @@ class_exists('Member') || require('models/Member.php');
 				if($profile !== null){
 					$this->member->person->profile = serialize($profile);
 				}
-				$this->member = Member::save($this->member);
+				$this->member = Member::saveAsPerson($this->member);
 				if($this->member->errors != null && count($this->member->errors) > 0){
 					$message = array();
 					foreach($this->member->errors as $key=>$value){
@@ -99,7 +99,7 @@ class_exists('Member') || require('models/Member.php');
 					$this->member->person->profile = serialize($profile);
 				}
 				$this->member->person->is_owner = false;
-				$this->member = Member::save($this->member);
+				$this->member = Member::saveAsPerson($this->member);
 				if($this->member->errors != null && count($this->member->errors) > 0){
 					$message = array();
 					foreach($this->member->errors as $key=>$value){
@@ -107,7 +107,7 @@ class_exists('Member') || require('models/Member.php');
 					}
 					UserResource::setUserMessage('Failed to save member - ' . implode(', ', $message));
 				}else{
-					$this->members = Member::findAll(AuthController::isSuperAdmin() ? null : true);
+					$this->members = Member::findAllAsPerson(AuthController::isSuperAdmin() ? null : true);
 				}
 			}				
 			$this->output = $this->renderView($view, array('errors'=>$errors));

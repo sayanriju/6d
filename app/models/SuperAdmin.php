@@ -38,6 +38,14 @@ class SuperAdmin extends Object{
 		$person = $db->find(new ByClause(sprintf("%s.email='%s'", $person->getTableName(), urlencode($email)), array(new BelongsTo(array('withWhom'=>$person, 'through'=>'person_id'))), 1, null), new SuperAdmin(null));
 		return $person;
 	}
+	
+	public static function findAll(){
+		$config = new AppConfiguration();
+		$db = Factory::get($config->db_type, $config);
+		$list = $db->find(new All(null, null, 0, null), new SuperAdmin());
+		return $list;
+	}
+	
 	public static function save(SuperAdmin $super_admin){
 		$config = new AppConfiguration();
 		$db = Factory::get($config->db_type, $config);		

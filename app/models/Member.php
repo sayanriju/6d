@@ -46,8 +46,16 @@ class Member extends Object{
 		}
 		return $db->delete(null, $member);
 	}
-
 	public static function save(Member $member){
+		$config = new AppConfiguration();
+		$db = Factory::get($config->db_type, $config);
+		$new_member = $db->save(null, $member);
+		$member->id = $new_member->id;
+		self::notify('didSaveMember', $member, $member);
+		return $member;
+	}
+	
+	public static function saveAsPerson(Member $member){
 		$config = new AppConfiguration();
 		$db = Factory::get($config->db_type, $config);
 		$existing_member = self::findByMemberName($member->member_name);
@@ -117,7 +125,13 @@ class Member extends Object{
 		$member = $db->find($clause, $member);
 		return $member;
 	}
-	public static function findAll($in_directory){
+	public static function findAll(){
+		$config = new AppConfiguration();
+		$db = Factory::get($config->db_type, $config);
+		$list = $db->find(new All(null, null, 0, null), new Member());
+		return $list;
+	}
+	public static function findAllAsPerson($in_directory){
 		$config = new AppConfiguration();
 		$db = Factory::get($config->db_type, $config);
 		$member = new Member();
