@@ -187,10 +187,10 @@
 			return $list;
 		}
 		
-		public static function findAll($owner_id){
+		public static function findAll(){
 			$config = new AppConfiguration();				
 			$db = Factory::get($config->db_type, $config);
-			$list = $db->find(new ByClause(sprintf("owner_id=%d", $owner_id), null, 0, null), new Post(null));
+			$list = $db->find(new All(null, null, 0, null), new Post());
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
 			return $list;
 		}

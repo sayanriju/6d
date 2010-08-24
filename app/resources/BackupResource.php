@@ -101,10 +101,9 @@ class BackupResource extends AppResource{
 						$obj->session_id = session_id();
 					}
 
-					console::log('restoring: ' . $class_name);
 					$obj->install($this->config);
 					try{
-						$class_name::save($obj);
+						call_user_func(array($class_name, 'save'), $obj);
 					}catch(Exception $e){
 						console::log($e);
 					}
@@ -115,7 +114,6 @@ class BackupResource extends AppResource{
 				}
 			}
 			$this->deleteRecursively('b');
-			unlink($file_name);
 		}
 		return $status;
 	}
@@ -156,7 +154,7 @@ class BackupResource extends AppResource{
 		}
 	}
 	private function archive($name, $archive){
-		$list = $name::findAll();
+		$list = call_user_func(array($name, 'findAll'));
 		$text = serialize($list);
 		$file_name = $name . '.serialized';
 		file_put_contents($file_name, $text);
