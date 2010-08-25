@@ -1,5 +1,4 @@
 /* v1.0 | 20080212 */
-
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -60,25 +59,32 @@ html{
 	background-color: rgb(200, 200,200);
 }
 body{
-	margin: 50px auto;
+	margin: 5px auto;
 	font: normal normal normal 12px/18px 'Lucida Grande', 'Lucida Sans Unicode', Arial, Verdana, sans-serif;
 	line-height: 1.5;
 	text-align: center;
+	height: 100%;
 }
-header, footer, aside, nav, article, section, figure{
+header, footer, aside, nav, article, section, figure, time{
 	display: block;
 	position: relative;
 }
+h1, h2, h3, h4, h5, h6{
+	font-family: Georgia, Helvetica, Palatino, serif;
+	font-variant: small-caps;
+	margin: 0 0 10px 0;
+}
 h1{
-	font-size: 3em;
+	font-size: 27px;
 }
 h2{
-	font-size: 2em;
+	font-size: 23px;
+	line-height: .9em;
 }
-h3{font-size: 1.8em;}
-h4{font-size: 1.6em;}
-h5{font-size: 1.5em;}
-h6{font-size: 1em;}
+h3{font-size: 17px;}
+h4{font-size: 15px;}
+h5{font-size: 13px;}
+h6{font-size: 100%;}
 
 a{outline: 0;}
 a img{border: 0; text-decoration: none;}
@@ -98,12 +104,19 @@ blockquote{font-style: italic;}
 	margin: 0 auto;
 	text-align: left;
 }
-#footer{
+#banner{
 	text-align: center;
-	clear: left;
-	height: 30px;
-	position: absolute;
+}
+#banner h1{
+	line-height: 32px;
+}
+#footer{
+	text-align: right;
 	bottom: 0;
+	display: table;
+	width: 100%;
+	height: 50px;
+	line-height: 23px;
 }
 #admin_menu{
 	position: fixed;
@@ -121,7 +134,22 @@ blockquote{font-style: italic;}
 #admin_menu a{
 	color: #fff;
 }
-nav.pager {	position: fixed;bottom: 0;left: 50%;margin-left: -200px;width: 400px;background: rgba(0,0,0,.5);border-top-left-radius: 5px;border-top-right-radius: 5px;-webkit-border-top-left-radius: 5px 5px;-webkit-border-top-right-radius: 5px 5px;-moz-border-top-radius: 5px;text-align: center;}
+#pager {
+	position: fixed;
+	bottom: 0;
+	left: 50%;
+	margin-left: -200px;
+	width: 400px;
+	background: rgba(0,0,0,.5);
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	-webkit-border-top-left-radius: 5px 5px;
+	-webkit-border-top-right-radius: 5px 5px;
+	-moz-border-top-radius: 5px;
+	text-align: center;
+	z-index: 1000;
+}
+
 #__6d_console {
 	position: fixed;
 	bottom: 0;
@@ -153,6 +181,7 @@ form textarea{
 	font-size: 23px;
 	display: block;
 	width: 100%;
+	min-height: 400px;
 }
 form p label{
 	display: block;
@@ -160,7 +189,7 @@ form p label{
 form{
 	position: relative;
 }
-form input[type=text], form input[type=password]{
+form input[type=text], form input[type=email], form input[type=url], form input[type=password]{
 	font-size: 23px;
 	width: 100%;
 }
@@ -181,7 +210,6 @@ form input[type=text], form input[type=password]{
 	width: 220px;
 	padding: 15px;
 	line-height: 25px;
-	font-size: 21px;
 	color: rgb(153,153,153);
 	background: rgb(240, 240,240);
 	border-radius: 10px 10px;
@@ -191,9 +219,6 @@ form input[type=text], form input[type=password]{
 }
 #author footer{
 	margin-top: 20px;
-}
-#author footer a{
-	font-size: 11px;
 }
 #author footer date{
 	font-size: 13px;
@@ -209,13 +234,6 @@ img.author{
 	width: 220px;
 	height: 220px;
 }
-article.link header{
-	font-size: 31px;
-}
-article.link section.entry-content{
-	margin: 0;
-	
-}
 #content article{
 	padding: 20px;
 	margin-top: 40px;
@@ -230,13 +248,35 @@ article.link section.entry-content{
 article footer{
 	margin-top: 20px;
 }
-.hentry section article footer abbr, #content article footer abbr{
+.hentry section article footer time, #content article footer time{
 	font-size: 11px;
 	color: rgb(100,100,100);
-	font-variant: small-caps;
 	position: absolute;
 	right: 3px;
 	bottom: 0;
+}
+.hentry footer{
+	
+}
+.hentry p{
+	margin: 0 0 20px 0;
+}
+.hentry header, .hentry section.entry-content{
+	position: relative;
+}
+.hentry footer form{
+	width: 100%;
+	text-align: right;
+}
+.hentry aside[rel=tags]{
+	height: 1em;
+}
+.hentry{
+	-webkit-box-shadow: 1px 1px 5px rgb(100,100,100);
+	
+}
+article.photo header img{
+	width: 500px;
 }
 nav.pages{
 	font-size: 23px;

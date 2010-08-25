@@ -37,9 +37,12 @@
 		
 				<p class="email">
 					<label for="email">Email</label>
-					<input type="text" id="email" name="email" value="{$person->email}" />
+					<input type="email" id="email" name="email" value="{$person->email}" />
 				</p>
-				
+				<p>
+					<label for="url">Url</label>
+					<input name="url" id="url" value="{$person->url}" />
+				</p>
 				<p>
 					<label for="profile[site_name]">Site Name</label>
 					<textarea name="profile[site_name]" id="profile[site_name]" cols="20" rows="5">
