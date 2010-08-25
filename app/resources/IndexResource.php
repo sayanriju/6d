@@ -61,7 +61,7 @@ class IndexResource extends AppResource{
 			$this->page = 1;
 		}
 		if($tag !== null){
-			$this->posts = Post::findPublishedByTag(new Tag(array('text'=>$tag)), ($this->page-1) * $this->limit, $this->limit, $this->sort_by, $this->sort_by_direction, $this->current_user->id);	
+			$this->posts = Post::findPublishedByTag(new Tag(array('text'=>$tag)), ($this->page-1) * $this->limit, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$member->person_id);
 		}
 		if($q !== null){
 			if(AuthController::isAuthorized()){

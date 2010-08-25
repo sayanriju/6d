@@ -256,7 +256,8 @@
 			}
 			$tag->text = urlencode($tag->text);
 			$owner_id = (int)$owner_id;
-			$list = $db->find(new ByClause("tags like '%{$tag->text}%' and is_published=1 and owner_id={$owner_id}", null, array($start, $limit), array($sort_by=>$sort_by_direction)), $post);
+			$clause = new ByClause("tags like '%{$tag->text}%' and is_published=1 and owner_id={$owner_id}", null, array($start, $limit), array($sort_by=>$sort_by_direction));
+			$list = $db->find($clause, $post);
 			$list = ($list == null ? array() : $list);
 			return $list;
 		}
