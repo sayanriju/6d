@@ -292,3 +292,9 @@ nav.pages a{
 	border: solid 1px rgb(100,100,100);
 	overflow: hidden;
 }
+#status_form{
+	margin: 0 auto 20px auto;
+}
+#status_form button{
+	float: right;
+}

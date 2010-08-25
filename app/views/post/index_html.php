@@ -1,6 +1,6 @@
 <?php class_exists('PostResource') || require('resources/PostResource.php');?>
 <?php if(AuthController::isAuthorized()):?>
-<form method="post" action="<?php echo FrontController::urlFor('post');?>">
+<form id="status_form" method="post" action="<?php echo FrontController::urlFor('post');?>">
 	<fieldset>
 		<legend>Say what? This public message gets sent to all your contacts. It's a quick way to broadcast your thoughts.</legend>
 		<input class="post" type="text" name="body" />
