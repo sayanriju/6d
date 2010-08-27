@@ -216,21 +216,21 @@ class Resource extends Object{
 	}
 	
 	public static function getUserMessage(){
-		if(array_key_exists('userMessage', $_SESSION)){
-			return $_SESSION['userMessage'];
+		if(array_key_exists('userMessage', $_COOKIE)){
+			return $_COOKIE['userMessage'];
 		}else{
 			return null;
 		}
 	}
 	public static function setUserMessage($value){
 		if($value == null){
-			unset($_SESSION['userMessage']);
+			unset($_COOKIE['userMessage']);
 		}else{
-			$_SESSION['userMessage'] = $value;
+			setcookie('userMessage', $value, time());
 		}
 	}
 	public static function appendToUserMessage($value){
-		$_SESSION['userMessage'] .= $value;
+		$_COOKIE['userMessage'] .= $value;
 	}
 	private static function populateParameter($param, $id = 0){
 		$value = null;

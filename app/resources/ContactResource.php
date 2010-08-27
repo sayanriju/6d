@@ -7,16 +7,19 @@ class ContactResource extends AppResource{
 	public function __destruct(){
 		parent::__destruct();
 	}
-	
-	public function post($email = null){
-		if($email !== null){
-			if($this->send(array($this->config->email), $email, 'Somebody wants to be notified about 6d when it launches')){
-				self::setUserMessage("Thank you for your interest. We'll keep you updated.");
-			}else{
-				self::setUserMessage("Something didn't go right.");
-			}
+	public function get(){
+		$this->title = "Send us a message";
+		$this->output = $this->renderView('contact/index');
+		return $this->renderView('layouts/default');
+	}
+	public function post($from, $message = null){
+		if($from === null || $message === null){
+			self::setUserMessage("Did you want to say something?");
+			$this->output = $this->renderView('contact/index');
+			return $this->renderView('layouts/default');
 		}
-		$this->redirectTo(null, array(''=>'#thanks'));
+		self::setUserMessage("Thanks for dropping a line. We'll get right on it dog gone it.");
+		return $this->renderView('layouts/default');
 	}
 	
 	private function send($emails, $message=null, $subject){

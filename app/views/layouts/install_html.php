@@ -13,7 +13,7 @@
 		{$resource_css}
 	</head>
 	<body>
-		<?php echo UserResource::getUserMessage();?>			
+		<?php echo Resource::getUserMessage();?>			
 		{$output}
 	</body>
 </html>

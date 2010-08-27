@@ -125,12 +125,12 @@ class FrontController extends Object{
 	public static function index_script(){
 		return self::canRewriteUrl() ? null : 'index.php';
 	}
-	public static function urlFor($resource = null, $params = null, $make_secure = false){
+	public static function urlFor($resource_name = null, $params = null, $make_secure = false){
 		$config = (class_exists('AppConfiguration') ? new AppConfiguration(null) : null);
 		$path = null;
-		if(stripos($resource, '/') !== false){
-			$path = explode('/', $resource);
-			$resource = $path[0];
+		if(stripos($resource_name, '/') !== false){
+			$path = explode('/', $resource_name);
+			$resource_name = $path[0];
 			array_shift($path);
 			$path = implode('/', $path);
 		}		
@@ -138,7 +138,7 @@ class FrontController extends Object{
         $query_string = null;
 		$resource_id = null;
 		if($make_secure && $config != null && strlen($config->ssl_path) > 0){
-			$url = sprintf('https://%s/%s', $config->ssl_path, $resource);
+			$url = sprintf('https://%s/%s', $config->ssl_path, $resource_name);
 		}else{
 			$site_path = self::$site_path;
 			if($make_secure){
@@ -149,10 +149,10 @@ class FrontController extends Object{
 		}
 
 		// Special folders that we don't want to handle resource requests for.
-        if(in_array($resource, array('themes', 'js', 'css', 'images'))){
-			$resource = ($resource === 'themes' ? self::getThemePath() . '/' : $resource . '/');
+        if(in_array($resource_name, array('themes', 'js', 'css', 'images'))){
+			$resource_name = ($resource_name === 'themes' ? self::getThemePath() . '/' : $resource_name . '/');
             $use_clean_urls = true;
-			return $site_path . $resource;
+			return $site_path . $resource_name;
 		}
 		
         if($params != null){
@@ -168,27 +168,27 @@ class FrontController extends Object{
         
 		$url = '';
 		if(!$use_clean_urls){
-			$resource = self::index_script() . '?r='. ($resource != null ? '' . $resource : null);
+			$resource_name = self::index_script() . '?r='. ($resource_name != null ? '' . $resource_name : null);
 		}else{
-	        $resource =  ($resource !== null ? $resource : null);
+	        $resource_name =  ($resource_name !== null ? $resource_name : null);
 		}
 		if($resource_id !== null){
-			$resource .= '/' . $resource_id;
+			$resource_name .= '/' . $resource_id;
 		}
 		if($path !== null){
-			$resource .= '/' . $path;
+			$resource_name .= '/' . $path;
 		}
         if($query_string != null){
-			$resource .= '&';
-            $resource .= implode('&', $query_string);
+			$resource_name .= '&';
+            $resource_name .= implode('&', $query_string);
         }
 		if(self::$delegate !== null && method_exists(self::$delegate, 'willSetUrlFor')){
-			$resource = self::$delegate->willSetUrlFor($resource);
+			$resource_name = self::$delegate->willSetUrlFor($resource_name);
 		}
 		if($make_secure && $config != null && strlen($config->ssl_path) > 0){
-			$url = sprintf('https://%s/%s', $config->ssl_path, $resource);
+			$url = sprintf('https://%s/%s', $config->ssl_path, $resource_name);
 		}else{			
-			$url = $site_path . $resource;
+			$url = $site_path . $resource_name;
 		}
 		return $url;
 	}
@@ -363,15 +363,15 @@ class FrontController extends Object{
 			if($plugin->canHandle($class_name, $method)){
 				$output .= $plugin->execute($class_name, $method, $path_info);
 			}
-		}
-		if(file_exists($file)){
+		}		
+		if($output === null && file_exists($file)){
 			class_exists($class_name) || require($file);
 			ob_start();
 			try{
-				$obj = new $class_name(array('url_parts'=>$url_parts));		
-				$obj->file_type = $file_type;
+				$this->resource = new $class_name(array('url_parts'=>$url_parts));		
+				$this->resource->file_type = $file_type;
 				try{					
-					$output = Resource::sendMessage($obj, $method, null);
+					$output = Resource::sendMessage($this->resource, $method, null);
 				}catch(Exception $e){
 					switch($e->getCode()){
 						case(401):
@@ -386,7 +386,6 @@ class FrontController extends Object{
 					}
 					throw $e;
 				}
-				Resource::sendMessage($obj, 'didFinishLoading');				
 			}catch(Exception $e){
 				$output .= self::$delegate->exceptionHasOccured($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'exception'=>$e));
 			}
@@ -394,10 +393,11 @@ class FrontController extends Object{
 			self::$end_time = microtime(true);
 			self::sendHeadersForFileType($file_type, strlen($output));
 			ob_end_flush();
+			Resource::sendMessage($this->resource, 'didFinishLoading');
 			return $output;
 		}else if($output !== null){
 			return $output;
-		}else{
+		}else{			
 			$output = self::$delegate->resourceOrMethodNotFoundDidOccur($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'server'=>$_SERVER, 'url_parts'=>$url_parts));
 			if($output === null){
 				self::send404Headers('Resource not found');
@@ -407,7 +407,6 @@ class FrontController extends Object{
 			}
 		}
 	}
-	
 	private function trim($text){
 		$lines = preg_split('/\n/', $text);
 		$upper_bounds = count($lines);
@@ -460,7 +459,11 @@ class FrontController extends Object{
 		self::$error_html .= '<ul>';
 		foreach(debug_backtrace() as $key=>$value){
 			self::$error_html .= sprintf('<li>%d: %s', $key, $value['class']);
-			self::$error_html .= sprintf('::%s in %s at line # %d', $value['function'], $value['file'], $value['line']);
+			try{
+				self::$error_html .= sprintf('::%s in %s at line # %d', $value['function'], $value['file'], $value['line']);
+			}catch(Exception $e){
+				self::$error_html .= $e;
+			}
 			self::$error_html .= '</li>';
 		}
 		self::$error_html .= '</ul>';
