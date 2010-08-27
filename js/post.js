@@ -325,7 +325,7 @@ UIController.AddressBook = function(view){
 		}
 	};
 	this.didClickHandle = function(e){
-		var url = SDObject.rootUrl + 'addressbook.phtml';
+		var url = e.target.href.replace('.html', '') + '.phtml';
 		var ajax = new SDAjax({method: 'get', DONE: [this, this.onAddressbookAjaxDONE]});
 		ajax.send(url);
 	};
