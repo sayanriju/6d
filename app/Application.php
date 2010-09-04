@@ -74,7 +74,7 @@ class Application{
 		}elseif($e->getCode() == 404){
 			$resource->output = $resource->renderView('error/404', array('message'=>$e->getMessage()));
 			return $resource->renderView('layouts/default');
-		}elseif(strpos('No database selected', $e->getMessage()) !== false || get_class($e) == 'DSException'){
+		}elseif(strpos($e->getMessage(), 'No database selected') !== false || get_class($e) == 'DSException'){
 			Resource::setUserMessage($e->getMessage() . ' - You need to create the database first.');
 			$resource->output = $resource->renderView('install/index', array('message'=>$e->getMessage()));
 			return $resource->renderView('layouts/install');
@@ -98,7 +98,7 @@ class Application{
 		if($path_info !== null){
 			$path = explode('/', $path_info);			
 			if(count($path) > 0){
-				$member_name = array_shift($path);				
+				$member_name = array_shift($path);		
 				self::$member = Member::findByMemberName($member_name);
 				if(self::$member !== null){
 					$path_info = implode('/', $path);					
@@ -108,13 +108,10 @@ class Application{
 		if(self::$member === null){
 			self::$member = Member::findOwner();
 		}
-		if(self::$member !== null){
-			self::$member->profile = unserialize(self::$member->profile);
-		}
 		return $path_info;
 	}
 	public function errorDidHappen($message){
-		error_log($message);
+		console::log($message);
 	}
 	
 	public function resourceOrMethodNotFoundDidOccur($sender, $args){
@@ -151,5 +148,15 @@ class Application{
 		}		
 		return $resource->renderView('layouts/default');
 	}
+}
 
+class console{
+	public static $messages = array();
+	public static function log($obj){
+		self::$messages[] = $obj;
+	}
+	public function __destruct(){
+		self::$messages = array();
+	}
+	
 }

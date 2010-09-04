@@ -79,7 +79,6 @@
 		public $resource_js;
 		protected $settings;
 		protected $config;
-		protected static $error_html;
 		public $q;
 		public $current_user;
 		
@@ -108,10 +107,6 @@
 			parent::didFinishLoading();
 		}
 		public function hasRenderedOutput($layout, $output){
-			if(self::$error_html != null){
-				$output .= self::$error_html;
-			}
-			//error_log('request uri ' . $layout . ' ' . $_SERVER['REQUEST_URI']);
 			$output = $this->filterHeader($output);
 			$output = $this->filterFooter($output);
 			return $output;
@@ -136,7 +131,7 @@
 				$output = $filter->execute($output);
 			}
 			if(count(console::$messages) > 0){
-				$output = str_replace('</body>', '<pre id="__6d_console">' . json_encode(console::$messages) . '</pre></body>', $output);
+				$output = str_replace('</body>', '<pre id="__6d_console">' . implode('', console::$messages) . '</pre></body>', $output);
 			}
 			
 			return $output;

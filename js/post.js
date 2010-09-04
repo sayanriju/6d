@@ -384,28 +384,75 @@ UIController.AddressBook = function(view){
 	};
 	
 };
+
+function photoDidUpload(photo_name, file_name, photo_path, width, error_message){
+	if(error_message.length > 0){
+		alert(error_message);
+	}else{
+		SDDom('photo').value = null;
+		var dd = SDDom.create('dd');
+		dd.innerHTML = photo_name;
+		var items = SDDom.findAll('#photos dd');
+		var count = 0;
+		if(items && items.length > 0){
+			count = items.length;
+		}
+		var hidden_field = SDDom.create('input', {"type":"hidden", "value":photo_name + '=' + file_name, "id":"photo_names[" + photo_name + "]", "name":"photo_names[]"});
+		//SDDom.append(SDDom('photos'), dd);
+		(new SDAjax({method: 'get', DONE: [top, photosDidLoad]})).send(SDDom('media_form').action.replace('photos', 'photos.json'));
+	}
+}
+function photosDidLoad(request){
+	var response = JSON.parse(request.responseText);
+	var html = '<dl>';
+	for(var i = 0; i < response.length; i++){
+		html += '<dt>' + response[i].title + '</dt>';
+		html += '<dd><img src="' + response[i].little_src + '" width="' + response[i].width + '" /></dd>';
+	}
+	html += '</dl>';
+	SDDom('list-of-photos').innerHTML = html;
+}
+
 UIView.PhotoViewer = function(id, options){
 	var self = UIView.apply(this, arguments);
-	SDDom.setStyles({position: 'absolute', display: 'block', top: 0, left: 0, width: '300px', height: '400px', border: 'solid 5px #fff', background: '#000'}, this.container);
+	SDDom.setStyles({position: 'absolute', margin: '0 auto', display: 'block', top: 0, left: 0, width: '360px', height: '400px', border: 'solid 5px #fff', background: '#000', overflow: 'hidden'}, this.container);
 	var bounds = {ux: SDDom.getWidth(window), lx: 0, uy: SDDom.getHeight(window), ly: 0};
-	console.log(bounds);
-	var handle_view = new UIView.HandleForView(this.container, {delegate: this, bounds: bounds});
+	var handle_view = new UIView.TitleBar(this.container, {delegate: this, bounds: bounds, text: 'Photo Picker'});
+	var photo_upload_field = null;
+	this.frame = SDDom.create('div', {className: 'frame'});
+	var height = (SDDom.getHeight(this.container) - handle_view.height) + 'px';
+	SDDom.setStyles({height: height, "margin-top": handle_view.height + 'px'}, this.frame);
+	this.scroll_view = SDDom.create('div', {className: 'scroll_view'});
+	SDDom.setStyles({height: height, top: handle_view.height + 'px', overflow: 'auto', width: '100%'}, this.scroll_view);
 	
-	this.frame = SDDom.create('div');
-	this.close_link = SDDom.create('a', {innerHTML: 'close', href: 'javascript:void(0);', display: 'block', position: 'absolute', top: '0px', left: '0px'});
+	this.close_link = SDDom.create('a', {title: 'close the photo viewer', innerHTML: 'x', href: 'javascript:void(0);'});
+	SDDom.setStyles({position: 'absolute', top: '0', left: '0', display: 'block', width: '20px', height: '15px', "z-index":"10001", border: 'solid 1px rgb(100,100,100)', "border-radius": '10px', color: 'rgb(80,80,80)', "line-height":"12px", "text-align":"center", "text-decoration":"none", "box-shadow":"1px 1px 7px rgb(0,0,0)"}, this.close_link);
 	SDDom.append(this.container, this.close_link);
 	SDDom.setStyles({position: 'absolute'}, this.container);
+	SDDom.append(this.frame, this.scroll_view);
 	SDDom.append(this.container, this.frame);
+	
 	this.isMoving = function(percent){
 		//SDDom.setStyles({top: percent.y * 200 + 'px', left: percent.x * 100 + 'px'}, this.container);
 	};
 	
 	this.photosDidLoad = function(request){
-		this.frame.innerHTML = request.responseText;
+		this.scroll_view.innerHTML = request.responseText;
+		if(photo_upload_field == null){
+			photo_upload_field = SDDom('photo');
+			SDDom.addEventListener(photo_upload_field, 'change', this.photoDidChange);
+		}
 	};
-	
-	this.refresh = function(){
-		(new SDAjax({method: 'get', DONE: [this, this.photosDidLoad]})).send(SDObject.rootUrl + 'photos.phtml');
+	this.photoDidChange = function(e){
+		if(SDDom('photo_names[' + e.target.value + ']')){
+			alert("you've already added that photo.");
+			SDDom.stop(e);
+		}else{
+			SDDom('media_form').submit();
+		}
+	};
+	this.refresh = function(url){
+		(new SDAjax({method: 'get', DONE: [this, this.photosDidLoad]})).send(url.replace('.html', '') + '.phtml');
 	};
 	this.close = function(e){
 		this.toggle();
@@ -430,7 +477,7 @@ UIController.Post = function(views){
 		SDDom.stop(e);
 		SDDom('body').focus();
 		SDDom.setStyles({top: SDDom.pageY(e) + 'px', left: SDDom.pageX(e) + 'px'}, this.photo_viewer.container);
-		this.photo_viewer.refresh();
+		this.photo_viewer.refresh(e.target.href);
 		this.photo_viewer.toggle();
 	};
 	this.doSave = function(e){

@@ -119,3 +119,35 @@
 form.delete{
 	display: none;
 }
+#photo_viewer{
+	position: relative;
+}
+#media_form{
+	background: rgba(255,255,255, .5);
+	color: rgb(255,255,255);
+	height: 60px;
+}
+#photo_viewer{
+	margin: 0 auto;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-box-shadow: 1px 1px 10px rgb(0,0,0);
+}
+#photo_viewer form{
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	left: 0;
+}
+#list-of-photos{
+	height: 100%;
+	clear: both;
+}
+#list-of-photos div{
+	border: solid 1px rgb(255,255,255);
+	margin: 0 10px 10px 0;
+}
+#list-of-photos dl dd img{
+	width: 100px;
+}

@@ -11,6 +11,7 @@ class FrontController extends Object{
 	public static $start_time;
 	public static $end_time;
 	public $request_time;
+	const BADREQUEST = '400: Bad Request';
 	const UNAUTHORIZED = '401: Unauthorized';
 	const NOTFOUND = '404: Not Found';
 	public $context;
@@ -61,6 +62,13 @@ class FrontController extends Object{
 			, 'Content-type'=>'text/html;charset=UTF-8'
 			, 'Content-length'=> $length));
 	}
+	public static function sendTextHeaders($length){
+		self::sendHeaders(array(
+			'Cache-Control'=>'no-cache, must-revalidate'
+			, 'Expires'=>'Mon, 04 Oct 2004 10:00:00 GMT'
+			, 'Content-type'=>'text/plain;charset=UTF-8'
+			, 'Content-length'=> $length));
+	}
 	public static function send301Header($url){
 		self::sendHeaders(array(
 			'Cache-Control'=>'no-cache, must-revalidate'
@@ -99,6 +107,9 @@ class FrontController extends Object{
 				break;
 			case('atom'):
 				self::sendXmlHeaders('atom');
+				break;
+			case('txt'):
+				self::sendTextHeaders($length);
 				break;
 			default:
 				self::sendHtmlHeaders($length);
@@ -301,7 +312,7 @@ class FrontController extends Object{
 	}
 	
 	public static function getPathInfo(){
-		$argv = $_SERVER['argv'];
+		$argv = array_key_exists('argv', $_SERVER) ? $_SERVER['argv'] : null;
 		$php_self = '';
 		/*console::log('DOCUMENT_ROOT = ' . $_SERVER['DOCUMENT_ROOT']);
 		console::log('SCRIPT_FILENAME = ' . $_SERVER['SCRIPT_FILENAME']);
@@ -343,7 +354,9 @@ class FrontController extends Object{
 			foreach($parts as $value){
 				$url_parts[] = $value;
 			}
-			$r = $url_parts[0];
+			if(count($url_parts) > 0){
+				$r = $url_parts[0];				
+			}
 		}
 		if($r == null){
 			$r = 'index';
@@ -363,7 +376,7 @@ class FrontController extends Object{
 			if($plugin->canHandle($class_name, $method)){
 				$output .= $plugin->execute($class_name, $method, $path_info);
 			}
-		}		
+		}
 		if($output === null && file_exists($file)){
 			class_exists($class_name) || require($file);
 			ob_start();
@@ -397,7 +410,7 @@ class FrontController extends Object{
 			return $output;
 		}else if($output !== null){
 			return $output;
-		}else{			
+		}else{
 			$output = self::$delegate->resourceOrMethodNotFoundDidOccur($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'server'=>$_SERVER, 'url_parts'=>$url_parts));
 			if($output === null){
 				self::send404Headers('Resource not found');
@@ -433,6 +446,7 @@ class FrontController extends Object{
 		self::setNeedsToRedirectRaw($referer . $appendValue, false);
 	}
 	public static function setNeedsToRedirectRaw($url){
+		header('HTTP/1.1 303 See Other');		
 		header(sprintf('Location: %s', $url));
 	}
 
@@ -458,9 +472,14 @@ class FrontController extends Object{
 		self::$error_html .= sprintf('<h3>Error code %s: %s</h3>', $code, $message);		
 		self::$error_html .= '<ul>';
 		foreach(debug_backtrace() as $key=>$value){
-			self::$error_html .= sprintf('<li>%d: %s', $key, $value['class']);
 			try{
-				self::$error_html .= sprintf('::%s in %s at line # %d', $value['function'], $value['file'], $value['line']);
+				self::$error_html .= '<li>';
+				foreach($value as $name=>$val){
+					if(!is_object($val)){
+						self::$error_html .= sprintf('%s: %s<br />', $name, $val);
+					}
+				}
+				self::$error_html .= '</li>';
 			}catch(Exception $e){
 				self::$error_html .= $e;
 			}
@@ -470,25 +489,12 @@ class FrontController extends Object{
 		self::$error_html .= sprintf("<pre>%s</pre>", htmlentities($lines[$line-1]));
 		self::$error_html .= '</code>';
 		self::notify('errorDidHappen', $this, self::$error_html);
-		self::$error_html = null;
-		// Make sure this line is commented out in prod because if an error occurs in the database
-		// code, it'll display your user name and password.
-		//debug_print_backtrace();
+		if(self::$delegate !== null){
+			self::$delegate->errorDidHappen(self::$error_html);
+		}
 	}
 	public function exceptionDidHappen($e){
 		echo $e;
-	}
-	
-}
-class console{
-	public static $messages = array();
-	public static function log($obj){
-		error_log(sprintf("%s", $obj));
-		
-		self::$messages[] = $obj;
-	}
-	public function __destruct(){
-		self::$messages = array();
 	}
 	
 }

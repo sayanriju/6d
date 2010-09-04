@@ -151,7 +151,6 @@ blockquote{font-style: italic;}
 }
 
 #__6d_console {
-	position: fixed;
 	bottom: 0;
 	left: 0;
 	width: 100%;
@@ -274,6 +273,9 @@ article footer{
 .hentry{
 	-webkit-box-shadow: 1px 1px 5px rgb(100,100,100);
 	
+}
+code.error ul li{
+	text-align: left;
 }
 article.photo header img{
 	width: 500px;

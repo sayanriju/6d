@@ -31,10 +31,13 @@ class LoginResource extends AppResource{
 		if($isAuthed){
 			if($email != null && !empty($email)){
 				AuthController::setAuthKey($email);
+				$person = Person::findById($user->person_id);
+				$person->session_id = session_id();
+				Person::save($person);
 			}
 			if(FrontController::requestedUrl() != null){
 				$this->redirectTo(FrontController::requestedUrl());
-			}else{
+			}else{				
 				$this->redirectTo(null);
 			}
 		}else{

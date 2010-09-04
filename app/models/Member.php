@@ -121,7 +121,6 @@ class Member extends Object{
 		$clause = new All("select m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
 		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
 		inner join {$person->getTableName()} p on p.id = m.person_id where m.member_name = '{$member_name}'", null, 1, null);
-		
 		$member = $db->find($clause, $member);
 		return $member;
 	}
@@ -158,8 +157,8 @@ class Member extends Object{
 		$clause = new All("select m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
 		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
 		inner join {$person->getTableName()} p on p.id = m.person_id where p.is_owner = 1", null, 1, null);
-		$person = $db->find($clause, $member);
-		return $person;
+		$member = $db->find($clause, $member);
+		return $member;
 	}
 	
 	public function install(Configuration $config){

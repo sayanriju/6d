@@ -25,10 +25,10 @@
 	</head>
 	<body>
 		<header id="banner">
-			<h1><a href="<?php echo FrontController::urlFor(null);?>" title="Home"><span><?php echo $this->site_member->profile->site_name;?></span></a></h1>
+			<h1><a href="<?php echo FrontController::urlFor(null);?>" title="Home"><span><?php echo Application::$member->person->profile->site_name;?></span></a></h1>
 			<nav>
 				<ul>
-<?php $pages = Post::findPublishedPages($this->current_user->id);?>
+<?php $pages = Post::findPublishedPages(Application::$member->person_id);?>
 <?php while($pages != null && $page = array_shift($pages)):?>
 	<?php if(!$page->isHomePage($this->getHome_page_post_id())):?>
 					<li><a href="<?php echo FrontController::urlFor($page->custom_url);?>" title="<?php echo $page->description;?>"><?php echo $page->title;?></a></li>
@@ -45,7 +45,7 @@
 		</header>
 		<aside id="author">
 			<a href="<?php echo FrontController::urlFor(null);?>" title="Go back to my home page">
-				<img width="52" height="52" src="<?php echo Application::$member->profile->photo_url;?>" alt="photo of <?php echo Application::$member->name;?>" class="author" />
+				<img width="52" height="52" src="<?php echo Application::$member->person->profile->photo_url;?>" alt="photo of <?php echo Application::$member->name;?>" class="author" />
 			</a>
 		  	<footer id="tweets">
 				<nav>
@@ -56,7 +56,7 @@
 			</footer>
 		</aside>
 		<section id="content">
-			<div id="user_message"<?php echo (Resource::getUserMessage()==null ? ' style="display:block;"' : null);?>>
+			<div id="user_message"<?php echo (Resource::getUserMessage() !== null ? ' style="display:block;"' : null);?>>
 				<?php echo Resource::getUserMessage();?>
 			</div>
 			{$output}
@@ -76,7 +76,6 @@
 		 	<a href="<?php echo FrontController::urlFor('logout');?>" id="logout_link">logout</a>
 		</nav>
 		<?php endif;?>
-		
 		<footer id="footer">
 			<p>&copy;<?php echo date('Y');?> Powered by <a href="http://get6d.com/" title="6d">6d</a></p>
 		</footer>

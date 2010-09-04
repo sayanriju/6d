@@ -5,6 +5,7 @@ SDDom.addEventListener(window, 'load', function(e){
 		SDDom.addEventListener(photo, 'change', photoDidChange);
 	}
 });
+
 function didMouseUp(e){
 	photo = null;
 }
@@ -29,8 +30,15 @@ function photoDidChange(e){
 	}
 }
 function photosDidLoad(request){
-	SDDom('list-of-photos').innerHTML = request.responseText;
-};
+	var response = JSON.parse(request.responseText);
+	var html = '<dl>';
+	for(var i = 0; i < response.length; i++){
+		html += '<dt>' + response[i].title + '</dt>';
+		html += '<dd><img src="' + response[i].little_src + '" width="' + response[i].width + '" /></dd>';
+	}
+	html += '</dl>';
+	SDDom('list-of-photos').innerHTML = html;
+}
 
 function photoDidUpload(photo_name, file_name, photo_path, width, error_message){
 	if(error_message.length > 0){
@@ -46,6 +54,6 @@ function photoDidUpload(photo_name, file_name, photo_path, width, error_message)
 		}
 		var hidden_field = SDDom.create('input', {"type":"hidden", "value":photo_name + '=' + file_name, "id":"photo_names[" + photo_name + "]", "name":"photo_names[]"});
 		SDDom.append(SDDom('photos'), dd);
-		(new SDAjax({method: 'get', DONE: [top, photosDidLoad]})).send(SDDom('media_form').action.replace('photos', 'photos.phtml'));
+		(new SDAjax({method: 'get', DONE: [top, photosDidLoad]})).send(SDDom('media_form').action.replace('photos', 'photos.json'));
 	}
-};
+}

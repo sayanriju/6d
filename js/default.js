@@ -681,7 +681,7 @@ UIView.Slider = function(options){
 	};
 	return this;
 }
-UIView.HandleForView = function(id, options){
+UIView.TitleBar = function(id, options){
 	this.bounds = null;
 	this.direction = null;
 	UIView.apply(this, arguments);
@@ -696,10 +696,14 @@ UIView.HandleForView = function(id, options){
 	var bounds = this.bounds || {ux: container_position.x + total_width, uy: container_position.y + total_height, lx: container_position.x, ly: container_position.y};
 	var direction = this.direction;
 	var moveFunc = (this.direction == 'horizontal' ? moveHoriz : this.direction == 'vertical' ? moveVert : moveBoth);
+	this.height = SDDom.getHeight(handle);
+	this.width = SDDom.getWidth(handle);
 	function init(container){
-		handle = SDDom.create('span');
-		SDDom.setStyles({display: 'block', height: options.height || '15px', width: options.width || '100%', background: '#fff', position: 'absolute', left: '0', top: '-6px', cursor: 'move'}, handle);
-		SDDom.setStyles({position: 'relative'});
+		handle = SDDom.create('div');
+		var title = SDDom.create('h3');
+		title.innerHTML = options.text || '';
+		SDDom.setStyles({height: options.height || '20px', width: options.width || '100%', background: '#fff', position: 'absolute', left: '0', cursor: 'move', "z-index":"1000"}, handle);
+		SDDom.append(handle, title);
 		SDDom.append(container, handle);
 		SDDom.addEventListener(handle, 'mousedown', isClickingHandle);
 		SDDom.addEventListener(document, 'mouseup', wasReleased);

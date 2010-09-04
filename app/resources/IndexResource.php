@@ -87,7 +87,7 @@ class IndexResource extends AppResource{
 				$this->description .= $post->title . ',';
 			}
 		}
-		$this->title = Application::$member->profile->site_name;
+		$this->title = (Application::$member->person->profile->site_name !== null ? Application::$member->person->profile->site_name : Application::$member->name);
 		return $this->renderView('layouts/home', null);
 	}
 	

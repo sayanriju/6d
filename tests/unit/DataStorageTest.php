@@ -9,17 +9,16 @@
 			$this->title = 'DataStorageTest Tests';
         }
 		public function __destruct(){}
-				
+		public $member;
 		public function setUp(){}
-		public function tearDown(){}
+		public function tearDown(){
+			Member::delete($this->member);
+		}
 		public function testConnections(){
-			$member = new Member(new Person(array('name'=>'meg', 'email'=>'megguerra@me.com', 'member_name'=>'meg', 'password'=>'texas', 'url'=>'localhost/6d/meg', 'is_approved'=>true, 'do_list_in_directory'=>true, 'session_id'=>session_id(), 'is_owner'=>false, 'owner_id'=>1, 'uid'=>uniqid(null, true))));
-			$this->assert($member !== null, 'Initialize a member object');			
-			$inspector = new ReflectionClass(get_class($member));
-			$member = Member::saveAsPerson($member);
-			var_dump($member);
-			$members = $member->findAll(null);
-			var_dump($members);
+			$this->member = new Member(new Person(array('name'=>'test', 'email'=>'test@test.com', 'member_name'=>'test', 'password'=>'test', 'url'=>'localhost/6d/test', 'is_approved'=>true, 'do_list_in_directory'=>true, 'session_id'=>session_id(), 'is_owner'=>false, 'owner_id'=>1, 'uid'=>uniqid(null, true))));
+			$this->assert($this->member !== null, 'Initialize a member object');			
+			$inspector = new ReflectionClass(get_class($this->member));
+			$this->member = Member::saveAsPerson($this->member);
 		}
 		
 		public function testFlatObject(){

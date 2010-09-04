@@ -22,16 +22,12 @@
 			return $password;
 		}
 		
-		public static function getNumber($min = 0, $max = 0){
-			$config = new AppConfiguration();
-			$db = Factory::get($config->db_type, $config);
+		public static function getNumber($min = 0, $max = 0, $seed = 1){
 			$value = '';
-			$seed = null;
-
 			// Reset $rnd_value after 14 uses
 			// 32(md5) + 40(sha1) + 40(sha1) / 8 = 14 random numbers from $rnd_value
 			//error_log(self::$number . ' ' . strlen(self::$number));
-			if ( strlen(self::$number) < 8 ) {
+			if (strlen(self::$number) < 8 ) {
 				self::$number = md5( uniqid(microtime() . mt_rand(), true ) . $seed );
 				self::$number .= sha1(self::$number);
 				self::$number .= sha1(self::$number . $seed);
@@ -41,7 +37,7 @@
 			// Take the first 8 digits for our value
 			$value = substr(self::$number, 0, 8);
 
-			// Strip the first eight, leaving the remainder for the next call to wp_rand().
+			// Strip the first eight, leaving the remainder for the next call.
 			self::$number = substr(self::$number, 8);
 
 			$value = abs(hexdec($value));
@@ -50,7 +46,6 @@
 			// 4294967295 = 0xffffffff = max random number
 			if ( $max != 0 )
 				$value = $min + (($max - $min + 1) * ($value / (4294967295 + 1)));
-
 			return abs(intval($value));
 		}
 	}

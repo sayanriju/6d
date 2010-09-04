@@ -216,6 +216,13 @@
 			$person = $db->find(new ByClause(sprintf("email='%s' and password='%s'", urlencode($email), String::encrypt($password)), null, 1, null), new Person(null));
 			return $person;
 		}
+		public static function findBySessionId($session_id){
+			$config = new AppConfiguration();
+			$db = Factory::get($config->db_type, $config);
+			$person = $db->find(new ByClause(sprintf("session_id='%s'", $session_id), null, 1, null), new Person(null));
+			return $person;
+		}
+		
 		public static function findByPublicKeyAndUrl($public_key, $url){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);

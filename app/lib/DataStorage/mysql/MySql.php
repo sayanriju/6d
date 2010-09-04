@@ -709,11 +709,9 @@ eos;
 			if($this->_connectionId == null){
 				$this->_connectionId = mysql_connect($this->_config->host, $this->_config->user_name, $this->_config->password);
 			}
-
 			if($this->_connectionId == false){
 				$this->setError(null);
-				throw new DSException(new Exception('The connection to the MySql server failed. Please check your user name and password again and that the database has been created. MYSQL ERROR: ' . $this->errorMessage, 0));
-				
+				throw new DSException(new Exception('The connection to the MySql server failed. Please check your user name and password again and that the database has been created. MYSQL ERROR: ' . $this->errorMessage, $this->errorNumber));
 			}
 
 			try{
@@ -800,10 +798,10 @@ eos;
 			$this->setError(null);
 			if($this->errorNumber > 0){
 				error_log('MySql execute error: ' . $this->errorNumber . ' ' . $this->errorMessage);
-				if($this->errorNumber == 1046){
+				if(in_array($this->errorNumber, array(1046, 1146))){
 					throw new DSException(new Exception($this->errorMessage, $this->errorNumber));
 				}else{
-					throw new Exception($this->errorMessage . '>>> ' . $sql, $this->errorNumber);					
+					throw new Exception($this->errorMessage . '(' . $this->errorNumber . ')>>> ' . $sql, $this->errorNumber);					
 				}
 			}
 		}

@@ -6,12 +6,21 @@ class AuthController{
 	public function __destruct(){}
 	public static $user;
 	public static function isAuthorized(){
-		$sessionAuthKey = self::authKey();
-		return $sessionAuthKey !== null;
+		if(self::authKey() !== null){
+			return true;
+		}else{
+			$user = Person::findBySessionId(session_id());
+			if($user !== null){
+				return true;
+			}else{
+				return false;
+			}
+		}
+		return false;
 	}
 	public static $is_super_admin;
 	public static function isSuperAdmin(){
-		if($is_super_admin === null && self::authKey() !== null){
+		if(self::$is_super_admin === null && self::authKey() !== null){
 			self::$is_super_admin = SuperAdmin::findByEmail(self::authKey()) !== null;
 		}else{
 			self::$is_super_admin = false;
@@ -30,7 +39,11 @@ class AuthController{
 		$_SESSION['authKey'] = $email;
 	}
 	public static function logout(){
-		session_unset($_SESSION['authKey']);
+		$_SESSION = array();
+		if(ini_get('session.use_cookies')){
+			$params = session_get_cookie_params();
+			setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+		}
 		session_destroy();
 	}
 	

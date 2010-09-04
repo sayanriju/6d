@@ -31,7 +31,6 @@ class Resource extends Object{
 		$this->redirect_parameters = array('resource_name'=>$resource_name, 'query_parameters'=>$query_parameters, 'make_secure'=>$make_secure);
 		//TODO: This needs to be moved out of here. It's just a stop gap to solve a redirect problem.
 		FrontController::redirectTo($this->redirect_parameters['resource_name'], $this->redirect_parameters['query_parameters'], $this->redirect_parameters['make_secure']);
-		
 	}
 	
 	/* This method is for rendering a view. It's based on the file type and assumes that the file type is html.
@@ -217,7 +216,7 @@ class Resource extends Object{
 	
 	public static function getUserMessage(){
 		if(array_key_exists('userMessage', $_COOKIE)){
-			return $_COOKIE['userMessage'];
+			return urldecode($_COOKIE['userMessage']);
 		}else{
 			return null;
 		}
@@ -226,7 +225,7 @@ class Resource extends Object{
 		if($value == null){
 			unset($_COOKIE['userMessage']);
 		}else{
-			setcookie('userMessage', $value, time());
+			setcookie('userMessage', urlencode($value), time()+1);
 		}
 	}
 	public static function appendToUserMessage($value){

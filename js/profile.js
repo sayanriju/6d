@@ -1,5 +1,5 @@
 SDDom.addEventListener(window, 'load', function(e){
-	init();
+	init2();
 	if(SDDom('photo')){
 		SDDom.addEventListener(SDDom('photo'), 'change', photoDidChange);		
 		SDDom.addEventListener(SDDom('save_button'), 'click', function(e){
@@ -24,7 +24,7 @@ var cropper;
 var original_size;
 var slider;
 var profile_controller;
-function init(){
+function init2(){
 	photo = SDDom('profile_photo');	
 	profile_controller = {photoWasDoubleClicked: function(photo, new_size, pos, offset, canvas_size){
 		(new SDAjax({method: 'put', parameters: ['ratio=' + offset.ratio, 'offset_x=' + offset.x, 'offset_y=' + offset.y, 'dst_w=' + canvas_size.width, 'dst_h=' + canvas_size.height, 'file_name=' + photo.src].join('&'), DONE: [window, photoDidSave]})).send(SDObject.rootUrl + 'photo.phtml');
