@@ -1,5 +1,71 @@
+#author {
+	display:none;	
+}
+#content {
+	width: 840px;	
+}
+#addressbook p {
+	margin:3px;
+}
+#addressbook legend {
+	width: 100%;
+	padding-left:3px;
+	height:25px;
+	line-height:25px;
+	background:#CCC;
+	color:#333;
+	font-size:16px;
+	font-weight:bold;
+	width:351px;
+	overflow:hidden;
+	font-family: Georgia, Helvetica, Palatino, serif;
+	font-variant: small-caps;
+}
+#addressbook section {
+	border:#999 1px solid;
+	height:300px;
+	margin-bottom:20px;
+}
+#addressbook section ul li {
+	width:240px;	
+}
+#addressbook section ul li a {
+	padding-right: 26px;
+	overflow:hidden;
+	display:block;
+	height:18px;
+	float:left;
+	color:#999;
+}
+#addressbook section ul li a:hover {
+	text-decoration:none;	
+}
+#addressbook section ul li.selected a {
+	color:#333;
+}
+#addressbook section ul li span {
+	padding-left:3px;
+}
+#addressbook section h1 {
+	text-align:center;
+	font-size:16px;
+	margin:0;
+	border-bottom:#999 1px solid;
+}
+#addressbook section input[type="text"] {
+	font-size:100%;	
+}
 #people input[type="checkbox"]{
 	display: none;
+}
+#label_approved {
+	display:block;
+	width:70px;
+	float:left;	
+}
+#is_approved {
+	float:left;
+	margin-top:4px;
 }
 form.delete{
 	float: right;
@@ -9,16 +75,20 @@ form.delete button{
 	cursor: default;
 	padding: 0;
 	margin: 0;
+	width:18px;
+	height:18px;
+	border:#ff0000 solid 2px;
+	color:red;
+	font-weight:bold;
 }
 #groups{
-	width: 180px;
+	width: 240px;
 	float: left;
-	height: 100%;
+	border-right:none;
 }
 #people{
-	height: 100%;
 	float: left;
-	width: 180px;
+	width: 240px;
 	position: relative;
 }
 input{
@@ -33,17 +103,19 @@ input{
 	position: absolute;
 }
 ul{
-	list-style-type: decimal;
 }
 li{
 	cursor: default;
+	margin-top:3px
 }
 #detail{
-	margin-left: 390px;
+	margin-left: 484px;
+	width:354px;
 }
 li.selected, li.selected a{
-	background: blue;
-	color: #fff;
+	background: #999;
+	width:214px;
+	color: #333;
 }
 li.selected button{
 	color: #fff;

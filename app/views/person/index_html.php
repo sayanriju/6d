@@ -8,7 +8,7 @@
 		<form action="<?php echo FrontController::urlFor('person');?>" method="post" class="delete">
 			<input type="hidden" value="<?php echo $person->id;?>" name="id" />
 			<input type="hidden" value="delete" name="_method" />
-			<button><span>Delete</span></button>
+			<button><span>delete</span></button>
 		</form>
 	<?php else:?>
 	<span rel="<?php echo $person->id;?>"><?php echo $person->name;?></span>

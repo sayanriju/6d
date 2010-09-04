@@ -16,9 +16,10 @@
 			<input type="text" name="url" id="url" value="{$person->url}" />
 		</p>
 		<p>
-			<label for="is_approved">Approved?</label>
+			<label for="is_approved" id="label_approved">Approved?</label>
 			<input type="checkbox" id="is_approved" name="is_approved" value="true"<?php echo $person->is_approved ? ' checked="true"' : null;?> />
 		</p>
+        <div style="clear:both;"></div>
 		<p>
 			<button type="submit" name="save_button" id="save_button"><span>Save</span></button>
 		</p>
