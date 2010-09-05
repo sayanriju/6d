@@ -1,18 +1,22 @@
 <section id="addressbook_modal" style="display: none;" class="modal"></section>
 <form action="<?php echo FrontController::urlFor('post');?>" method="post" id="post_form">
 	<fieldset>
-		<p id="send_to_list">
-			<label for="send_to_list">
-				<a href="<?php echo FrontController::urlFor('addressbook.html');?>" id="address">Send to</a>
-			</label>
+    <legend>Post</legend>
+    	<p>
+		<ul id="post_type">
+		<?php foreach(array('post'=>'Post', 'page'=>'Page', 'quote'=>'Quote', 'photo'=>'Photo', 'album'=>'Album', 'video'=>'Video', 'link'=>'Link') as $key=>$value):?>
+            <li><input type="radio" value="<?php echo $key;?>"><label for="<?php echo $value;?>"><?php echo $value;?></label></li>
+        <?php endforeach;?>
+        </ul>
 		</p>
+        <div style="clear:both"></div>
 		<p>
 			<label for="title">Title</label>
 			<input type="text" id="title" name="title" value="{$post->title}" />
 		</p>
 		<p>
+        	<a href="<?php echo FrontController::urlFor('photos');?>" title="Add a photo" id="add-a-photo-link">+ add a photo</a>
 			<label for="body">Post</label>
-			<a href="<?php echo FrontController::urlFor('photos');?>" title="Add a photo" id="add-a-photo-link">+ add a photo</a>
 			<textarea name="body" id="body">{$post->body}</textarea>
 		</p>
 		<input type="hidden" name="id" value="{$post->id}" />
@@ -20,22 +24,7 @@
 		
 	</fieldset>
 	<fieldset class="options">
-		<p>
-			<label for="is_published" class="checkbox">Check to make public</label>
-			<input type="checkbox" id="is_published" name="is_published" value="true"<?php echo $post->is_published ? ' checked="true"' : '';?> />
-		</p>
-		<p>
-			<label for="make_home_page" class="checkbox">Check to make this your home page</label>
-			<input type="checkbox" value="true" id="make_home_page" name="make_home_page"<?php echo $post->isHomePage($this->getHome_page_post_id()) ? ' checked="true"' : null;?> />
-		</p>
-		<p>
-			<label for="type">Display post as</label>
-			<select id="type" name="type">
-<?php foreach(array('post'=>'Post', 'page'=>'Page', 'quote'=>'Quote', 'photo'=>'Photo', 'album'=>'Album', 'video'=>'Video', 'link'=>'Link') as $key=>$value):?>
-			<option value="<?php echo $key;?>"<?php echo $post->type === $key ? ' selected="true"' : '';?>><?php echo $value;?></option>
-<?php endforeach;?>
-			</select>
-		</p>
+    <legend>Post Details</legend>
 		<p>
 			<label for="tags" class="inline">Tags separated by commas</label>
 			<input type="text" name="tags" id="tags" value="{$post->tags}" />
@@ -53,6 +42,22 @@
 			<input type="text" name="post_date" value="{$post->post_date}" id="post_date" />
 		</p>
 	</fieldset>
+    <fieldset>
+    <legend>Publish Details</legend>
+    	<p>
+        	<input type="checkbox" id="is_published" name="is_published" value="true"<?php echo $post->is_published ? ' checked="true"' : '';?> />
+			<label for="is_published" class="checkbox">Make public</label>
+		</p>
+		<p>
+        	<input type="checkbox" value="true" id="make_home_page" name="make_home_page"<?php echo $post->isHomePage($this->getHome_page_post_id()) ? ' checked="true"' : null;?> />
+			<label for="make_home_page" class="checkbox">Make this your home page</label>
+		</p>
+        <p id="send_to_list">
+			<label for="send_to_list">
+				<a href="<?php echo FrontController::urlFor('addressbook.html');?>" id="address">Send to</a>
+			</label>
+		</p>
+    </fieldset>
 	<nav>
 		<input type="hidden" name="last_page_viewed" value="{$last_page_viewed}" />
 <?php if($post->id !== null):?>
