@@ -1,11 +1,11 @@
 <section id="addressbook_modal" style="display: none;" class="modal"></section>
 <form action="<?php echo FrontController::urlFor('post');?>" method="post" id="post_form">
 	<fieldset>
-    <legend>Post</legend>
+    <legend>New Post</legend>
     	<p>
 		<ul id="post_type">
 		<?php foreach(array('post'=>'Post', 'page'=>'Page', 'quote'=>'Quote', 'photo'=>'Photo', 'album'=>'Album', 'video'=>'Video', 'link'=>'Link') as $key=>$value):?>
-            <li><input type="radio" value="<?php echo $key;?>"><label for="<?php echo $value;?>"><?php echo $value;?></label></li>
+            <li id="post_type_<?php echo $key;?>" class="post_type_radio"><label for="<?php echo $key;?>"><input type="radio" name="post_type" value="<?php echo $key;?>"<?php echo $post->type === $key ? ' checked' : '';?>><?php echo $value;?></label></li>
         <?php endforeach;?>
         </ul>
 		</p>

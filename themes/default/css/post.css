@@ -56,7 +56,18 @@ form#post_form input[type=checkbox], form#post_form input[type=radio]{
 ul#post_type li {
 	float:left;
 	display:block;
-	width:110px;	
+	width:110px;
+	border:#666 2px solid;
+	background:#FFF;
+	background: -webkit-gradient(linear, left top, left bottom, from(#ccc), to(#fff));
+	background: -moz-linear-gradient(top,  #ccc,  #fff);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#cccccc', endColorstr='#fff');
+	-webkit-border-radius: 4px; 
+	-moz-border-radius: 4px;
+	border-radius: 4px;	
+}
+.post_type_radio {
+		
 }
 #instructions{
 	display: none;

@@ -564,7 +564,7 @@ UIController.Post = function(views){
 		SDDom.addEventListener(reblog, 'click', this.bind(this.didClickReblog));
 	}
 }
-
+UIController.PostTypeHandler = function(options){};
 var editor = null;
 var postController;
 
