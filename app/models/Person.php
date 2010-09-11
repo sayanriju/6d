@@ -249,11 +249,12 @@
 		public static function stringify($text){
 			return sprintf("%s", urlencode($text));
 		}
-		public static function delete_many($ids = array()){
+		public static function delete_many($ids = array(), $owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
+			$owner_id = (int)$owner_id;
 			if($ids !== null){
-				$clause = new ByClause(sprintf("id in (%s)", implode(',', $ids)), null, 0, null);
+				$clause = new ByClause(sprintf("id in (%s) and owner_id=%d", implode(',', $ids), $owner_id), null, 0, null);
 				return $db->delete($clause, new Person(null));
 			}
 			return 0;

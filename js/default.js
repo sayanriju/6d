@@ -129,14 +129,18 @@ SDArray.each = function(ary, delegate){
 	}
 	return ary;
 };
-SDArray.contains = function(needle, ary){
+SDArray.contains = function(needle, ary, delegate){
 	var i = ary.length;
 	var item = null;
 	var is_node_list = (i > 0 && ary.item);
 	while(i--){
 		item = is_node_list ? ary.item(i) : ary[i];
-		if(item === needle){
-			return true;
+		if(!delegate){
+			if(item === needle){
+				return true;
+			}			
+		}else{
+			return delegate(item, needle, i);
 		}
 	}
 	return false;

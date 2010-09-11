@@ -170,7 +170,7 @@ UIView.List = function(id, options){
 		});
 		item = top_list.length > 0 ? top_list.pop() : null;
 		var new_item = SDDom.create('li');
-		new_item.innerHTML = '<span>' + text + '</span><input type="checkbox" id="group_' + id + '" name="groups" value="' + text + '" /><form action="" method="post" class="delete"><input type="hidden" value="' + text + '" name="text" /><input type="hidden" value="delete" name="_method" /><button type="submit"><span>x</span></button></form>';
+		new_item.innerHTML = '<span>' + text + '</span><input type="checkbox" id="group_' + id + '" name="groups" value="' + text + '" /><form action="" method="post" class="delete"><input type="hidden" value="' + text + '" name="text" /><input type="hidden" value="delete" name="_method" /><button type="submit">x</button></form>';
 		new_item.setAttribute('rel', id);
 		this.set('selected_item', new_item);
 		if(item){
@@ -223,10 +223,10 @@ UIView.List = function(id, options){
 	this.onKeyPress = function(e){		
 		if(this.is_active_view){
 			if(e.keyCode === SDDom.keys.BACKSPACE){
-				var seleted_elements = this.getSelectedItems();
+				SDDom.stop(e);
+				var selected_elements = this.getSelectedItems();
 				if(selected_elements && this.delegate && this.delegate.onDeleteKeyPressed){
 					this.delegate.onDeleteKeyPressed.apply(this.delegate, [this, selected_elements, e]);
-					SDDom.stop(e);
 				}
 				itemsWereDeleted(selected_elements);
 			}
@@ -471,7 +471,6 @@ UIController.AddressBook = function(views){
 	};
 	this.onPersonDeleteDONE = function(request){		
 		var response = JSON.parse(request.responseText, false);
-		console.log(response);
 		this.getView('people', this.views).removeDeletedItems();	
 	};
 	this.onGroupDeleteDONE = function(request){
@@ -479,6 +478,8 @@ UIController.AddressBook = function(views){
 		this.getView('groups', this.views).removeDeletedItems();
 	};
 	this.onDeleteKeyPressed = function(view, selected_elements, e){
+		var deleted_item = SDDom.getParent('li', e.target);
+		SDDom.addClass('deleted', deleted_item);
 		if(view.id === 'groups'){
 			var i = selected_elements.length;
 			var groups = SDArray.pluck(selected_elements, function(elem){return elem.getAttribute('rel');}).join(',');
@@ -494,8 +495,7 @@ UIController.AddressBook = function(views){
 			var people = SDArray.pluck(selected_elements, function(elem){return elem.getAttribute('rel');}).join(',');
 			var group = selected_group.getAttribute('rel');
 			if(group === 'All Contacts'){
-				if(confirm('Just to make sure, did you want to delete the selected person(s)? If so, click Ok. Otherwise, click Cancel.')){
-					
+				if(confirm('Just to make sure, did you want to delete the selected person(s) from your address book? If so, click Ok. Otherwise, click Cancel.')){
 					(new SDAjax({method: 'delete', parameters: 'ids=' + people
 						, DONE: [this, this.onPersonDeleteDONE]})).send(SDObject.rootUrl + 'people.json');
 					

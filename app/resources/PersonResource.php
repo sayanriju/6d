@@ -45,7 +45,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 			if($person->id == null){
 				throw new Exception('Person id must be set');
 			}
-			$person = Person::findById($person->id);
+			$person = Person::findByIdAndOwner($person->id, Applicatoin::$current_user->person_id);
 			if(!$person->is_owner){
 				Person::delete($person);
 			}else{
