@@ -19,7 +19,7 @@ UIView.PostMenu = function(id){
 	};
 	UIView.apply(this, arguments);
 };
-UIView.TextArea = function(id){
+UIView.TextArea = function(id, options){
 	UIView.apply(this, arguments);
 	this.onResize = function(e){
 		this.resize(SDDom.getHeight(e.target) - SDDom.getPosition(this.container).y - 80);
@@ -33,7 +33,6 @@ UIView.TextArea = function(id){
 		this.container.value += img.src + '\n';
 	};
 	this.removeImage = function(img){
-		console.log(img.src);
 		this.container.value = this.container.value.replace(img.src + '\n', '');
 	};
 	this.keypress = function(e){
@@ -484,7 +483,7 @@ UIController.Post = function(options){
 	this.list_of_people = SDDom.findFirst('ul', this.send_to_list);
 	this.add_a_photo_link = SDDom('add-a-photo-link');
 	this.form = SDDom('post_form');
-	var textarea = new UIView.TextArea('body');
+	var textarea = new UIView.TextArea('body', {delegate: this});
 	SDDom.append(document.body, SDDom.create('div', {id:'photo_viewer'}));
 	this.photo_viewer = new UIView.PhotoViewer('photo_viewer', {delegate: this});
 	this.photo_viewer.toggle();

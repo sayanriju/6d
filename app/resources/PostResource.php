@@ -113,7 +113,6 @@ class PostResource extends AppResource{
 			if(strlen($post->password) === 0){
 				$post->password = null;
 			}
-			console::log('password = ' . $post->password);
 			list($post, $errors) = Post::save($post);
 			if($errors == null){
 				if($make_home_page){
@@ -137,9 +136,7 @@ class PostResource extends AppResource{
 		}else{
 			self::setUserMessage("That post doesn't exist.");
 		}
-		$this->redirectTo('posts/' . $this->last_page_viewed);
-		
-			
+		$this->redirectTo($this->post->custom_url);			
 	}
 	private function save(Post $post, $people, $groups, $make_home_page){
 		$post->created = date('c');
@@ -170,8 +167,7 @@ class PostResource extends AppResource{
 				self::setUserMessage($message);
 			}
 		}
-		$this->redirectTo('posts');
-		
+		$this->redirectTo($post->custom_url);
 	}
 	private function makeHomePage($post){
 		$setting = Setting::findByName('home_page_post_id');
@@ -184,7 +180,6 @@ class PostResource extends AppResource{
 		$errors = array();
 		if(AuthController::isAuthorized()){
 			$post->source = Application::$current_user->url;
-			error_log('saving the post and the source is ' . $post->source . ' for member ' . Application::$member->member_name);
 			$this->save($post, $people, $groups, $make_home_page);
 		}else if($public_key != null && strlen($public_key)>0){
 			$person = Person::findByPublicKeyAndUrl($public_key, $post->source);

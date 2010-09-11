@@ -1,28 +1,63 @@
 <?php class_exists('UserResource') || require('resources/UserResource.php');?>
-<article>
 <?php if($post == null):?>
+<article class="hentry">
 	<p>Sorry, the page you're looking for doesn't exist.</p>
-<?php else:?>
-	<header>
-		<h1><?php echo $post->title;?></h1>			
-	</header>
-	<div class="entry-content">
-		<?php echo $post->body;?>
-	</div>
-	<footer>
-		<p class="tags"><?php echo $post->tags;?></p>
-		<abbr title="<?php echo $post->post_date;?>"><?php echo date('jS M Y', strtotime($post->post_date));?></abbr>
-<?php if($post->source !== null && strlen($post->source) > 0):?>
-		<p class="source"><?php echo $post->source;?></p>
-<?php endif;?>
-<?php if( AuthController::isAuthorized()):?>
-			<form action="<?php echo FrontController::urlFor('post');?>" method="post" onsubmit="return confirm('Are you sure you want to delete <?php echo $post->title;?>?');">
-				<input type="hidden" name="id" value="<?php echo $post->id;?>" />
-				<input type="hidden" name="_method" value="delete" />
-				<input type="submit" name="delete_button" value="delete post" />
-		        <a href="<?php echo FrontController::urlFor('post', array('id'=>$post->id));?>">edit</a>
-			</form>
-<?php endif;?>			
-	</footer>
-<?php endif;?>
 </article>
+<?php else:?>
+<article class="hentry <?php echo $post->type;?>">
+	<?php switch($post->type){
+		case('status'):?>
+		<header>
+			<h2><?php echo $post->body;?></h2>
+		</header>
+		<?php break;
+		case('link'):?>
+	<header>
+		<h2><a href="<?php echo $post->body;?>" title="<?php echo $post->title;?>"><?php echo $post->title;?></a></h2>
+	</header>
+	<section class="entry-content">
+		<p><?php echo $post->description;?></p>
+	</section>
+		<?php
+			break;
+		case('photo'):?>
+	<header>
+		<?php if(stripos($post->body, '<img') !== false):?>
+		<?php echo $post->body;?>
+		<?php else:?>
+		<img src="<?php echo $post->body;?>" alt="<?php echo $post->title;?>" />
+		<?php endif;?>
+	</header>
+	<section class="entry-content">
+		<p><?php echo $post->description;?></p>
+	</section>
+		<?php
+			break;
+		default:?>
+	<header>
+		<h2><a href="<?php echo FrontController::urlFor($post->custom_url);?>" rel="bookmark" title="<?php echo $post->title;?>"><?php echo $post->title;?></a></h2>
+	</header>
+	<section class="entry-content">
+		<?php echo $post->body;?>
+	</section>
+	<?php 
+		break;
+	}?>
+	<footer class="post-info">
+		<?php $page = 1; require('views/post/menu_html.php');?>
+		<time datetime="<?php echo $post->date;?>">
+			<span class="day"><?php echo date('jS', strtotime($post->post_date));?></span>
+			<span class="month"><?php echo date('M', strtotime($post->post_date));?></span>
+			<span class="year"><?php echo date('Y', strtotime($post->post_date));?></span>
+		</time>
+		<aside rel="author">
+			<p><?php echo $post->source;?></p>
+		</aside>
+		<aside rel="tags">
+			<?php foreach(String::explodeAndTrim($post->tags) as $text):?>
+			<a href="<?php echo FrontController::urlFor(null, array('tag'=>$text));?>"><?php echo $text;?></a>
+			<?php endforeach;?>
+		</aside>
+	</footer>
+</article>
+<?php endif;?>
