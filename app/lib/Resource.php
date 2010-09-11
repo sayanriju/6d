@@ -65,6 +65,7 @@ class Resource extends Object{
 			
 			$__theme_view = FrontController::getRootPath('/' . FrontController::getThemePath() . '/views/' . $__full_path);
 			$__default_view = str_replace(sprintf('lib%sResource.php', DIRECTORY_SEPARATOR), '', __FILE__) . 'views/' . $__full_path;
+			$__view = str_replace(sprintf('app%slib%sResource.php', DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR), '', __FILE__) . $__full_path;
 			/*printf("root = %s<br />virtual = %s<br />app = %s<br />theme = %s<br /><br />", FrontController::getRootPath()
 				, FrontController::getVirtualPath(), FrontController::getAppPath()
 				, FrontController::getThemePath());
@@ -115,6 +116,8 @@ class Resource extends Object{
 				require($__theme_view);
 			}else if(file_exists($__default_view)){
 				require($__default_view);
+			}else if(file_exists($__view)){
+				require($__view);
 			}else{
 				throw new Exception(sprintf("404: File not found, %s.%s", $__file, $this->file_type), 404);
 			}

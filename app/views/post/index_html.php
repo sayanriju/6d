@@ -12,7 +12,7 @@
 <?php endif;?>
 <?php if($posts == null):?>
 	<article class="hentry">
-		<?php if(AuthController::isAuthorized() && $this->current_user->person_id === $this->site_member->person_id):?>
+		<?php if(AuthController::isAuthorized() && $this->current_user->person_id === Application::$member->person_id):?>
 		<p>There are no posts right now.</p>
 		<a href="<?php echo FrontController::urlFor('post');?>">Create a new one</a>
 		<?php else:?>

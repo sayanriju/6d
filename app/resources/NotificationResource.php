@@ -30,7 +30,7 @@
 			$type = $notification->name;
 			$url = sprintf("http://%s/%s.json", $notification->appName, strtolower(String::pluralize($notification->name)));
 			$response = Request::doRequest($url, null, 'get');
-			return $response;
+			return $response->output;
 		}
 		public function post(Notification $notification){
 			$notification->appName = urldecode($notification->appName);
@@ -75,7 +75,7 @@
 			error_log($body);
 			*/
 			$response = Request::doRequest($url, $path, $data, $type, null);			
-			return $response;
+			return $response->output;
 		}		
 	}
 ?>

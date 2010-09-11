@@ -65,16 +65,16 @@ class IndexResource extends AppResource{
 		}
 		if($q !== null){
 			if(AuthController::isAuthorized()){
-				$this->posts = Post::search($q, $this->page, $this->limit, $this->sort_by, $this->sort_by_direction, $this->site_member->person_id);
+				$this->posts = Post::search($q, $this->page, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$member->person_id);
 			}else{
-				$this->posts = Post::searchForPublished($q, $this->page, $this->limit, $this->sort_by, $this->sort_by_direction, $this->site_member->person_id);
+				$this->posts = Post::searchForPublished($q, $this->page, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$member->person_id);
 			}
 		}
 		if($this->posts === null){
-			$this->posts = Post::findPublishedPosts(($this->page-1) * $this->limit, $this->limit, $this->sort_by, $this->sort_by_direction, $this->site_member->person_id);
+			$this->posts = Post::findPublishedPosts(($this->page-1) * $this->limit, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$member->person_id);
 		}
 		if($home_page_post_id != null){
-			$this->post = Post::findHomePage($home_page_post_id, $this->site_member->person_id);
+			$this->post = Post::findHomePage($home_page_post_id, Application::$member->person_id);
 			$view = 'post/home';
 		}
 		

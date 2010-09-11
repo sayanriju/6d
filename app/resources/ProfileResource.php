@@ -39,14 +39,14 @@ class ProfileResource extends AppResource{
 			if(!Application::isPhotoPublic()){
 				$person = Person::findByPublicKey(urldecode($person->public_key));
 				if($person !== null && $person->is_approved){
-					$this->person = $this->site_member;
+					$this->person = Application::$member;
 					$this->output = $this->renderView('profile/photo');
 					return $this->renderView('layouts/default');
 				}else{
 					throw new Exception(FrontController::NOTFOUND, 404);
 				}
 			}else{
-				$this->person = $this->site_member;
+				$this->person = Application::$member;
 				$this->output = $this->renderView('profile/photo');
 				return $this->renderView('layouts/default');
 			}
@@ -78,7 +78,7 @@ class ProfileResource extends AppResource{
 		}
 	}
 	public function put(Person $person, Profile $profile){
-		if(!AuthController::isAuthorized() || $this->current_user->person_id !== $this->site_member->person_id){
+		if(!AuthController::isAuthorized() || $this->current_user->person_id !== Application::$member->person_id){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}
 		$this->setState(null);

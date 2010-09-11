@@ -286,6 +286,14 @@ SDDom.stop = function(e){
 	}
 	e.returnValue = false;
 };
+SDDom.toggleClass = function(class_name, elem){
+	if(SDDom.hasClass(class_name, elem)){
+		SDDom.removeClass(class_name, elem);
+	}else{
+		SDDom.addClass(class_name, elem);
+	}
+	return elem;
+};
 SDDom.removeClass = function(class_name, elem){
 	var names = elem.className.split(' ');
 	var new_names = SDArray.collect(names, function(name){return name.length > 0 && name !== class_name;});
@@ -591,6 +599,8 @@ function UIView(id, options){
 	if(this.container && !this.container.id){
 		this.container.id = this.getUniqueId();
 	}
+	this.width = (this.container ? SDDom.getWidth(this.container) : 0);
+	
 	this.id = id;
 	if(this.container && this.onClick){
 		SDDom.addEventListener(this.container, 'click', this.bind(this.onClick));		

@@ -374,7 +374,7 @@ class FrontController extends Object{
 		$plugins = PluginController::getPlugins('plugins', 'Resource');
 		foreach($plugins as $plugin){
 			if($plugin->canHandle($class_name, $method)){
-				$output .= $plugin->execute($class_name, $method, $path_info);
+				$output .= $plugin->execute($class_name, $method, $url_parts);
 			}
 		}
 		if($output === null && file_exists($file)){
@@ -486,7 +486,7 @@ class FrontController extends Object{
 			self::$error_html .= '</li>';
 		}
 		self::$error_html .= '</ul>';
-		self::$error_html .= sprintf("<pre>%s</pre>", htmlentities($lines[$line-1]));
+		self::$error_html .= sprintf("<pre>%s</pre>", htmlentities(array_pop($lines)));
 		self::$error_html .= '</code>';
 		self::notify('errorDidHappen', $this, self::$error_html);
 		if(self::$delegate !== null){

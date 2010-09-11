@@ -29,6 +29,13 @@ UIView.TextArea = function(id){
 		SDDom.setStyles({height: height + 'px'}, this.container);
 		SDDom.setStyles({height: (height - 30 ) + 'px'}, SDDom.byTag('iframe', this.container));
 	};
+	this.addImage = function(img){
+		this.container.value += img.src + '\n';
+	};
+	this.removeImage = function(img){
+		console.log(img.src);
+		this.container.value = this.container.value.replace(img.src + '\n', '');
+	};
 	this.keypress = function(e){
 		if((e.metaKey || e.ctrlKey) && String.fromCharCode(e.charCode || e.keyCode).toLowerCase() === 's'){
 			SDDom.stop(e);
@@ -37,7 +44,9 @@ UIView.TextArea = function(id){
 			}
 		}
 	};
-	//this.resize(SDDom.getHeight(window) - SDDom.getPosition(this.container).y - 80);
+	this.has = function(text){
+		return (this.container.value.search(text) !== -1);
+	};
 	this.eventResize = this.bind(this.onResize);
 	SDDom.addEventListener(window, 'resize', this.eventResize);
 	SDDom.addEventListener(this.container, 'keypress', this.bind(this.keypress));
@@ -457,28 +466,49 @@ UIView.PhotoViewer = function(id, options){
 	this.close = function(e){
 		this.toggle();
 	};
+	this.clicked = function(e){
+		if(e.target.nodeName == 'IMG'){
+			if(this.delegate && this.delegate.imageWasClicked){
+				this.delegate.imageWasClicked(e);
+			}
+		}
+	};
+	
 	SDDom.addEventListener(this.close_link, 'click', this.bind(this.close, this));
+	SDDom.addEventListener(this.frame, 'click', this.bind(this.clicked, this));
 	return self;
 };
-UIController.Post = function(views){
+UIController.Post = function(options){
 	UIController.apply(this, arguments);
 	this.send_to_list = SDDom('send_to_list');
 	this.list_of_people = SDDom.findFirst('ul', this.send_to_list);
 	this.add_a_photo_link = SDDom('add-a-photo-link');
-	this.view = views[0];
 	this.form = SDDom('post_form');
+	var textarea = new UIView.TextArea('body');
 	SDDom.append(document.body, SDDom.create('div', {id:'photo_viewer'}));
 	this.photo_viewer = new UIView.PhotoViewer('photo_viewer', {delegate: this});
 	this.photo_viewer.toggle();
 	if(!this.list_of_people){
 		this.list_of_people = SDDom.append(this.send_to_list, SDDom.create('ul'));
 	}
+	function addImageToPost(img){
+		SDDom.toggleClass('selected', img.parentNode);
+		if(!textarea.has(img.src)){
+			textarea.addImage(img);
+		}else{
+			textarea.removeImage(img);
+		}
+	}
+	this.imageWasClicked = function(e){
+		addImageToPost(e.target);
+	};
 	this.addPhotoWasClicked = function(e){
 		SDDom.stop(e);
 		SDDom('body').focus();
-		SDDom.setStyles({top: SDDom.pageY(e) + 'px', left: SDDom.pageX(e) + 'px'}, this.photo_viewer.container);
 		this.photo_viewer.refresh(e.target.href);
 		this.photo_viewer.toggle();
+		SDDom.setStyles({top: '0px', left: (SDDom.getWidth(document.body) - SDDom.getWidth(this.photo_viewer.container)/2) + 'px'}, this.photo_viewer.container);
+		console.log([SDDom.getWidth(document.body), SDDom.getWidth(this.photo_viewer.container)]);
 	};
 	this.doSave = function(e){
 		this.form.submit();
@@ -570,9 +600,7 @@ var postController;
 
 SDDom.addEventListener(window, 'load', function(e){
 	var postMenu = new UIView.PostMenu('post_menu');
-	var textarea = new UIView.TextArea('body');
 	var addressBookController = new UIController.AddressBook(new UIView.Modal.AddressBook('addressbook_modal', {handle: 'address'}));
-	postController = new UIController.Post(new Array(SDDom('post_form')));
-	textarea.delegate = postController;
+	postController = new UIController.Post(null);
 	addressBookController.delegate = postController;
 });

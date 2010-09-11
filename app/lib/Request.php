@@ -1,5 +1,13 @@
 <?php
 	class_exists('Object') || require('Object.php');
+	class RequestResponse{
+		public function __construct($output, $headers){
+			$this->headers = $headers;
+			$this->output = $output;
+		}
+		public $output;
+		public $headers;
+	}
 	class Request extends Object{
 		public function __construct(){}
 		public function __destruct(){}
@@ -91,7 +99,7 @@
 			return $ch;
 		}
 		
-		public static function doRequest($url, $path, $data, $method = 'get', $optionalHeaders = null){
+		public static function doRequest($url, $path, $data, $method = 'get', $optionalHeaders = null, $follow_redirect = true){
 			// create curl resource 
 			if($path != null){
 				$url .= '/' . $path;
@@ -152,14 +160,14 @@
 					$header[$pairs[0]] = $pairs[1];
 				}
 			}
-			if(array_key_exists('Location', $header)){
+			if($follow_redirect && array_key_exists('Location', $header)){
 				error_log('redirecting to ' . $header['Location']);
 				self::doRequest($header['Location'], $path, $data, $method, $optionalHeaders);
 			}
 			//error_log(String::stripCarriageReturnsAndTabs($output));
 	        // close curl resource to free up system resources 
 	        curl_close($ch);
-			return $output;
+			return new RequestResponse($output, $headers);
 		}
 		
 	}

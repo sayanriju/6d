@@ -2,14 +2,11 @@
 <form action="<?php echo FrontController::urlFor('post');?>" method="post" id="post_form">
 	<fieldset>
     <legend>New Post</legend>
-    	<p>
 		<ul id="post_type">
 		<?php foreach(array('post'=>'Post', 'page'=>'Page', 'quote'=>'Quote', 'photo'=>'Photo', 'album'=>'Album', 'video'=>'Video', 'link'=>'Link') as $key=>$value):?>
-            <li id="post_type_<?php echo $key;?>" class="post_type_radio"><label for="<?php echo $key;?>"><input type="radio" name="post_type" value="<?php echo $key;?>"<?php echo $post->type === $key ? ' checked' : '';?>><?php echo $value;?></label></li>
+            <li id="post_type_<?php echo $key;?>" class="post_type_radio"><label for="<?php echo $key;?>"><input type="radio" name="type" value="<?php echo $key;?>"<?php echo $post->type === $key ? ' checked' : '';?>><?php echo $value;?></label></li>
         <?php endforeach;?>
         </ul>
-		</p>
-        <div style="clear:both"></div>
 		<p>
 			<label for="title">Title</label>
 			<input type="text" id="title" name="title" value="{$post->title}" />

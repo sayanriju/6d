@@ -79,8 +79,9 @@ class Member extends Object{
 		$clause = new All("select m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
 		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
 		inner join {$person->getTableName()} p on p.id = m.person_id where m.id = {$id}", null, 1, null);
-		$person = $db->find($clause, new Member(null));
-		return $person;
+		$member = $db->find($clause, new Member(null));
+		$member = self::unserializeProfile($member);
+		return $member;
 	}
 	public static function findByEmail($email){
 		$config = new AppConfiguration();
@@ -92,6 +93,7 @@ class Member extends Object{
 		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
 		inner join {$person->getTableName()} p on p.id = m.person_id where p.email = '{$email}'", null, 1, null);
 		$member = $db->find($clause, new Member(null));
+		$member = self::unserializeProfile($member);
 		return $member;
 	}
 	
@@ -100,6 +102,7 @@ class Member extends Object{
 		$db = Factory::get($config->db_type, $config);
 		$member = new Member();
 		$member = $db->find(new ById($id, null), new Member(null));
+		$member = self::unserializeProfile($member);
 		return $member;
 	}
 	
@@ -108,8 +111,9 @@ class Member extends Object{
 		$db = Factory::get($config->db_type, $config);
 		$person = new Person();
 		$member = new Member();
-		$person = $db->find(new ByClause(sprintf("%s.email='%s' and %s.password='%s'", $person->getTableName(), urlencode($email), $person->getTableName(), String::encrypt($password)), array(new BelongsTo(array('withWhom'=>$person, 'through'=>'person_id'))), 1, null), $member);
-		return $person;
+		$member = $db->find(new ByClause(sprintf("%s.email='%s' and %s.password='%s'", $person->getTableName(), urlencode($email), $person->getTableName(), String::encrypt($password)), array(new BelongsTo(array('withWhom'=>$person, 'through'=>'person_id'))), 1, null), $member);
+		$member = self::unserializeProfile($member);
+		return $member;
 	}
 	
 	public static function findByMemberName($member_name){
@@ -122,6 +126,7 @@ class Member extends Object{
 		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
 		inner join {$person->getTableName()} p on p.id = m.person_id where m.member_name = '{$member_name}'", null, 1, null);
 		$member = $db->find($clause, $member);
+		$member = self::unserializeProfile($member);
 		return $member;
 	}
 	public static function findAll(){
@@ -149,6 +154,12 @@ class Member extends Object{
 		$members = $db->find($clause, $member);
 		return $members;
 	}
+	protected static function unserializeProfile($member){
+		if($member !== null && $member->profile !==null){
+			$member->profile = unserialize($member->profile);
+		}
+		return $member;
+	}
 	public static function findOwner(){
 		$config = new AppConfiguration();
 		$db = Factory::get($config->db_type, $config);
@@ -158,6 +169,7 @@ class Member extends Object{
 		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
 		inner join {$person->getTableName()} p on p.id = m.person_id where p.is_owner = 1", null, 1, null);
 		$member = $db->find($clause, $member);
+		$member = self::unserializeProfile($member);
 		return $member;
 	}
 	

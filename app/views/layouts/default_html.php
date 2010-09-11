@@ -25,7 +25,7 @@
 	</head>
 	<body>
 		<header id="banner">
-			<h1><a href="<?php echo FrontController::urlFor(null);?>" title="Home"><span><?php echo Application::$member->person->profile->site_name;?></span></a></h1>
+			<h1><a href="<?php echo FrontController::urlFor(null);?>" title="Home"><span><?php echo Application::$member->profile->site_name;?></span></a></h1>
 			<nav>
 				<ul>
 <?php $pages = Post::findPublishedPages(Application::$member->person_id);?>

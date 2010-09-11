@@ -73,12 +73,12 @@ class FollowerResource extends AppResource{
 	}
 	// Someone has sent a friend request.
 	public function post(Person $person){
-		$this->person = Person::findByUrlAndOwnerId($person->url, $this->site_member->person_id);
+		$this->person = Person::findByUrlAndOwnerId($person->url, Application::$member->person_id);
 		$message = null;
 		if($this->person === null){
-			$friend_request = FriendRequest::findByUrlAndOwnerId($person->url, $this->site_member->person_id);
+			$friend_request = FriendRequest::findByUrlAndOwnerId($person->url, Application::$member->person_id);
 			if($friend_request === null){
-				$friend_request = new FriendRequest(array('name'=>$person->name, 'email'=>$person->email, 'public_key'=>$person->public_key, 'created'=>date('c'), 'url'=>$person->url, 'owner_id'=>$this->site_member->person_id));
+				$friend_request = new FriendRequest(array('name'=>$person->name, 'email'=>$person->email, 'public_key'=>$person->public_key, 'created'=>date('c'), 'url'=>$person->url, 'owner_id'=>Application::$member->person_id));
 				try{
 					$errors = FriendRequest::canSave($friend_request);
 					if(count($errors) > 0){
@@ -101,7 +101,7 @@ class FollowerResource extends AppResource{
 		if($message !== null){
 			return $message;
 		}else{
-			return "Thanks for the request. I'll make sure " . $this->site_member->name . " gets it.";
+			return "Thanks for the request. I'll make sure " . Application::$member->name . " gets it.";
 		}
 	}
 	public function delete(FriendRequest $request){

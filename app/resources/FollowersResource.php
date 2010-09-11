@@ -35,7 +35,7 @@ class FollowersResource extends AppResource{
 		//TODO: check remote host against the url to verify who's sending the response.
 		//error_log(sprintf('request from: host=%s, referrer=%s, ip=%s, public key = %s', $_SERVER['HTTP_HOST'], $_SERVER['HTTP_REFERER'], $_SERVER['REMOTE_ADDR'], urlencode($person->public_key)));
 		if($person->public_key !== null && strlen($person->public_key) > 0 && $person->url !== null && strlen($person->url) > 0){
-			$this->person = Person::findByUrlAndOwnerId(urldecode($person->url), $this->site_member->person_id);
+			$this->person = Person::findByUrlAndOwnerId(urldecode($person->url), Application::$member->person_id);
 			$this->person->public_key = $person->public_key;
 			$this->person = Person::save($this->person);
 			return 'ok';

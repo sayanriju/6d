@@ -184,14 +184,14 @@ class PostResource extends AppResource{
 		$errors = array();
 		if(AuthController::isAuthorized()){
 			$post->source = $this->current_user->url;
-			error_log('saving the post and the source is ' . $post->source . ' for member ' . $this->site_member->member_name);
+			error_log('saving the post and the source is ' . $post->source . ' for member ' . Application::$member->member_name);
 			$this->save($post, $people, $groups, $make_home_page);
 		}else if($public_key != null && strlen($public_key)>0){
 			$person = Person::findByPublicKeyAndUrl($public_key, $post->source);
 			$response = 'ok';
 			if($person != null && $person->is_approved){
 				// This block of code gets an existing post and updates that.
-				$existing_post = Post::findByPersonPostId($post->person_post_id, $this->site_member->person_id);
+				$existing_post = Post::findByPersonPostId($post->person_post_id, Application::$member->person_id);
 				if($existing_post != null){
 					$post->id = $existing_post->id;
 					$post->is_published = $existing_post->is_published;
@@ -208,7 +208,7 @@ class PostResource extends AppResource{
 				$post->body = $this->filterText($post->body);
 				$post->title = $this->filterText($post->title);
 				$post->body = urldecode($post->body);
-				$post->owner_id = $this->site_member->person_id;
+				$post->owner_id = Application::$member->person_id;
 				if($post->type !== Post::$status){
 					$post->custom_url = String::stringForUrl($post->title);
 				}
@@ -222,7 +222,7 @@ class PostResource extends AppResource{
 				$response = "Couldn't find a person with the given public key.";
 			}
 		}else{
-			$response = 'My website doesn\'t have you in my system. You\'ll have to send me a <form action="' . FrontController::urlFor($this->site_member->member_name . '/follower') . '" method="post"><button type="submit"><span>Send Friend Request</span></button></form> to add you as a friend before you send me any messages.';
+			$response = 'My website doesn\'t have you in my system. You\'ll have to send me a <form action="' . FrontController::urlFor(Application::$member->member_name . '/follower') . '" method="post"><button type="submit"><span>Send Friend Request</span></button></form> to add you as a friend before you send me any messages.';
 		}		
 		return $response;
 	}

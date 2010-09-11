@@ -43,8 +43,6 @@
 				$this->config = new AppConfiguration();
 				try{
 					$this->settings = Setting::findAll();
-					$this->site_member = Application::$member;
-					$this->site_member->person->profile = unserialize($this->site_member->person->profile);
 					// I was running into situations where the session was still set, but the 
 					// logged in user had been deleted from the database. So I added code
 					// to automatically log the user out if they're not found in the db.
@@ -54,9 +52,7 @@
 							AuthController::logout();
 							$this->redirectTo(null);
 						}
-						$this->current_user->profile = unserialize($this->current_user->profile);
 					}
-					$this->title = $this->site_member->person->profile->site_name;
 					$theme_path = FrontController::getRootPath('/' . FrontController::getThemePath() . '/ThemeController.php');
 					if(file_exists($theme_path)){
 						class_exists('ThemeController') || require($theme_path);

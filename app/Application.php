@@ -42,12 +42,12 @@ class Application{
 				if ($data['response'] === $encrypted_response){
 					AuthController::setAuthKey($data['username']);
 				}				
-			}
-			
-			if(AuthController::authKey() !== null){
-				self::$current_user = Member::findByEmail(AuthController::authKey());
-			}
+			}			
 		}
+		if(AuthController::authKey() !== null){
+			self::$current_user = Member::findByEmail(AuthController::authKey());
+		}
+		
 	}
 	public function __destruct(){}
 	public static $member;
@@ -129,9 +129,9 @@ class Application{
 			$resource->output = $resource->renderView('index/' . $page_name);
 		}else{
 			if(AuthController::isAuthorized()){
-				$post = Post::findByAttribute('custom_url', $page_name, $resource->site_member->person_id);
+				$post = Post::findByAttribute('custom_url', $page_name, Application::$member->person_id);
 			}else{
-				$post = Post::findAllPublished($page_name, $resource->site_member->person_id);
+				$post = Post::findAllPublished($page_name, Application::$member->person_id);
 			}
 			if($post != null){
 				$resource->output = $resource->renderView('post/show', array('post'=>$post));
@@ -144,7 +144,7 @@ class Application{
 			}				
 		}
 		if($resource->title === null){
-			$resource->title = $resource->getTitleFromOutput($this->output);				
+			$resource->title = $resource->getTitleFromOutput($resource->output);				
 		}		
 		return $resource->renderView('layouts/default');
 	}

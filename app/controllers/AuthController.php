@@ -6,17 +6,7 @@ class AuthController{
 	public function __destruct(){}
 	public static $user;
 	public static function isAuthorized(){
-		if(self::authKey() !== null){
-			return true;
-		}else{
-			$user = Person::findBySessionId(session_id());
-			if($user !== null){
-				return true;
-			}else{
-				return false;
-			}
-		}
-		return false;
+		return self::authKey() !== null;
 	}
 	public static $is_super_admin;
 	public static function isSuperAdmin(){
@@ -40,6 +30,9 @@ class AuthController{
 	}
 	public static function logout(){
 		$_SESSION = array();
+		$user = Person::findBySessionId(session_id());
+		$user->session_id = null;
+		Person::save($user);
 		if(ini_get('session.use_cookies')){
 			$params = session_get_cookie_params();
 			setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
