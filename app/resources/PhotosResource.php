@@ -16,7 +16,7 @@
 		public $url;
 		public function get(){
 			$photo = new Photo();
-			$this->photos = $photo->findAll(sprintf("media/%s", $this->current_user->member_name));
+			$this->photos = $photo->findAll(sprintf("media/%s", Application::$current_user->member_name));
 			$this->title = "Photo Wall";
 			$this->output = $this->renderView('photo/index', null);
 			return $this->renderView('layouts/default', null);
@@ -38,7 +38,7 @@
 				$file_type = String::replace('/jpeg/', 'jpg', $file_type);
 				if(is_uploaded_file($photo['tmp_name'])){
 					$photo_name = String::replace('/\.*/', '', uniqid(null, true));
-					$folder = sprintf('media/%s/%s', $this->current_user->member_name, date('Y'));
+					$folder = sprintf('media/%s/%s', Application::$current_user->member_name, date('Y'));
 					if(!file_exists($folder)){
 						mkdir($folder, 0777, true);
 					}

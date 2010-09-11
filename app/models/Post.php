@@ -216,7 +216,8 @@
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
 			return $list;
 		}
-		public static function findByPerson(Person $person, $start, $limit, $sort_by, $sort_by_direction = 'desc'){
+		public static function findByPerson(Person $person, $start, $limit, $sort_by, $sort_by_direction, $owner_id){
+			$sort_by_direction = ($sort_by_direction !== null ? $sort_by_direction : 'desc');
 			$config = new AppConfiguration();
 			$post = new Post(null);
 			$db = Factory::get($config->db_type, $config);
@@ -229,7 +230,7 @@
 			}else{
 				$start_limit = $limit;
 			}
-			$list = $db->find(new ByClause(sprintf("source = %s", ($person->url === null ? "''" : "'" . $person->url . "'")), null, $start_limit, array($sort_by=>$sort_by_direction)), $post);
+			$list = $db->find(new ByClause(sprintf("source = %s and owner_id=%s", ($person->url === null ? "''" : "'" . $person->url . "'"), $owner_id), null, $start_limit, array($sort_by=>$sort_by_direction)), $post);
 			
 			$list = ($list == null ? array() : $list);
 			return $list;

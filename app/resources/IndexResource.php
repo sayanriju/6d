@@ -26,7 +26,7 @@ class IndexResource extends AppResource{
 			}
 		}
 		$page = $id;
-		$home_page_post_id = self::getPreference('home_page_post_id');
+		$home_page_setting = self::getPreference('home_page_post_id');
 		if($sort_by === null || strlen($sort_by) === 0){
 			$sort_by = 'post_date';
 		}
@@ -73,9 +73,13 @@ class IndexResource extends AppResource{
 		if($this->posts === null){
 			$this->posts = Post::findPublishedPosts(($this->page-1) * $this->limit, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$member->person_id);
 		}
-		if($home_page_post_id != null){
-			$this->post = Post::findHomePage($home_page_post_id, Application::$member->person_id);
+		if($home_page_setting !== null && $home_page_setting->value !== null){
+			$this->post = Post::findHomePage($home_page_setting->value, Application::$member->person_id);
 			$view = 'post/home';
+			if($this->post === null){
+				$home_page_setting->value = null;
+				Setting::save($home_page_setting);
+			}
 		}
 		
 		$this->output = $this->renderView($view, null);

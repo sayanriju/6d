@@ -36,7 +36,7 @@
 <?php endwhile;?>
 <?php if(AuthController::isAuthorized()):?>
 					<li>
-						<p>Welcome <?php echo $this->current_user->name;?></p>
+						<p>Welcome <?php echo Application::$current_user->name;?></p>
 					</li>
 <?php endif;?>
 				</ul>
@@ -64,6 +64,7 @@
 
 		<?php if(AuthController::isAuthorized()):?>
 		<nav id="admin_menu" class="main">
+			<a href="<?php echo FrontController::urlFor(Application::$current_user->member_name);?>" id="home_link" title="go to your home page">home</a>
 			<a href="<?php echo FrontController::urlFor('post');?>" id="new_post_link" title="new post">new post</a>
 			<a href="<?php echo FrontController::urlFor('posts');?>" id="all_posts_link" title="show all posts">posts</a>
 			<a href="<?php echo FrontController::urlFor('photos');?>" id="all_photos_link" title="show all photos">media</a>

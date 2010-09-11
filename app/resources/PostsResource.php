@@ -40,7 +40,7 @@ class PostsResource extends AppResource{
 			$this->posts = $this->getPostsByTag($tag);
 		}else if($this->q !== null){
 			$this->title = "Results for $this->q";
-			$this->posts = Post::search($q, $this->page, $this->limit, $this->sort_by, $this->sort_by_direction, $this->current_user->id);
+			$this->posts = Post::search($q, $this->page, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$current_user->person_id);
 		}else{
 			$this->title = 'All Posts';
 			$this->posts = $this->getAllPosts($this->start, $this->limit, $this->sort_by, $this->sort_by_direction);
@@ -57,10 +57,10 @@ class PostsResource extends AppResource{
 		return $this->renderView('layouts/default');
 	}
 	private function getAllPosts($start, $limit, $sort_by, $sort_by_direction){
-		return Post::find($start, $limit, $sort_by, $sort_by_direction, $this->current_user->id);			
+		return Post::find($start, $limit, $sort_by, $sort_by_direction, Application::$current_user->person_id);			
 	}
 	private function getPostsByTag($tag){
-		return Post::findByTag($tag, $this->start, $this->limit, $this->sort_by, $this->sort_by_direction, $this->current_user->id);
+		return Post::findByTag($tag, $this->start, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$current_user->person_id);
 	}
 	private function getPostsByAuthor($author){
 		$person = new Person(array('id'=>$author_id));
@@ -70,7 +70,7 @@ class PostsResource extends AppResource{
 				if($person->is_owner){
 					$person->url = null;
 				}
-				$posts = Post::findByPerson($person, $start, $this->limit, $this->sort_by, $this->sort_by_direction, $this->current_user->id);
+				$posts = Post::findByPerson($person, $start, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$current_user->person_id);
 				$this->title = "All Posts by " . $person->name;
 			}
 		}

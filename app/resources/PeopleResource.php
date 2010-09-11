@@ -30,7 +30,7 @@ class PeopleResource extends AppResource{
 		}else{
 			usort($this->people, array('Person', 'sort_by_name'));
 		}
-		$this->people = Person::removeOwner($this->current_user->id, $this->people);
+		$this->people = Person::removeOwner(Application::$current_user->person_id, $this->people);
 		$this->title = 'People';
 		$this->output = $this->renderView('person/index', null);
 		return $this->renderView('layouts/default', null);
@@ -47,11 +47,11 @@ class PeopleResource extends AppResource{
 	}
 	private function getPeople($group){
 		if($group->text !== 'All Contacts'){
-			return Person::findByTagTextAndOwner($group->text, $this->current_user->person_id);
+			return Person::findByTagTextAndOwner($group->text, Application::$current_user->person_id);
 		}elseif($this->group->text === 'Friend Requests'){
-			return FriendRequest::findAllForOwner($this->current_user->person_id);
+			return FriendRequest::findAllForOwner(Application::$current_user->person_id);
 		}else{
-			return Person::findAllByOwner($this->current_user->person_id);
+			return Person::findAllByOwner(Application::$current_user->person_id);
 		}
 	}
 }

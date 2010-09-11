@@ -25,10 +25,10 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 			}
 			
 			if($person != null && $person->id > 0){
-				if($person->id == $this->current_user->person_id){
-					$this->person = $this->current_user;
+				if($person->id == Application::$current_user->person_id){
+					$this->person = Application::$current_user;
 				}else{
-					$this->person = Person::findByIdAndOwner($person->id, $this->current_user->person_id);
+					$this->person = Person::findByIdAndOwner($person->id, Application::$current_user->person_id);
 				}
 				$this->title = 'Person: ' . $this->person->email;				
 				$this->output = $this->renderView('person/show', null);				
@@ -56,7 +56,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 		
 		public function put(Person $person, Profile $profile = null){
 			$view = 'person/show';
-			$this->person = Person::findByIdAndOwner($person->id, $this->current_user->person_id);
+			$this->person = Person::findByIdAndOwner($person->id, Application::$current_user->person_id);
 			if($this->person !== null){
 				$this->person->is_approved = $person->is_approved;
 				$this->person->email = $person->email;
@@ -67,7 +67,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 				if($profile !== null){
 					$this->person->profile = serialize($profile);
 				}
-				$this->person->owner_id = $this->current_user->person_id;
+				$this->person->owner_id = Application::$current_user->person_id;
 				$this->person = Person::save($this->person);
 				if($errors != null && count($errors) > 0){
 					$message = array();
@@ -96,7 +96,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 				if($profile !== null){
 					$this->person->profile = serialize($profile);
 				}
-				$this->person->owner_id = $this->current_user->person_id;
+				$this->person->owner_id = Application::$current_user->person_id;
 				$user_message = null;
 				try{
 					$this->person = Person::save($this->person);				
@@ -106,7 +106,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 				if($user_message !== null){
 					UserResource::setUserMessage('Failed to save person - ' . $user_message);
 				}else{
-					$this->people = Person::findAllByOwner($this->current_user->person_id);
+					$this->people = Person::findAllByOwner(Application::$current_user->person_id);
 				}
 			}				
 			$this->output = $this->renderView($view);

@@ -20,7 +20,7 @@ class FollowerResource extends AppResource{
 		
 		if(count($this->url_parts) > 1){
 			$id = String::replace('/\..*$/', '', $this->url_parts[1]);
-			$this->person = FriendRequest::findByIdAndOwnerId($id, $this->current_user->person_id);
+			$this->person = FriendRequest::findByIdAndOwnerId($id, Application::$current_user->person_id);
 			$this->title =  $this->person->name;
 		}
 		$this->output = $this->renderView('follower/show');
@@ -43,7 +43,7 @@ class FollowerResource extends AppResource{
 				$person->is_approved = true;
 				$person->is_owner = false;
 			}			
-			$person->owner_id = $this->current_user->person_id;
+			$person->owner_id = Application::$current_user->person_id;
 			$person = Person::save($person);
 			FriendRequest::delete($request);
 			$this->sendNotification($person);
@@ -58,8 +58,8 @@ class FollowerResource extends AppResource{
 		if(!AuthController::isAuthorized()){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}else{
-			$request = FriendRequest::findByIdAndOwnerId($request->id, $this->current_user->person_id);
-			$person = Person::findByUrlAndOwnerId($person->url, $this->current_user->person_id);
+			$request = FriendRequest::findByIdAndOwnerId($request->id, Application::$current_user->person_id);
+			$person = Person::findByUrlAndOwnerId($person->url, Application::$current_user->person_id);
 			$this->save($request, $person);
 		}
 		$this->output = $this->renderView('follower/index');
@@ -67,7 +67,7 @@ class FollowerResource extends AppResource{
 	}
 	private function sendNotification($person){
 		$config = new AppConfiguration();
-		$data = sprintf("_method=put&email=%s&url=%s&public_key=%s", urlencode($this->current_user->email), urlencode($this->current_user->url), urlencode($person->public_key));
+		$data = sprintf("_method=put&email=%s&url=%s&public_key=%s", urlencode(Application::$current_user->email), urlencode(Application::$current_user->url), urlencode($person->public_key));
 		$response = NotificationResource::sendNotification($person, 'followers', $data, 'post');
 		UserResource::setUserMessage(sprintf("%s has been made a friend. %s", $person->name, $response));
 	}

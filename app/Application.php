@@ -56,7 +56,7 @@ class Application{
 		return true;
 	}
 	public function willSetUrlFor($resource){
-		if(self::$member !== null && !self::$member->is_owner){
+		if(self::$member !== null && !self::$member->is_owner && $resource !== self::$member->member_name){
 			$resource = self::$member->member_name . '/'. $resource;
 		}
 		return $resource;

@@ -48,15 +48,15 @@ class FollowersResource extends AppResource{
 		if(!AuthController::isAuthorized()){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}elseif($person->id !== null){
-			$this->person = Person::findByIdAndOwner($person->id, $this->current_user->person_id);
+			$this->person = Person::findByIdAndOwner($person->id, Application::$current_user->person_id);
 			if($this->person->url !== null && strlen($this->person->url) > 0){
 				$config = new AppConfiguration();
 				$site_path = String::replace('/\/$/', '', FrontController::$site_path);
 				
-				$response = ServicePluginController::execute(new IntroductionCommand($this->person, $this->current_user));
+				$response = ServicePluginController::execute(new IntroductionCommand($this->person, Application::$current_user));
 				
 				/*
-				$data = sprintf("email=%s&name=%s&url=%s&created=%s", urlencode($this->current_user->email), urlencode($this->current_user->name),  urlencode(str_replace('http://', '', $site_path)), urlencode(date('c')));
+				$data = sprintf("email=%s&name=%s&url=%s&created=%s", urlencode(Application::$current_user->email), urlencode(Application::$current_user->name),  urlencode(str_replace('http://', '', $site_path)), urlencode(date('c')));
 				$response = NotificationResource::sendNotification($this->person, 'follower', $data, 'post');
 				*/
 				UserResource::setUserMessage($this->person->name . "'s site responded with " . $response);

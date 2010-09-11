@@ -22,14 +22,14 @@ class GroupResource extends AppResource{
 		if(AuthController::isSuperAdmin()){
 			$this->people = Person::findAll();
 		}else{
-			$this->people = Person::findAllByOwner($this->current_user->person_id);
+			$this->people = Person::findAllByOwner(Application::$current_user->person_id);
 		}
 		if($this->people == null){
 			$this->people = array();
 		}
-		$this->people = Person::removeOwner($this->current_user->id, $this->people);
+		$this->people = Person::removeOwner(Application::$current_user->person_id, $this->people);
 		$all_contacts = new Tag(array('id'=>-1, 'type'=>'group', 'text'=>'All Contacts'));
-		$this->groups = Tag::findAllTagsForGroups($this->current_user->person_id);
+		$this->groups = Tag::findAllTagsForGroups(Application::$current_user->person_id);
 		if($this->groups === null){
 			$this->groups = array();
 		}
@@ -44,7 +44,7 @@ class GroupResource extends AppResource{
 			Tag::delete($group);
 		}
 		$all_contacts = new Tag(array('id'=>-1, 'type'=>'group', 'text'=>'All Contacts'));
-		$this->groups = Tag::findAllTagsForGroups($this->current_user->person_id);
+		$this->groups = Tag::findAllTagsForGroups(Application::$current_user->person_id);
 		if($this->groups === null){
 			$this->groups = array();
 		}

@@ -54,7 +54,7 @@ class ProfileResource extends AppResource{
 			$this->person = Application::$member;
 			$this->title = $this->person->name . "'s profile.";
 			if($state === 'edit'){
-				if(!AuthController::isAuthorized() || $this->current_user->person_id !== Application::$member->person_id){
+				if(!AuthController::isAuthorized() || Application::$current_user->person_id !== Application::$member->person_id){
 					throw new Exception(FrontController::UNAUTHORIZED, 401);
 				}
 				$this->output = $this->renderView('profile/edit', null);
@@ -78,13 +78,13 @@ class ProfileResource extends AppResource{
 		}
 	}
 	public function put(Person $person, Profile $profile){
-		if(!AuthController::isAuthorized() || $this->current_user->person_id !== Application::$member->person_id){
+		if(!AuthController::isAuthorized() || Application::$current_user->person_id !== Application::$member->person_id){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}
 		$this->setState(null);
 		$this->person = $person;
 		$this->person->session_id = session_id();
-		$existing_person = Person::findById($this->current_user->person_id);
+		$existing_person = Person::findById(Application::$current_user->person_id);
 		if($existing_person === null || $existing_person->id === 0){
 			throw new Exception(FrontController::NOTFOUND, 404);
 		}

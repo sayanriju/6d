@@ -22,14 +22,14 @@ class GroupsResource extends AppResource{
 		if($group != null && $group->text != null){
 			$group->type = 'group';
 			if($group->parent_id > 0){
-				$existing_tags = Tag::findTagsByTextAndParent_id($group->text, $group->parent_id, $this->current_user->person_id);
+				$existing_tags = Tag::findTagsByTextAndParent_id($group->text, $group->parent_id, Application::$current_user->person_id);
 			}else{
-				$existing_tags = Tag::findGroupTagsByText($group->text, $this->current_user->person_id);
+				$existing_tags = Tag::findGroupTagsByText($group->text, Application::$current_user->person_id);
 			}
 			$message = null;
 			$errors = array();		
 			if($existing_tags === null){
-				$group->owner_id = $this->current_user->person_id;
+				$group->owner_id = Application::$current_user->person_id;
 				list($this->group, $errors) = Tag::save($group);				
 			}
 		}
@@ -51,7 +51,7 @@ class GroupsResource extends AppResource{
 			Tag::delete_many_with_parent_ids('group', $ids);
 		}
 		$all_contacts = new Tag(array('id'=>-1, 'type'=>'group', 'text'=>'All Contacts'));
-		$this->groups = Tag::findAllTagsForGroups($this->current_user->person_id);
+		$this->groups = Tag::findAllTagsForGroups(Application::$current_user->person_id);
 		if($this->groups === null){
 			$this->groups = array();
 		}

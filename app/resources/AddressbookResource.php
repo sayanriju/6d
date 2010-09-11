@@ -7,7 +7,7 @@ class_exists('Tag') || require('models/Tag.php');
 class AddressbookResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
-		if(!AuthController::isAuthorized() || $this->current_user->person_id != Application::$member->person_id){
+		if(!AuthController::isAuthorized() || Application::$current_user->person_id != Application::$member->person_id){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}
 	}
@@ -19,18 +19,18 @@ class AddressbookResource extends AppResource{
 	public $groups;
 	public function get($mini = false){
 		$this->title = 'Address Book';
-		$this->people = Person::findAllByOwner($this->current_user->person_id);
+		$this->people = Person::findAllByOwner(Application::$current_user->person_id);
 		
 		$layout = 'layouts/default';
 		if($this->people == null){
 			$this->people = array();
 		}else{
-			$this->people = Person::removeOwner($this->current_user->id, $this->people);
+			$this->people = Person::removeOwner(Application::$current_user->person_id, $this->people);
 			usort($this->people, array('Person', 'sort_by_name'));
 		}
 		$all_contacts = new Tag(array('id'=>-1, 'type'=>'group', 'text'=>'All Contacts'));
 		$friend_requests = new Tag(array('id'=>-2, 'type'=>'group', 'text'=>'Friend Requests'));
-		$this->groups = Tag::findAllTagsForGroups($this->current_user->person_id);
+		$this->groups = Tag::findAllTagsForGroups(Application::$current_user->person_id);
 		if($this->groups === null){
 			$this->groups = array();
 		}
@@ -57,7 +57,7 @@ class AddressbookResource extends AppResource{
 			$profile = new Profile(array('name'=>$name));
 			$this->person = new Person();
 			$this->person->profile = serialize($profile);
-			$this->person->owner_id = $this->current_user->person_id;
+			$this->person->owner_id = Application::$current_user->person_id;
 			$person = Person::save($this->person);
 			$this->person->id = $person->id;
 		}

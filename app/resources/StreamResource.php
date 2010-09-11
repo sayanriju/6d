@@ -16,15 +16,15 @@ class StreamResource extends AppResource{
 		if(!AuthController::isAuthorized()){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}
-		$this->posts = Post::findFriendsPublishedStatii($this->current_user->person->id);
+		$this->posts = Post::findFriendsPublishedStatii(Application::$current_user->person->id);
 		$this->output = $this->renderView('post/index');
 		return $this->renderView('layouts/default');
 	}
 	private function getAllPosts($start, $limit, $sort_by, $sort_by_direction){
-		return Post::find($start, $limit, $sort_by, $sort_by_direction, $this->current_user->id);			
+		return Post::find($start, $limit, $sort_by, $sort_by_direction, Application::$current_user->person_id);			
 	}
 	private function getPostsByTag($tag){
-		return Post::findByTag($tag, $this->start, $this->limit, $this->sort_by, $this->sort_by_direction, $this->current_user->id);
+		return Post::findByTag($tag, $this->start, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$current_user->person_id);
 	}
 	private function getPostsByAuthor($author){
 		$person = new Person(array('id'=>$author_id));
@@ -34,7 +34,7 @@ class StreamResource extends AppResource{
 				if($person->is_owner){
 					$person->url = null;
 				}
-				$posts = Post::findByPerson($person, $start, $this->limit, $this->sort_by, $this->sort_by_direction, $this->current_user->id);
+				$posts = Post::findByPerson($person, $start, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$current_user->person_id);
 				$this->title = "All Posts by " . $person->name;
 			}
 		}

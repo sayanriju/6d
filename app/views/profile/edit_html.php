@@ -4,7 +4,7 @@
 			<img src="<?php echo ProfileResource::getPhotoUrl($person);?>" alt="photo of {$person->name}" id="profile_photo" />
 		</div>
 		<div id="resizer"></div>
-<?php if(AuthController::isAuthorized() && $this->current_user->person_id == $person->person_id && $this->getState() === 'edit'):?>
+<?php if(AuthController::isAuthorized() && Application::$current_user->person_id == $person->person_id && $this->getState() === 'edit'):?>
 			<form method="post" action="<?php echo FrontController::urlFor('photo');?>" class="delete">
 				<input type="hidden" value="delete" name="_method" />
 				<input type="hidden" value="<?php echo $person->profile->photo_url;?>" name="src" />

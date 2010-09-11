@@ -47,8 +47,8 @@
 					// logged in user had been deleted from the database. So I added code
 					// to automatically log the user out if they're not found in the db.
 					if(AuthController::authKey() !== null){
-						$this->current_user = Member::findByEmail(AuthController::authKey());
-						if($this->current_user === null){
+						Application::$current_user = Member::findByEmail(AuthController::authKey());
+						if(Application::$current_user === null){
 							AuthController::logout();
 							$this->redirectTo(null);
 						}
@@ -207,7 +207,7 @@
 			if($this->settings != null){
 				foreach($this->settings as $setting){
 					if($name == $setting->name){
-						return $setting->value;
+						return $setting;
 					}
 				}				
 			}

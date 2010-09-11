@@ -1,5 +1,5 @@
 <?php class_exists('PostResource') || require('resources/PostResource.php');?>
-<?php if(AuthController::isAuthorized() && $this->current_user->person_id === Application::$member->person_id):?>
+<?php if(AuthController::isAuthorized() && Application::$current_user->person_id === Application::$member->person_id):?>
 <form id="status_form" method="post" action="<?php echo FrontController::urlFor('post');?>">
 	<fieldset>
 		<legend>Say what? This public message gets sent to all your contacts. It's a quick way to broadcast your thoughts.</legend>
@@ -12,7 +12,7 @@
 <?php endif;?>
 <?php if($posts == null):?>
 	<article class="hentry">
-		<?php if(AuthController::isAuthorized() && $this->current_user->person_id === Application::$member->person_id):?>
+		<?php if(AuthController::isAuthorized() && Application::$current_user->person_id === Application::$member->person_id):?>
 		<p>There are no posts right now.</p>
 		<a href="<?php echo FrontController::urlFor('post');?>">Create a new one</a>
 		<?php else:?>

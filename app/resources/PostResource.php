@@ -34,7 +34,7 @@ class PostResource extends AppResource{
 			$view = 'post/edit';
 		}
 		if(count($this->url_parts) > 1){
-			$this->post = Post::findById($this->url_parts[1], $this->current_user->id);
+			$this->post = Post::findById($this->url_parts[1], Application::$current_user->person_id);
 		}else{
 			$this->post = $post;
 		}
@@ -84,10 +84,10 @@ class PostResource extends AppResource{
 		$this->last_page_viewed = $last_page_viewed;
 		
 		if($post->id !== null && strlen($post->id) > 0){
-			$this->post = Post::findById($post->id, $this->current_user->id);
+			$this->post = Post::findById($post->id, Application::$current_user->person_id);
 		}
 		
-		if($this->post->owner_id !== $this->current_user->id && !AuthController::isSuperAdmin()){
+		if($this->post->owner_id !== Application::$current_user->person_id && !AuthController::isSuperAdmin()){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}
 		
@@ -106,7 +106,7 @@ class PostResource extends AppResource{
 					$post->post_date = date('c', strtotime('+1 week'));
 					break;
 			}
-			$post->owner_id = $this->current_user->id;
+			$post->owner_id = Application::$current_user->person_id;
 			if($post->type !== 'status'){
 				$post->custom_url = String::stringForUrl($post->title);
 			}
@@ -119,7 +119,7 @@ class PostResource extends AppResource{
 				if($make_home_page){
 					$setting = Setting::findByName('home_page_post_id');
 					$setting->value = $post->id;
-					$setting->owner_id = $this->current_user->id;
+					$setting->owner_id = Application::$current_user->person_id;
 					Setting::save($setting);
 				}else if($post->isHomePage($this->getHome_page_post_id())){
 					Setting::delete('home_page_post_id');
@@ -146,7 +146,7 @@ class PostResource extends AppResource{
 		if(strlen($post->post_date) === 0){
 			$post->post_date = date('c');
 		}
-		$post->owner_id = $this->current_user->id;
+		$post->owner_id = Application::$current_user->person_id;
 		if(strlen($post->body) > 0){
 			if($post->type !== 'status'){
 				$post->custom_url = String::stringForUrl($post->title);
@@ -176,14 +176,14 @@ class PostResource extends AppResource{
 	private function makeHomePage($post){
 		$setting = Setting::findByName('home_page_post_id');
 		$setting->value = $post->id;
-		$setting->owner_id = $this->current_user->id;
+		$setting->owner_id = Application::$current_user->person_id;
 		Setting::save($setting);
 	}
 	
 	public function post(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array()){
 		$errors = array();
 		if(AuthController::isAuthorized()){
-			$post->source = $this->current_user->url;
+			$post->source = Application::$current_user->url;
 			error_log('saving the post and the source is ' . $post->source . ' for member ' . Application::$member->member_name);
 			$this->save($post, $people, $groups, $make_home_page);
 		}else if($public_key != null && strlen($public_key)>0){
@@ -231,8 +231,8 @@ class PostResource extends AppResource{
 		if(!AuthController::isAuthorized()){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}
-		$post = Post::findById($post->id, $this->current_user->id);
-		if($post->owner_id !== $this->current_user->id && !AuthController::isSuperAdmin()){
+		$post = Post::findById($post->id, Application::$current_user->person_id);
+		if($post->owner_id !== Application::$current_user->person_id && !AuthController::isSuperAdmin()){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}
 		
@@ -248,9 +248,9 @@ class PostResource extends AppResource{
 		if(count($groups) > 0){
 			foreach($groups as $text){
 				if($text === 'All+Contacts'){
-					$this->people = Person::findAllByOwner($this->current_user->person_id);
+					$this->people = Person::findAllByOwner(Application::$current_user->person_id);
 				}else{
-					$this->people = Person::findByTagTextAndOwner($text, $this->current_user->person_id);
+					$this->people = Person::findByTagTextAndOwner($text, Application::$current_user->person_id);
 				}
 				$this->sendToPeople($this->people, $post);
 			}
@@ -269,8 +269,8 @@ class PostResource extends AppResource{
 		$responses = array();
 		$to = array();
 		foreach($people as $person){
-			if($person->id != $this->current_user->person_id && $person->is_approved){
-				error_log(sprintf("person= %s, current user = %s",$person->name, $this->current_user->name));
+			if($person->id != Application::$current_user->person_id && $person->is_approved){
+				error_log(sprintf("person= %s, current user = %s",$person->name, Application::$current_user->name));
 				$datum[] = sprintf("person_post_id=%s&title=%s&body=%s&source=%s&is_published=%s&post_date=%s&public_key=%s&type=%s", urlencode($post->id), urlencode($post->title), urlencode($post->body), urlencode($post->source), $post->is_published, urlencode($post->post_date), urlencode($person->public_key), $post->type);
 				$to[] = $person;
 			}
