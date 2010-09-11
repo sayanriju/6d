@@ -62,7 +62,7 @@ class Member extends Object{
 		if($existing_member !== null && $existing_member->id !== $member->id){
 			$member->errors['member_name'] = 'Member already exists';
 		}else{
-			$person = Person::save($member->person);
+			list($person, $errors) = Person::save($member->person);
 			$member->person_id = $person->id;
 			$new_member = $db->save(null, $member);
 			$member->id = $new_member->id;

@@ -48,7 +48,7 @@ UIView.List = function(id, options){
 			}
 			this.select(elem, e);
 			if(this.delegate && this.delegate.itemWasClicked && elem){			
-				this.delegate.itemWasClicked.apply(this.delegate, [this, elem]);
+				this.delegate.itemWasClicked.apply(this.delegate, [this, elem, e]);
 			}
 			SDDom.stop(e);
 		}
@@ -168,13 +168,15 @@ UIView.List = function(id, options){
 		var top_list = SDArray.collect(list, function(li){
 			return li.getAttribute('rel').toLowerCase() < text.toLowerCase();
 		});
-		item = top_list.pop();
+		item = top_list.length > 0 ? top_list.pop() : null;
+		var new_item = SDDom.create('li');
+		new_item.innerHTML = '<span>' + text + '</span><input type="checkbox" id="group_' + id + '" name="groups" value="' + text + '" /><form action="" method="post" class="delete"><input type="hidden" value="' + text + '" name="text" /><input type="hidden" value="delete" name="_method" /><button type="submit"><span>x</span></button></form>';
+		new_item.setAttribute('rel', id);
+		this.set('selected_item', new_item);
 		if(item){
-			var new_item = SDDom.create('li');
-			new_item.innerHTML = '<span>' + text + '</span><input type="checkbox" id="group_' + id + '" name="groups" value="' + text + '" /><form action="" method="post" class="delete"><input type="hidden" value="' + text + '" name="text" /><input type="hidden" value="delete" name="_method" /><button><span>Delete</span></button></form>';
-			new_item.setAttribute('rel', id);
 			SDDom.insertAfter(new_item, item);
-			this.set('selected_item', new_item);
+		}else{
+			SDDom.append(SDDom.findFirst('ul', this.container), new_item);
 		}
 		return new_item;
 	};
@@ -207,20 +209,26 @@ UIView.List = function(id, options){
 		}
 		SDDom.remove(SDDom.getParent('li', e.target));
 	};
-	
-	this.onKeyPress = function(e){
+	this.getSelectedItems = function(){
+		var selected_elements = SDDom.findAll('li.selected', this.container);
+		return selected_elements;
+	};
+	function itemsWereDeleted(selected_elements){
+		if(selected_elements){
+			SDArray.each(selected_elements, function(li){
+				makeDeleted(li);
+			});
+		}
+	}
+	this.onKeyPress = function(e){		
 		if(this.is_active_view){
 			if(e.keyCode === SDDom.keys.BACKSPACE){
-				var selected_elements = SDDom.findAll('li.selected', this.container);
-				if(selected_elements){
-					SDArray.each(selected_elements, function(li){
-						makeDeleted(li);
-					});
-				}
+				var seleted_elements = this.getSelectedItems();
 				if(selected_elements && this.delegate && this.delegate.onDeleteKeyPressed){
 					this.delegate.onDeleteKeyPressed.apply(this.delegate, [this, selected_elements, e]);
 					SDDom.stop(e);
 				}
+				itemsWereDeleted(selected_elements);
 			}
 		}
 	};
@@ -276,7 +284,6 @@ UIController.AddressBook = function(views){
 	this.url_field = null;
 	this.friend_request_button = null;
 	this.url_field_observer = null;
-	
 	path.pop();
 	this.views = views;
 	this.selectedGroup = null;
@@ -296,7 +303,7 @@ UIController.AddressBook = function(views){
 				break;
 		}
 	};
-	this.itemWasClicked = function(view, elem){
+	this.itemWasClicked = function(view, elem, e){
 		switch(view.id){
 			case('groups'):
 				this.getView('people', this.views).onBlur();
@@ -315,9 +322,11 @@ UIController.AddressBook = function(views){
 					}else{
 						this.getView('people', this.views).addNewItem(view, elem);
 					}
-
 				}
 				break;
+		}
+		if(e && e.target.type === 'submit' && SDDom.getParent('form', e.target).className == 'delete'){
+			this.onDeleteKeyPressed(view, [elem], e);
 		}
 	};
 	this.selectPersonItem = function(id, elem){
@@ -325,9 +334,6 @@ UIController.AddressBook = function(views){
 		var url = 'person/' + id + '.phtml';
 		if(text === 'Friend Requests'){
 			url = 'follower/' + id + '.phtml';
-		}
-		if(SDDom.hasClass('owner', elem)){
-			url = 'profile.phtml?state=modify';
 		}
 		if(this.url_field_observer !== null){
 			clearInterval(this.url_field_observer);
@@ -358,9 +364,6 @@ UIController.AddressBook = function(views){
 			SDDom.addEventListener(person_form, 'submit', this.eventPersonFormDidSubmit);
 		}
 	};
-	this.onSelectGroupItemDONE = function(request){
-		alert(request.responseText);
-	};
 	this.onGetPeopleDONE = function(request){
 		SDDom('detail').innerHTML = null;
 		var ul = SDDom.findFirst('ul', SDDom('people'));
@@ -375,6 +378,7 @@ UIController.AddressBook = function(views){
 		if(text === 'Friend Requests'){
 			url = 'followers.phtml';
 		}
+		
 		(new SDAjax({method: 'get'
 			, DONE: [this, this.onGetPeopleDONE]})).send(SDObject.rootUrl + url);
 				
@@ -393,9 +397,8 @@ UIController.AddressBook = function(views){
 	this.onPersonWasSubmittedDONE = function(request){
 		var user_message = SDDom.findFirst('#user_message');
 		var response = JSON.parse(request.responseText);
-		user_message.innerHTML = response.message;
+		user_message.innerHTML = response.user_message;
 		SDDom.show(user_message);
-		//SDDom.findFirst('legend', SDDom('person_form')).innerHTML = response.person.name;
 		var elem = SDDom.findFirst('.selected', this.getView('people', this.views).container);
 		this.selectPersonItem(response.person.id, elem);
 	};
@@ -410,7 +413,7 @@ UIController.AddressBook = function(views){
 		SDDom.stop(e);
 	};
 	this.onFollowWasSubmittedDONE = function(request){		
-		var user_message = SDDom.findFirst('.user_message');
+		var user_message = SDDom.findFirst('#user_message');
 		user_message.innerHTML = JSON.parse(request.responseText, false).user_message;
 		SDDom.show(user_message);
 		this.reset();
@@ -468,6 +471,7 @@ UIController.AddressBook = function(views){
 	};
 	this.onPersonDeleteDONE = function(request){		
 		var response = JSON.parse(request.responseText, false);
+		console.log(response);
 		this.getView('people', this.views).removeDeletedItems();	
 	};
 	this.onGroupDeleteDONE = function(request){
@@ -550,7 +554,7 @@ UIController.AddressBook = function(views){
 	this.eventPersonFormDidSubmit = this.bind(this.personFormDidSubmit);
 }
 
-SDDom.addEventListener(window, 'load', function(){
+SDDom.addEventListener(window, 'load', function(){	
 	try{
 		var groupListView = new UIView.List('groups', {field_name: 'group[text]', field_default_value:'new group', is_draggable: false});
 		var personListView = new UIView.List('people', {is_droppable: false, field_name: 'person[name]', field_default_value: 'new person'});

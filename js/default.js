@@ -914,14 +914,3 @@ UIView.Cropper = function(id, options){
 	}
 	return this;
 }
-
-
-SDDom.addEventListener(window, 'load', function(){
-	var scripts = SDDom.byTag('script');
-	SDObject.rootUrl = SDArray.collect(scripts, function(script){return script.src.indexOf('default') > -1;})[0].getAttribute('src');
-	SDObject.rootUrl = SDObject.rootUrl.replace('js/default.js', '');
-	// This should handle not running the app with a url rewriting module.
-	if(window.location.href.indexOf('index.php') > -1){
-		SDObject.rootUrl += 'index.php?r=';
-	}
-});

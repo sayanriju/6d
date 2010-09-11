@@ -5,7 +5,7 @@
     	<form action="<?php echo FrontController::urlFor('person');?>" method="post" class="delete">
 			<input type="hidden" value="<?php echo $person->id;?>" name="id" />
 			<input type="hidden" value="delete" name="_method" />
-			<button>X</button>
+			<button type="submit">x</button>
 		</form>
 		<input type="checkbox" id="person_checkbox_<?php echo $person->id;?>" name="people" value="<?php echo urlencode('{"name": "' . $person->name . '", "id":"' . $person->id . '", "is_owner":' . $person->is_owner . '}');?>" />
 	

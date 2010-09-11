@@ -1,5 +1,5 @@
 {
-	"message":"<?php echo UserResource::getUserMessage();?>"
+	"user_message":"<?php echo $user_message;?>"
 	, "person":{
 		"id":"<?php echo $person->id;?>"
 		, "name":"<?php echo $person->name;?>"

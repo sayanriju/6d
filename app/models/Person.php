@@ -238,12 +238,6 @@
 			return $person;
 		}
 		
-		/*public static function findByUrl($url){
-			$config = new AppConfiguration();
-			$db = Factory::get($config->db_type, $config);
-			$list = $db->find(new ByAttribute('url', $url, 1, null), new Person());
-			return $list;
-		}*/
 		public static function findByUrlAndOwnerId($url, $owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
@@ -273,15 +267,16 @@
 		public static function save(Person $person){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			/*if($person->password !== null && strlen($person->password) > 0){
-				$person->password = String::encrypt($person->password);
-				$person->confirmation_password = String::encrypt($person->confirmation_password);
+			$existing_person = Person::findByUrlAndOwnerId(urlencode($person->url), $person->owner_id);
+			$errors = array();
+			if($existing_person !== null && $person->id !== $existing_person->id){
+				$errors = array("duplicate_entry"=>"There's already somebody in your address book with that web address. I can't have 2 people with the same web address since it's what really makes each person unique in the address book. Please either edit the existing person or use a different web address for this new person.");
+			}else{
+				$new_person = $db->save(null, $person);
+				$person->id = $new_person->id;
+				self::notify('didSavePerson', $person, $person);				
 			}
-			*/
-			$new_person = $db->save(null, $person);
-			$person->id = $new_person->id;
-			self::notify('didSavePerson', $person, $person);
-			return $person;
+			return array($person, $errors);
 		}
 
 		public static function canSave(Person $person){

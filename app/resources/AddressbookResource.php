@@ -58,7 +58,7 @@ class AddressbookResource extends AppResource{
 			$this->person = new Person();
 			$this->person->profile = serialize($profile);
 			$this->person->owner_id = Application::$current_user->person_id;
-			$person = Person::save($this->person);
+			list($person, $errors) = Person::save($this->person);
 			$this->person->id = $person->id;
 		}
 		if(count($errors) > 0){

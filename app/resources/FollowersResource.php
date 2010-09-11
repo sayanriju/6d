@@ -37,7 +37,7 @@ class FollowersResource extends AppResource{
 		if($person->public_key !== null && strlen($person->public_key) > 0 && $person->url !== null && strlen($person->url) > 0){
 			$this->person = Person::findByUrlAndOwnerId(urldecode($person->url), Application::$member->person_id);
 			$this->person->public_key = $person->public_key;
-			$this->person = Person::save($this->person);
+			list($this->person, $errors) = Person::save($this->person);
 			return 'ok';
 		}else{
 			return "I couldn't find that person.";

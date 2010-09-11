@@ -106,7 +106,7 @@ class ProfileResource extends AppResource{
 		$this->person->is_owner = $existing_person->is_owner;
 		$this->person->is_approved = true;
 		try{
-			$this->person = Person::save($this->person);
+			list($this->person, $errors) = Person::save($this->person);
 			self::setUserMessage('Profile saved');
 		}catch(Exception $e){
 			self::setUserMessage($e->getMessage());

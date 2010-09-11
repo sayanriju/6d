@@ -27,14 +27,11 @@
 	margin-bottom:20px;
 }
 #addressbook section ul li {
-	width:240px;	
+	width:240px;
+	height: 21px;
+	line-height: 21px;
 }
 #addressbook section ul li a {
-	padding-right: 26px;
-	overflow:hidden;
-	display:block;
-	height:18px;
-	float:left;
 	color:#999;
 }
 #addressbook section ul li a:hover {
@@ -42,9 +39,6 @@
 }
 #addressbook section ul li.selected a {
 	color:#333;
-}
-#addressbook section ul li span {
-	padding-left:3px;
 }
 #addressbook section h1 {
 	text-align:center;
@@ -71,15 +65,24 @@ form.delete{
 	float: right;
 }
 form.delete button{
-	background: none;
-	cursor: default;
+	margin: 0;
+	padding: 0;
+	display: block;
+	background: rgb(100,100,100);
+	border: none;
+	font-family: Helvetica;
+	font-size: 10px;
 	padding: 0;
 	margin: 0;
-	width:18px;
-	height:18px;
-	border:#ff0000 solid 2px;
-	color:red;
-	font-weight:bold;
+	width:21px;
+	height:21px;
+	color:rgb(255,255,255);
+	border-radius: 50px;
+	--webkit-border-radius: 50px;
+	--moz-border-radius: 50px;
+	cursor: default;
+	line-height: 18px;
+	padding: 0;
 }
 #groups{
 	width: 240px;

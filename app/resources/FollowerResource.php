@@ -44,7 +44,7 @@ class FollowerResource extends AppResource{
 				$person->is_owner = false;
 			}			
 			$person->owner_id = Application::$current_user->person_id;
-			$person = Person::save($person);
+			list($person, $errors) = Person::save($person);
 			FriendRequest::delete($request);
 			$this->sendNotification($person);
 		}else{

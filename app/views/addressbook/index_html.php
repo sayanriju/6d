@@ -16,7 +16,7 @@
 				<form action="<?php echo FrontController::urlFor('group');?>" method="post" class="delete">
 					<input type="hidden" value="<?php echo $group->text;?>" name="text" />
 					<input type="hidden" value="delete" name="_method" />
-					<button><span>Delete</span></button>
+					<button type="submit">x</button>
 				</form>
 			<?php endif;?>
 			</li>

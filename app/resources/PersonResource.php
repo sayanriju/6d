@@ -68,18 +68,20 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 					$this->person->profile = serialize($profile);
 				}
 				$this->person->owner_id = Application::$current_user->person_id;
-				$this->person = Person::save($this->person);
-				if($errors != null && count($errors) > 0){
+				list($this->person, $errors) = Person::save($this->person);
+				$user_message = '';
+				if(count($errors) > 0){
 					$message = array();
 					foreach($errors as $key=>$value){
 						$message[] = sprintf("%s: %s", $key, $value);
 					}
-					UserResource::setUserMessage('Failed to save person - ' . implode(', ', $message));
+					$user_message = 'Failed to save person - ' . implode(', ', $message);
 				}else{
-					UserResource::setUserMessage("{$this->person->name}'s info has been saved.");
+					$user_message = "{$this->person->name}'s info has been saved.";
 				}
+				UserResource::setUserMessage($user_message);
 			}
-			$this->output = $this->renderView($view, array('errors'=>$errors));
+			$this->output = $this->renderView($view, array('user_message'=>$user_message));
 			return $this->renderView('layouts/default');					
 		}
 		public function post(Person $person, Profile $profile = null){
@@ -99,7 +101,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 				$this->person->owner_id = Application::$current_user->person_id;
 				$user_message = null;
 				try{
-					$this->person = Person::save($this->person);				
+					list($this->person, $errors) = Person::save($this->person);				
 				}catch(Exception $e){
 					$user_message = $e->getMessage();
 				}
