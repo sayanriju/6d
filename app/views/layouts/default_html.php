@@ -53,6 +53,7 @@
 					<a href="<?php echo FrontController::urlFor('login');?>" title="Login">Login</a>
 					<?php endif;?>
 					<a href="<?php echo Application::urlForWithMember('profile');?>" title="Profile page">Profile</a>
+					<a href="<?php echo FrontController::urlFor('members');?>" title="Member directory">Members</a>
 				</nav>
 			</footer>
 		</aside>
