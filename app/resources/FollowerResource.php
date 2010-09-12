@@ -27,6 +27,7 @@ class FollowerResource extends AppResource{
 		return $this->renderView('layouts/default', null);
 	}
 	private function save($request, $person = null){
+		$response = null;
 		if($request !== null){
 			if($person === null){
 				$person = new Person(array('email'=>$request->email
@@ -46,30 +47,32 @@ class FollowerResource extends AppResource{
 			$person->owner_id = Application::$current_user->person_id;
 			list($person, $errors) = Person::save($person);
 			FriendRequest::delete($request);
-			$this->sendNotification($person);
+			$response = $this->sendNotification($person);
 		}else{
 			if($person !== null){
-				$this->sendNotification($person);
+				$response = $this->sendNotification($person);
 			}
 		}
+		return $response;
 	}
 	// Confirm as a friend
-	public function put(FriendRequest $request){		
+	public function put(FriendRequest $request){
+		$response = null;		
 		if(!AuthController::isAuthorized()){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}else{
 			$request = FriendRequest::findByIdAndOwnerId($request->id, Application::$current_user->person_id);
-			$person = Person::findByUrlAndOwnerId($person->url, Application::$current_user->person_id);
-			$this->save($request, $person);
+			$this->person = Person::findByUrlAndOwnerId($request->url, Application::$current_user->person_id);
+			$response = $this->save($request, $person);
+			Resource::setUserMessage(sprintf("%s has been made a friend. %s", $request->name, $response->output));
 		}
-		$this->output = $this->renderView('follower/index');
-		return $this->renderView('layouts/default');
+		$this->redirectTo(Application::$current_user->member_name . '/addressbook');
 	}
 	private function sendNotification($person){
 		$config = new AppConfiguration();
 		$data = sprintf("_method=put&email=%s&url=%s&public_key=%s", urlencode(Application::$current_user->email), urlencode(Application::$current_user->url), urlencode($person->public_key));
 		$response = NotificationResource::sendNotification($person, 'followers', $data, 'post');
-		Resource::setUserMessage(sprintf("%s has been made a friend. %s", $person->name, $response->output));
+		return $response;
 	}
 	// Someone has sent a friend request.
 	public function post(Person $person){
@@ -96,7 +99,7 @@ class FollowerResource extends AppResource{
 		}else{
 			// Someone has sent another friend request, but is already a friend.
 			$friend_request = new FriendRequest(array('name'=>$this->person->name, 'email'=>$this->person->email, 'public_key'=>$this->person->public_key, 'created'=>date('c'), 'url'=>$this->person->url));
-			$this->save($friend_request, $this->person);
+			$response = $this->save($friend_request, $this->person);
 		}
 		if($message !== null){
 			return $message;
