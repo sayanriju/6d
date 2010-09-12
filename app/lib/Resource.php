@@ -216,15 +216,15 @@ class Resource extends Object{
 	public function didFinishLoading(){
 		self::setUserMessage(null);
 	}
-	
+	private static $user_message;
 	public static function getUserMessage(){
 		if(array_key_exists('userMessage', $_COOKIE)){
-			return urldecode($_COOKIE['userMessage']);
-		}else{
-			return null;
+			self::$user_message = urldecode($_COOKIE['userMessage']);
 		}
+		return self::$user_message;
 	}
 	public static function setUserMessage($value){
+		self::$user_message = $value;
 		if($value == null){
 			unset($_COOKIE['userMessage']);
 		}else{

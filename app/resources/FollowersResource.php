@@ -52,20 +52,18 @@ class FollowersResource extends AppResource{
 			if($this->person->url !== null && strlen($this->person->url) > 0){
 				$config = new AppConfiguration();
 				$site_path = String::replace('/\/$/', '', FrontController::$site_path);
-				
-				$response = ServicePluginController::execute(new IntroductionCommand($this->person, Application::$current_user));
-				
-				/*
-				$data = sprintf("email=%s&name=%s&url=%s&created=%s", urlencode(Application::$current_user->email), urlencode(Application::$current_user->name),  urlencode(str_replace('http://', '', $site_path)), urlencode(date('c')));
-				$response = NotificationResource::sendNotification($this->person, 'follower', $data, 'post');
-				*/
-				UserResource::setUserMessage($this->person->name . "'s site responded with " . $response);
+				$response = ServicePluginController::execute(new IntroductionCommand($this->person, Application::$current_user));				
+				if($response->headers['http_code'] == 404){
+					Resource::setUserMessage("That web address was not found. Please go back and confirm that " . $this->person->url . " is a working site.");
+				}else{
+					Resource::setUserMessage($this->person->name . "'s site responded with " . $response->output);
+					$this->output = $this->renderView('follower/confirmation');
+				}
 				$this->title = 'Request Sent!';
-				$this->output = $this->renderView('follower/confirmation');
 			}else{
 				$this->output = $this->renderView('follower/show', array('errors'=>$errors));
 				$errors['url'] = "I need the person's website address to follow them.";
-				UserResource::setUserMessage($errors['url']);
+				Resource::setUserMessage($errors['url']);
 			}
 			return $this->renderView('layouts/default', null);
 		}

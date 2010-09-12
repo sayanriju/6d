@@ -75,7 +75,7 @@
 			error_log($body);
 			*/
 			$response = Request::doRequest($url, $path, $data, $type, null);			
-			return $response->output;
+			return $response;
 		}		
 	}
 ?>

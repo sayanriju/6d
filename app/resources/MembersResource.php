@@ -70,9 +70,9 @@ class_exists('Member') || require('models/Member.php');
 						$message[] = sprintf("%s: %s", $key, $value);
 					}
 					
-					UserResource::setUserMessage('Failed to save member - ' . implode(', ', $message));
+					Resource::setUserMessage('Failed to save member - ' . implode(', ', $message));
 				}else{
-					UserResource::setUserMessage("{$this->member->person->name}'s info has been saved.");
+					Resource::setUserMessage("{$this->member->person->name}'s info has been saved.");
 				}
 			}
 			$this->redirectTo('members');
@@ -105,7 +105,7 @@ class_exists('Member') || require('models/Member.php');
 					foreach($this->member->errors as $key=>$value){
 						$message[] = sprintf("%s: %s", $key, $value);
 					}
-					UserResource::setUserMessage('Failed to save member - ' . implode(', ', $message));
+					Resource::setUserMessage('Failed to save member - ' . implode(', ', $message));
 				}else{
 					$this->members = Member::findAllAsPerson(AuthController::isSuperAdmin() ? null : true);
 				}

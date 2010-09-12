@@ -69,7 +69,7 @@ class FollowerResource extends AppResource{
 		$config = new AppConfiguration();
 		$data = sprintf("_method=put&email=%s&url=%s&public_key=%s", urlencode(Application::$current_user->email), urlencode(Application::$current_user->url), urlencode($person->public_key));
 		$response = NotificationResource::sendNotification($person, 'followers', $data, 'post');
-		UserResource::setUserMessage(sprintf("%s has been made a friend. %s", $person->name, $response));
+		Resource::setUserMessage(sprintf("%s has been made a friend. %s", $person->name, $response->output));
 	}
 	// Someone has sent a friend request.
 	public function post(Person $person){
@@ -110,7 +110,7 @@ class FollowerResource extends AppResource{
 		}
 		if($request->id > 0){
 			$response = FriendRequest::delete($request);
-			UserResource::setUserMessage('Request has been deleted: ' . $response);
+			Resource::setUserMessage('Request has been deleted: ' . $response);
 		}
 		$this->output = $this->renderView('follower/index');
 		return $this->renderView('layouts/default');

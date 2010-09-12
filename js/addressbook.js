@@ -220,7 +220,7 @@ UIView.List = function(id, options){
 			});
 		}
 	}
-	this.onKeyPress = function(e){		
+	this.onKeyPress = function(e){
 		if(this.is_active_view){
 			if(e.keyCode === SDDom.keys.BACKSPACE){
 				SDDom.stop(e);
@@ -471,15 +471,17 @@ UIController.AddressBook = function(views){
 	};
 	this.onPersonDeleteDONE = function(request){		
 		var response = JSON.parse(request.responseText, false);
-		this.getView('people', this.views).removeDeletedItems();	
+		this.getView('people', this.views).removeDeletedItems();
+		SDDom('detail').innerHTML = null;
 	};
 	this.onGroupDeleteDONE = function(request){
 		var response = JSON.parse(request.responseText, false);
 		this.getView('groups', this.views).removeDeletedItems();
 	};
 	this.onDeleteKeyPressed = function(view, selected_elements, e){
-		var deleted_item = SDDom.getParent('li', e.target);
-		SDDom.addClass('deleted', deleted_item);
+		SDArray.each(selected_elements, function(elem, i){
+			SDDom.addClass('deleted', elem);			
+		});
 		if(view.id === 'groups'){
 			var i = selected_elements.length;
 			var groups = SDArray.pluck(selected_elements, function(elem){return elem.getAttribute('rel');}).join(',');
@@ -497,13 +499,11 @@ UIController.AddressBook = function(views){
 			if(group === 'All Contacts'){
 				if(confirm('Just to make sure, did you want to delete the selected person(s) from your address book? If so, click Ok. Otherwise, click Cancel.')){
 					(new SDAjax({method: 'delete', parameters: 'ids=' + people
-						, DONE: [this, this.onPersonDeleteDONE]})).send(SDObject.rootUrl + 'people.json');
-					
+						, DONE: [this, this.onPersonDeleteDONE]})).send(SDObject.rootUrl + 'people.json');					
 				}
 			}else if(confirm('Do you want to remove ' + people + ' from the ' + group + ' group?')){
 				(new SDAjax({method: 'delete', parameters: 'ids[]=' + people + '&group[text]=' + group
 					, DONE: [this, this.onPersonDeleteDONE]})).send(SDObject.rootUrl + 'groups.json');
-				
 			}
 		}
 	};

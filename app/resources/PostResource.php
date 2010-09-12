@@ -63,7 +63,7 @@ class PostResource extends AppResource{
 			if($person !== null){
 				$data = sprintf("public_key=%s", urlencode($person->public_key));
 				$response = NotificationResource::sendNotification($person, 'profile.json', $data, 'get');
-				$response = json_decode($response);
+				$response = json_decode($response->output);
 				$url = $response->person->photo_url;
 			}else{
 				$url = Application::$member->profile->photo_url;
@@ -278,7 +278,7 @@ class PostResource extends AppResource{
 			$message = array();
 			foreach($responses as $key=>$response){
 				$person = $to[$key];
-				UserResource::setUserMessage($person->name . ' responded with ' . $response);
+				Resource::setUserMessage($person->name . ' responded with ' . $response);
 			}
 		}
 	}

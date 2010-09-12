@@ -49,7 +49,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 			if(!$person->is_owner){
 				Person::delete($person);
 			}else{
-				UserResource::setUserMessage("You can't delete the owner of the site.");
+				Resource::setUserMessage("You can't delete the owner of the site.");
 			}
 			$this->redirectTo('addressbook');
 		}
@@ -79,7 +79,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 				}else{
 					$user_message = "{$this->person->name}'s info has been saved.";
 				}
-				UserResource::setUserMessage($user_message);
+				Resource::setUserMessage($user_message);
 			}
 			$this->output = $this->renderView($view, array('user_message'=>$user_message));
 			return $this->renderView('layouts/default');					
@@ -106,7 +106,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 					$user_message = $e->getMessage();
 				}
 				if($user_message !== null){
-					UserResource::setUserMessage('Failed to save person - ' . $user_message);
+					Resource::setUserMessage('Failed to save person - ' . $user_message);
 				}else{
 					$this->people = Person::findAllByOwner(Application::$current_user->person_id);
 				}
