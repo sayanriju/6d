@@ -185,8 +185,6 @@ form p, form address p{
 form textarea{
 	font-size: 23px;
 	display: block;
-	width: 100%;
-	min-height: 400px;
 }
 form p label{
 	display: block;

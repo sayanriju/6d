@@ -55,7 +55,7 @@
 <?php endif;?>
 	</div>
 <?php if(AuthController::isAuthorized() && Application::$current_user->person_id === Application::$member->person_id):?>
-	<form action="<?php echo FrontController::urlFor('profile');?>" method="post">
+	<form action="<?php echo Application::urlForWithUser('profile');?>" method="post">
 		<input type="hidden" name="state" value="edit" />
 		<button type="submit"><span>Edit your profile</span></button>
 	</form>

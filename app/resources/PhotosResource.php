@@ -5,7 +5,6 @@
 	class PhotosResource extends AppResource{
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
-			$this->url = FrontController::urlFor(null);
 			$this->max_filesize = 2000000;
 		}
 		public function __destruct(){
@@ -13,7 +12,6 @@
 		}
 		public $max_filesize;
 		public $photos;
-		public $url;
 		public function get(){
 			$photo = new Photo();
 			$this->photos = $photo->findAll(sprintf("media/%s", Application::$current_user->member_name));
@@ -31,7 +29,7 @@
 			$path = $photo['type'];
 			$width = 0;
 			$photo_name = null;
-			if(!in_array($photo['type'], array('image/tiff', 'image/jpg', 'image/jpeg', 'image/gif', 'image/png'))){
+			if(!in_array($photo['type'], array('image/jpg', 'image/jpeg', 'image/gif', 'image/png'))){
 				$photo['error_message'] = "I don't accept that type of file.";
 			}else{
 				$file_type = str_replace(sprintf('image%s', '/'), '', $photo['type']);

@@ -5,12 +5,12 @@
 		</div>
 		<div id="resizer"></div>
 <?php if(AuthController::isAuthorized() && Application::$current_user->person_id == $person->person_id && $this->getState() === 'edit'):?>
-			<form method="post" action="<?php echo FrontController::urlFor('photo');?>" class="delete">
+			<form method="post" action="<?php echo Application::urlForWithUser('photo');?>" class="delete">
 				<input type="hidden" value="delete" name="_method" />
 				<input type="hidden" value="<?php echo $person->profile->photo_url;?>" name="src" />
-				<button type="submit"><span>Delete</span></button>
+				<button type="submit">Delete</button>
 			</form>
-			<form enctype="multipart/form-data" target="upload_target" method="post" id="media_form" action="<?php echo FrontController::urlFor('photos');?>">
+			<form enctype="multipart/form-data" target="upload_target" method="post" id="media_form" action="<?php echo Application::urlForWithUser('photos');?>">
 				<fieldset>
 					<legend>Photo Picker</legend>
 					<input type="hidden" name="MAX_FILE_SIZE" value="{$max_filesize}" />
@@ -18,7 +18,7 @@
 						<label for="photo" id="photo_label">Upload a photo</label>
 						<input type="file" name="photo" id="photo" />
 					</section>
-					<iframe src="<?php echo FrontController::urlFor('empty');?>" id="upload_target" name="upload_target" style="width:0;height:0;border:none;"></iframe>
+					<iframe src="<?php echo Application::urlForWithUser('empty');?>" id="upload_target" name="upload_target" style="width:0;height:0;border:none;"></iframe>
 				</fieldset>
 			</form>
 			<dl id="photos"></dl>
@@ -26,7 +26,7 @@
 <?php endif;?>
 	<div class="contact">
 
-		<form action="<?php echo FrontController::urlFor('profile');?>" method="post" id="person_form">
+		<form action="<?php echo Application::urlForWithUser('profile');?>" method="post" id="person_form">
 			<fieldset>
 				<legend>{$person->name}</legend>
 				<input type="hidden" value="<?php echo $person->profile->photo_url;?>" name="profile[photo_url]" id="profile[photo_url]" />

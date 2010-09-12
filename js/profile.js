@@ -1,8 +1,17 @@
 SDDom.addEventListener(window, 'load', function(e){
-	init2();
+	photo = SDDom('profile_photo');	
+	profile_controller = {photoWasDoubleClicked: function(photo, new_size, pos, offset, canvas_size){
+		(new SDAjax({method: 'put', parameters: ['ratio=' + offset.ratio, 'offset_x=' + offset.x, 'offset_y=' + offset.y, 'dst_w=' + canvas_size.width, 'dst_h=' + canvas_size.height, 'file_name=' + photo.src].join('&'), DONE: [window, photoDidSave]})).send(SDObject.rootUrl + 'photo.phtml');
+		}
+	};
+	slider = UIView.Slider('resizer', {direction: 'horizontal', delegate: {sliderIsMoving: function(percent){SDDom.setStyles({width: ((percent.x * original_size.width) + original_size.width) + 'px'}, photo);}}});
+	
+	cropper = UIView.Cropper(null, {canvases: SDDom.findAll('.canvas'), delegate: profile_controller});
+	original_size = {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)};
+	user_message = SDDom('user_message');		
 	if(SDDom('photo')){
 		SDDom.addEventListener(SDDom('photo'), 'change', photoDidChange);		
-		SDDom.addEventListener(SDDom('save_button'), 'click', function(e){
+		SDDom.addEventListener(SDDom('save_button'), 'click', function(e){			
 			SDDom.stop(e);
 			window.photoDidSave = function(request){
 				SDDom('person_form').submit();
@@ -24,17 +33,6 @@ var cropper;
 var original_size;
 var slider;
 var profile_controller;
-function init2(){
-	photo = SDDom('profile_photo');	
-	profile_controller = {photoWasDoubleClicked: function(photo, new_size, pos, offset, canvas_size){
-		(new SDAjax({method: 'put', parameters: ['ratio=' + offset.ratio, 'offset_x=' + offset.x, 'offset_y=' + offset.y, 'dst_w=' + canvas_size.width, 'dst_h=' + canvas_size.height, 'file_name=' + photo.src].join('&'), DONE: [window, photoDidSave]})).send(SDObject.rootUrl + 'photo.phtml');
-		}}
-	slider = UIView.Slider('resizer', {direction: 'horizontal', delegate: {sliderIsMoving: function(percent){SDDom.setStyles({width: ((percent.x * original_size.width) + original_size.width) + 'px'}, photo);}}});
-	
-	cropper = UIView.Cropper(null, {canvases: SDDom.findAll('.canvas'), delegate: profile_controller});
-	original_size = {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)};
-	user_message = SDDom('user_message');		
-}
 
 function photoWasUploaded(photo_name, file_name, photo_path, width){	
 	photoDidUpload(photo_name, file_name, photo_path, width);
@@ -51,7 +49,9 @@ function profileDidSave(request){
 };
 function photoDidUpload(photo_name, file_name, photo_path, width, error_message){
 	if(error_message.length > 0){
-		alert(error_message);
+		user_message.innerHTML = error_message;
+		var parent = SDDom.getParent('section', photo);
+		parent.innerHTML = parent.innerHTML; 
 	}else{
 		photo.src = photo_path;
 		var profile_form = SDDom('person_form');
@@ -61,5 +61,12 @@ function photoDidUpload(photo_name, file_name, photo_path, width, error_message)
 };
 
 function photoDidSave(request){
-	slider.reset();
+	var response = JSON.parse(request.responseText);
+	if(response.did_save == 'false'){
+		user_message.innerHTML = response.message;
+		SDDom.show(user_message);
+	}
+	if(slider.container){
+		slider.reset();		
+	}
 }

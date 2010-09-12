@@ -23,7 +23,7 @@ class ProfileResource extends AppResource{
 	
 	public function post($state = null){
 		$this->setState($state);
-		$this->redirectTo('profile');
+		$this->redirectTo(Application::$member->member_name . '/profile');
 		return '';
 	}
 	public function get($state = null, Person $person = null){
