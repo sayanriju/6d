@@ -8,7 +8,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 	class MemberResource extends AppResource{
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
-			if(!AuthController::isAuthorized() && !AuthController::isSuperAdmin()){
+			if(!AuthController::isSuperAdmin()){
 				throw new Exception(FrontController::UNAUTHORIZED, 401);
 			}
 		}

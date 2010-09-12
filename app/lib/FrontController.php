@@ -172,7 +172,7 @@ class FrontController extends Object{
 				if($key == 'id'){
 					$resource_id = $val;
 				}else{
-					$query_string[] = sprintf('%s=%s', $key, $val);					
+					$query_string[] = sprintf('%s=%s', $key, $val);
 				}
 			}
 		}

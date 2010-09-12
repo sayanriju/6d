@@ -62,7 +62,7 @@ class Member extends Object{
 		if($existing_member !== null && $existing_member->id !== $member->id){
 			$member->errors['member_name'] = 'Member already exists';
 		}else{
-			list($person, $errors) = Person::save($member->person);
+			list($person, $member->errors) = Person::save($member->person);
 			$member->person_id = $person->id;
 			$new_member = $db->save(null, $member);
 			$member->id = $new_member->id;
@@ -140,7 +140,6 @@ class Member extends Object{
 		$db = Factory::get($config->db_type, $config);
 		$member = new Member();
 		$person = new Person();
-		$member_name = String::sanitize($member_name);
 		$clause = null;
 		if($in_directory !== null){
 			$clause = new All("select m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password

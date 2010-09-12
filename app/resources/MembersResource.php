@@ -110,7 +110,7 @@ class_exists('Member') || require('models/Member.php');
 					$this->members = Member::findAllAsPerson(AuthController::isSuperAdmin() ? null : true);
 				}
 			}				
-			$this->output = $this->renderView($view, array('errors'=>$errors));
+			$this->output = $this->renderView($view, array('errors'=>$this->member->errors));
 			return $this->renderView('layouts/default');					
 		}
 	}

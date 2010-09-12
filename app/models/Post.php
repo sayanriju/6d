@@ -314,10 +314,11 @@
 			return $post;
 		}
 	
-		public static function findById($id = null){
+		public static function findById($id, $owner_id){
 			$config = new AppConfiguration();				
 			$db = Factory::get($config->db_type, $config);
-			$post = $db->find(new ById($id), new Post(null));
+			$owner_id = (int)$owner_id;
+			$post = $db->find(new ByClause(sprintf("id='%s' and owner_id=%d", $id, $owner_id), null, 0, null), new Post(null));
 			return $post;
 		}
 		public static function findHomePage($id = null, $owner_id){

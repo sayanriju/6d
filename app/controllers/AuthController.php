@@ -10,7 +10,7 @@ class AuthController{
 	}
 	public static $is_super_admin;
 	public static function isSuperAdmin(){
-		if(self::$is_super_admin === null && self::authKey() !== null){
+		if(self::authKey() !== null){
 			self::$is_super_admin = SuperAdmin::findByEmail(self::authKey()) !== null;
 		}else{
 			self::$is_super_admin = false;

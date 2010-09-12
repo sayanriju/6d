@@ -55,11 +55,11 @@ class Application{
 	public static function isPhotoPublic(){
 		return true;
 	}
-	public function willSetUrlFor($resource){
-		if(self::$member !== null && !self::$member->is_owner && $resource !== self::$member->member_name){
-			$resource = self::$member->member_name . '/'. $resource;
-		}
-		return $resource;
+	public static function urlForWithMember($resource_name){
+		return FrontController::urlFor(self::$member->member_name . '/' . $resource_name);
+	}
+	public static function urlForWithUser($resource_name){
+		return FrontController::urlFor(self::$current_user->member_name . '/' . $resource_name);
 	}
 	public function exceptionHasOccured($sender, $args){
 		$e = $args['exception'];
@@ -98,14 +98,17 @@ class Application{
 		if($path_info !== null){
 			$path = explode('/', $path_info);			
 			if(count($path) > 0){
-				$member_name = array_shift($path);		
-				self::$member = Member::findByMemberName($member_name);
-				if(self::$member !== null){
-					$path_info = implode('/', $path);					
+				$member_name = array_shift($path);
+				if(strlen($member_name) > 0){
+					self::$member = Member::findByMemberName($member_name);
+					if(self::$member !== null){
+						$path_info = implode('/', $path);					
+					}					
 				}
 			}
 		}
-		if(self::$member === null){
+
+		if(self::$member == null){
 			self::$member = Member::findOwner();
 		}
 		return $path_info;

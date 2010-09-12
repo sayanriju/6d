@@ -27,7 +27,7 @@ class PostResource extends AppResource{
 	public function get(Post $post = null, $layout = 'default', $last_page_viewed = 1){
 		$this->last_page_viewed = $last_page_viewed;
 		$photo = new Photo();
-		$this->photos = $photo->findAll();
+		$this->photos = $photo->findAll('media/' . Application::$current_user->member_name);
 		$view = 'post/show';
 		$layout = 'layouts/' . $layout;
 		if( AuthController::isAuthorized()){
@@ -35,6 +35,9 @@ class PostResource extends AppResource{
 		}
 		if(count($this->url_parts) > 1){
 			$this->post = Post::findById($this->url_parts[1], Application::$current_user->person_id);
+			if($this->post == null){
+				throw new Exception(FrontController::NOTFOUND, 404);
+			}
 		}else{
 			$this->post = $post;
 		}
@@ -44,7 +47,7 @@ class PostResource extends AppResource{
 			$this->output = $this->renderView($view, null);
 			return $this->renderView($layout, null);
 		}else{
-			if(! AuthController::isAuthorized()){
+			if(!AuthController::isAuthorized()){
 				throw new Exception(FrontController::UNAUTHORIZED, 401);
 			}
 			$this->post = new Post();
