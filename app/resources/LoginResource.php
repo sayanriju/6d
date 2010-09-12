@@ -35,15 +35,18 @@ class LoginResource extends AppResource{
 				$person->session_id = session_id();
 				Person::save($person);
 			}
-			if(FrontController::requestedUrl() != null){
-				$this->redirectTo(FrontController::requestedUrl());
-			}else{				
-				$this->redirectTo(null);
-			}
+			$this->redirect($user);
 		}else{
 			self::setUserMessage($this->renderView('error/login', array('errors'=>array('auth'=>'authorization failed'), 'message'=>"Those credentials can't be found. If you're really trying to sign in, please try it again.")));
 			$this->redirectTo('login');
 		}
 	}	
+	private function redirect($user){
+		if(FrontController::requestedUrl() != null){
+			$this->redirectTo(FrontController::requestedUrl());
+		}else{		
+			$this->redirectTo($user->is_owner ? null : $user->member_name);
+		}
+	}
 }
 ?>

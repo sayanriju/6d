@@ -33,7 +33,7 @@ class DFRNIntroductionCommand{
 		$data = sprintf("dfrn_url=%s", (str_replace('http://', '', $dfrn_url)));
 		$response = NotificationResource::sendNotification($this->command->target, null, $data, 'post');
 		$matches = null;
-		if(preg_match('/\<div id="sysmsg".*"[^\<]\>(.?)\<\\div\>/', $response, $matches)){
+		if(preg_match('/\<div id="sysmsg".*"[^\<]\>(.?)\<\\div\>/', $response->output, $matches)){
 			$response = $matches[0];
 		}
 		return $response;
