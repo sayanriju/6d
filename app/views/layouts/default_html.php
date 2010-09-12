@@ -47,11 +47,12 @@
 			<a href="<?php echo Application::urlForWithMember(null);?>" title="Go back to my home page">
 				<img width="52" height="52" src="<?php echo Application::$member->person->profile->photo_url;?>" alt="photo of <?php echo Application::$member->name;?>" class="author" />
 			</a>
-		  	<footer id="tweets">
+		  	<footer>
 				<nav>
 					<?php if(!AuthController::isAuthorized()):?>
 					<a href="<?php echo FrontController::urlFor('login');?>" title="Login">Login</a>
 					<?php endif;?>
+					<a href="<?php echo Application::urlForWithMember('profile');?>" title="Profile page">Profile</a>
 				</nav>
 			</footer>
 		</aside>
