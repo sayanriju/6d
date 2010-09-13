@@ -34,6 +34,7 @@ class PostResource extends AppResource{
 			$view = 'post/edit';
 		}
 		if(count($this->url_parts) > 1){
+			echo $this->url_parts[1];
 			$this->post = Post::findById($this->url_parts[1], Application::$current_user->person_id);
 			if($this->post == null){
 				throw new Exception(FrontController::NOTFOUND, 404);
@@ -170,7 +171,7 @@ class PostResource extends AppResource{
 				self::setUserMessage($message);
 			}
 		}
-		$this->redirectTo($post->custom_url);
+		$this->redirectTo(Application::$member->member_name . '/' . $post->custom_url);
 	}
 	private function makeHomePage($post){
 		$setting = Setting::findByName('home_page_post_id');

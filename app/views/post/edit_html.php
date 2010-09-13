@@ -1,5 +1,5 @@
 <section id="addressbook_modal" style="display: none;" class="modal"></section>
-<form action="<?php echo FrontController::urlFor('post');?>" method="post" id="post_form">
+<form action="<?php echo Application::urlForWithUser('post');?>" method="post" id="post_form">
 	<fieldset>
     <legend>New Post</legend>
 		<ul id="post_type">
@@ -65,7 +65,7 @@
 				<?php echo $post->id !== null ? 'Save post' : 'Create post';?>
 			</span>
 		</button>
-<?php if(strlen($post->source) > 0):?>
+<?php if($post->source !== Application::$current_user->url):?>
 		<button type="submit" name="reblog" id="reblog">Reblog</button>
 <?php endif;?>
 	</nav>

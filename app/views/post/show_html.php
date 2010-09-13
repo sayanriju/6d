@@ -35,7 +35,7 @@
 			break;
 		default:?>
 	<header>
-		<h2><a href="<?php echo FrontController::urlFor($post->custom_url);?>" rel="bookmark" title="<?php echo $post->title;?>"><?php echo $post->title;?></a></h2>
+		<h2><a href="<?php echo Application::urlForWithMember($post->custom_url);?>" rel="bookmark" title="<?php echo $post->title;?>"><?php echo $post->title;?></a></h2>
 	</header>
 	<section class="entry-content">
 		<?php echo $post->body;?>

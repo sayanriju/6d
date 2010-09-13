@@ -6,8 +6,8 @@
 			<?php echo $post->body;?>
 		</div>
 		<div class="footer">
-<?php if( AuthController::isAuthorized()):?>
-			<a href="<?php echo FrontController::urlFor('post', array('id'=>$post->id));?>">edit</a>
+<?php if(AuthController::isAuthorized() && $post->owner_id == Application::$current_user->person_id):?>
+			<a href="<?php echo Application::urlForWithUser('post', array('id'=>$post->id));?>">edit</a>
 <?php endif;?>
 		</div>
 	</div>

@@ -55,11 +55,17 @@ class Application{
 	public static function isPhotoPublic(){
 		return true;
 	}
-	public static function urlForWithMember($resource_name){
-		return FrontController::urlFor(self::$member->member_name . '/' . $resource_name);
+	public static function urlForWithMember($resource_name, $params = null, $make_secure = false){
+		if(!self::$member->is_owner){
+			return FrontController::urlFor(self::$member->member_name . '/' . $resource_name, $params, $make_secure);			
+		}else{
+			return FrontController::urlFor($resource_name, $params, $make_secure);
+		}
 	}
-	public static function urlForWithUser($resource_name){
-		return FrontController::urlFor(self::$current_user->member_name . '/' . $resource_name);
+	public static function urlForWithUser($resource_name, $params = null, $make_secure = false){		
+		$url = FrontController::urlFor($resource_name, $params, $make_secure);
+		$url = str_replace('/' . $resource_name, '/' . self::$current_user->member_name . '/' .  $resource_name, $url);
+		return $url;
 	}
 	public function exceptionHasOccured($sender, $args){
 		$e = $args['exception'];

@@ -318,8 +318,9 @@
 			$config = new AppConfiguration();				
 			$db = Factory::get($config->db_type, $config);
 			$owner_id = (int)$owner_id;
-			$post = $db->find(new ByClause(sprintf("id='%s' and owner_id=%d", $id, $owner_id), null, 0, null), new Post(null));
-			return $post;
+			$clause = new ByClause(sprintf("id='%s' and owner_id=%d", $id, $owner_id), null, 0, null);
+			$post = $db->find($clause, new Post(null));
+			return $post !== null && count($post) > 0 ? $post[0] : $post;
 		}
 		public static function findHomePage($id = null, $owner_id){
 			$config = new AppConfiguration();
