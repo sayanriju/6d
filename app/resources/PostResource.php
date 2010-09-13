@@ -140,7 +140,7 @@ class PostResource extends AppResource{
 		}else{
 			self::setUserMessage("That post doesn't exist.");
 		}
-		$this->redirectTo($this->post->custom_url);			
+		$this->redirectTo(Application::$current_user->member_name . '/' . $this->post->custom_url);			
 	}
 	private function save(Post $post, $people, $groups, $make_home_page){
 		$post->created = date('c');

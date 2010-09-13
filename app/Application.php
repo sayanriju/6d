@@ -64,7 +64,11 @@ class Application{
 	}
 	public static function urlForWithUser($resource_name, $params = null, $make_secure = false){		
 		$url = FrontController::urlFor($resource_name, $params, $make_secure);
-		$url = str_replace('/' . $resource_name, '/' . self::$current_user->member_name . '/' .  $resource_name, $url);
+		if($resource_name !== null){
+			$url = str_replace('/' . $resource_name, '/' . self::$current_user->member_name . '/' .  $resource_name, $url);						
+		}else{
+			$url .= self::$current_user->member_name;
+		}
 		return $url;
 	}
 	public function exceptionHasOccured($sender, $args){
