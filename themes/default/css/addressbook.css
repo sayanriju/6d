@@ -115,6 +115,9 @@ li{
 	margin-left: 484px;
 	width:354px;
 }
+li.hot{
+	background: rgba(0,0,0,.5);
+}
 li.selected, li.selected a{
 	background: #999;
 	width:214px;
