@@ -200,7 +200,13 @@ UIView.List = function(id, options){
 			new_field.select();
 			new_form = SDDom(this.container.id + '_form_' + temp_id);
 			SDDom.addEventListener(new_form, 'submit', this.eventAddFormSubmit);
+			SDDom.addEventListener(new_field, 'blur', this.bind(this.cancelNewItem));
 			this.set('selected_item', SDDom(temp_id));
+		}
+	};
+	this.cancelNewItem = function(e){
+		if(e.target.value == this.get('field_default_value')){
+			SDDom.remove(SDDom(this.container.id + '_new_item'));
 		}
 	};
 	this.addFormSubmit = function(e){
