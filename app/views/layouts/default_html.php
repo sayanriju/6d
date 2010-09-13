@@ -26,6 +26,11 @@
 	<body>
 		<header id="banner">
 			<h1><a href="<?php echo FrontController::urlFor(null);?>" title="Home"><span><?php echo Application::$member->profile->site_name;?></span></a></h1>
+		</header>
+		<aside id="author">
+			<a href="<?php echo Application::urlForWithMember(null);?>" title="Go back to my home page">
+				<img width="52" height="52" src="<?php echo Application::$member->person->profile->photo_url;?>" alt="photo of <?php echo Application::$member->name;?>" class="author" />
+			</a>
 			<nav>
 				<ul>
 <?php $pages = Post::findPublishedPages(Application::$member->person_id);?>
@@ -35,18 +40,10 @@
 	<?php endif;?>
 <?php endwhile;?>
 <?php if(AuthController::isAuthorized()):?>
-					<li>
-						<p>Welcome <?php echo Application::$current_user->name;?></p>
-					</li>
 <?php endif;?>
 				</ul>
 			</nav>
 
-		</header>
-		<aside id="author">
-			<a href="<?php echo Application::urlForWithMember(null);?>" title="Go back to my home page">
-				<img width="52" height="52" src="<?php echo Application::$member->person->profile->photo_url;?>" alt="photo of <?php echo Application::$member->name;?>" class="author" />
-			</a>
 		  	<footer>
 				<nav>
 					<?php if(!AuthController::isAuthorized()):?>
@@ -77,6 +74,7 @@
 			<?php endif;?>
 		 	<a href="<?php echo Application::urlForWithUser('logout');?>" id="logout_link">logout</a>
 		</nav>
+		<p>Welcome <?php echo Application::$current_user->name;?></p>
 		<?php endif;?>
 		<footer id="footer">
 			<p>&copy;<?php echo date('Y');?> Powered by <a href="http://get6d.com/" title="6d">6d</a></p>
