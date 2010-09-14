@@ -4,7 +4,7 @@ GET IT
 You can get the latest version on github (http://github.com/ijoey/6d). Either by downloading the source (as a zip or tar) or, if you have a github account, forking the project. If you need help, go to http://get6d.com to contact us.
 
 REQUIRED
-I haven't nailed down all the requirements yet. But you have to have PHP5+ and MySql 5+.
+I haven't nailed down all the requirements yet. But you have to have mod_rewrite, PHP5+ and MySql 5+. It doesn't work on Windows right out of the box. It depends on mod_rewrite so if you want to try it on Windows, you'll have to use WAMP or do some customization to the code.
 
 INSTALL IT
 Put all the files in the 6d folder that you unarchived into the folder that you want to use for your site. Open your browser and go to your 6d site. For instance, I run 6d on my MacBook. The files are stored at "/Library/WebServer/Documents/6d". And I point my browser to http://localhost/6d to see the site. Upon first visiting your 6d site, you should see the installation page that has a link telling you to Create a Configuration File. Click that link. Here's  list of the pages that'll you see next:
