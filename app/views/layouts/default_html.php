@@ -25,11 +25,13 @@
 	</head>
 	<body>
 		<header id="banner">
-			<h1><a href="<?php echo FrontController::urlFor(null);?>" title="Home"><span><?php echo Application::$member->profile->site_name;?></span></a></h1>
+			<h1><a href="<?php echo FrontController::urlFor(null);?>" title="Home"><span><?php echo Application::$member->profile !== null ? Application::$member->profile->site_name : Application::$member->member_name;?></span></a></h1>
 		</header>
 		<aside id="author">
 			<a href="<?php echo Application::urlForWithMember(null);?>" title="Go back to my home page">
+			<?php if(Application::$member->person->profile != null):?>
 				<img width="52" height="52" src="<?php echo Application::$member->person->profile->photo_url;?>" alt="photo of <?php echo Application::$member->name;?>" class="author" />
+			<?php endif;?>
 			</a>
 			<nav>
 				<ul>

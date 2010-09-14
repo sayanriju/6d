@@ -103,8 +103,10 @@
 			parent::didFinishLoading();
 		}
 		public function hasRenderedOutput($layout, $output){
-			$output = $this->filterHeader($output);
-			$output = $this->filterFooter($output);
+			if(class_exists('AppConfiguration')){
+				$output = $this->filterHeader($output);
+				$output = $this->filterFooter($output);
+			}
 			return $output;
 		}		
 		protected function filterText($text){

@@ -111,17 +111,19 @@
 		}
 		public static function findAll($path = null){
 			$root = ($path == null ? 'media' : $path);
-			$folder = dir($root);
 			self::$images = array();
-			self::traverse($root);
-			/*while (false !== ($entry = $folder->read())){
-				if(strpos($entry, '.') !== 0){
-					$file_name = $folder->path .'/'. $entry;
-					$images = array_push($images, $this->traverse($file_name));
+			if(file_exists($root)){
+				$folder = dir($root);
+				self::traverse($root);
+				/*while (false !== ($entry = $folder->read())){
+					if(strpos($entry, '.') !== 0){
+						$file_name = $folder->path .'/'. $entry;
+						$images = array_push($images, $this->traverse($file_name));
+					}
 				}
+				$folder->close();
+				*/
 			}
-			$folder->close();
-			*/
 			return self::$images;
 		}
 		

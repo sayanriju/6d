@@ -20,19 +20,20 @@
 			}
 			$this->redirectTo(Application::$current_user->member_name . '/photos');
 		}
-		public function put($ratio, $offset_x, $offset_y, $dst_w, $dst_h, $file_name){
-			$file_name = str_replace(FrontController::urlFor(null), '', $file_name);
-			$extension = pathinfo($file_name, PATHINFO_EXTENSION);
+		public function put($ratio, $offset_x, $offset_y, $dst_w, $dst_h, $src_file_name, $dst_file_name){
+			$src_file_name = str_replace(FrontController::urlFor(null), '', $src_file_name);
+			$dst_file_name = str_replace(FrontController::urlFor(null), '', $dst_file_name);
+			$extension = pathinfo($src_file_name, PATHINFO_EXTENSION);
 			$src_image = null;
 			$message = null;
 	        if($extension == "jpg" || $extension == "jpeg" || $extension == "JPG"){ 
-	          $src_image=imagecreatefromjpeg($file_name); 
+	          $src_image=imagecreatefromjpeg($src_file_name); 
 	        } 
 	        if($extension == "png") { 
-	          $src_image=imagecreatefrompng($file_name); 
+	          $src_image=imagecreatefrompng($src_file_name); 
 	        }
 	        if($extension == "gif") { 
-	          $src_image=imagecreatefromgif($file_name); 
+	          $src_image=imagecreatefromgif($src_file_name); 
 	        }			
 			$src_w = $dst_w/$ratio;
 			$src_h = $dst_h/$ratio;
@@ -45,18 +46,18 @@
 			// change the file name to point to the profile folder within media.
 			//$file_name = String::replace('media', 'media/profile', $file_name);
 			if($extension == "jpg" || $extension == "jpeg" || $extension == "JPG"){ 
-	          $did_save = imagejpeg($dst_image, $file_name); 
+	          $did_save = imagejpeg($dst_image, $dst_file_name); 
 	        } 
 	        if($extension == "png") { 
-	          $did_save = imagepng($dst_image, $file_name); 
+	          $did_save = imagepng($dst_image, $dst_file_name); 
 	        }
 	        if($extension == "gif") { 
-	          $did_save = imagegif($dst_image, $file_name); 
+	          $did_save = imagegif($dst_image, $dst_file_name); 
 	        }
 			if(!$did_save){
-				$message = "I was unable to save $file_name. It's probably because I don't support files of type $extension.";
+				$message = "I was unable to save $dst_file_name. It's probably because I don't support files of type $extension.";
 			}
-			return json_encode(array('ratio'=>$ratio, 'offset_x'=>$offset_x, 'offset_y'=>$offset_y, 'dst_w'=>$dst_w, 'dst_h'=>$dst_h, 'src_w'=>$src_w, 'src_h'=>$src_h, 'src_x'=>$src_x, 'src_y'=>$src_y, 'file_name'=>$file_name, 'did_save'=>$did_save ? 'true' : 'false', 'message'=>$message));
+			return json_encode(array('ratio'=>$ratio, 'offset_x'=>$offset_x, 'offset_y'=>$offset_y, 'dst_w'=>$dst_w, 'dst_h'=>$dst_h, 'src_w'=>$src_w, 'src_h'=>$src_h, 'src_x'=>$src_x, 'src_y'=>$src_y, 'file_name'=>$dst_file_name, 'did_save'=>$did_save ? 'true' : 'false', 'message'=>$message));
 		}
 		
 		public static function getThumbnailWidth($src){
