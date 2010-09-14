@@ -3,7 +3,7 @@
 GET IT
 You can get the latest version on github (http://github.com/ijoey/6d). Either by downloading the source (as a zip or tar) or, if you have a github account, forking the project. If you need help, go to http://get6d.com to contact us.
 
-REQUIRED
+REQUIREMENTS
 I haven't nailed down all the requirements yet. But you have to have mod_rewrite, PHP5+ and MySql 5+. It doesn't work on Windows right out of the box. It depends on mod_rewrite so if you want to try it on Windows, you'll have to use WAMP or do some customization to the code.
 
 INSTALL IT
@@ -30,5 +30,9 @@ WHAT NOW?
  	The address book is the heart of 6d. It's where you store your contacts, make friend requests, and approve friend requests. When you're logged in, you should see a link that says "Addressbook". Clicking on that will take you to the address book so you can start adding people.
 	The address book user interface is divided into 3 columns, Groups, Contacts and the detail area. In Groups, you should see All Contacts and Friend Requests. Clicking on All Contacts will show all your contacts in the Contacts section. Clicking on Friend Requests will you show you all the requests that people have sent to you. The Friend Requests are the ones you have to either confirm or delete to allow them to send you posts and you to send them posts. You can send them posts by creating a new post and clicking on the Address Book link at the top. Then selecting the Groups and/or people you want to send the post to. You'll see them show up in the "To" field on the post (just like an email message).
 
+TROUBLESHOOTING
+I'm going to list things that come up when people try to install this.
+* Make sure you've read the REQUIREMENTS section above.
+* The installation process creates a file called .htaccess at the root level. It needs write permissions on the folder where the application is located to do this. If you have trouble installing it and try to reinstall it, make sure to delete the .htaccess file that MAY have been created in your previous attempt.
 
 
