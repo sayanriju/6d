@@ -77,7 +77,7 @@ function profileDidSave(request){
 	SDDom.show(user_message);
 }
 function photoWasDoubleClicked(photo, new_size, pos, offset, canvas_size){
-	var dst_file_name = photo.src.replace(/media(.*)\.(\w)/, 'media/profile.$2');
+	var dst_file_name = photo.src.replace(/media\/([a-zA-Z0-9]*)\/(.*)\.(\w)/, 'media/$1/profile.$3');
 	SDDom('profile[photo_url]').value = dst_file_name;
 	var src_file_name = photo.src;
 	(new SDAjax({method: 'put', parameters: ['ratio=' + offset.ratio, 'offset_x=' + offset.x, 'offset_y=' + offset.y, 'dst_w=' + canvas_size.width, 'dst_h=' + canvas_size.height, 'src_file_name=' + src_file_name, 'dst_file_name=' + dst_file_name].join('&'), DONE: [window, photoDidSave]})).send(SDObject.rootUrl + 'photo.phtml');

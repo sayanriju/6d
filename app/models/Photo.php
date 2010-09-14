@@ -101,28 +101,34 @@
 			}
 			return $config->prefix . 'photos';
 		}
-		public static function delete($file_name_with_path){
-			self::notify('willDeletePhoto', new Photo(), $file_name_with_path);
-			if(file_exists($file_name_with_path)){
-				return unlink($file_name_with_path);
-			}else{
-				return false;
+		private static function deleteEmptyFolder($file_name_with_path){
+			$parts = explode(DIRECTORY_SEPARATOR, $file_name_with_path);
+			array_pop($parts);
+			$folder = implode(DIRECTORY_SEPARATOR, $parts);
+			$files = scandir($folder);
+			if(count($files) === 2){
+				do{
+					rmdir(implode(DIRECTORY_SEPARATOR, $parts));
+					$name = array_pop($parts);
+				}while(is_numeric($name));
 			}
+		}
+		public static function delete($file_name_with_path){
+			$file_name_with_path = str_replace('/', DIRECTORY_SEPARATOR, $file_name_with_path);
+			self::notify('willDeletePhoto', new Photo(), $file_name_with_path);
+			$did_delete = false;
+			
+			if(file_exists($file_name_with_path)){
+				$did_delete = unlink($file_name_with_path);
+			}
+			self::deleteEmptyFolder($file_name_with_path);
+			return $did_delete;
 		}
 		public static function findAll($path = null){
 			$root = ($path == null ? 'media' : $path);
 			self::$images = array();
 			if(file_exists($root)){
-				$folder = dir($root);
 				self::traverse($root);
-				/*while (false !== ($entry = $folder->read())){
-					if(strpos($entry, '.') !== 0){
-						$file_name = $folder->path .'/'. $entry;
-						$images = array_push($images, $this->traverse($file_name));
-					}
-				}
-				$folder->close();
-				*/
 			}
 			return self::$images;
 		}
@@ -134,7 +140,6 @@
 				mkdir($root, 0777);
 			}
 			$folder = dir($root);
-			$images = array();
 			if($folder != null){
 				while (false !== ($entry = $folder->read())){
 					if(strpos($entry, '.') !== 0){
