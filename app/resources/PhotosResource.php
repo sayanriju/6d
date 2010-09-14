@@ -6,6 +6,9 @@
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
 			$this->max_filesize = 2000000;
+			if(!AuthController::isAuthorized()){
+				throw new Exception(FrontController::UNAUTHORIZED, 401);
+			}
 		}
 		public function __destruct(){
 			parent::__destruct();
@@ -21,9 +24,6 @@
 		}
 		
 		public function post($photo = null){
-			if(!AuthController::isAuthorized()){
-				throw new Exception(FrontController::UNAUTHORIZED, 401);
-			}
 			$photo['error_message'] = null;
 			//console::log(json_encode($photo));
 			$path = $photo['type'];
