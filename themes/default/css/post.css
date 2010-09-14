@@ -192,30 +192,3 @@ ul#post_type li {
 form.delete{
 	display: none;
 }
-#photo_viewer{
-	position: relative;
-}
-#media_form{
-	background: rgba(255,255,255, .5);
-	color: rgb(255,255,255);
-	height: 60px;
-}
-#photo_viewer{
-	margin: 0 auto;
-	border-radius: 5px;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	-webkit-box-shadow: 1px 1px 10px rgb(0,0,0);
-}
-#photo_viewer form{
-	position: absolute;
-	bottom: 0;
-	right: 0;
-	left: 0;
-}
-#photo_viewer section ul li img{
-	border: solid 1px rgb(255,255,255);
-}
-#photo_viewer section ul li.selected{
-	background: rgba(255,255,255, .5);
-}

@@ -7,8 +7,8 @@ class EmptyResource extends AppResource{
 	public function __destruct(){
 		parent::__destruct();
 	}
-	public function get(){		
-		return '';
+	public function get(){
+		return '<html><head><title>Empty</title></head><body></body></html>';
 	}
 }
 

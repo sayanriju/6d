@@ -10,19 +10,8 @@
 				<input type="hidden" value="<?php echo $person->profile->photo_url;?>" name="src" />
 				<button type="submit">Delete</button>
 			</form>
-			<form enctype="multipart/form-data" target="upload_target" method="post" id="media_form" action="<?php echo Application::urlForWithUser('photos');?>">
-				<fieldset>
-					<legend>Photo Picker</legend>
-					<input type="hidden" name="MAX_FILE_SIZE" value="{$max_filesize}" />
-					<section>
-						<label for="photo" id="photo_label">Upload a photo</label>
-						<input type="file" name="photo" id="photo" />
-					</section>
-					<iframe src="<?php echo Application::urlForWithUser('empty');?>" id="upload_target" name="upload_target" style="width:0;height:0;border:none;"></iframe>
-				</fieldset>
-			</form>
-			<dl id="photos"></dl>
 		</div>
+		<a id="change_photo_link" href="<?php echo Application::urlForWithUser('photos');?>" title="Change your profile photo">change photo</a>
 <?php endif;?>
 	<div class="contact">
 

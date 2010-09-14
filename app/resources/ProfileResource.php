@@ -69,7 +69,9 @@ class ProfileResource extends AppResource{
 		}
 	}
 	public static function getPhotoUrl($person, $photo_file_type = '.png'){
-		$person->profile = unserialize($person->profile);
+		if(!is_object($person->profile)){
+			$person->profile = unserialize($person->profile);
+		}
 		if($person->profile === null || String::isNullOrEmpty($person->profile->photo_url)){
 			return FrontController::urlFor('images') . 'nophoto' . $photo_file_type;
 		}else if(strpos($person->profile->photo_url, 'http') !== false){

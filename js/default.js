@@ -344,6 +344,7 @@ SDDom.addEventListener = function(elem, name, fn){
 	}else{
 		elem.attachEvent('on' + name, fn);
 	}
+	return elem;
 };
 SDDom.removeAllEventListeners = function(elem){
 	var i = SDDom.observers.length;
@@ -835,6 +836,15 @@ UIView.Cropper = function(id, options){
 	this.canvases = canvases;
 	var delegate = this.delegate;
 	start_position = null;
+	var self = this;
+	this.getCanvas = function(photo){
+		for(var i = 0; i < this.canvases.length; i++){
+			if(this.canvases[i].photo == photo){
+				return this.canvases[i];
+			}
+		}
+		return null;
+	};
 	function init(canvases){
 		var canvas;
 		var list = [];
@@ -846,10 +856,11 @@ UIView.Cropper = function(id, options){
 			SDDom.setStyles({position: 'absolute', top: 0, left: 0}, photo);
 			list.push({canvas: canvas
 				, photo: photo
+				, original_src: photo.src
 				, start_size: {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)}
 				, original_size: {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)}});
 			observe(canvas);
-		}		
+		}
 		return list;
 	}
 	function observe(canvas){
@@ -859,8 +870,18 @@ UIView.Cropper = function(id, options){
 		SDDom.addEventListener(canvas, 'mouseout', wasReleasedOverPhoto);
 		SDDom.addEventListener(canvas, 'dblclick', doubleClickedOnPhoto);
 		SDDom.addEventListener(photo, 'load', photoFinishedLoading);
+		setInterval(photoWatcher, 50);
 	}
-	
+	function photoWatcher(){
+		for(var i = 0; i < self.canvases.length; i++){
+			if(self.canvases[i].photo.src != self.canvases[i].original_src){
+				self.canvases[i].start_size = {width: SDDom.getWidth(self.canvases[i].photo), height: SDDom.getHeight(self.canvases[i].photo)};
+				self.canvases[i].original_size = {width: SDDom.getWidth(self.canvases[i].photo), height: SDDom.getHeight(self.canvases[i].photo)};
+				self.canvases[i].original_src = self.canvases[i].photo.src;
+				delegate && delegate.photoHasChanged ? delegate.photoHasChanged(self.canvases[i].photo) : null;
+			}
+		}
+	}
 	function doubleClickedOnPhoto(e){
 		var new_size = {width: SDDom.getWidth(e.target), height: SDDom.getHeight(e.target)};
 		var pos = SDDom.getPosition(e.target);
@@ -918,3 +939,88 @@ UIView.Cropper = function(id, options){
 	}
 	return this;
 }
+
+UIView.PhotoViewer = function(id, options){
+	SDDom.append(document.body, SDDom.create('div', {id:id}));
+	var self = UIView.apply(this, arguments);
+	SDDom.setStyles({position: 'absolute', margin: '0 auto', display: 'block', top: 0, left: 0, width: '360px', height: '400px', border: 'solid 5px #fff', background: '#000', overflow: 'hidden'}, this.container);
+	var bounds = {ux: SDDom.getWidth(window), lx: 0, uy: SDDom.getHeight(window), ly: 0};
+	var handle_view = new UIView.TitleBar(this.container, {delegate: this, bounds: bounds, text: 'Photo Picker'});
+	this.frame = SDDom.create('div', {className: 'frame'});
+	var height = (SDDom.getHeight(this.container) - handle_view.height - 60) + 'px';
+	SDDom.setStyles({height: height, "margin-top": handle_view.height + 'px'}, this.frame);
+	this.scroll_view = SDDom.create('div', {className: 'scroll_view', id: 'scroll_view'});
+	SDDom.setStyles({height: height, top: handle_view.height + 'px', overflow: 'auto', width: '100%'}, this.scroll_view);
+	
+	this.close_link = SDDom.create('a', {title: 'close the photo viewer', innerHTML: 'x', href: 'javascript:void(0);'});
+	SDDom.setStyles({position: 'absolute', top: '0', left: '0', display: 'block', width: '20px', height: '15px', "z-index":"10001", border: 'solid 1px rgb(100,100,100)', "border-radius": '10px', color: 'rgb(80,80,80)', "line-height":"12px", "text-align":"center", "text-decoration":"none", "box-shadow":"1px 1px 7px rgb(0,0,0)"}, this.close_link);
+	SDDom.append(this.container, this.close_link);
+	SDDom.setStyles({position: 'absolute'}, this.container);
+	SDDom.append(this.frame, this.scroll_view);
+	SDDom.append(this.container, this.frame);
+	var photo_upload_field = null;
+	this.isMoving = function(percent){
+		//SDDom.setStyles({top: percent.y * 200 + 'px', left: percent.x * 100 + 'px'}, this.container);
+	};
+	
+	this.refresh = function(url){
+		(new SDAjax({method: 'get', DONE: [this, this.refreshIsDone]})).send(url.replace('.html', '') + '.phtml');
+	};
+	this.refreshIsDone = function(request){
+		this.scroll_view.innerHTML = request.responseText;
+		photo_upload_field = SDDom('photo');
+		SDDom.addEventListener(photo_upload_field, 'change', UIView.PhotoViewer.photoDidChange);
+	};
+	this.close = function(e){
+		this.toggle();
+	};
+	this.clicked = function(e){
+		if(e.target.nodeName == 'IMG'){
+			SDDom.toggleClass('selected', e.target);
+			if(this.delegate && this.delegate.imageWasClicked){
+				this.delegate.imageWasClicked(e);
+			}
+		}else if(e.target.type == 'file'){
+			
+		}
+	};
+	
+	SDDom.addEventListener(this.close_link, 'click', this.bind(this.close, this));
+	SDDom.addEventListener(this.frame, 'click', this.bind(this.clicked, this));
+	return self;
+};
+UIView.PhotoViewer.photosDidLoad = function(request){
+	var response = JSON.parse(request.responseText);
+	var html = '<ul>';
+	for(var i = 0; i < response.length; i++){
+		html += '<h3>' + response[i].title + '</h3>';
+		html += '<li><form action="' + SDObject.rootUrl + '/photo/" method="post" class="delete"><img src="' + response[i].little_src + '" width="' + response[i].width + '" /><input name="src" value="' + response[i].src + '" type="hidden" /><input name="_method" type="hidden" value="delete" /><button type="submit">Delete</button></form></li>';
+	}
+	html += '</ul>';
+	SDDom('list-of-photos').innerHTML = html;
+};
+UIView.PhotoViewer.photoDidChange = function(e){
+	if(SDDom('photo_names[' + e.target.value + ']')){
+		alert("you've already added that photo.");
+		SDDom.stop(e);
+	}else{
+		SDDom('media_form').submit();
+	}
+};
+UIView.PhotoViewer.photoDidUpload = function(response){
+	console.log(response);
+	if(response.message.length > 0){
+		alert(response.message);
+	}else{
+		SDDom('photo').value = null;
+		var dd = SDDom.create('dd');
+		dd.innerHTML = response.photo_name;
+		var items = SDDom.findAll('#photos dd');
+		var count = 0;
+		if(items && items.length > 0){
+			count = items.length;
+		}
+		var hidden_field = SDDom.create('input', {"type":"hidden", "value":response.photo_name + '=' + response.file_name, "id":"photo_names[" + response.photo_name + "]", "name":"photo_names[]"});
+		(new SDAjax({method: 'get', DONE: [UIView.PhotoViewer, UIView.PhotoViewer.photosDidLoad]})).send(SDDom('media_form').action.replace('photos', 'photos.json'));
+	}
+};

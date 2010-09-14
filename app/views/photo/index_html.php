@@ -7,7 +7,7 @@
 			<h3><?php echo $image->title;?></h3>
 			<img src="<?php echo PhotoResource::getLittleSrc($image->src);?>" width="<?php echo PhotoResource::getThumbnailWidth($image->src);?>" />
 		<?php if(AuthController::isAuthorized() && Application::$current_user->person_id == Application::$member->person_id):?>
-			<form method="post" action="<?php echo Application::urlForWithUser('photo');?>">
+			<form method="post" action="<?php echo Application::urlForWithUser('photo');?>" class="delete">
 				<input type="hidden" value="delete" name="_method" />
 				<input type="hidden" value="<?php echo $image->src;?>" name="src" />
 				<button type="submit">Delete</button>
@@ -19,7 +19,7 @@
 	</ul>
 </section>
 <?php if(AuthController::isAuthorized() && Application::$current_user->person_id == Application::$member->person_id):?>
-<form enctype="multipart/form-data" target="upload_target" method="post" id="media_form" action="<?php echo Application::urlForWithUser('photos');?>">
+<form enctype="multipart/form-data" target="upload_target" method="post" id="media_form" name="media_form" action="<?php echo Application::urlForWithUser('photos');?>">
 	<fieldset>
 		<legend>Photo Picker</legend>
 		<input type="hidden" name="MAX_FILE_SIZE" value="{$max_filesize}" />
