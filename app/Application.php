@@ -44,7 +44,7 @@ class Application{
 				}				
 			}			
 		}
-		if(AuthController::authKey() !== null){
+		if(class_exists('AppConfiguration') && AuthController::authKey() !== null){
 			self::$current_user = Member::findByEmail(AuthController::authKey());
 		}
 		
