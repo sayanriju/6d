@@ -108,7 +108,11 @@
 			$did_write_media_access_file = file_put_contents(FrontController::getRootPath('/media/.htaccess'), $media_htaccess);
 			return $did_write && $did_write_media_access_file;
 		}
-		public function put(Configuration $config){
+		public function put(Configuration $config, $should_overwrite_htaccess = false){
+			if(!$should_overwrite_htaccess && file_exists('.htaccess')){
+				Resource::setUserMessage("6d requires the ability to rewrite URLs. It creates a file called .htaccess in the application's folder to do this. This file exists. 6d needs to overwrite this file. Do you want to continue the installation and overwrite this file?");
+				return $this->redirectTo('install/configuration', array('overwrite'=>'false'));
+			}
 			$errors = array();
 			$_SESSION['configuration'] = serialize($config);
 			$this->configuration = $_SESSION['configuration'];

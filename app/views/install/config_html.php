@@ -1,6 +1,11 @@
-<form action="<?php echo FrontController::urlFor('install');?>" method="post">
+<form action="<?php echo FrontController::urlFor('install/configuration');?>" method="post">
 	<fieldset>
 		<legend>Datbase settings</legend>
+		<p>
+			<label for="should_overwrite_htaccess">Overwrite htaccess file?</label>
+			<input name="should_overwrite_htaccess" type="radio" value="true" />Yes
+			<input name="should_overwrite_htaccess" type="radio" value="false" />No
+		</p>
 		<p>
 			<label for="user_name">User name</label>
 			<input type="text" value="{$configuration->user_name}" name="user_name" />
