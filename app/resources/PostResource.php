@@ -195,7 +195,6 @@ class PostResource extends AppResource{
 					$post->is_published = $existing_post->is_published;
 				}else{
 					$post->is_published = false;
-					error_log('came from ' . $person->url);
 					$post->source = $person->url;
 					$post->id = null;
 				}

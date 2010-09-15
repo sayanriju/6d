@@ -831,6 +831,8 @@ UIView.Handle = function(id, options){
 }
 UIView.Cropper = function(id, options){
 	this.canvases = null;
+	options.width = options.width ? options.width : 200;
+	options.height = options.height ? options.height : 200;
 	UIView.apply(this, [id, options]);
 	var canvases = init(this.canvases);
 	this.canvases = canvases;
@@ -851,7 +853,7 @@ UIView.Cropper = function(id, options){
 		var photo;
 		for(var i = 0; i < canvases.length; i++){
 			canvas = canvases[i];
-			SDDom.setStyles({position: 'relative'}, canvas);
+			SDDom.setStyles({position: 'relative', height: options.height + 'px', width: options.width + 'px'}, canvas);
 			photo = SDDom.findFirst('img', canvas);
 			SDDom.setStyles({position: 'absolute', top: 0, left: 0}, photo);
 			list.push({canvas: canvas
@@ -862,7 +864,7 @@ UIView.Cropper = function(id, options){
 			observe(canvas);
 		}
 		return list;
-	}
+	}	
 	function observe(canvas){
 		var photo = SDDom.findFirst('img', canvas);
 		SDDom.addEventListener(canvas, 'mousedown', isClickingOnPhoto);

@@ -51,7 +51,6 @@
 					}
 					$path = sprintf('%s/%s.%s', $folder, $photo_name, $file_type);//'media/'.basename($photo['name']);
 					$did_move = move_uploaded_file($photo['tmp_name'], $path);
-					
 					if($did_move === false){
 						$photo['error_message'] .= 'Failed to move the photo to ' . $path . '. You should check the folder permissions, making sure it is writable. The error number returned is ' . $photo['error'];
 					}else{
@@ -67,7 +66,8 @@
 		  ["error"]=>
 		  int(0)
 		  ["size"]=>*/
-			return $this->renderView('photo/show', array('photo'=>$photo, 'photo_name'=>$photo['name'], 'file_name'=>$photo_name, 'photo_path'=>str_replace(Application::$member->member_name . '/', '', FrontController::urlFor(null)) . $path, 'width'=>$width));
+			$photo_path = str_replace('/' . Application::$member->member_name . '/', '/', FrontController::urlFor(null)) . $path;
+			return $this->renderView('photo/show', array('photo'=>$photo, 'photo_name'=>$photo['name'], 'file_name'=>$photo_name, 'photo_path'=>$photo_path, 'width'=>$width));
 		}
 		
 	}

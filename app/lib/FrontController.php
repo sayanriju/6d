@@ -329,19 +329,19 @@ class FrontController extends Object{
 			$r = $_GET['r'];
 		}else if(stripos($argv[0], '?') !== false){
 			$argv = explode('?', $argv[0]);
-			$r = $argv[0];
+			$r = String::replace('/^\//', '', $argv[0]);
 		}else if(stripos($argv[0], '&') !== false){
 			$argv = explode('&', $argv[0]);
-			$r = $argv[0];
+			$r = String::replace('/^\//', '', $argv[0]);
 		}else{
-			$r = $argv[0];
+			$r = String::replace('/^\//', '', $argv[0]);
 		}
 		return $r;
 	}
 	public function execute(){
 		$output = null;
 		$resource_path = 'resources/';
-		$path_info = self::getPathInfo();							
+		$path_info = self::getPathInfo();
 		if(self::$delegate !== null && method_exists(self::$delegate, 'willExecute')){
 			$path_info = self::$delegate->willExecute($path_info);
 		}
@@ -377,6 +377,7 @@ class FrontController extends Object{
 				$output .= $plugin->execute($class_name, $method, $url_parts);
 			}
 		}
+		
 		if($output === null && file_exists($file)){
 			class_exists($class_name) || require($file);
 			ob_start();

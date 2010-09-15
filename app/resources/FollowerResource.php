@@ -32,22 +32,27 @@ class FollowerResource extends AppResource{
 			if($person === null){
 				$person = new Person(array('email'=>$request->email
 					, 'name'=>$request->name
-					, 'url'=>urldecode($request->url)
+					, 'url'=>$request->url
 					, 'uid'=>uniqid()
 					, 'session_id'=>session_id()
-					, 'public_key'=>Random::getPassword()
+					, 'public_key'=>urlencode(Random::getPassword())
 					, 'is_approved'=>true
 					, 'do_list_in_directory'=>false
 					, 'is_owner'=>false));
 			}else{
-				$person->public_key = Random::getPassword();
+				$person->public_key = urlencode(Random::getPassword());
 				$person->is_approved = true;
 				$person->is_owner = false;
 			}			
 			$person->owner_id = Application::$current_user->person_id;
 			list($person, $errors) = Person::save($person);
-			FriendRequest::delete($request);
-			$response = $this->sendNotification($person);
+			if(count($errors) > 0){
+				error_log(json_encode($errors));
+				$response = implode('<br />', $errors);
+			}else{
+				FriendRequest::delete($request);
+				$response = $this->sendNotification($person);
+			}
 		}else{
 			if($person !== null){
 				$response = $this->sendNotification($person);
@@ -70,7 +75,7 @@ class FollowerResource extends AppResource{
 	}
 	private function sendNotification($person){
 		$config = new AppConfiguration();
-		$data = sprintf("_method=put&email=%s&url=%s&public_key=%s", urlencode(Application::$current_user->email), urlencode(Application::$current_user->url), urlencode($person->public_key));
+		$data = sprintf("_method=put&email=%s&url=%s&public_key=%s", Application::$current_user->email, Application::$current_user->url, $person->public_key);
 		$response = NotificationResource::sendNotification($person, 'followers', $data, 'post');
 		return $response;
 	}
@@ -89,7 +94,6 @@ class FollowerResource extends AppResource{
 							$message .= sprintf("%s: %s", $key, $value);
 						}
 					}else{
-						error_log($friend_request->name . ', ' . $friend_request->email);
 						$friend_request = FriendRequest::save($friend_request);
 					}
 				}catch(Exception $e){

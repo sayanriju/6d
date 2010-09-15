@@ -45,6 +45,7 @@
 			$did_save = imagecopyresampled($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
 			// change the file name to point to the profile folder within media.
 			//$file_name = String::replace('media', 'media/profile', $file_name);
+			error_log($dst_w . ' h = ' . $dst_h . ' ration = ' . $ratio);
 			if($extension == "jpg" || $extension == "jpeg" || $extension == "JPG"){ 
 	          $did_save = imagejpeg($dst_image, $dst_file_name); 
 	        } 
@@ -78,10 +79,10 @@
 		}
 		
 		public static function getLittleSrc($src){
-			return str_replace(Application::$member->member_name, '', FrontController::urlFor(null)) . $src;
+			return Application::urlForWithMember(null) . $src;
 		}
 		public static function getBigSrc($src){
-			return str_replace(Application::$member->member_name, '', FrontController::urlFor(null)) . $src;
+			return Application::urlForWithMember(null) . $src;
 		}
 	}
 

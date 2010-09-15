@@ -116,7 +116,15 @@
 			}
 			return $text;
 		}
-		private function filterHeader($output){		
+		private function filterHeader($output){
+			$js = <<<eos
+<script type="text/javascript">
+// This is required so the ajax requests are to the correct url in the multi member case.
+SDObject.rootUrl = '%s';
+</script>
+eos;
+			$output = str_replace('</head>', sprintf($js . '
+</head>', FrontController::urlFor(null)), $output);
 			$filters = PluginController::getPlugins('plugins', 'Header');
 			foreach($filters as $filter){
 				$output = $filter->execute($output);

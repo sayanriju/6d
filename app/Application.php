@@ -62,7 +62,7 @@ class Application{
 			return FrontController::urlFor($resource_name, $params, $make_secure);
 		}
 	}
-	public static function urlForWithUser($resource_name, $params = null, $make_secure = false){		
+	public static function urlForWithUser($resource_name, $params = null, $make_secure = false){
 		$url = FrontController::urlFor($resource_name, $params, $make_secure);
 		if($resource_name !== null){
 			$url = str_replace('/' . $resource_name, '/' . self::$current_user->member_name . '/' .  $resource_name, $url);						

@@ -36,9 +36,14 @@ class FollowersResource extends AppResource{
 		//error_log(sprintf('request from: host=%s, referrer=%s, ip=%s, public key = %s', $_SERVER['HTTP_HOST'], $_SERVER['HTTP_REFERER'], $_SERVER['REMOTE_ADDR'], urlencode($person->public_key)));
 		if($person->public_key !== null && strlen($person->public_key) > 0 && $person->url !== null && strlen($person->url) > 0){
 			$this->person = Person::findByUrlAndOwnerId(urldecode($person->url), Application::$member->person_id);
-			$this->person->public_key = $person->public_key;
+			$this->person->public_key = $person->public_key;			
 			list($this->person, $errors) = Person::save($this->person);
-			return 'ok';
+			if(count($errors) > 0){
+				error_log('errors from confirmation on the requesters side: ' . json_encode($errors));
+				return json_encode($errors);
+			}else{
+				return 'ok';				
+			}
 		}else{
 			return "I couldn't find that person.";
 		}
