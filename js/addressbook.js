@@ -69,21 +69,25 @@ UIView.List = function(id, options){
 		return view_position.x < current_position.x && view_position.y;
 	};
 	
-	this.onMouseOver = function(e){		
+	this.onMouseOver = function(e){
 		if(UIView.List.prototype.mouse_is_down){
 			var elem = (e.target.nodeName.toLowerCase() === 'li' ? e.target : SDDom.getParent('li', e.target));
-			if(elem && this.is_droppable){
-				if(!SDDom.hasClass('selected', elem) && !SDDom.hasClass('inactive', elem)){
-					makeHot(elem);
-				}
+			if(elem && this.is_droppable && this.elemIsDroppable(elem)){
+				makeHot(elem);
 			}
 		}
 	};
-	
+	this.elemIsDroppable = function(elem){
+		var is_droppable = !SDDom.hasClass('selected', elem) && !SDDom.hasClass('inactive', elem);
+		if(this.delegate && this.delegate.elemIsDroppable){
+			is_droppable = this.delegate.elemIsDroppable(elem, is_droppable);
+		}
+		return is_droppable;
+	}
 	this.onMouseOut = function(e){
 		if(UIView.List.prototype.mouse_is_down){
 			var elem = (e.target.nodeName.toLowerCase() === 'li' ? e.target : SDDom.getParent('li', e.target));
-			if(elem){
+			if(elem && this.elemIsDroppable(elem)){
 				makeNotHot(elem);
 			}
 		}
@@ -104,6 +108,7 @@ UIView.List = function(id, options){
 			}
 			SDDom.setStyles({left: (SDDom.pageX(e) + mouse_elem_delta.x) + 'px'
 				, top:(SDDom.pageY(e) + mouse_elem_delta.y) + 'px'}, grabbed_item);
+			SDDom.stop(e);
 		}
 	};
 	this.getDroppedOnElement = function(e){
@@ -121,7 +126,7 @@ UIView.List = function(id, options){
 		SDDom.removeEventListener(document, 'mousemove', mouseMoveEvent);
 		SDDom.removeEventListener(document, 'mouseup', mouseUpEvent);
 		var dropped_on_item = this.getDroppedOnElement(e);
-		if(dropped_on_item !== null && this.delegate && this.delegate.itemWasDropped){
+		if(dropped_on_item && this.elemIsDroppable(dropped_on_item) && this.delegate && this.delegate.itemWasDropped){
 			this.delegate.itemWasDropped.apply(this.delegate, [dropped_on_item, grabbed_item, e]);
 		}
 		this.drop();
@@ -483,6 +488,9 @@ UIController.AddressBook = function(views){
 	this.onGroupDeleteDONE = function(request){
 		var response = JSON.parse(request.responseText, false);
 		this.getView('groups', this.views).removeDeletedItems();
+	};
+	this.elemIsDroppable = function(elem, is_droppable){
+		return elem.getAttribute('rel') != 'All Contacts' && elem.getAttribute('rel') != 'Friend Requests' && is_droppable;
 	};
 	this.onDeleteKeyPressed = function(view, selected_elements, e){
 		SDArray.each(selected_elements, function(elem, i){

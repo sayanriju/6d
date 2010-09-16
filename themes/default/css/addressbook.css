@@ -116,7 +116,8 @@ li{
 	width:354px;
 }
 li.hot{
-	background: rgba(0,0,0,.5);
+	background: rgb(50,50,50);
+	color: rgb(255,255,255);
 }
 li.selected, li.selected a{
 	background: #999;

@@ -294,8 +294,8 @@ SDDom.stop = function(e){
 		e.stopPropagation();
 	}else{
 		e.cancelBubble = true;
-	}
-	e.returnValue = false;
+	}	
+	e.returnValue = false;	
 };
 SDDom.toggleClass = function(class_name, elem){
 	if(SDDom.hasClass(class_name, elem)){
@@ -326,7 +326,7 @@ SDDom.addClass = function(class_name, elem){
 	return elem;
 };
 SDDom.hasClass = function(class_name, elem){
-	var names = elem.className.split(' ');
+	var names = elem.className ? elem.className.split(' ') : [];
 	var i = names.length;
 	while(name = names[--i]){
 		if(name === class_name){
