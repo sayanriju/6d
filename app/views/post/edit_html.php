@@ -51,7 +51,7 @@
 		</p>
         <p id="send_to_list">
 			<label for="send_to_list">
-				<a href="<?php echo FrontController::urlFor('addressbook.html');?>" id="address">Send to</a>
+				<a href="<?php echo Application::urlForWithUser('addressbook.html');?>" id="address">Send to</a>
 			</label>
 		</p>
     </fieldset>

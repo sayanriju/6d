@@ -14,7 +14,7 @@
 	<article class="hentry">
 		<?php if(AuthController::isAuthorized() && Application::$current_user->person_id === Application::$member->person_id):?>
 		<p>There are no posts right now.</p>
-		<a href="<?php echo FrontController::urlFor('post');?>">Create a new one</a>
+		<a href="<?php echo Application::urlForWithUser('post');?>">Create a new one</a>
 		<?php else:?>
 		<p>There are no posts here.</p>
 		<?php endif;?>
