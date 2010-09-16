@@ -3,19 +3,7 @@ function SDObject(options){
 	var me = this;
 	this.delegate = options && options.delegate ? options.delegate : null;
 	this.bind = function(fn) {
-		return function() {
-			var args = new Array();
-			if(window.event){
-				args.push(window.event);
-			}
-			if(arguments && arguments.length > 0){
-				var i = arguments.length;
-				while(arg = arguments[--i]){
-					args.push(arg);
-				}
-			}
-			return fn.apply(me, args);
-		}
+		return SDObject.decorateEventHandler(fn, me);
 	};
 
 	function notifySetObserversFor(key, value){
@@ -72,6 +60,23 @@ function SDObject(options){
 	}*/
 	return this;
 }
+SDObject.decorateEventHandler = function(fn, context){
+	return function() {
+		var args = new Array();
+		if(window.event){
+			var e = window.event;
+			e.target = window.event.srcElement;
+			args.push(e);
+		}
+		if(arguments && arguments.length > 0){
+			var i = arguments.length;
+			while(arg = arguments[--i]){
+				args.push(arg);
+			}
+		}
+		return fn.apply(context ? context : window, args);
+	}
+};
 SDObject.capitalize = function(text){
 	var words = text.toLowerCase().split('_');
 	for(key in words){
@@ -113,6 +118,7 @@ SDArray.pluck = function(ary, delegate){
 	var i = ary.length;
 	var counter = 0;
 	var temp = [];
+	var item = null
 	while(item = ary[--i]){
 		temp.push(delegate(item, counter));
 		counter++;
@@ -157,6 +163,7 @@ SDArray.remove = function(item, ary){
 };
 SDArray.find = function(ary, delegate){
 	var i = ary.length;
+	var item = null;
 	while(item = ary[--i]){
 		if(delegate(item, i)){
 			return item;
@@ -282,11 +289,11 @@ SDDom.getParent = function(tag, elem){
 	
 };
 SDDom.stop = function(e){
-	if(e.cancelBubble){
-		e.cancelBubble = true;
-	}else{
+	if(e.preventDefault){
 		e.preventDefault();
 		e.stopPropagation();
+	}else{
+		e.cancelBubble = true;
 	}
 	e.returnValue = false;
 };
@@ -346,6 +353,7 @@ SDDom.addEventListener = function(elem, name, fn){
 	}
 	return elem;
 };
+
 SDDom.removeAllEventListeners = function(elem){
 	var i = SDDom.observers.length;
 	while(observer = SDDom.observers[--i]){
@@ -371,14 +379,14 @@ SDDom.addEventListener(window, 'unload', function(e){
 });
 
 SDDom.getHeight = function(elem){
-	if(elem === window){
-		return window.innerHeight;
+	if(elem == window){
+		elem = document.body;
 	}
 	return elem.clientHeight;
 };
 SDDom.getWidth = function(elem){
 	if(elem === window){
-		return window.innerWidth;
+		elem = document.body;
 	}
 	return elem.clientWidth;
 };
@@ -445,10 +453,10 @@ SDDom.toQueryString = function(form){
 	return values.join('&');
 };
 SDDom.pageX = function(e){
-	return e.pageX;
+	return e.pageX ? e.pageX : e.clientX;
 };
 SDDom.pageY = function(e){
-	return e.pageY;
+	return e.pageY ? e.pageY : e.clientY;
 };
 SDObject.extend = function(dest, src){
 	for(prop in src){
@@ -507,8 +515,11 @@ function SDAjax(options){
 			this.options.parameters += '&_method=' + this.options.method;
 			this.options.method = 'post';
 		}
+		//TODO: attachEvent doesn't work in IE for the readystatechange event on the request. I'm not sure why but
+		// I'm working around it for now. I'd love to fix this.
+		//SDDom.addEventListener(request, 'readystatechange', this.bind(didStateChange));
+		request.onreadystatechange = this.bind(didStateChange);
 		request.open(this.options.method.toUpperCase(), url, this.options.asynchronous);		
-		SDDom.addEventListener(request, 'readystatechange', this.bind(didStateChange));		
 		var headers = getHeaders(this.options.method, this.options.parameters);
 		for(name in headers){
 			request.setRequestHeader(name, headers[name]);
@@ -682,7 +693,7 @@ UIView.AdminMenu = function(id){
 	UIView.apply(this, arguments);
 	return this;
 }
-UIView.Slider = function(options){
+UIView.Slider = function(id, options){
 	this.direction = null;
 	UIView.apply(this, arguments);
 	var delegate = this.delegate;
@@ -700,29 +711,6 @@ UIView.TitleBar = function(id, options){
 	this.bounds = null;
 	this.direction = null;
 	UIView.apply(this, arguments);
-	var handle = null;
-	init(this.container);
-	var delegate = this.delegate;
-	var container = this.container;
-	var container_position = SDDom.getPosition(this.container);
-	var total_width = SDDom.getWidth(this.container);
-	var total_height = SDDom.getHeight(this.container);
-	var mouse_offset = {x: 0, y: 0};
-	var bounds = this.bounds || {ux: container_position.x + total_width, uy: container_position.y + total_height, lx: container_position.x, ly: container_position.y};
-	var direction = this.direction;
-	var moveFunc = (this.direction == 'horizontal' ? moveHoriz : this.direction == 'vertical' ? moveVert : moveBoth);
-	this.height = SDDom.getHeight(handle);
-	this.width = SDDom.getWidth(handle);
-	function init(container){
-		handle = SDDom.create('div');
-		var title = SDDom.create('h3');
-		title.innerHTML = options.text || '';
-		SDDom.setStyles({height: options.height || '20px', width: options.width || '100%', background: '#fff', position: 'absolute', left: '0', cursor: 'move', "z-index":"1000"}, handle);
-		SDDom.append(handle, title);
-		SDDom.append(container, handle);
-		SDDom.addEventListener(handle, 'mousedown', isClickingHandle);
-		SDDom.addEventListener(document, 'mouseup', wasReleased);
-	}
 	
 	function moveHoriz(mouse_position, handle){
 		if((mouse_position.x >= bounds.lx && mouse_position.x <= bounds.ux)){
@@ -741,11 +729,11 @@ UIView.TitleBar = function(id, options){
 	}
 	function isClickingHandle(e){
 		mouse_offset = {x: SDDom.getPosition(container).x - SDDom.pageX(e), y: SDDom.getPosition(container).y - SDDom.pageY(e)};
-		SDDom.addEventListener(document, 'mousemove', mouseIsMoving);
+		SDDom.addEventListener(document, 'mousemove', mouseIsMovingFunction);
 		SDDom.stop(e);
 	}	
 	function wasReleased(e){
-		SDDom.removeEventListener(document, 'mousemove', mouseIsMoving);
+		SDDom.removeEventListener(document, 'mousemove', mouseIsMovingFunction);
 	}
 	function move(h, position){
 		moveFunc(position, h);
@@ -755,17 +743,9 @@ UIView.TitleBar = function(id, options){
 		var position = {x: SDDom.pageX(e), y: SDDom.pageY(e)};
 		move(container, position);
 	}
-	
-	this.reset = function(){
-		SDDom.setStyles({left: 0, top: 0}, handle);
-	};
-	return this;
-}
-
-UIView.Handle = function(id, options){
-	this.bounds = null;
-	this.direction = null;
-	UIView.apply(this, arguments);
+	var mouseIsMovingFunction = SDObject.decorateEventHandler(mouseIsMoving);
+	var isClickingHandleFunction = SDObject.decorateEventHandler(isClickingHandle);
+	var wasReleasedFunction = SDObject.decorateEventHandler(wasReleased);
 	var handle = null;
 	init(this.container);
 	var delegate = this.delegate;
@@ -773,20 +753,34 @@ UIView.Handle = function(id, options){
 	var container_position = SDDom.getPosition(this.container);
 	var total_width = SDDom.getWidth(this.container);
 	var total_height = SDDom.getHeight(this.container);
-	var diff = {x: SDDom.getPosition(this.container).x, y: SDDom.getPosition(this.container).y};
+	var mouse_offset = {x: 0, y: 0};
 	var bounds = this.bounds || {ux: container_position.x + total_width, uy: container_position.y + total_height, lx: container_position.x, ly: container_position.y};
 	var direction = this.direction;
-	SDDom.setStyles({position: 'relative'}, container);
 	var moveFunc = (this.direction == 'horizontal' ? moveHoriz : this.direction == 'vertical' ? moveVert : moveBoth);
+	this.height = SDDom.getHeight(handle);
+	this.width = SDDom.getWidth(handle);
+	
+	this.reset = function(){
+		SDDom.setStyles({left: 0, top: 0}, handle);
+	};
 	function init(container){
-		handle = SDDom.create('span');
-		SDDom.setStyles({display: 'block', height: options.height || '15px', width: options.width || '15px', background: '#fff', position: 'absolute', left: '0', top: '-6px'}, handle);
-		SDDom.setStyles({position: 'relative'});
+		handle = SDDom.create('div');
+		var title = SDDom.create('h3');
+		title.innerHTML = options.text || '';
+		SDDom.setStyles({height: options.height || '20px', width: options.width || '100%', background: '#fff', position: 'absolute', left: '0', cursor: 'move', "z-index":"1000"}, handle);
+		SDDom.append(handle, title);
 		SDDom.append(container, handle);
-		SDDom.addEventListener(container, 'mousedown', isClickingContainer);
-		SDDom.addEventListener(document, 'mouseup', wasReleased);
+		SDDom.addEventListener(handle, 'mousedown', isClickingHandleFunction);
+		SDDom.addEventListener(document, 'mouseup', wasReleasedFunction);
 	}
 	
+	return this;
+}
+
+UIView.Handle = function(id, options){
+	this.bounds = null;
+	this.direction = null;
+	UIView.apply(this, arguments);
 	function moveHoriz(mouse_position, handle_position, handle){
 		if((mouse_position.x >= bounds.lx && mouse_position.x <= bounds.ux)){
 			SDDom.setStyles({left: handle_position.x + 'px'}, handle);
@@ -804,13 +798,17 @@ UIView.Handle = function(id, options){
 	}
 	function isClickingContainer(e){
 		var position = {x: SDDom.pageX(e), y: SDDom.pageY(e)};
-		SDDom.addEventListener(document, 'mousemove', mouseIsMoving);
+		SDDom.addEventListener(document, 'mousemove', mouseIsMovingFunction);
 		move(handle, position, diff);
 		SDDom.stop(e);
 	}	
 	function wasReleased(e){
-		SDDom.removeEventListener(document, 'mousemove', mouseIsMoving);
+		SDDom.removeEventListener(document, 'mousemove', mouseIsMovingFunction);
 	}
+	function mouseIsMoving(e){	
+		var position = {x: SDDom.pageX(e), y: SDDom.pageY(e)};
+		move(handle, position, diff);
+	}	
 	function move(h, position, d){
 		var width = SDDom.getWidth(h) / 2;
 		var height = SDDom.getHeight(h) / 2;
@@ -819,14 +817,35 @@ UIView.Handle = function(id, options){
 		var percent = {x:(handle_position.x / total_width), y: (handle_position.y / total_height)};
 		delegate && delegate.sliderIsMoving ? delegate.sliderIsMoving(percent) : void(0);		
 	}
-	function mouseIsMoving(e){	
-		var position = {x: SDDom.pageX(e), y: SDDom.pageY(e)};
-		move(handle, position, diff);
-	}
 	
 	this.reset = function(){
 		SDDom.setStyles({left: 0, top: 0}, handle);
 	};
+	var isClickingContainerFunction = SDObject.decorateEventHandler(isClickingContainer);
+	var wasReleasedFunction = SDObject.decorateEventHandler(wasReleased);
+	var mouseIsMovingFunction = SDObject.decorateEventHandler(mouseIsMoving);
+	
+	var handle = null;
+	init(this.container);
+	var delegate = this.delegate;
+	var container = this.container;
+	var container_position = SDDom.getPosition(this.container);
+	var total_width = SDDom.getWidth(this.container);
+	var total_height = SDDom.getHeight(this.container);
+	var diff = {x: SDDom.getPosition(this.container).x, y: SDDom.getPosition(this.container).y};
+	var bounds = this.bounds || {ux: container_position.x + total_width, uy: container_position.y + total_height, lx: container_position.x, ly: container_position.y};
+	var direction = this.direction;
+	SDDom.setStyles({position: 'relative'}, container);
+	var moveFunc = (this.direction == 'horizontal' ? moveHoriz : this.direction == 'vertical' ? moveVert : moveBoth);
+	function init(container){
+		handle = SDDom.create('span');
+		SDDom.setStyles({display: 'block', height: options.height || '15px', width: options.width || '15px', background: '#fff', position: 'absolute', left: '0', top: '-6px'}, handle);
+		SDDom.setStyles({position: 'relative'});
+		SDDom.append(container, handle);
+		SDDom.addEventListener(container, 'mousedown', isClickingContainerFunction);
+		SDDom.addEventListener(document, 'mouseup', wasReleasedFunction);
+	}
+	
 	return this;
 }
 UIView.Cropper = function(id, options){
@@ -834,8 +853,6 @@ UIView.Cropper = function(id, options){
 	options.width = options.width ? options.width : 200;
 	options.height = options.height ? options.height : 200;
 	UIView.apply(this, [id, options]);
-	var canvases = init(this.canvases);
-	this.canvases = canvases;
 	var delegate = this.delegate;
 	start_position = null;
 	var self = this;
@@ -847,33 +864,6 @@ UIView.Cropper = function(id, options){
 		}
 		return null;
 	};
-	function init(canvases){
-		var canvas;
-		var list = [];
-		var photo;
-		for(var i = 0; i < canvases.length; i++){
-			canvas = canvases[i];
-			SDDom.setStyles({position: 'relative', height: options.height + 'px', width: options.width + 'px'}, canvas);
-			photo = SDDom.findFirst('img', canvas);
-			SDDom.setStyles({position: 'absolute', top: 0, left: 0}, photo);
-			list.push({canvas: canvas
-				, photo: photo
-				, original_src: photo.src
-				, start_size: {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)}
-				, original_size: {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)}});
-			observe(canvas);
-		}
-		return list;
-	}	
-	function observe(canvas){
-		var photo = SDDom.findFirst('img', canvas);
-		SDDom.addEventListener(canvas, 'mousedown', isClickingOnPhoto);
-		SDDom.addEventListener(canvas, 'mouseup', wasReleasedOverPhoto);
-		SDDom.addEventListener(canvas, 'mouseout', wasReleasedOverPhoto);
-		SDDom.addEventListener(canvas, 'dblclick', doubleClickedOnPhoto);
-		SDDom.addEventListener(photo, 'load', photoFinishedLoading);
-		setInterval(photoWatcher, 50);
-	}
 	function photoWatcher(){
 		for(var i = 0; i < self.canvases.length; i++){
 			if(self.canvases[i].photo.src != self.canvases[i].original_src){
@@ -922,14 +912,14 @@ UIView.Cropper = function(id, options){
 		ydiff = position.y - photo_position.y + canvas_position.y;
 		start_position = {x: position.x - view.start_size.width, y: position.y - view.start_size.height};
 		SDDom.stop(e);
-		SDDom.addEventListener(view.canvas, 'mousemove', mouseIsMoving);
+		SDDom.addEventListener(view.canvas, 'mousemove', mouseIsMovingFunction);
 	}
 	function wasReleasedOverPhoto(e){
 		var photo = e.target.src ? e.target : SDDom.findFirst('img', e.target);
 		var view = getCanvas(photo.src);
 		view.photo = photo;
 		view.start_size = {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)};
-		SDDom.removeEventListener(view.canvas, 'mousemove', mouseIsMoving);
+		SDDom.removeEventListener(view.canvas, 'mousemove', mouseIsMovingFunction);
 	}
 	function photoFinishedLoading(e){
 		var view = getCanvas(e.target.src);
@@ -939,6 +929,41 @@ UIView.Cropper = function(id, options){
 	function getCanvas(src){
 		return SDArray.find(canvases, function(c, i){return c.photo.src == src;});
 	}
+	var isClickingOnPhotoFunction = SDObject.decorateEventHandler(isClickingOnPhoto);
+	var wasReleasedOverPhotoFunction = SDObject.decorateEventHandler(wasReleasedOverPhoto);
+	var doubleClickedOnPhotoFunction = SDObject.decorateEventHandler(doubleClickedOnPhoto);
+	var photoFinishedLoadingFunction = SDObject.decorateEventHandler(photoFinishedLoading);
+	var mouseIsMovingFunction = SDObject.decorateEventHandler(mouseIsMoving);
+	var canvases = init(this.canvases);
+	this.canvases = canvases;
+	function init(canvases){
+		var canvas;
+		var list = [];
+		var photo;
+		for(var i = 0; i < canvases.length; i++){
+			canvas = canvases[i];
+			SDDom.setStyles({position: 'relative', height: options.height + 'px', width: options.width + 'px'}, canvas);
+			photo = SDDom.findFirst('img', canvas);
+			SDDom.setStyles({position: 'absolute', top: 0, left: 0}, photo);
+			list.push({canvas: canvas
+				, photo: photo
+				, original_src: photo.src
+				, start_size: {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)}
+				, original_size: {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)}});
+			observe(canvas);
+		}
+		return list;
+	}
+	function observe(canvas){
+		var photo = SDDom.findFirst('img', canvas);
+		SDDom.addEventListener(canvas, 'mousedown', isClickingOnPhotoFunction);
+		SDDom.addEventListener(canvas, 'mouseup', wasReleasedOverPhotoFunction);
+		SDDom.addEventListener(canvas, 'mouseout', wasReleasedOverPhotoFunction);
+		SDDom.addEventListener(canvas, 'dblclick', doubleClickedOnPhotoFunction);
+		SDDom.addEventListener(photo, 'load', photoFinishedLoadingFunction);
+		setInterval(photoWatcher, 50);
+	}
+	
 	return this;
 }
 
@@ -1010,7 +1035,6 @@ UIView.PhotoViewer.photoDidChange = function(e){
 	}
 };
 UIView.PhotoViewer.photoDidUpload = function(response){
-	console.log(response);
 	if(response.message.length > 0){
 		alert(response.message);
 	}else{

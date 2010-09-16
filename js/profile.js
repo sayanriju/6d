@@ -40,14 +40,14 @@ function create_photo_viewer(){
 function add_change_photo_link(){
 	var change_photo_link = SDDom('change_photo_link');
 	if(change_photo_link){
-		change_photo_link = SDDom.addEventListener(change_photo_link, 'click', change_photo_was_clicked);	
+		change_photo_link = SDDom.addEventListener(change_photo_link, 'click', SDObject.decorateEventHandler(change_photo_was_clicked));
 	}
 	return change_photo_link;
 }
 function save_photo_when_saving_profile(){
 	var save_button = SDDom('save_button');
 	if(save_button){
-		SDDom.addEventListener(save_button, 'click', function(e){
+		SDDom.addEventListener(save_button, 'click', SDObject.decorateEventHandler(function(e){
 				SDDom.stop(e);
 				window.photoDidSave = function(request){
 					SDDom('person_form').submit();
@@ -59,7 +59,7 @@ function save_photo_when_saving_profile(){
 				var canvas_size = {width: SDDom.getWidth(canvas), height: SDDom.getHeight(canvas)};
 				var offset = {x: canvas_position.x - pos.x, y: canvas_position.y - pos.y, ratio: new_size.width/cropper.getCanvas(photo).original_size.width};
 				photoWasDoubleClicked(photo, new_size, pos, offset, canvas_size);
-			}
+			})
 		);
 	}
 }
