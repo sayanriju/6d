@@ -179,6 +179,24 @@ function SDDom(id){
 		return id;
 	}
 }
+SDDom.log = function(message){
+	var console = null;
+	function getConsole(){
+		if(console != null){
+			return console;
+		}	
+		console = SDDom('__6d_console');
+		if(console == null){
+			console = SDDom.create('div', {id:'__6d_console'});
+			SDDom.setStyles({position: 'absolute', top: '0px', left: '0px', background: 'black', color: 'white', width: '300px', height: '200px'}, console);
+			SDDom.append(document.body, console);
+		}
+		return console;
+	}
+	console = getConsole();
+	console.innerHTML = message;
+	return console;
+}
 // again, from prototype.js, thanks guys.
 SDDom.keys = {
 	BACKSPACE: 8
@@ -894,6 +912,7 @@ UIView.Cropper = function(id, options){
 		SDDom.setStyles({left: (position.x - diff.x) + 'px', top: (position.y - diff.y) + 'px'}, photo);
 	}
 	function mouseIsMoving(e){
+		SDDom.stop(e);
 		var photo = e.target.src ? e.target : SDDom.findFirst('img', e.target);
 		var position = {x: SDDom.pageX(e), y: SDDom.pageY(e)};
 		if(e.shiftKey){
