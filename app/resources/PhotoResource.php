@@ -79,10 +79,10 @@
 		}
 		
 		public static function getLittleSrc($src){
-			return Application::urlForWithMember(null) . $src;
+			return FrontController::urlFor(null) . $src;
 		}
 		public static function getBigSrc($src){
-			return Application::urlForWithMember(null) . $src;
+			return FrontController::urlFor(null) . $src;
 		}
 	}
 

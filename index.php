@@ -1,8 +1,8 @@
 <?php
 session_start();
 date_default_timezone_set('US/Central');
-set_include_path(get_include_path() . PATH_SEPARATOR . str_replace(sprintf('%sindex.php', '/'), '', $_SERVER['SCRIPT_FILENAME']));
-set_include_path(get_include_path() . PATH_SEPARATOR . str_replace(sprintf('%sindex.php', '/'), '/app', $_SERVER['SCRIPT_FILENAME']));
+set_include_path(get_include_path() . PATH_SEPARATOR . str_replace(sprintf('%sindex.php', DIRECTORY_SEPARATOR), '', $_SERVER['SCRIPT_FILENAME']));
+set_include_path(get_include_path() . PATH_SEPARATOR . str_replace(sprintf('%sindex.php', DIRECTORY_SEPARATOR), DIRECTORY_SEPARATOR . 'app', $_SERVER['SCRIPT_FILENAME']));
 //set_include_path(get_include_path() . PATH_SEPARATOR . '../6d/app');
 if(file_exists('AppConfiguration.php')){
 	class_exists('AppConfiguration') || require('AppConfiguration.php');	
