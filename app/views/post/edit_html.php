@@ -1,27 +1,42 @@
 <section id="addressbook_modal" style="display: none;" class="modal"></section>
 <form action="<?php echo Application::urlForWithUser('post');?>" method="post" id="post_form">
-	<fieldset>
-    <legend>New Post</legend>
+	<fieldset class="type">
+    	<legend>Type</legend>
 		<ul id="post_type">
 		<?php foreach(array('post'=>'Post', 'page'=>'Page', 'quote'=>'Quote', 'photo'=>'Photo', 'album'=>'Album', 'video'=>'Video', 'link'=>'Link') as $key=>$value):?>
-            <li id="post_type_<?php echo $key;?>" class="post_type_radio"><label for="<?php echo $key;?>"><input type="radio" name="type" value="<?php echo $key;?>"<?php echo $post->type === $key ? ' checked' : '';?>><?php echo $value;?></label></li>
+            <li>
+				<label for="<?php echo $key;?>"><?php echo $value;?></label>
+				<input name="type" id="<?php echo $key;?>" type="radio" value="<?php echo $key;?>"<?php echo $post->type === $key ? ' checked' : '';?> />
+				
+			</li>
         <?php endforeach;?>
         </ul>
+	</fieldset>
+	<fieldset class="content">
+		<legend>Post</legend>
 		<p>
 			<label for="title">Title</label>
 			<input type="text" id="title" name="title" value="{$post->title}" />
 		</p>
 		<p>
-        	<a href="<?php echo FrontController::urlFor('photos');?>" title="Add a photo" id="add-a-photo-link">+ add a photo</a>
 			<label for="body">Post</label>
 			<textarea name="body" id="body">{$post->body}</textarea>
 		</p>
 		<input type="hidden" name="id" value="{$post->id}" />
 		<input type="hidden" name="source" value="{$post->source}" />
-		
 	</fieldset>
 	<fieldset class="options">
-    <legend>Post Details</legend>
+    	<legend>Options</legend>
+        <p id="send_to_list">
+			<label for="send_to_list">
+				<a href="<?php echo Application::urlForWithUser('addressbook.html');?>" id="address">Send to</a>
+			</label>
+		</p>
+		<p>
+			<label for="add-a-photo-link">
+    			<a href="<?php echo Application::urlForWithUser('photos');?>" title="Add a photo" id="add-a-photo-link">+ add a photo</a>
+			</label>
+		</p>
 		<p>
 			<label for="tags" class="inline">Tags separated by commas</label>
 			<input type="text" name="tags" id="tags" value="{$post->tags}" />
@@ -38,9 +53,6 @@
 			<label for="post_date">Date posted</label>
 			<input type="text" name="post_date" value="{$post->post_date}" id="post_date" />
 		</p>
-	</fieldset>
-    <fieldset>
-    <legend>Publish Details</legend>
     	<p>
         	<input type="checkbox" id="is_published" name="is_published" value="true"<?php echo $post->is_published ? ' checked="true"' : '';?> />
 			<label for="is_published" class="checkbox">Make public</label>
@@ -48,11 +60,6 @@
 		<p>
         	<input type="checkbox" value="true" id="make_home_page" name="make_home_page"<?php echo $post->isHomePage($this->getHome_page_post_id()) ? ' checked="true"' : null;?> />
 			<label for="make_home_page" class="checkbox">Make this your home page</label>
-		</p>
-        <p id="send_to_list">
-			<label for="send_to_list">
-				<a href="<?php echo Application::urlForWithUser('addressbook.html');?>" id="address">Send to</a>
-			</label>
 		</p>
     </fieldset>
 	<nav>

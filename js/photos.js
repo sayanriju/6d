@@ -1,6 +1,6 @@
 var photo = null;
 SDDom.addEventListener(window, 'load', function(e){
-	photo = SDDom('photo');
+	photo = SDDom('photo_upload_field');
 	if(photo){
 		SDDom.addEventListener(photo, 'change', photoDidChange);
 	}
@@ -44,7 +44,7 @@ function photoDidUpload(response){
 	if(response.message.length > 0){
 		alert(response.message);
 	}else{
-		SDDom('photo').value = null;
+		SDDom('photo_upload_field').value = null;
 		var dd = SDDom.create('dd');
 		dd.innerHTML = response.photo_name;
 		var items = SDDom.findAll('#photos dd');

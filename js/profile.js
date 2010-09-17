@@ -34,7 +34,7 @@ function get_photo(){
 	return SDDom('profile_photo');
 }
 function create_photo_viewer(){
-	photo_viewer = new UIView.PhotoViewer('photo_viewer', {delegate: window});
+	photo_viewer = new UIView.PhotoViewer('photo_viewer', {delegate: window, title: 'Photo Picker'});
 	photo_viewer.toggle();
 }
 function add_change_photo_link(){

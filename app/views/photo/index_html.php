@@ -25,7 +25,7 @@
 		<input type="hidden" name="MAX_FILE_SIZE" value="{$max_filesize}" />
 		<section>
 			<label for="photo" id="photo_label">Upload a photo</label>
-			<input type="file" name="photo" id="photo" />
+			<input type="file" name="photo" id="photo_upload_field" />
 		</section>
 		<iframe src="<?php echo Application::urlForWithUser('empty');?>" id="upload_target" name="upload_target" style="width:0;height:0;border:none;"></iframe>
 	</fieldset>

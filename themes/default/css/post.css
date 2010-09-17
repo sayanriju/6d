@@ -1,194 +1,116 @@
-#content {
-	width:840px;	
+#content{
+	float: none;
+	width: 100%;
 }
-form#post_form input[type=text]{
-	font-size: 16px;
-	height: 25px;
+#body{
+	width: 100%;
+	min-height: 300px;
 }
-form#post_form input[type=checkbox], form#post_form input[type=radio]{
-	width:14px;
-	float:left;
+form fieldset p{
+	position: relative;
 }
-#post_form fieldset {
-	border:1px solid #666;
-	margin-bottom:20px;
-	padding:0 20px;
-	-webkit-border-radius: 8px; 
-	-moz-border-radius: 8px;
-	border-radius: 8px; 
-}
-#post_form label {
-	font-size:18px;
-		
-}
-#post_form input {
-	width:794px;
-	border:2px solid #666;
-	-webkit-border-radius: 4px; 
-	-moz-border-radius: 4px;
-	border-radius: 4px;	
-}
-#post_form textarea {
-	width:786px;
-	padding:4px;
-	border:2px solid #666;
-	-webkit-border-radius: 4px; 
-	-moz-border-radius: 4px;
-	border-radius: 4px;
-	font-size:12px;
-	min-height:300px;
-}
-#post_form textarea#description {
-	height:150px;
-	min-height:150px;
-}
-#add-a-photo-link {
+form fieldset p label{
 	display: block;
-	float:right;
-	background:#666;
-	color:#CCC;
-	padding:0 2px;
-	font-size:10px;
-	-webkit-border-radius: 2px; 
-	-moz-border-radius: 2px;
-	border-radius: 2px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1000;
+	margin: 10px 0 0 5px;
 }
-ul#post_type li {
-	float:left;
-	display:block;
-	width:110px;
-	border:#666 2px solid;
-	background:#FFF;
-	background: -webkit-gradient(linear, left top, left bottom, from(#ccc), to(#fff));
-	background: -moz-linear-gradient(top,  #ccc,  #fff);
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#cccccc', endColorstr='#fff');
-	-webkit-border-radius: 4px; 
-	-moz-border-radius: 4px;
-	border-radius: 4px;	
-}
-.post_type_radio {
-		
-}
-#instructions{
+form fieldset legend{
 	display: none;
 }
-#author {
-	display:none;	
-}
-#post_form{
-	position: relative;
-}
-#post_menu{
-	border-bottom: solid 1px rgb(240,240,240);
-	background: rgb(220,220,220);
-	height: 3em;
-	border-radius: 5px;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;	
-}
-#post_menu ul{
-	list-style: none;
-	list-style-position: inside;
-	margin: 0;
-	padding: 0;
-	height: 100%;
-}
-#post_menu ul li{
+form fieldset.type{
+	margin: 0 auto;
 	display: block;
-	float: left;
-	height: 100%;
-	line-height: 100%;
 }
-#post_menu ul li a{
-	display: inline-block;
-	padding: 1em;
-}
-#options{
+form fieldset.type ul{
 	position: relative;
+	margin: 0 auto;
+	height: 20px;
+	width: 660px;
 }
-#options .window_button{
+form fieldset.type ul li{
+	width: 92px;
+	height: 20px;
+	border-left: solid 1px rgb(200,200,200);
+	border-top: solid 1px rgb(200,200,200);
+	display: block;
+	text-align: center;
+	float: left;
+	position: relative;	
+}
+form fieldset.type ul li:first-child{
+	border-top-left-radius: 5px;
+	-webkit-border-top-left-radius: 5px;
+	-moz-border-top-left-radius: 5px;
+}
+form fieldset.type ul li:last-child{
+	border-right: solid 1px rgb(200,200,200);
+	border-top-right-radius: 5px;
+	-webkit-border-top-right-radius: 5px;
+	-moz-border-top-right-radius: 5px;
+}
+form fieldset.type ul li label{
+	display: block;
 	position: absolute;
 	top: 0;
-	left: 0;
+	width: 100%;
 }
-#options section label{
-	display: inline-block;
-	width: 70px;
-}
-
-#options section input, #options section textarea{
-	width: 50em;
-}
-
-#addressbook{
-	width: 400px;
-	background: #fff;
-	height: 300px;
-	padding: 1em;
-	box-shadow: 0 0 5px #000;
-	-webkit-box-shadow: 0 0 5px #000;
-}
-#addressbook section{
-	float: left;
-	width: 50%;
-}
-#addressbook button{
-	position: absolute;
-	bottom: 0;
-	right: 0;
-	width: 75px;
-}
-#addressbook button[value=Cancel]{
-	right: 80px;
-}
-
-#addressbook section ul{
-	list-style: none;
-	list-style-position: inside;
-}
-#addressbook section ul li{
-	position: relative;
-	line-height: 1.5em;
-}
-#addressbook section ul li:nth-child(odd){
-	background-color: rgb(240, 244, 247);
-}
-#addressbook section ul li.selected{
-	background: rgb(119, 141, 168);
-	color: #fff;
-}
-#addressbook section ul li input{
-	position: absolute;
-	top: 0;
-	left: 0;
-}
-#addressbook section ul li span{
-	cursor: default;
-	display: block;
+form fieldset.type ul li input{
 	width: 100%;
 	height: 100%;
-	margin-left: 20px;
-}
-#options #friends ul{
-	height: 3em;
-	margin: -1em 0 0 6em;
-	list-style: none;
-	list-style-position: inside;
-}
-#options #friends ul li{
-	margin-left: .5em;
-	padding: 0 1em 0 1em;
-	float: left;
-	border-radius: 20px;
-	-webkit-border-radius: 20px;
-	-moz-border-radius: 20px;
-	background: #ccc;
-	color: #333;
-}
-#toolbar{
-	display: none;
 }
 
-form.delete{
+form fieldset.content{
+	
+}
+form fieldset.options{
+	position: absolute;
+	right: 0;
+	top: 0;
+	width:  200px;
+}
+form fieldset.options p label{
+	position: relative;
+}
+form fieldset.options textarea{
+	width: 100%;
+}
+form nav{
+	clear: left;
+}
+
+#send_to_list ul{
+	position: absolute;
+	top: 0;
+	left: 70px;
+}
+#send_to_list ul li{
+	float: left;
+	border-radius: 10px;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	background: rgba(255,255,255,.5);
+	padding: 0 7px 0 7px;
+}
+#photo_viewer dl{
+	width: 100%;
+	text-align: center;
+}
+#photo_viewer dl img{
+	width: 95px;
+	border: none;
+}
+#photo_viewer dl dd{
+	border: solid 1px rgb(255,255,255);
+	padding: 20px;
+	width: 95px;
+	height: 135px;
+	overflow: hidden;
+	float: left;
+	margin-right: 5px;
+}
+#author{
 	display: none;
 }

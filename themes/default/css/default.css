@@ -67,7 +67,6 @@ body{
 }
 header, footer, aside, nav, article, section, figure, time{
 	display: block;
-	position: relative;
 }
 h1, h2, h3, h4, h5, h6{
 	font-family: Georgia, Helvetica, Palatino, serif;
@@ -188,9 +187,6 @@ form textarea{
 }
 form p label{
 	display: block;
-}
-form{
-	position: relative;
 }
 form input[type=text], form input[type=email], form input[type=url], form input[type=password]{
 	font-size: 23px;

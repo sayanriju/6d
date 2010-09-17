@@ -991,7 +991,7 @@ UIView.PhotoViewer = function(id, options){
 	var self = UIView.apply(this, arguments);
 	SDDom.setStyles({position: 'absolute', margin: '0 auto', display: 'block', top: 0, left: 0, width: '360px', height: '400px', border: 'solid 5px #fff', background: '#000', overflow: 'hidden'}, this.container);
 	var bounds = {ux: SDDom.getWidth(window), lx: 0, uy: SDDom.getHeight(window), ly: 0};
-	var handle_view = new UIView.TitleBar(this.container, {delegate: this, bounds: bounds, text: 'Photo Picker'});
+	var handle_view = new UIView.TitleBar(this.container, {delegate: this, bounds: bounds, text: options.title});
 	this.frame = SDDom.create('div', {className: 'frame'});
 	var height = (SDDom.getHeight(this.container) - handle_view.height - 60) + 'px';
 	SDDom.setStyles({height: height, "margin-top": handle_view.height + 'px'}, this.frame);
@@ -1014,7 +1014,7 @@ UIView.PhotoViewer = function(id, options){
 	};
 	this.refreshIsDone = function(request){
 		this.scroll_view.innerHTML = request.responseText;
-		photo_upload_field = SDDom('photo');
+		photo_upload_field = SDDom('photo_upload_field');
 		SDDom.addEventListener(photo_upload_field, 'change', UIView.PhotoViewer.photoDidChange);
 	};
 	this.close = function(e){
@@ -1057,7 +1057,7 @@ UIView.PhotoViewer.photoDidUpload = function(response){
 	if(response.message.length > 0){
 		alert(response.message);
 	}else{
-		SDDom('photo').value = null;
+		SDDom('photo_upload_field').value = null;
 		var dd = SDDom.create('dd');
 		dd.innerHTML = response.photo_name;
 		var items = SDDom.findAll('#photos dd');

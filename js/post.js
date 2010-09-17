@@ -400,7 +400,7 @@ UIController.Post = function(options){
 	this.add_a_photo_link = SDDom('add-a-photo-link');
 	this.form = SDDom('post_form');
 	var textarea = new UIView.TextArea('body', {delegate: this});
-	this.photo_viewer = new UIView.PhotoViewer('photo_viewer', {delegate: this});
+	this.photo_viewer = new UIView.PhotoViewer('photo_viewer', {delegate: this, title: 'Photo Picker'});
 	this.photo_viewer.toggle();
 	if(!this.list_of_people){
 		this.list_of_people = SDDom.append(this.send_to_list, SDDom.create('ul'));
@@ -489,7 +489,20 @@ UIController.Post = function(options){
 	if(this.add_a_photo_link){
 		SDDom.addEventListener(this.add_a_photo_link, 'click', this.bind(this.addPhotoWasClicked));
 	}
-	
+	SDArray.each([SDDom('title'), SDDom('body')], function(elem, i){
+			SDDom.addEventListener(elem, 'focus', function(e){
+				if(e.target.value.length == 0){
+					SDDom.hide(SDDom.findFirst('label[for="' + elem.id + '"]'));			
+				}
+			});
+
+			SDDom.addEventListener(elem, 'blur', function(e){
+				if(e.target.value.length == 0){
+					SDDom.show(SDDom.findFirst('label[for="' + elem.id + '"]'));
+				}
+			});
+		}
+	);
 	var reblog = SDDom('reblog');
 	if(reblog){
 		SDDom.addEventListener(reblog, 'click', this.bind(this.didClickReblog));
