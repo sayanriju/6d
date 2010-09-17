@@ -490,6 +490,12 @@ UIController.Post = function(options){
 		SDDom.addEventListener(this.add_a_photo_link, 'click', this.bind(this.addPhotoWasClicked));
 	}
 	SDArray.each([SDDom('title'), SDDom('body')], function(elem, i){
+			if(elem.value.length == 0){
+				SDDom.show(SDDom.findFirst('label[for="' + elem.id + '"]'));			
+			}else{
+				SDDom.hide(SDDom.findFirst('label[for="' + elem.id + '"]'));			
+			}
+		
 			SDDom.addEventListener(elem, 'focus', function(e){
 				if(e.target.value.length == 0){
 					SDDom.hide(SDDom.findFirst('label[for="' + elem.id + '"]'));			
