@@ -5,12 +5,7 @@ var slider;
 var profile_controller;
 var photo_viewer;
 
-function sixd(){}
-sixd.outline = function(fn){
-	SDDom.addEventListener(window, 'load', fn);
-}
-
-sixd.outline(function(e){
+sixd.main(function(e){
 	user_message = get_user_message();		
 	photo = get_photo();
 	slider = get_slider();

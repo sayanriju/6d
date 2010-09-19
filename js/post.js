@@ -1,11 +1,4 @@
 
-UIView.TabView = function(id){
-	this.onClick = function(e){
-		e.stop();
-	};
-	
-	UIView.apply(this, arguments);
-}
 UIView.PostMenu = function(id){
 	this.onClick = function(e){
 		if(e.target.id === 'address'){
@@ -49,99 +42,6 @@ UIView.TextArea = function(id, options){
 	this.eventResize = this.bind(this.onResize);
 	SDDom.addEventListener(window, 'resize', this.eventResize);
 	SDDom.addEventListener(this.container, 'keypress', this.bind(this.keypress));
-};
-
-UIView.Overlay = function(options){
-	UIView.apply(this, [this.id, options]);
-	var today = new Date();
-	this.id = 'overlay_' + Date.UTC(today.getFullYear(), today.getMonth(), today.getDay());
-	this.container = SDDom.create('div');
-	this.container.id = '__overlay';
-	SDDom.setStyles({"top":"0", "left":"0", "bottom":"0", "right":"0", "display": "none", "width": "100%", "height":"100%", "position":"absolute", "background": "#000", "opacity":".5"}, this.container);
-	SDDom.setStyles({zIndex: 1}, this.container);
-	SDDom.insertBefore(this.container, SDDom.byTag('body')[0]);
-	
-	this.toggle = function(){
-		SDDom.toggle(this.container);
-	}
-};
-
-UIView.Modal = function(id, options){
-	var today = new Date();	
-	this.div = document.createElement('div');
-	this.div.id = 'content_' + Date.UTC(today.getFullYear(), today.getMonth(), today.getDay());
-	if(!options.handle){
-		throw new Exception("I need the DOM id of the element who's click event I'll handle to open the modal window.");
-	}
-	this.overlay = new UIView.Overlay(null);
-	this.onHandleClick = function(e){
-		this.overlay.toggle();
-		SDDom.setStyles({zIndex: 2, position: 'absolute', top: '20%', left: '50%', marginLeft: -1*SDDom.getWidth(this.container) / 2, marginTop: -1*SDDom.getHeight(this.container)/2}, this.container);
-		this.toggle();
-		if(this.didClickHandle){
-			this.didClickHandle(e);
-		}
-		if(this.delegate && this.delegate.didClickHandle){
-			this.delegate.didClickHandle.apply(this.delegate, [e]);
-		}
-		SDDom.stop(e);
-	};
-	this.onCloseClick = function(e){
-		this.hide();
-		this.overlay.toggle();
-		if(this.didClickClose){
-			this.didClickClose(e);
-		}
-		if(this.delegate && this.delegate.didClickCancel){
-			this.delegate.didClickCancel.apply(this.delegate, [e]);
-		}
-	};
-	this.onOkClick = function(e){
-		this.hide();
-		this.overlay.toggle();
-		if(this.didClickOk){
-			this.didClickOk.apply(this, e);
-		}
-		if(this.delegate && this.delegate.didClickOk){
-			this.delegate.didClickOk.apply(this.delegate, [e]);
-		}
-	};
-	this.onViewClick = function(e){		
-		if(this.didClickView){
-			this.didClickView(e);
-		}
-		if(this.delegate && this.delegate.didClickView){
-			this.delegate.didClickView.apply(this.delegate, [e]);
-		}
-	};
-	UIView.apply(this, [id, options]);	
-	this.handle = null;
-	try{
-		this.handle = SDDom(options.handle);		
-	}catch(e){
-		throw new Exception("An exception occurred when I tried to get the DOM element by the id you gave me in options.handle: " + e);
-	}
-	this.setHtml = function(html){
-		this.div.innerHTML = html;
-	};
-	SDDom.append(this.container, this.div);		
-	SDDom.addEventListener(this.handle, 'click', this.bind(this.onHandleClick));
-	this.closeHandle = SDDom.create('button');
-	var properties = {innerHTML: 'Clear All', value: 'Cancel', id: 'close_button_' + Date.UTC(today.getFullYear(), today.getMonth(), today.getDay())};
-	for(prop in properties){
-		this.closeHandle[prop] = properties[prop];
-	}
-	this.okHandle = SDDom.create('button');
-	properties = {innerHTML: 'Ok', value: 'Ok', id: 'ok_button_' + Date.UTC(today.getFullYear(), today.getMonth(), today.getDay())};
-	for(prop in properties){
-		this.okHandle[prop] = properties[prop];
-	}
-	SDDom.append(this.container, this.closeHandle);
-	SDDom.append(this.container, this.okHandle);
-
-	SDDom.addEventListener(this.closeHandle, 'click', this.bind(this.onCloseClick));
-	SDDom.addEventListener(this.okHandle, 'click', this.bind(this.onOkClick));
-	SDDom.addEventListener(this.div, 'click', this.bind(this.onViewClick));
 };
 
 UIView.Modal.AddressBook = function(id, options){
@@ -514,7 +414,6 @@ UIController.Post = function(options){
 		SDDom.addEventListener(reblog, 'click', this.bind(this.didClickReblog));
 	}
 }
-UIController.PostTypeHandler = function(options){};
 var editor = null;
 var postController;
 

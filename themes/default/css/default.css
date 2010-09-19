@@ -334,3 +334,36 @@ nav.pages a{
 #photo_viewer section ul li img.selected{
 	border: solid 3px rgb(130,200,255);
 }
+.film_strip{
+	box-shadow: 0px 3px 7px rgb(50,50,50);
+	-webkit-box-shadow: 0px 3px 7px rgb(50,50,50);
+	-moz-box-shadow: 0px 3px 7px rgb(50,50,50);
+}
+.film_strip ul{
+	margin: 0;
+	padding: 0;
+	height: 112px;
+}
+.film_strip ul li{
+	float: left;
+	margin: 0 20px 0 0;
+	display: block;
+	padding: 0;
+}
+.film_strip ul li img{
+	height: 72px;
+	border: solid 3px transparent;
+}
+.film_strip ul li img.selected{
+	border-color: rgb(130,200,255);
+}
+.film_strip form{
+	height:; 30px;
+	padding: 0;
+	margin: 0;
+}
+.film_strip form fieldset legend{
+	display: none;
+}
+.film_strip li.profile{
+}

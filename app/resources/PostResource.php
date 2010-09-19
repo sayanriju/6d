@@ -27,14 +27,14 @@ class PostResource extends AppResource{
 	public function get(Post $post = null, $layout = 'default', $last_page_viewed = 1){
 		$this->last_page_viewed = $last_page_viewed;
 		$photo = new Photo();
-		$this->photos = $photo->findAll('media/' . Application::$current_user->member_name);
+		$this->photos = $photo->findAll('media/' . Application::$member->member_name);
 		$view = 'post/show';
 		$layout = 'layouts/' . $layout;
 		if( AuthController::isAuthorized()){
 			$view = 'post/edit';
 		}
 		if(count($this->url_parts) > 1){
-			$this->post = Post::findById($this->url_parts[1], Application::$current_user->person_id);
+			$this->post = Post::findById($this->url_parts[1], Application::$member->person_id);
 			if($this->post == null){
 				throw new Exception(FrontController::NOTFOUND, 404);
 			}

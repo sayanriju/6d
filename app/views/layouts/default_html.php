@@ -60,10 +60,10 @@
 		</section>
 		<?php if(AuthController::isAuthorized()):?>
 		<nav id="admin_menu" class="main">
+			<a id="photos_link" href="<?php echo Application::urlForWithUser('photos');?>" title="show all photos">media</a>
 			<a href="<?php echo Application::urlForWithUser(null);?>" id="home_link" title="go to your home page">home</a>
 			<a href="<?php echo Application::urlForWithUser('post');?>" id="new_post_link" title="new post">new post</a>
 			<a href="<?php echo Application::urlForWithUser('posts');?>" id="all_posts_link" title="show all posts">posts</a>
-			<a href="<?php echo Application::urlForWithUser('photos');?>" id="all_photos_link" title="show all photos">media</a>
 			<a href="<?php echo Application::urlForWithUser('addressbook');?>" id="addressbook_link" title="show your addressbook">addressbook</a>
 			<a href="<?php echo Application::urlForWithUser('profile');?>" id="profile_link" title="show your profile">profile</a>
 			<?php if(AuthController::isSuperAdmin()):?>

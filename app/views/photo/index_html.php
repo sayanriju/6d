@@ -2,10 +2,10 @@
 	<ul>
 	<?php for($i=0; $i < count($photos); $i++):?>
 		<?php $image = $photos[$i];?>
-		<li>
+		<li<?php echo strpos($image->src, 'profile') !== false ? ' class="profile"' : null;?>>
 		<?php if(strpos($image->src, 'http://') === false):?>
 			<h3><?php echo $image->title;?></h3>
-			<img src="<?php echo PhotoResource::getLittleSrc($image->src);?>" width="<?php echo PhotoResource::getThumbnailWidth($image->src);?>" />
+			<img src="<?php echo PhotoResource::getLittleSrc($image->src);?>" />
 		<?php if(AuthController::isAuthorized() && Application::$current_user->person_id == Application::$member->person_id):?>
 			<form method="post" action="<?php echo Application::urlForWithUser('photo');?>" class="delete">
 				<input type="hidden" value="delete" name="_method" />

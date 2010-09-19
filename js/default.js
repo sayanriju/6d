@@ -1,3 +1,11 @@
+if (typeof Object.merge !== 'function') {
+	Object.merge = function (o) {
+		function F() {}
+		F.prototype = o;
+		return new F();
+	};
+}
+
 function SDObject(options){
 	var observers = [];
 	var me = this;
@@ -222,17 +230,31 @@ SDDom.remove = function(elem){
 				var e = elem.item(0);
 				var parent = e.parentNode;
 				do{
+					SDDom.removeAllEventListeners(e);
 					parent.removeChild(e);
 				}while(e = elem.item(elem.length));
 			}
 
 		}else{
 			if(elem && elem.parentNode){
+				SDDom.removeAllEventListeners(elem);
 				elem.parentNode.removeChild(elem);
 			}
 		}
 	}
 	return elem;
+};
+SDDom.removeAllChildren = function(elem){
+	if(elem.hasChildNodes()){
+		var i = elem.childNodes.length;
+		while(child = elem.childNodes[--i]){
+			if(child.hasChildNodes()){
+				SDDom.removeAllChildren(child);
+			}else{
+				SDDom.remove(child);				
+			}
+		}
+	}
 };
 SDDom.show = function(elem){
 	elem.style.display = 'block';
@@ -356,6 +378,9 @@ SDDom.hasClass = function(class_name, elem){
 SDDom.addEventListener = function(elem, name, fn){
 	// IE doesn't fire an onload event when a script element loads, it implements onreadystatechange like XMLHTTpRequest.
 	// So I'm coding for that scenario here.
+	if(elem == null){
+		throw "The DOM element that you want to listen to the '" + name + "' event is null.";
+	}
 	SDDom.observers.push([elem, name, fn]);
 	if(elem.nodeName && name === 'load' && elem.nodeName.toLowerCase() === 'script' && elem.attachEvent){
 		elem.onreadystatechange = function(){
@@ -369,7 +394,7 @@ SDDom.addEventListener = function(elem, name, fn){
 	}else{
 		elem.attachEvent('on' + name, fn);
 	}
-	return elem;
+	return fn;
 };
 
 SDDom.removeAllEventListeners = function(elem){
@@ -692,6 +717,98 @@ UIView.ContactPanel = function(id){
 	}
 	return this;
 }
+UIView.Overlay = function(options){
+	UIView.apply(this, [this.id, options]);
+	var today = new Date();
+	this.id = 'overlay_' + Date.UTC(today.getFullYear(), today.getMonth(), today.getDay());
+	this.container = SDDom.create('div');
+	this.container.id = '__overlay';
+	SDDom.setStyles({"top":"0", "left":"0", "bottom":"0", "right":"0", "display": "none", "width": "100%", "height":"100%", "position":"absolute", "background": "#000", "opacity":".5"}, this.container);
+	SDDom.setStyles({zIndex: 1}, this.container);
+	SDDom.insertBefore(this.container, SDDom.byTag('body')[0]);
+	
+	this.toggle = function(){
+		SDDom.toggle(this.container);
+	}
+};
+
+UIView.Modal = function(id, options){
+	var today = new Date();	
+	this.div = document.createElement('div');
+	this.div.id = 'content_' + Date.UTC(today.getFullYear(), today.getMonth(), today.getDay());
+	if(!options.handle){
+		throw new Exception("I need the DOM id of the element who's click event I'll handle to open the modal window.");
+	}
+	this.overlay = new UIView.Overlay(null);
+	this.onHandleClick = function(e){
+		this.overlay.toggle();
+		SDDom.setStyles({zIndex: 2, position: 'absolute', top: '20%', left: '50%', marginLeft: -1*SDDom.getWidth(this.container) / 2, marginTop: -1*SDDom.getHeight(this.container)/2}, this.container);
+		this.toggle();
+		if(this.didClickHandle){
+			this.didClickHandle(e);
+		}
+		if(this.delegate && this.delegate.didClickHandle){
+			this.delegate.didClickHandle.apply(this.delegate, [e]);
+		}
+		SDDom.stop(e);
+	};
+	this.onCloseClick = function(e){
+		this.hide();
+		this.overlay.toggle();
+		if(this.didClickClose){
+			this.didClickClose(e);
+		}
+		if(this.delegate && this.delegate.didClickCancel){
+			this.delegate.didClickCancel.apply(this.delegate, [e]);
+		}
+	};
+	this.onOkClick = function(e){
+		this.hide();
+		this.overlay.toggle();
+		if(this.didClickOk){
+			this.didClickOk.apply(this, e);
+		}
+		if(this.delegate && this.delegate.didClickOk){
+			this.delegate.didClickOk.apply(this.delegate, [e]);
+		}
+	};
+	this.onViewClick = function(e){		
+		if(this.didClickView){
+			this.didClickView(e);
+		}
+		if(this.delegate && this.delegate.didClickView){
+			this.delegate.didClickView.apply(this.delegate, [e]);
+		}
+	};
+	UIView.apply(this, [id, options]);	
+	this.handle = null;
+	try{
+		this.handle = SDDom(options.handle);		
+	}catch(e){
+		throw new Exception("An exception occurred when I tried to get the DOM element by the id you gave me in options.handle: " + e);
+	}
+	this.setHtml = function(html){
+		this.div.innerHTML = html;
+	};
+	SDDom.append(this.container, this.div);		
+	SDDom.addEventListener(this.handle, 'click', this.bind(this.onHandleClick));
+	this.closeHandle = SDDom.create('button');
+	var properties = {innerHTML: 'Clear All', value: 'Cancel', id: 'close_button_' + Date.UTC(today.getFullYear(), today.getMonth(), today.getDay())};
+	for(prop in properties){
+		this.closeHandle[prop] = properties[prop];
+	}
+	this.okHandle = SDDom.create('button');
+	properties = {innerHTML: 'Ok', value: 'Ok', id: 'ok_button_' + Date.UTC(today.getFullYear(), today.getMonth(), today.getDay())};
+	for(prop in properties){
+		this.okHandle[prop] = properties[prop];
+	}
+	SDDom.append(this.container, this.closeHandle);
+	SDDom.append(this.container, this.okHandle);
+
+	SDDom.addEventListener(this.closeHandle, 'click', this.bind(this.onCloseClick));
+	SDDom.addEventListener(this.okHandle, 'click', this.bind(this.onOkClick));
+	SDDom.addEventListener(this.div, 'click', this.bind(this.onViewClick));
+};
 
 UIView.ContactLink = function(id){
 	this.onClick = function(e){
@@ -1048,7 +1165,7 @@ UIView.PhotoViewer.photosDidLoad = function(request){
 UIView.PhotoViewer.photoDidChange = function(e){
 	if(SDDom('photo_names[' + e.target.value + ']')){
 		alert("you've already added that photo.");
-		SDDom.stop(e);
+		SDDom.stop(e); 
 	}else{
 		SDDom('media_form').submit();
 	}
@@ -1069,3 +1186,158 @@ UIView.PhotoViewer.photoDidUpload = function(response){
 		(new SDAjax({method: 'get', DONE: [UIView.PhotoViewer, UIView.PhotoViewer.photosDidLoad]})).send(SDDom('media_form').action.replace('photos', 'photos.json'));
 	}
 };
+
+
+UIView.FilmStrip = function(){
+	this.data = null;
+	UIView.apply(this, arguments);
+}
+UIView.Notification = function(){
+	UIView.apply(this, arguments);
+}
+
+
+function sixd(child){
+	this.observe = function(elem, name, fn){
+		if (elem.addEventListener){
+			elem.addEventListener(name, fn, false);
+		}else{
+			elem.attachEvent('on' + name, fn);
+		}
+		return fn;
+	};
+	return this;
+}
+
+sixd.bind = function(fn, context){
+	return function() {
+		var args = new Array();
+		if(window.event){
+			var e = window.event;
+			e.target = window.event.srcElement;
+			args.push(e);
+		}
+		if(arguments && arguments.length > 0){
+			var i = arguments.length;
+			while(arg = arguments[--i]){
+				args.push(arg);
+			}
+		}
+		return fn.apply(context ? context : this, args);
+	}
+}
+
+sixd.main = function(fn){
+	SDDom.addEventListener(window, 'load', fn);
+};
+sixd.get = function(url, fn, context){
+	(new SDAjax({method: 'get', DONE: [context, fn]})).send(url);
+};
+
+sixd.view = function(id, options, child){
+	sixd.apply(this, [this]);
+	this.id = id;
+	this.container = SDDom(id) || SDDom.create('div');
+	this.delegate = options && options.delegate ? options.delegate : null;
+
+	this.dbl_clicked = sixd.bind(function(e){
+		if(this.delegate.dbl_clicked !== undefined){
+			this.delegate.dbl_clicked(e);
+		}
+	}, this);
+	
+	this.clicked = sixd.bind(function(e){
+		if(this.delegate.clicked !== undefined){
+			this.delegate.clicked(e);
+		}
+		child.clicked(e);
+	}, this);
+	
+	this.show = function(){
+		SDDom.toggle(this.container);
+	};
+	SDDom.append(document.body, this.container);
+	this.observe(this.container, 'click', this.clicked);
+	this.observe(this.container, 'dblclick', this.dbl_clicked);
+	return this;
+};
+
+sixd.view.film_strip = function(id, options, child){	
+	sixd.view.apply(this, [id, options, this]);
+	this.file_upload_changed = sixd.bind(function(e){
+		var images = SDDom.findAll('img', this.container);
+		var form = SDDom.findFirst('form[enctype="multipart/form-data"]', this.container);
+		form.submit();		
+	}, this);
+	this.clear = function(){
+		SDDom.removeAllChildren(this.container);
+	};
+	this.set_html = function(html){
+		this.clear();
+		this.container.innerHTML = html;
+		this.observe(SDDom.findFirst('input[type="file"]'), 'change', this.file_upload_changed);
+	};
+	this.display = function(elem){
+		if(this.delegate && this.delegate.display){
+			this.delegate.display(elem);
+		}
+		if(child.display){
+			child.display(elem);
+		}
+	};
+	this.img_clicked = function(e){
+		SDDom.toggleClass('selected', e.target);
+	};
+	this.clicked = function(e){
+		var name = e.target.nodeName.toLowerCase() + '_clicked';
+		if(this[name]){
+			this[name](e);
+		}
+	};
+
+	SDDom.addClass('film_strip', this.container);
+	SDDom.setStyles({display: 'none', position: 'absolute', top: '20px', left: '0px', right: '0px', background: '#000000', color: '#fff', padding: '0px'}, this.container);
+	
+	return this;
+};
+
+sixd.view.file_uploader = function(id, options){
+	sixd.view.apply(this, [id, options]);
+	
+};
+sixd.controller = function(view, child){
+	sixd.apply(this, [this]);
+	this.views = [view];
+	view.delegate = this;
+}
+
+sixd.controller.file_uploader = function(view){
+	sixd.controller.apply(this, [view, this]);
+};
+sixd.controller.film_strip = function(view, options){
+	var fu = new sixd.controller.file_uploader(view);
+	sixd.controller.apply(this, [view, this]);
+	this.handle = SDDom(options && options.handle_id ? options.handle_id : SDDom.create('div'));
+	this.handle_clicked = this.observe(this.handle, 'click', sixd.bind(function(e){
+		SDDom.stop(e);		
+		this.display(e.target);
+		this.get_view().show();
+	}, this));
+	
+	this.get_view = function(){
+		return this.views[0];
+	};
+	this.display = function(elem){
+		var url = elem.href;
+		sixd.get(url.replace('.html', '') + '.phtml', this.will_display, this);
+	};
+	this.will_display = function(request){
+		this.get_view().set_html(request.responseText);
+	};
+	this.file_upoad_clicked = function(e){
+		console.log(e.target);
+	};
+}
+sixd.main(function(e){
+	var fs_controller = new sixd.controller.film_strip(new sixd.view.film_strip(null), {handle_id: 'photos_link'});
+});
