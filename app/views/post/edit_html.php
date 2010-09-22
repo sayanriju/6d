@@ -6,7 +6,7 @@
 		<?php foreach(array('post'=>'Post', 'page'=>'Page', 'quote'=>'Quote', 'photo'=>'Photo', 'album'=>'Album', 'video'=>'Video', 'link'=>'Link') as $key=>$value):?>
             <li>
 				<label for="<?php echo $key;?>"><?php echo $value;?></label>
-				<input name="type" id="<?php echo $key;?>" type="radio" value="<?php echo $key;?>"<?php echo $post->type === $key ? ' checked' : '';?> />
+				<input name="type" id="<?php echo $key;?>" type="radio" value="<?php echo $key;?>"<?php echo $post->type === $key ? ' checked="checked"' : '';?> />
 				
 			</li>
         <?php endforeach;?>
@@ -33,11 +33,6 @@
 			</label>
 		</p>
 		<p>
-			<label for="add-a-photo-link">
-    			<a href="<?php echo Application::urlForWithUser('photos');?>" title="Add a photo" id="add-a-photo-link">+ add a photo</a>
-			</label>
-		</p>
-		<p>
 			<label for="tags" class="inline">Tags separated by commas</label>
 			<input type="text" name="tags" id="tags" value="{$post->tags}" />
 		</p>		
@@ -54,11 +49,11 @@
 			<input type="text" name="post_date" value="{$post->post_date}" id="post_date" />
 		</p>
     	<p>
-        	<input type="checkbox" id="is_published" name="is_published" value="true"<?php echo $post->is_published ? ' checked="true"' : '';?> />
+        	<input type="checkbox" id="is_published" name="is_published" value="true"<?php echo $post->is_published ? ' checked="checked"' : '';?> />
 			<label for="is_published" class="checkbox">Make public</label>
 		</p>
 		<p>
-        	<input type="checkbox" value="true" id="make_home_page" name="make_home_page"<?php echo $post->isHomePage($this->getHome_page_post_id()) ? ' checked="true"' : null;?> />
+        	<input type="checkbox" value="true" id="make_home_page" name="make_home_page"<?php echo $post->isHomePage($this->getHome_page_post_id()) ? ' checked="checked"' : null;?> />
 			<label for="make_home_page" class="checkbox">Make this your home page</label>
 		</p>
     </fieldset>

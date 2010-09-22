@@ -1,4 +1,4 @@
-<section id="list-of-photos">
+<section id="list-of-photos" class="scrollable">
 	<ul>
 	<?php for($i=0; $i < count($photos); $i++):?>
 		<?php $image = $photos[$i];?>
@@ -30,5 +30,4 @@
 		<iframe src="<?php echo Application::urlForWithUser('empty');?>" id="upload_target" name="upload_target" style="width:0;height:0;border:none;"></iframe>
 	</fieldset>
 </form>
-<dl id="photos"></dl>
 <?php endif;?>

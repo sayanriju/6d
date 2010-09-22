@@ -23,7 +23,7 @@
 			return $this->renderView('layouts/default', null);
 		}
 		
-		public function post($photo = null){
+		public function post($photo = null, $callback = null){
 			$photo['error_message'] = null;
 			//console::log(json_encode($photo));
 			$path = $photo['type'];
@@ -67,7 +67,7 @@
 		  int(0)
 		  ["size"]=>*/
 			$photo_path = str_replace('/' . Application::$member->member_name . '/', '/', FrontController::urlFor(null)) . $path;
-			return $this->renderView('photo/show', array('photo'=>$photo, 'photo_name'=>$photo['name'], 'file_name'=>$photo_name, 'photo_path'=>$photo_path, 'width'=>$width));
+			return $this->renderView('photo/show', array('photo'=>$photo, 'photo_name'=>$photo['name'], 'file_name'=>$photo_name, 'photo_path'=>$photo_path, 'width'=>$width, 'callback'=>$callback));
 		}
 		
 	}

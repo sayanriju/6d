@@ -59,7 +59,7 @@ html{
 	background-color: rgb(200, 200,200);
 }
 body{
-	margin: 5px auto;
+	margin: 0 auto;
 	font: normal normal normal 12px/18px 'Lucida Grande', 'Lucida Sans Unicode', Arial, Verdana, sans-serif;
 	line-height: 1.5;
 	text-align: center;
@@ -241,12 +241,67 @@ img.author{
 	-webkit-border-radius: 10px 10px;
 	-moz-border-radius: 10px 10px;
 }
+#content article form fieldset legend{
+	display: none;
+}
+#content article form fieldset.type ul{
+	position: relative;
+	height: 21px;
+	width: 100%;
+}
+#content article form fieldset.type ul li{
+	float: left;
+	margin-right: 1px;
+	display: block;
+	width: 13%;
+	height: 21px;
+	border: solid 1px rgb(50,50,50);
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	text-align: center;
+	position: relative;
+}
+#content article form fieldset.type ul li label{
+	display: block;
+	position: absolute;
+	top: 3px;
+	left: 50%;
+	margin-left: -25%;
+}
+#content article form fieldset.type ul li input[type="radio"]{
+	width: 140%;
+	height: 42px;
+	display: block;
+	padding: 0;
+	margin: 0;
+	position: absolute;
+	top: -10px;
+	left: -17px;
+}
+#content article form fieldset.type ul li{
+	position: relative;
+	overflow: hidden;
+}
+
+#content article form fieldset.type ul li.selected{
+	background: blue;
+	color: white;
+}
+#content article form fieldset textarea{
+	width: 100%;
+	min-height: 400px;
+}
 #content article.first{
 	margin-top: 0;
 }
 article footer{
 	margin-top: 20px;
 }
+.new{
+	margin-bottom: 30px;
+}
+
 .hentry section article footer time, #content article footer time{
 	font-size: 11px;
 	color: rgb(100,100,100);
@@ -263,6 +318,9 @@ article footer{
 .hentry header, .hentry section.entry-content{
 	position: relative;
 }
+.hentry footer{
+	position: relative;
+}
 .hentry footer form{
 	width: 100%;
 	text-align: right;
@@ -277,7 +335,8 @@ article footer{
 code.error ul li{
 	text-align: left;
 }
-article.photo header img{
+article.album header img
+, article.photo header img{
 	width: 500px;
 }
 nav.pages{
@@ -334,15 +393,27 @@ nav.pages a{
 #photo_viewer section ul li img.selected{
 	border: solid 3px rgb(130,200,255);
 }
+
 .film_strip{
 	box-shadow: 0px 3px 7px rgb(50,50,50);
 	-webkit-box-shadow: 0px 3px 7px rgb(50,50,50);
 	-moz-box-shadow: 0px 3px 7px rgb(50,50,50);
+	overflow: hidden;
+	position: fixed;
+	top: 25px;
+	left: 0;
+	right: 0;
+}
+.film_strip .scrollable{
+	overflow-x: scroll;
+	overflow-y: hidden;
+	height: 130px;
+	width: 100%;
 }
 .film_strip ul{
 	margin: 0;
 	padding: 0;
-	height: 112px;
+	height: 130px;
 }
 .film_strip ul li{
 	float: left;
@@ -366,4 +437,10 @@ nav.pages a{
 	display: none;
 }
 .film_strip li.profile{
+}
+.modal form{
+	background: rgb(0,0,0);
+}
+.modal #post_type li{
+	float: left;
 }

@@ -18,6 +18,20 @@
 	<section class="entry-content">
 		<p><?php echo $post->description;?></p>
 	</section>
+	
+		<?php
+		case('album'):?>
+	<header>
+		<?php
+			$album = explode("\n", $post->body);
+			foreach($album as $photo):
+		?>
+		<img src="<?php echo $photo;?>" />			
+		<?php endforeach;?>
+	</header>
+	<section class="entry-content">
+		<p><?php echo $post->descrption;?></p>
+	</section>
 		<?php
 			break;
 		case('photo'):?>

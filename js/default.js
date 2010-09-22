@@ -225,10 +225,11 @@ SDDom.keys = {
 SDDom.observers = [];
 SDDom.remove = function(elem){
 	if(elem){
+		var parent = null;
 		if(elem.item){
 			if(elem.length > 0){
 				var e = elem.item(0);
-				var parent = e.parentNode;
+				parent = e.parentNode;
 				do{
 					SDDom.removeAllEventListeners(e);
 					parent.removeChild(e);
@@ -238,7 +239,8 @@ SDDom.remove = function(elem){
 		}else{
 			if(elem && elem.parentNode){
 				SDDom.removeAllEventListeners(elem);
-				elem.parentNode.removeChild(elem);
+				parent = elem.parentNode;
+				parent.removeChild(elem);
 			}
 		}
 	}
@@ -421,18 +423,42 @@ SDDom.addEventListener(window, 'unload', function(e){
 	}
 });
 
-SDDom.getHeight = function(elem){
-	if(elem == window){
-		elem = document.body;
-	}
-	return elem.clientHeight;
+SDDom.getStyle = function(elem, name){
+	return elem.currentStyle ? elem.currentStyle[name] : document.defaultView.getComputedStyle(elem, null).getPropertyValue(name);	
 };
 SDDom.getWidth = function(elem){
 	if(elem === window){
 		elem = document.body;
 	}
-	return elem.clientWidth;
+	var width = SDDom.getStyle(elem, 'width') || 0;
+	if(!elem.curretnStyle){
+		width = SDDom.getStyle(elem, 'width') || 0;
+		var padding_left = SDDom.getStyle(elem, 'padding-left') || 0;
+		var padding_right = SDDom.getStyle(elem, 'padding-right') || 0;
+		var margin_left = 0;//SDDom.getStyle(elem, 'margin-left') || 0;
+		var margin_right = 0;//SDDom.getStyle(elem, 'margin-right') || 0;
+		var border_width = SDDom.getStyle(elem, 'border-width') || 0;
+		width = parseInt(width) + parseInt(padding_left) + parseInt(padding_right) + parseInt(margin_left) + parseInt(margin_right) + parseInt(border_width) * 2;
+	}
+	return width;
 };
+SDDom.getHeight = function(elem){
+	if(elem === window){
+		elem = document.body;
+	}
+	var height = SDDom.getStyle(elem, 'height') || 0;
+	if(!elem.curretnStyle){
+		height = SDDom.getStyle(elem, 'height') || 0;
+		var padding_top = SDDom.getStyle(elem, 'padding-top') || 0;
+		var padding_bottom = SDDom.getStyle(elem, 'padding-bottom') || 0;
+		var margin_top = 0;//SDDom.getStyle(elem, 'margin-top') || 0;
+		var margin_bottom = 0;//SDDom.getStyle(elem, 'margin-bottom') || 0;
+		var border_width = SDDom.getStyle(elem, 'border-width') || 0;
+		height = parseInt(height) + parseInt(padding_top) + parseInt(padding_bottom) + parseInt(margin_top) + parseInt(margin_bottom) + parseInt(border_width) * 2;
+	}
+	return height;
+};
+
 // From prototype.js
 //http://prototypejs.org/
 SDDom.getPosition = function(elem, from){
@@ -463,7 +489,7 @@ SDDom.create = function(tag, properties){
 	return elem;
 };
 SDDom.insertBefore = function(elem, parent){
-	parent.insertBefore(elem, parent.firstChild);
+	parent.parentNode.insertBefore(elem, parent);
 	return elem;
 };
 SDDom.insertAfter = function(elem, parent){
@@ -723,9 +749,9 @@ UIView.Overlay = function(options){
 	this.id = 'overlay_' + Date.UTC(today.getFullYear(), today.getMonth(), today.getDay());
 	this.container = SDDom.create('div');
 	this.container.id = '__overlay';
-	SDDom.setStyles({"top":"0", "left":"0", "bottom":"0", "right":"0", "display": "none", "width": "100%", "height":"100%", "position":"absolute", "background": "#000", "opacity":".5"}, this.container);
+	SDDom.setStyles({"top":"0", "left":"0", "bottom":"0", "right":"0", "display": "none", "width": "100%", "height":"100%", "position":"fixed", "background": "#000", "opacity":".5"}, this.container);
 	SDDom.setStyles({zIndex: 1}, this.container);
-	SDDom.insertBefore(this.container, SDDom.byTag('body')[0]);
+	SDDom.insertBefore(this.container, document.body.children[0]);
 	
 	this.toggle = function(){
 		SDDom.toggle(this.container);
@@ -1104,7 +1130,7 @@ UIView.Cropper = function(id, options){
 }
 
 UIView.PhotoViewer = function(id, options){
-	SDDom.append(document.body, SDDom.create('div', {id:id}));
+	SDDom.append(document.body.children[0], SDDom.create('div', {id:id}));
 	var self = UIView.apply(this, arguments);
 	SDDom.setStyles({position: 'absolute', margin: '0 auto', display: 'block', top: 0, left: 0, width: '360px', height: '400px', border: 'solid 5px #fff', background: '#000', overflow: 'hidden'}, this.container);
 	var bounds = {ux: SDDom.getWidth(window), lx: 0, uy: SDDom.getHeight(window), ly: 0};
@@ -1197,8 +1223,9 @@ UIView.Notification = function(){
 }
 
 
-function sixd(child){
-	this.observe = function(elem, name, fn){
+function sixd(){
+	var observers = [];
+	this.listen_for = function(elem, name, fn){
 		if (elem.addEventListener){
 			elem.addEventListener(name, fn, false);
 		}else{
@@ -1206,9 +1233,19 @@ function sixd(child){
 		}
 		return fn;
 	};
+	this.add_subscriber = function(subscriber, notification){
+		observers.push({subscriber: subscriber, notification: notification});
+	};
+	this.publish = function(notification, info){
+		var i = 0;
+		for(i = 0; i < observers.length; i++){
+			if(observers[i].notification === notification){
+				observers[i].subscriber.update(this, notification, info);
+			}
+		}
+	};
 	return this;
 }
-
 sixd.bind = function(fn, context){
 	return function() {
 		var args = new Array();
@@ -1226,6 +1263,41 @@ sixd.bind = function(fn, context){
 		return fn.apply(context ? context : this, args);
 	}
 }
+sixd.array = function(){
+	
+};
+
+sixd.array.remove_from = function(item, ary, fn){
+	var i = ary.length;
+	while(i--){
+		if(fn !== null){
+			if(fn(item)){
+				ary.splice(i, 1);
+				return ary;
+			}
+		}else if(ary[i] === item){
+			ary.splice(i, 1);
+			return ary;
+		}
+		
+	}
+	return ary;
+};
+sixd.array.each = function(ary, fn){
+	var i = 0;
+	for(i = 0; i < ary.length; i++){
+		fn(ary[i]);
+	}
+	return ary;
+};
+sixd.array.collect = function(ary, fn){
+	var temp = [];
+	var i = 0;
+	for(i = 0; i < ary.length; i++){
+		temp.push(fn(ary[i], i));
+	}
+	return temp;
+};
 
 sixd.main = function(fn){
 	SDDom.addEventListener(window, 'load', fn);
@@ -1233,111 +1305,351 @@ sixd.main = function(fn){
 sixd.get = function(url, fn, context){
 	(new SDAjax({method: 'get', DONE: [context, fn]})).send(url);
 };
-
-sixd.view = function(id, options, child){
-	sixd.apply(this, [this]);
-	this.id = id;
-	this.container = SDDom(id) || SDDom.create('div');
-	this.delegate = options && options.delegate ? options.delegate : null;
-
-	this.dbl_clicked = sixd.bind(function(e){
-		if(this.delegate.dbl_clicked !== undefined){
-			this.delegate.dbl_clicked(e);
-		}
+sixd.model = function(child){
+	sixd.apply(this, arguments);
+};
+sixd.file_uploader = function(form, elem, callback, delegate){
+	sixd.apply(this, arguments);
+	this.button = elem;
+	this.callback = callback;
+	this.form = form;
+	this.delegate = delegate;
+	this.changed = sixd.bind(function(e){
+		this.form.action += '&callback=' + this.callback;
+		this.form.submit();
 	}, this);
-	
-	this.clicked = sixd.bind(function(e){
-		if(this.delegate.clicked !== undefined){
-			this.delegate.clicked(e);
-		}
-		child.clicked(e);
-	}, this);
-	
-	this.show = function(){
-		SDDom.toggle(this.container);
+	this.did_upload = function(response){
+		this.reset();
+		this.delegate.did_upload(response);
 	};
-	SDDom.append(document.body, this.container);
-	this.observe(this.container, 'click', this.clicked);
-	this.observe(this.container, 'dblclick', this.dbl_clicked);
-	return this;
+	this.reset = function(){
+		this.form.reset();
+	};
+	this.listen_for(elem, 'change', this.changed);
 };
 
-sixd.view.film_strip = function(id, options, child){	
-	sixd.view.apply(this, [id, options, this]);
-	this.file_upload_changed = sixd.bind(function(e){
-		var images = SDDom.findAll('img', this.container);
-		var form = SDDom.findFirst('form[enctype="multipart/form-data"]', this.container);
-		form.submit();		
-	}, this);
+sixd.controller = function(view, options){
+	sixd.apply(this, [this]);
+	this.handle = SDDom(options && options.handle_id ? options.handle_id : SDDom.create('div'));
+	this.views = [view];
+	this.delegate = options && options.delegate ? options.delegate : null;
+	view.controller = this;
+	var self = this;
+	this.handle_clicked = this.listen_for(this.handle, 'click', function(e){
+		SDDom.stop(e);
+		self.get_view().toggle();
+		self.get_view().make_active(1000);
+	});
+};
+
+sixd.view = function(id, options){
+	sixd.apply(this, [this]);
+	var self = this;
+	this.options = SDObject.extend({tag: 'div'}, options);
+	this.event_clicked = function(e){};
+	this.event_dbl_clicked = function(e){};
+	this.event_will_show = function(){
+		if(this.controller && this.controller.event_will_show){
+			this.controller.event_will_show(this);			
+		}
+	};
+	this.event_will_hide = function(){
+		if(this.controller && this.controller.event_will_hide){
+			this.controller.event_will_hide(this);			
+		}
+	};
+	this.dbl_clicked = function(e){
+		if(self.controller && self.controller.dbl_clicked !== undefined){
+			self.controller.dbl_clicked(e);
+		}
+		self.event_dbl_clicked(e);
+	};
+	this.clicked = function(e){
+		if(self.controller && self.controller.clicked !== undefined){
+			self.controller.clicked(e);
+		}
+		self.event_clicked(e);
+	};
+
+	this.is_visible = function(){
+		return SDDom.isVisible(this.container);
+	};
 	this.clear = function(){
 		SDDom.removeAllChildren(this.container);
 	};
-	this.set_html = function(html){
-		this.clear();
-		this.container.innerHTML = html;
-		this.observe(SDDom.findFirst('input[type="file"]'), 'change', this.file_upload_changed);
+	this.toggle = function(){		
+		if(SDDom.isVisible(this.container)){
+			this.event_will_hide();
+		}else{
+			this.event_will_show();
+		}
+		SDDom.toggle(this.container);
 	};
 	this.display = function(elem){
-		if(this.delegate && this.delegate.display){
-			this.delegate.display(elem);
+		if(this.controller && this.controller.display){
+			this.controller.display(elem);
 		}
-		if(child.display){
-			child.display(elem);
+	};
+	this.move_to_center = function(){
+		SDDom.setStyles({padding: '0px', position: 'fixed', top: '50%', left: '50%'}, this.container);
+		var width = -1*SDDom.getWidth(this.container)/2 + 'px';
+		var height = -1*SDDom.getHeight(this.container)/2 + 'px';
+		SDDom.setStyles({"margin-left":width, "margin-top":height}, this.container);
+	};
+	this.make_active = function(position){
+		SDDom.setStyles({"z-index":position}, this.container);
+	};
+	this.make_inactive = function(position){
+		SDDom.setStyles({"z-index":position}, this.container);
+	};
+	this.controller = null;
+	this.id = id;
+	this.container = SDDom(id) || SDDom.create(this.options.tag, {id: id});
+	SDDom.setStyles({"display":"none"}, this.container);	
+	SDDom.insertBefore(this.container, document.body.children[0]);
+	this.listen_for(this.container, 'click', this.clicked);
+	this.listen_for(this.container, 'dblclick', this.dbl_clicked);
+	return this;
+};
+sixd.view.overlay = function(){
+	var today = new Date();
+	this.id = 'overlay_' + Date.UTC(today.getFullYear(), today.getMonth(), today.getDay());
+	sixd.view.apply(this, [this.id]);
+	this.container = SDDom.create('div');
+	this.container.id = this.id;
+	SDDom.setStyles({"top":"0", "left":"0", "bottom":"0", "right":"0", "display": "none", "width": "100%", "height":"100%", "position":"fixed", "background": "#000", "opacity":".5"}, this.container);
+	SDDom.setStyles({zIndex: 1}, this.container);
+	SDDom.insertBefore(this.container, document.body.children[0]);
+};
+sixd.view.modal = function(id, options){
+	this.overlay = new sixd.view.overlay();
+	sixd.view.apply(this, [id, options, this]);
+	this.options = SDObject.extend(this.options || {}, options);
+	SDDom.setStyles({"z-index":1000, display: 'none', background: '#000000', color: '#fff', padding: '0px'}, this.container);
+	if(this.options.width){
+		SDDom.setStyles({width: this.options.width + 'px'}, this.container);
+	}
+	if(this.options.height){
+		SDDom.setStyles({height: this.options.height + 'px'}, this.container);
+	}
+};
+
+sixd.view.post = function(id, options){	
+	sixd.view.apply(this, [id, options]);
+	var self = this;
+	this.post = {title: null, body: null, post_type: null, id: null, source: null, tags: null, description: null, password: null, post_date: null, is_published: null, make_home_page: null};
+	this.title = null;
+	this.body = null;
+	this.post_types = null;
+	this.id = null;
+	this.source = null;
+	this.tags = null;
+	this.description = null;
+	this.password = null;
+	this.post_date = null;
+	this.is_published = null;
+	this.make_home_page = null;
+	var first_article = SDDom.findFirst('article.hentry', document);
+	SDDom.insertBefore(this.container, first_article);
+	SDDom.addClass('hentry new', this.container);
+	function set_outlets(){
+		self.title = SDDom('title');
+		self.body = SDDom('body');
+		self.post_types = SDDom.findFirst('input[name="post_type"]', this.container);
+		self.id = SDDom('id');
+		self.source = SDDom('source');
+		self.tags = SDDom('tags');
+		self.description = SDDom('description');
+		self.password = SDDom('password');
+		self.post_date = SDDom('post_date');
+		self.is_published = SDDom('is_published');
+		self.make_home_page = SDDom('make_home_page');
+	}
+	function highlight_post_type(elem){
+		var selected = SDDom.findFirst('li.selected', elem.parentNode.parentNode);
+		if(selected !== null){
+			SDDom.removeClass('selected', selected);			
 		}
+		elem.parentNode.className = 'selected';
+	};
+	
+	this.event_will_show = function(){
+		this.controller.event_will_show(this);
+	};
+	this.event_will_hide = function(){
+		this.clear();
+	};
+	this.set_html = function(html){
+		this.container.innerHTML = html;
+		this.controller.html_was_set(html);
+		set_outlets();
+		highlight_post_type(SDDom.findFirst('ul li input[checked="checked"]', this.container));
+	};
+	this.input_clicked = function(e){
+		highlight_post_type(e.target);
+	};
+	this.event_clicked = function(e){
+		var name = e.target.nodeName.toLowerCase() + '_clicked';
+		console.log(name);
+		
+		if(this[name]){
+			this[name](e);
+		}
+	};
+	return this;
+};
+
+sixd.view.film_strip = function(id, options){	
+	sixd.view.apply(this, [id, options, this]);
+	this.is_selected = function(img){
+		return img.className === 'selected';
+	};
+	this.make_scrollable = function(elem){
+		var lis = SDDom.findAll('li', this.container);
+		var i = lis.length;
+		var width = 0;
+		var tmp_width = 0;
+		for(i = 0; i < lis.length; i++){
+			width = width + 5 + SDDom.getWidth(lis[i]);
+		}
+		SDDom.setStyles({width: width + 'px'}, elem);
+	};
+	this.set_html = function(html){
+		this.container.innerHTML = html;
+		this.controller.html_was_set(html);
+		this.make_scrollable(SDDom.findFirst('.scrollable ul', this.container));
 	};
 	this.img_clicked = function(e){
 		SDDom.toggleClass('selected', e.target);
 	};
-	this.clicked = function(e){
+	this.event_clicked = function(e){
 		var name = e.target.nodeName.toLowerCase() + '_clicked';
 		if(this[name]){
 			this[name](e);
 		}
 	};
-
-	SDDom.addClass('film_strip', this.container);
-	SDDom.setStyles({display: 'none', position: 'absolute', top: '20px', left: '0px', right: '0px', background: '#000000', color: '#fff', padding: '0px'}, this.container);
+	this.event_will_hide = function(){
+		this.clear();
+	};
 	
+	this.add_image = function(image){
+		var li = SDDom.create('li');
+		var title = SDDom.create('h3');
+		var img = new Image();
+		var form = SDDom.create('form', {method:'post', action: SDObject.rootUrl + '/photo', className:'delete'});
+		img.src = image.photo_path;
+		SDDom.append(form, SDDom.create('input', {type: 'hidden', value:'delete', name:'_method'}));
+		SDDom.append(form, SDDom.create('input', {type: 'hidden', value:image.photo_path, name:'src'}));
+		SDDom.append(form, SDDom.create('button', {type: 'submit', innerHTML:'Delete'}));
+		
+		SDDom.append(li, title);
+		SDDom.append(li, img);
+		SDDom.append(li, form);
+		SDDom.append(SDDom.findFirst('ul', this.container), li);
+		this.make_scrollable(SDDom.findFirst('.scrollable ul', this.container));
+	};
+	SDDom.addClass('film_strip', this.container);
+	SDDom.setStyles({display: 'none', background: '#000000', color: '#fff', padding: '0px'}, this.container);
 	return this;
 };
 
-sixd.view.file_uploader = function(id, options){
-	sixd.view.apply(this, [id, options]);
-	
-};
-sixd.controller = function(view, child){
-	sixd.apply(this, [this]);
-	this.views = [view];
-	view.delegate = this;
-}
-
-sixd.controller.file_uploader = function(view){
-	sixd.controller.apply(this, [view, this]);
-};
-sixd.controller.film_strip = function(view, options){
-	var fu = new sixd.controller.file_uploader(view);
-	sixd.controller.apply(this, [view, this]);
-	this.handle = SDDom(options && options.handle_id ? options.handle_id : SDDom.create('div'));
-	this.handle_clicked = this.observe(this.handle, 'click', sixd.bind(function(e){
-		SDDom.stop(e);		
-		this.display(e.target);
-		this.get_view().show();
-	}, this));
-	
+sixd.controller.post = function(view, options){
+	sixd.controller.apply(this, [view, options]);
+	var self = this;
+	this.selected_images = [];
 	this.get_view = function(){
 		return this.views[0];
 	};
-	this.display = function(elem){
-		var url = elem.href;
-		sixd.get(url.replace('.html', '') + '.phtml', this.will_display, this);
+	this.event_will_show = function(view){
+		if(this.delegate !== null){
+			this.delegate.event_view_will_show(view);
+		}
+		var url = this.handle.href;
+		sixd.get(url.replace('.html', '') + '.phtml', this.request_is_done, this);
 	};
-	this.will_display = function(request){
+	this.request_is_done = function(request){
+		this.get_view().set_html(request.responseText);
+		for(var i = 0; i < this.selected_images.length; i++){
+			this.get_view().body.value += this.selected_images[i].src + '\n';
+		}
+	};
+	this.html_was_set = function(html){
+		
+	};
+	this.clicked = function(e){
+		this.delegate.event_view_was_clicked(this.get_view());
+	};
+	this.update = function(publisher, notification, info){
+		if(this.get_view().body !== null){
+			this.get_view().body.value = sixd.array.collect(info.selected_images, function(image){return image.src;}).join('\n');			
+		}
+	};
+};
+sixd.controller.film_strip = function(view, options){
+	sixd.controller.apply(this, [view, options]);
+	var self = this;
+	this.uploader = null;
+	this.callback = options.callback;
+	this.selected_images = [];
+	this.clicked = function(e){
+		if(e.target.nodeName === 'IMG'){
+			var image = new Image();
+			image.src = e.target.src;
+			this.publish('image_was_clicked', this);
+			if(!this.get_view().is_selected(e.target)){
+				this.selected_images.push(image);
+			}else{
+				this.selected_images = sixd.array.remove_from(image, this.selected_images, function(item){return item.src === image.src;});
+			}
+		}
+		this.delegate.event_view_was_clicked(this.get_view());
+	};
+	this.get_view = function(){
+		return this.views[0];
+	};
+	this.event_will_hide = function(view){
+		this.post_controller = null;
+	};
+	this.event_will_show = function(view){
+		this.delegate.event_view_will_show(view);
+		var url = this.handle.href;
+		sixd.get(url.replace('.html', '') + '.phtml', this.request_is_done, this);
+	};
+	this.request_is_done = function(request){
 		this.get_view().set_html(request.responseText);
 	};
-	this.file_upoad_clicked = function(e){
-		console.log(e.target);
+	this.html_was_set = function(html){
+		var form = SDDom.findFirst('form[enctype="multipart/form-data"]', this.get_view().container);
+		this.uploader = new sixd.file_uploader(form, SDDom.findFirst('input[type="file"]', this.get_view().container), this.callback, this);
+	};
+	this.did_upload = function(response){
+		this.get_view().add_image(response);
 	};
 }
+
+sixd.app = function(controllers){
+	var i = controllers.length;
+	while(controller = controllers[--i]){
+		controller.delegate = this;
+	}
+	this.controllers = controllers;
+	this.event_view_was_clicked = function(view){
+		for(var i = 0; i < this.controllers.length; i++){
+			this.controllers[i].get_view().make_inactive(i);
+		}
+		view.make_active(i+1);
+	};
+	this.event_view_will_show = function(view){
+	};
+};
+var fs_controller = null;
+var post_controller = null;
+var app = null;
 sixd.main(function(e){
-	var fs_controller = new sixd.controller.film_strip(new sixd.view.film_strip(null), {handle_id: 'photos_link'});
+	if(SDDom('photos_link')){
+		fs_controller = new sixd.controller.film_strip(new sixd.view.film_strip(null), {handle_id: 'photos_link', callback: 'fs_controller.uploader.did_upload'});
+		post_controller = new sixd.controller.post(new sixd.view.post('post_view', {tag: 'article'}), {handle_id: 'new_post_link'});
+		fs_controller.add_subscriber(post_controller, 'image_was_clicked');
+		app = new sixd.app([fs_controller, post_controller]);
+	}
 });
