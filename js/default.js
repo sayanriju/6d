@@ -160,8 +160,9 @@ SDArray.contains = function(needle, ary, delegate){
 	return false;
 };
 SDArray.remove = function(item, ary){
-	var i = ary.length;
-	while(i--){
+	var ubounds = ary.length;
+	var i = 0;
+	for(i=0; i<ubounds; i++){
 		if(ary[i] === item){
 			ary.splice(i, 1);
 			return ary;
@@ -1240,7 +1241,7 @@ function sixd(){
 		var i = 0;
 		for(i = 0; i < observers.length; i++){
 			if(observers[i].notification === notification){
-				observers[i].subscriber.update(this, notification, info);
+				observers[i].subscriber[notification].apply(observers[i].subscriber, [observers[i].publisher, info]);
 			}
 		}
 	};
@@ -1268,18 +1269,18 @@ sixd.array = function(){
 };
 
 sixd.array.remove_from = function(item, ary, fn){
-	var i = ary.length;
-	while(i--){
+	var ubounds = ary.length;
+	var i = 0;
+	for(i=0; i < ubounds; i++){
 		if(fn !== null){
-			if(fn(item)){
-				ary.splice(i, 1);
+			if(fn(item, i)){
+				ary.splice(i,1);
 				return ary;
 			}
 		}else if(ary[i] === item){
 			ary.splice(i, 1);
 			return ary;
 		}
-		
 	}
 	return ary;
 };
@@ -1297,6 +1298,32 @@ sixd.array.collect = function(ary, fn){
 		temp.push(fn(ary[i], i));
 	}
 	return temp;
+};
+sixd.array.contains = function(item, ary, fn){
+	var i = 0;
+	for(i = 0; i < ary.length; i++){
+		if(fn(item, ary[i])){
+			return true;
+		}
+	}
+	return false;
+};
+sixd.array.pluck = function(ary, key){
+	var temp = [];
+	var i = 0;
+	for(i = 0; i < ary.length; i++){
+		temp.push(ary[i][key]);
+	}
+	return temp;
+};
+sixd.array.find = function(item, ary, fn){
+	var i = ary.length;
+	while(i--){
+		if(fn(ary[i])){
+			return ary[i];
+		}
+	}
+	return null;
 };
 
 sixd.main = function(fn){
@@ -1441,6 +1468,7 @@ sixd.view.post = function(id, options){
 	this.title = null;
 	this.body = null;
 	this.post_types = null;
+	this.post_type = null;
 	this.id = null;
 	this.source = null;
 	this.tags = null;
@@ -1449,6 +1477,11 @@ sixd.view.post = function(id, options){
 	this.post_date = null;
 	this.is_published = null;
 	this.make_home_page = null;
+	this.frame = null;
+	this.selected_images = new sixd.model.images();
+	this.selected_images.add_subscriber(this, 'image_was_added');
+	this.selected_images.add_subscriber(this, 'image_was_removed');
+	
 	var first_article = SDDom.findFirst('article.hentry', document);
 	SDDom.insertBefore(this.container, first_article);
 	SDDom.addClass('hentry new', this.container);
@@ -1472,7 +1505,32 @@ sixd.view.post = function(id, options){
 		}
 		elem.parentNode.className = 'selected';
 	};
+	function swap_view_to(post_type){
+		var name = 'swap_to_' + post_type;
+		if(self[name]){
+			self[name]();
+		}
+	}
 	
+	this.swap_to_photo = function(){
+		if(SDDom.isVisible(this.body)){
+			SDDom.hide(this.body);
+			this.frame = SDDom.create('div', {id:'post_view_frame'});
+			SDDom.insertBefore(this.frame, this.body);
+		}
+	};
+	this.swap_to_album = function(){
+		this.swap_to_photo();
+	};
+	this.set_post_type = function(post_type){
+		this.post_type = post_type;
+		var elem = SDDom.findFirst('input[value="' + post_type + '"]', this.container);
+		if(SDDom.isVisible(this.container)){
+			elem.setAttribute('checked', true);
+			highlight_post_type(elem);
+			swap_view_to(post_type);			
+		}
+	};
 	this.event_will_show = function(){
 		this.controller.event_will_show(this);
 	};
@@ -1483,19 +1541,51 @@ sixd.view.post = function(id, options){
 		this.container.innerHTML = html;
 		this.controller.html_was_set(html);
 		set_outlets();
-		highlight_post_type(SDDom.findFirst('ul li input[checked="checked"]', this.container));
+		if(this.selected_images.get_length() > 1){
+			this.set_post_type('album');
+		}else if(this.selected_images.get_length() > 0){
+			this.set_post_type('photo');
+		}else{
+			this.set_post_type(SDDom.findFirst('ul li input[checked="checked"]', this.container).value);
+		}
 	};
 	this.input_clicked = function(e){
-		highlight_post_type(e.target);
+		if(e.target.type === 'radio'){
+			this.set_post_type(e.target.value);
+		}
+		
 	};
 	this.event_clicked = function(e){
 		var name = e.target.nodeName.toLowerCase() + '_clicked';
-		console.log(name);
-		
 		if(this[name]){
 			this[name](e);
 		}
 	};
+	function switch_post_type(){
+		if(self.selected_images.get_length() > 1){
+			self.set_post_type('album');
+		}else if(self.selected_images.get_length() > 0){
+			self.set_post_type('photo');			
+		}
+	}
+	this.remove_image_from_frame = function(img){
+		img = SDDom.findFirst('img[src="' + img.src + '"]', this.frame);
+		SDDom.remove(img);
+	};
+	this.add_image_to_frame = function(img){
+		this.frame.innerHTML += '<img src="' + img.src + '" />';
+	};
+	this.image_was_added = function(publisher, info){
+		switch_post_type();
+		this.body.value = sixd.array.pluck(this.selected_images.get_list(), 'src').join('\n');
+		this.add_image_to_frame(info);
+	}
+	this.image_was_removed = function(publisher, info){
+		switch_post_type();
+		this.body.value = sixd.array.pluck(this.selected_images.get_list(), 'src').join('\n');
+		this.remove_image_from_frame(info);
+	}
+
 	return this;
 };
 
@@ -1553,10 +1643,37 @@ sixd.view.film_strip = function(id, options){
 	return this;
 };
 
+sixd.model.images = function(list){
+	sixd.apply(this, arguments);
+	var images = (list == null ? [] : list);
+	this.contains = function(image){
+		//return sixd.array.contains(image, images, function(item, image){return item.src == image.src;});
+		var contains = false;
+		sixd.array.each(images, function(img){
+			if(img.src == image.src){
+				contains = true;
+			}
+		});
+		return contains;
+	};
+	this.add = function(img){
+		images.push(img);
+		this.publish('image_was_added', img);
+	};
+	this.remove = function(img){
+		images = sixd.array.remove_from(img, images, function(item){return item.src == img.src;});
+		this.publish('image_was_removed', img);
+	};
+	this.get_list = function(){
+		return images;
+	};
+	this.get_length = function(){
+		return images.length;
+	};
+};
 sixd.controller.post = function(view, options){
 	sixd.controller.apply(this, [view, options]);
 	var self = this;
-	this.selected_images = [];
 	this.get_view = function(){
 		return this.views[0];
 	};
@@ -1569,9 +1686,6 @@ sixd.controller.post = function(view, options){
 	};
 	this.request_is_done = function(request){
 		this.get_view().set_html(request.responseText);
-		for(var i = 0; i < this.selected_images.length; i++){
-			this.get_view().body.value += this.selected_images[i].src + '\n';
-		}
 	};
 	this.html_was_set = function(html){
 		
@@ -1579,10 +1693,11 @@ sixd.controller.post = function(view, options){
 	this.clicked = function(e){
 		this.delegate.event_view_was_clicked(this.get_view());
 	};
-	this.update = function(publisher, notification, info){
-		if(this.get_view().body !== null){
-			this.get_view().body.value = sixd.array.collect(info.selected_images, function(image){return image.src;}).join('\n');			
-		}
+	this.image_was_removed = function(publisher, info){
+		this.get_view().selected_images.remove(info);
+	};
+	this.image_was_added= function(publisher, info){
+		this.get_view().selected_images.add(info);
 	};
 };
 sixd.controller.film_strip = function(view, options){
@@ -1590,16 +1705,17 @@ sixd.controller.film_strip = function(view, options){
 	var self = this;
 	this.uploader = null;
 	this.callback = options.callback;
-	this.selected_images = [];
+	this.selected_images = new sixd.model.images();
 	this.clicked = function(e){
 		if(e.target.nodeName === 'IMG'){
 			var image = new Image();
 			image.src = e.target.src;
-			this.publish('image_was_clicked', this);
 			if(!this.get_view().is_selected(e.target)){
-				this.selected_images.push(image);
+				this.selected_images.add(image);
+				this.publish('image_was_added', image);
 			}else{
-				this.selected_images = sixd.array.remove_from(image, this.selected_images, function(item){return item.src === image.src;});
+				this.selected_images.remove(image);				
+				this.publish('image_was_removed', image);
 			}
 		}
 		this.delegate.event_view_was_clicked(this.get_view());
@@ -1649,7 +1765,8 @@ sixd.main(function(e){
 	if(SDDom('photos_link')){
 		fs_controller = new sixd.controller.film_strip(new sixd.view.film_strip(null), {handle_id: 'photos_link', callback: 'fs_controller.uploader.did_upload'});
 		post_controller = new sixd.controller.post(new sixd.view.post('post_view', {tag: 'article'}), {handle_id: 'new_post_link'});
-		fs_controller.add_subscriber(post_controller, 'image_was_clicked');
+		fs_controller.add_subscriber(post_controller, 'image_was_added');
+		fs_controller.add_subscriber(post_controller, 'image_was_removed');
 		app = new sixd.app([fs_controller, post_controller]);
 	}
 });
