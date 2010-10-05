@@ -83,6 +83,7 @@ class Application{
 			}
 		}elseif($e->getCode() == 404){
 			$resource->output = $resource->renderView('error/404', array('message'=>$e->getMessage()));
+			$this->status = new HttpStatus(404);
 			return $resource->renderView('layouts/default');
 		}elseif(strpos($e->getMessage(), 'No database selected') !== false || get_class($e) == 'DSException'){
 			Resource::setUserMessage($e->getMessage() . ' - You need to create the database first.');
@@ -152,8 +153,8 @@ class Application{
 				$resource->keywords = implode(', ', String::getKeyWordsFromContent($post->body));		
 				$resource->title = $post->title;
 			}else{
-				FrontController::send404Headers($page_name . ' was not found');
 				$resource->output = $resource->renderView('error/404', array('message'=>$method . ' ' . $page_name . ' was not found.'));
+				FrontController::send404Headers($page_name . ' was not found');
 			}				
 		}
 		if($resource->title === null){

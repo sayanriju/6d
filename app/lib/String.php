@@ -245,7 +245,7 @@
 		public static function encrypt($value){
 			return sha1($value);
 		}
-		public static function stripHtmlTags($html, $allowed_tags = array()){
+		public static function stripHtmlTags($html, $allowed_tags = null){
 			return strip_tags($html, $allowed_tags);
 		}
 		public static function truncate($text, $length, $suffix = '...'){

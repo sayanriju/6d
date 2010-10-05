@@ -205,7 +205,7 @@ eos;
 		}
 		public function getTitleFromOutput($output){
 			$matches = array();
-			preg_match ( '/\<h1\>.*\<\/h1\>/' , $output, $matches);
+			preg_match( '/\<h1\>.*\<\/h1\>/' , $output, $matches);
 			if(count($matches) > 0){
 				return String::stripHtmlTags($matches[0]);
 			}else{

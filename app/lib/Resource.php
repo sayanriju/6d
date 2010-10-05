@@ -8,6 +8,7 @@ class Resource extends Object{
 	public function __destruct(){
 		parent::__destruct();
 	}
+	public $status;
 	public $output;
 	public $name;
 	public $resource_css;

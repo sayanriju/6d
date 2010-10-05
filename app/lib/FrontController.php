@@ -1,6 +1,126 @@
 <?php
 class_exists('String') || require('lib/String.php');
 class_exists('Object') || require('lib/Object.php');
+class HttpStatus{
+	public function __construct($code){
+		$this->code = $code;
+		switch($code){
+			case(200):
+				$this->message = 'OK';
+				break;
+			case(201):
+				$this->message = 'Created';
+				break;
+			case(202):
+				$this->message = 'Accepted';
+				break;
+			case(203):
+				$this->message = 'Non-Authoritative Information';
+				break;
+			case(204):
+				$this->message = 'No Content';
+				break;
+			case(205):
+				$this->message = 'Reset Content';
+				break;
+			case(206):
+				$this->message = 'Partial Content';
+				break;
+			case(301):
+				$this->message = 'Moved Permanently';
+				break;
+			case(302):
+				$this->message = 'Found';
+				break;
+			case(303):
+				$this->message = 'See Other';
+				break;	
+			case(304):
+				$this->message = 'Not Modified';
+				break;
+			case(305):
+				$this->message = 'Use Proxy';
+				break;		
+			case(307):
+				$this->message = 'Temporary Redirect';
+				break;
+			case(400):
+				$this->message = 'Bad Request';
+				break;
+			case(401):
+				$this->message = 'Unauthorized';
+				break;
+			case(402):
+				$this->message = 'Payment Required';
+				break;
+			case(403):
+				$this->message = 'Forbidden';
+				break;
+			case(404):
+				$this->message = 'Not Found';
+				break;
+			case(405):
+				$this->message = 'Method Not Allowed';
+				break;
+			case(406):
+				$this->message = 'Not Acceptable';
+				break;
+			case(407):
+				$this->message = 'Proxy Authentication Required';
+				break;
+			case(408):
+				$this->message = 'Request Timeout';
+				break;
+			case(409):
+				$this->message = 'Conflict';
+				break;
+			case(410):
+				$this->message = 'Gone';
+				break;
+			case(411):
+				$this->message = 'Length Required';
+				break;
+			case(412):
+				$this->message = 'Precondition Failed';
+				break;
+			case(413):
+				$this->message = 'Request Entity Too Large';
+				break;
+			case(414):
+				$this->message = 'Request Entity Too Long';
+				break;
+			case(415):
+				$this->message = 'Unsupported Media Type';
+				break;
+			case(416):
+				$this->message = 'Requested Range Not Satisfiable';
+				break;
+			case(417):
+				$this->message = 'Expectation Failed';
+				break;
+			case(500):
+				$this->message = 'Internal Server Error';
+				break;
+			case(501):
+				$this->message = 'Not Implemented';
+				break;
+			case(502):
+				$this->message = 'Bad Gateway';
+				break;
+			case(503):
+				$this->message = 'Service Unavailable';
+				break;
+			case(504):
+				$this->message = 'Gateway Timeout';
+				break;
+			case(505):
+				$this->message = 'HTTP Version Not Supported';
+				break;
+		}
+	}
+	public $code;
+	public $message;
+}
 class FrontController extends Object{
 	public function __construct($context){
 		self::$start_time = microtime(true);
@@ -11,7 +131,6 @@ class FrontController extends Object{
 	public static $start_time;
 	public static $end_time;
 	public $request_time;
-	const BADREQUEST = '400: Bad Request';
 	const UNAUTHORIZED = '401: Unauthorized';
 	const NOTFOUND = '404: Not Found';
 	public $context;
@@ -25,7 +144,11 @@ class FrontController extends Object{
 			header(sprintf("%s: %s", $key, $value));
 		}		
 	}
-	public static function sendXmlHeaders($type){
+	public static function sendStatusHeaders($status){
+		header($_SERVER["SERVER_PROTOCOL"].' ' . $status->code . ' ' . $status->message, true,  $status->code);		
+	}
+	
+	public static function sendXmlHeaders($status, $type){
 		$headers = array(
 			'Cache-Control'=>'no-cache, must-revalidate'
 			, 'Expires'=>'Mon, 04 Oct 2004 10:00:00 GMT');
@@ -36,41 +159,44 @@ class FrontController extends Object{
 			$headers['Content-type'] = 'application/' . $type . '+xml;charset=UTF-8';
 		}
 		self::sendHeaders($headers);
+		self::sendStatusHeaders($status);
 	}
-	public static function sendJsonpHeaders(){
+	public static function sendJsonpHeaders($status){
 		self::sendHeaders(array(
 			'Cache-Control'=>'no-cache, must-revalidate'
 			, 'Expires'=>'Mon, 04 Oct 2004 10:00:00 GMT'
 			, 'Content-type'=>'application/javascript;charset=UTF-8'));
+		self::sendStatusHeaders($status);
 	}
-	public static function sendJavascriptHeaders(){
+	public static function sendJavascriptHeaders($status){
 		self::sendHeaders(array(
 			'Cache-Control'=>'no-cache, must-revalidate'
 			, 'Expires'=>'Mon, 04 Oct 2004 10:00:00 GMT'
 			, 'Content-type'=>'text/javascript;charset=UTF-8'));
+		self::sendStatusHeaders($status);
 	}
-	public static function sendJsonHeaders(){
+	public static function sendJsonHeaders($status){
 		self::sendHeaders(array(
 			'Cache-Control'=>'no-cache, must-revalidate'
 			, 'Expires'=>'Mon, 04 Oct 2004 10:00:00 GMT'
 			, 'Content-type'=>'application/json;charset=UTF-8'));
-		header('HTTP/1.1 200 OK');
+		self::sendStatusHeaders($status);
 	}
-	public static function sendHtmlHeaders($length){
+	public static function sendHtmlHeaders($status, $length){
 		self::sendHeaders(array(
 			'Cache-Control'=>'no-cache, must-revalidate'
 			, 'Expires'=>'Mon, 04 Oct 2004 10:00:00 GMT'
 			, 'Content-type'=>'text/html;charset=UTF-8'
 			, 'Content-length'=> $length));
-		header('HTTP/1.1 200 OK');
+		self::sendStatusHeaders($status);
 	}
-	public static function sendTextHeaders($length){
+	public static function sendTextHeaders($status, $length){
 		self::sendHeaders(array(
 			'Cache-Control'=>'no-cache, must-revalidate'
 			, 'Expires'=>'Mon, 04 Oct 2004 10:00:00 GMT'
 			, 'Content-type'=>'text/plain;charset=UTF-8'
 			, 'Content-length'=> $length));
-		header('HTTP/1.1 200 OK');
+		self::sendStatusHeaders($status);
 	}
 	public static function send301Header($url, $length){
 		self::sendHeaders(array(
@@ -78,7 +204,7 @@ class FrontController extends Object{
 			, 'Expires'=>'Mon, 04 Oct 2004 10:00:00 GMT'
 			, 'Content-type'=>'text/html;charset=UTF-8'
 			, 'Content-length'=> $length));
-		header('HTTP/1.1 301 Moved Permanently');
+		self::sendStatusHeaders(new HttpStatus(301));
 		header("Location: $url");
 	}
 	public static function send201Header($url, $length, $headers = array()){
@@ -90,44 +216,55 @@ class FrontController extends Object{
 		);
 		$headers = array_merge($default_headers, $headers);		
 		self::sendHeaders($headers);
-		header('HTTP/1.1 201 Created');
+		self::sendStatusHeaders(new HttpStatus(201));
 		header("Location: $url");
 	}
-	
+
+	public static function send204Header($headers = array()){
+		$default_headers = array(
+			'Cache-Control'=>'no-cache, must-revalidate'
+			, 'Expires'=>'Mon, 04 Oct 2004 10:00:00 GMT'
+			, 'Content-type'=>'text/html;charset=UTF-8'
+			, 'Content-length'=>0
+		);
+		$headers = array_merge($default_headers, $headers);		
+		self::sendHeaders($headers);
+		self::sendStatusHeaders(new HttpStatus(204));
+	}
 	public static function send401Headers($message, $realm){
 		header('WWW-Authenticate: Digest realm="'.$realm.'",qop="auth",nonce="'.uniqid().'",opaque="'.md5($realm).'"');
-		header('HTTP/1.1 401 Unauthorized');
+		self::sendStatusHeaders(new HttpStatus(401));
 		die($message);
 	}
 	public static function send404Headers($message){
-		header($_SERVER["SERVER_PROTOCOL"].' ' . self::NOTFOUND, true, 404);
+		self::sendStatusHeaders(new HttpStatus(404));
 		self::sendHeaders(array('Status'=>$message));
 	}
-	public static function sendHeadersForFileType($file_type, $length){
+	public static function sendHeadersForFileType($status, $file_type, $length){
 		switch($file_type){
 			case('js'):
-				self::sendJavascriptHeaders();
+				self::sendJavascriptHeaders($status);
 				break;
 			case('jsonp'):
-				self::sendJsonpHeaders();
+				self::sendJsonpHeaders($status);
 				break;
 			case('json'):
-				self::sendJsonHeaders();
+				self::sendJsonHeaders($status);
 				break;
 			case('xml'):
-				self::sendXmlHeaders(null);
+				self::sendXmlHeaders($status, null);
 				break;
 			case('rss'):
-				self::sendXmlHeaders('rss');
+				self::sendXmlHeaders($status, 'rss');
 				break;
 			case('atom'):
-				self::sendXmlHeaders('atom');
+				self::sendXmlHeaders($status, 'atom');
 				break;
 			case('txt'):
-				self::sendTextHeaders($length);
+				self::sendTextHeaders($status, $length);
 				break;
 			default:
-				self::sendHtmlHeaders($length);
+				self::sendHtmlHeaders($status, $length);
 				break;
 		}
 	}
@@ -420,7 +557,8 @@ class FrontController extends Object{
 			}
 			$output = $this->trim($output);
 			self::$end_time = microtime(true);
-			self::sendHeadersForFileType($file_type, strlen($output));
+			$status = $this->resource !== null && $this->resource->status !== null ? $this->resource->status : new HttpStatus(200);
+			self::sendHeadersForFileType($status, $file_type, strlen($output));
 			ob_end_flush();
 			Resource::sendMessage($this->resource, 'didFinishLoading');
 			return $output;
@@ -431,7 +569,7 @@ class FrontController extends Object{
 			if($output === null){
 				self::send404Headers('Resource not found');
 			}else{
-				self::sendHeadersForFileType($file_type, strlen($output));
+				self::sendHeadersForFileType(new HttpStatus(200), $file_type, strlen($output));
 				return $output;
 			}
 		}
