@@ -3,8 +3,6 @@ class_exists('AppResource') || require('AppResource.php');
 class_exists('NotificationResource') || require('resources/NotificationResource.php');
 class_exists('Person') || require('models/Person.php');
 class_exists('FriendRequest') || require('models/FriendRequest.php');
-class_exists('ServicePluginController') || require('controllers/ServicePluginController.php');
-class_exists('IntroductionCommand') || require('commands/IntroductionCommand.php');
 class FollowersResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
@@ -52,31 +50,37 @@ class FollowersResource extends AppResource{
 			return "I couldn't find that person.";
 		}
 	}
+	// Someone has sent a friend request.
 	public function post(Person $person){
-		$errors = array();
-		if(!AuthController::isAuthorized()){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
-		}elseif($person->id !== null){
-			$this->person = Person::findByIdAndOwner($person->id, Application::$current_user->person_id);
-			if($this->person->url !== null && strlen($this->person->url) > 0){
-				error_log('found ' . $this->person->url . ' to send a friend request to.');
-				$config = new AppConfiguration();
-				$site_path = String::replace('/\/$/', '', FrontController::$site_path);
-				$response = ServicePluginController::execute(new IntroductionCommand($this->person, Application::$current_user));				
-				if($response->headers['http_code'] == 404){
-					Resource::setUserMessage("That web address was not found. Please go back and confirm that " . $this->person->url . " is a working site.");
-				}else{
-					Resource::setUserMessage($this->person->name . "'s site responded with " . $response->output);
-					$this->output = $this->renderView('follower/confirmation');
+		error_log('someone has sent a friend request from ' . $person->url);
+		$this->person = Person::findByUrlAndOwnerId($person->url, Application::$member->person_id);
+		$message = null;
+		if($this->person === null){
+			$friend_request = FriendRequest::findByUrlAndOwnerId($person->url, Application::$member->person_id);
+			if($friend_request === null){
+				$friend_request = new FriendRequest(array('name'=>$person->name, 'email'=>$person->email, 'public_key'=>$person->public_key, 'created'=>date('c'), 'url'=>$person->url, 'owner_id'=>Application::$member->person_id));
+				try{
+					$errors = FriendRequest::canSave($friend_request);
+					if(count($errors) > 0){
+						foreach($errors as $key=>$value){
+							$message .= sprintf("%s: %s", $key, $value);
+						}
+					}else{
+						$friend_request = FriendRequest::save($friend_request);
+					}
+				}catch(Exception $e){
+					$message = $e->getMessage();
 				}
-				$this->title = 'Request Sent!';
-			}else{
-				$this->output = $this->renderView('follower/show', array('errors'=>$errors));
-				$errors['url'] = "I need the person's website address to follow them.";
-				Resource::setUserMessage($errors['url']);
 			}
-			error_log(Resource::getUserMessage());
-			return $this->renderView('layouts/default', null);
+		}else{
+			// Someone has sent another friend request, but is already a friend.
+			$friend_request = new FriendRequest(array('name'=>$this->person->name, 'email'=>$this->person->email, 'public_key'=>$this->person->public_key, 'created'=>date('c'), 'url'=>$this->person->url, 'owner_id'=>Application::$member->person_id));
+			$response = $this->save($friend_request, $this->person);
+		}
+		if($message !== null){
+			return $message;
+		}else{
+			return "Thanks for the request. I'll make sure " . Application::$member->name . " gets it.";
 		}
 	}
 }

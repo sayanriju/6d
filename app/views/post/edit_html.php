@@ -1,5 +1,5 @@
 <section id="addressbook_modal" style="display: none;" class="modal"></section>
-<form action="<?php echo Application::urlForWithUser('post');?>" method="post" id="post_form">
+<form action="<?php echo Application::urlForWithUser($post->id !== null ? 'post' : 'posts');?>" method="post" id="post_form">
 	<fieldset class="type">
     	<legend>Type</legend>
 		<ul id="post_type">

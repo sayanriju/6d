@@ -35,7 +35,7 @@
 	</fieldset>
 </form>
 <?php if($person->url !== null):?>
-<form action="<?php echo FrontController::urlFor('followers');?>" method="post" id="friend_request_form">
+<form action="<?php echo FrontController::urlFor('follower');?>" method="post" id="friend_request_form">
 	<input type="hidden" name="person[id]" id="id" value="{$person->id}" />
 <?php if(!$person->is_owner):?>
 	<?php if($person->public_key !== null && strlen($person->public_key) > 0):?>

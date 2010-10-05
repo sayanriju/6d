@@ -193,7 +193,7 @@
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
 			$id = (int)$id;
-			$clause = new ByClause(sprintf("owner_id=%d or id=%d", $id, $id), null, 0, null);
+			$clause = new ByClause(sprintf("owner_id=%d", $id, $id), null, 0, null);
 			$list = $db->find($clause, new Person());
 			return $list;
 		}
@@ -203,10 +203,12 @@
 			$list = $db->find(new All(null, null, 0, null), new Person());
 			return $list;
 		}
-		public static function findByIds($ids = array()){
+		public static function findByIds($ids = array(), $owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$list = $db->find(new ByIds($ids), new Person());
+			$owner_id = (int)$owner_id;
+			$clause = new ByClause(sprintf("id in (%s) and owner_id=%d", implode(',', $ids), $owner_id), null, 0, null);
+			$list = $db->find($clause, new Person());
 			return $list;
 		}
 
