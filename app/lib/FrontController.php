@@ -54,6 +54,7 @@ class FrontController extends Object{
 			'Cache-Control'=>'no-cache, must-revalidate'
 			, 'Expires'=>'Mon, 04 Oct 2004 10:00:00 GMT'
 			, 'Content-type'=>'application/json;charset=UTF-8'));
+		header('HTTP/1.1 200 OK');
 	}
 	public static function sendHtmlHeaders($length){
 		self::sendHeaders(array(
@@ -61,6 +62,7 @@ class FrontController extends Object{
 			, 'Expires'=>'Mon, 04 Oct 2004 10:00:00 GMT'
 			, 'Content-type'=>'text/html;charset=UTF-8'
 			, 'Content-length'=> $length));
+		header('HTTP/1.1 200 OK');
 	}
 	public static function sendTextHeaders($length){
 		self::sendHeaders(array(
@@ -68,17 +70,30 @@ class FrontController extends Object{
 			, 'Expires'=>'Mon, 04 Oct 2004 10:00:00 GMT'
 			, 'Content-type'=>'text/plain;charset=UTF-8'
 			, 'Content-length'=> $length));
+		header('HTTP/1.1 200 OK');
 	}
-	public static function send301Header($url){
+	public static function send301Header($url, $length){
 		self::sendHeaders(array(
 			'Cache-Control'=>'no-cache, must-revalidate'
 			, 'Expires'=>'Mon, 04 Oct 2004 10:00:00 GMT'
 			, 'Content-type'=>'text/html;charset=UTF-8'
-			, 'Content-length'=> $length
-			, 'Location'=>$url));
+			, 'Content-length'=> $length));
 		header('HTTP/1.1 301 Moved Permanently');
 		header("Location: $url");
 	}
+	public static function send201Header($url, $length, $headers = array()){
+		$default_headers = array(
+			'Cache-Control'=>'no-cache, must-revalidate'
+			, 'Expires'=>'Mon, 04 Oct 2004 10:00:00 GMT'
+			, 'Content-type'=>'text/html;charset=UTF-8'
+			, 'Content-length'=>$length
+		);
+		$headers = array_merge($default_headers, $headers);		
+		self::sendHeaders($headers);
+		header('HTTP/1.1 201 Created');
+		header("Location: $url");
+	}
+	
 	public static function send401Headers($message, $realm){
 		header('WWW-Authenticate: Digest realm="'.$realm.'",qop="auth",nonce="'.uniqid().'",opaque="'.md5($realm).'"');
 		header('HTTP/1.1 401 Unauthorized');
@@ -393,7 +408,7 @@ class FrontController extends Object{
 							break;
 						case(301):
 							$matches = String::find('/href\=\"(.*)\"/', $e->getMessage());
-							self::send301Header($matches[1]);
+							self::send301Header($matches[1], strlen($e->getMessage()));
 							break;
 						default:
 							break;
@@ -449,6 +464,7 @@ class FrontController extends Object{
 	public static function setNeedsToRedirectRaw($url){
 		header('HTTP/1.1 303 See Other');		
 		header(sprintf('Location: %s', $url));
+		exit;
 	}
 
 	public static function redirectTo($url, $params = null, $securely = false){

@@ -29,7 +29,7 @@ class Resource extends Object{
 	
 	protected function redirectTo($resource_name, $query_parameters = null, $make_secure = false){
 		$this->redirect_parameters = array('resource_name'=>$resource_name, 'query_parameters'=>$query_parameters, 'make_secure'=>$make_secure);
-		//TODO: This needs to be moved out of here. It's just a stop gap to solve a redirect problem.
+		//TODO: This needs to be moved out of here. It's just a stop gap to solve a redirect problem.		
 		FrontController::redirectTo($this->redirect_parameters['resource_name'], $this->redirect_parameters['query_parameters'], $this->redirect_parameters['make_secure']);
 	}
 	
