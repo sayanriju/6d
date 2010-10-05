@@ -181,10 +181,7 @@ form p, form address p{
 	margin: 0 0 15px 0;
 	padding: 0;
 }
-form textarea{
-	font-size: 23px;
-	display: block;
-}
+
 form p label{
 	display: block;
 }
@@ -240,6 +237,7 @@ img.author{
 	border-radius: 10px 10px;
 	-webkit-border-radius: 10px 10px;
 	-moz-border-radius: 10px 10px;
+	position: relative;
 }
 #content article form fieldset legend{
 	display: none;
@@ -288,10 +286,6 @@ img.author{
 	background: blue;
 	color: white;
 }
-#content article form fieldset textarea{
-	width: 100%;
-	min-height: 400px;
-}
 #content article.first{
 	margin-top: 0;
 }
@@ -330,13 +324,24 @@ article footer{
 }
 .hentry{
 	-webkit-box-shadow: 1px 1px 5px rgb(100,100,100);
-	
+}
+.hentry form fieldset input{
+	font-size: 13px;
+	border: none;
+	background: rgb(200,200,200);
+	border-bottom: solid 1px rgb(0,0,0);
+}
+.hentry form fieldset textarea{
+	border: none;
+	height: 80px;
+	width: 100%;
+	background: rgb(200,200,200);
 }
 code.error ul li{
 	text-align: left;
 }
-article.album header img
-, article.photo header img{
+article.album img
+, article.photo img{
 	width: 500px;
 }
 nav.pages{
@@ -443,4 +448,32 @@ nav.pages a{
 }
 .modal #post_type li{
 	float: left;
+}
+button.close{
+	border: none;
+	color: rgb(255,255,255);
+	background: rgb(0,0,0);
+	border-radius: 15px;
+	-webkit-border-radius: 15px;
+	-moz-border-radius: 15px;
+	width: 15px;
+	height: 15px;
+	padding: 0;
+	margin: 0;
+	position: relative;
+	position: absolute;
+	left: 3px;
+	top: 3px;
+	opacity: .8;
+	filter: alpha(opacity=80);
+}
+button.close span{
+	position: absolute;
+	top: -2px;
+	left: .9px;
+	font-size: 14px;
+	display: block;
+	width: 100%;
+	height: 100%;
+	font-family: Arial;
 }

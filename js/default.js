@@ -1406,11 +1406,18 @@ sixd.view = function(id, options){
 	};
 	this.toggle = function(){		
 		if(SDDom.isVisible(this.container)){
-			this.event_will_hide();
+			this.hide();
 		}else{
-			this.event_will_show();
+			this.show();
 		}
-		SDDom.toggle(this.container);
+	};
+	this.hide = function(){
+		this.event_will_hide();
+		SDDom.hide(this.container);
+	};
+	this.show = function(){
+		this.event_will_show();
+		SDDom.show(this.container);
 	};
 	this.display = function(elem){
 		if(this.controller && this.controller.display){
@@ -1424,7 +1431,7 @@ sixd.view = function(id, options){
 		SDDom.setStyles({"margin-left":width, "margin-top":height}, this.container);
 	};
 	this.make_active = function(position){
-		SDDom.setStyles({"z-index":position}, this.container);
+		SDDom.setStyles({"z-index":position}, this.container);			
 	};
 	this.make_inactive = function(position){
 		SDDom.setStyles({"z-index":position}, this.container);
@@ -1441,7 +1448,7 @@ sixd.view = function(id, options){
 sixd.view.overlay = function(){
 	var today = new Date();
 	this.id = 'overlay_' + Date.UTC(today.getFullYear(), today.getMonth(), today.getDay());
-	sixd.view.apply(this, [this.id]);
+	sixd.view.apply(this, [this.id, null]);
 	this.container = SDDom.create('div');
 	this.container.id = this.id;
 	SDDom.setStyles({"top":"0", "left":"0", "bottom":"0", "right":"0", "display": "none", "width": "100%", "height":"100%", "position":"fixed", "background": "#000", "opacity":".5"}, this.container);
@@ -1450,17 +1457,42 @@ sixd.view.overlay = function(){
 };
 sixd.view.modal = function(id, options){
 	this.overlay = new sixd.view.overlay();
-	sixd.view.apply(this, [id, options, this]);
-	this.options = SDObject.extend(this.options || {}, options);
-	SDDom.setStyles({"z-index":1000, display: 'none', background: '#000000', color: '#fff', padding: '0px'}, this.container);
-	if(this.options.width){
-		SDDom.setStyles({width: this.options.width + 'px'}, this.container);
-	}
-	if(this.options.height){
-		SDDom.setStyles({height: this.options.height + 'px'}, this.container);
-	}
+	this.overlay.make_active(999);
+	var self = sixd.view.apply(this, [id, options]);
+	this.options = SDObject.extend({background: 'rgb(0,0,0)', width: 400, height: 400, color: 'rgb(255,255,255)', padding: '0px'}, options);
+	SDDom.setStyles({"position":"fixed", "top":"25%", "left":"50%", "margin-left":-1 * this.options.width / 2 + 'px', "z-index":1000, "display": 'none', "background": this.options.background, "color": this.options.color, "padding": this.options.padding, "width": this.options.width + 'px', "height": this.options.height + 'px'}, this.container);
+	var parent_event_will_show = self.event_will_show;
+	var parent_event_will_hide = self.event_will_hide;
+	
+	this.event_will_show = function(){
+		this.overlay.show();
+		parent_event_will_show.call(this);
+	};
+	this.event_will_hide = function(){
+		this.overlay.hide();
+		parent_event_will_hide.call(this);
+	};
+	return this;
 };
-
+sixd.view.make_closable = function(view){
+	sixd.apply(this, [this]);
+	var close_button = SDDom.create('button', {id: view.container.id + '_close_button'});
+	var span = SDDom.create('span', {id: view.container.id + '_span_close_button'});
+	span.innerText = 'x';
+	SDDom.append(close_button, span);
+	SDDom.addClass('close', close_button);
+	this.clicked = sixd.bind(function(e){
+		view.hide();
+	}, this);
+	
+	this.listen_for(close_button, 'click', this.clicked);
+	if(view.container.firstChild){
+		SDDom.insertBefore(close_button, view.container.firstChild);
+	}else{
+		SDDom.append(view.container, close_button);
+	}
+	return this;
+};
 sixd.view.post = function(id, options){	
 	sixd.view.apply(this, [id, options]);
 	var self = this;
@@ -1478,6 +1510,7 @@ sixd.view.post = function(id, options){
 	this.is_published = null;
 	this.make_home_page = null;
 	this.frame = null;
+	this.send_to_list = null;
 	this.selected_images = new sixd.model.images();
 	this.selected_images.add_subscriber(this, 'image_was_added');
 	this.selected_images.add_subscriber(this, 'image_was_removed');
@@ -1497,6 +1530,8 @@ sixd.view.post = function(id, options){
 		self.post_date = SDDom('post_date');
 		self.is_published = SDDom('is_published');
 		self.make_home_page = SDDom('make_home_page');
+		self.send_to_list = SDDom('send_to_list');
+		SDDom.append(self.send_to_list, SDDom.create('ul'));
 	}
 	function highlight_post_type(elem){
 		var selected = SDDom.findFirst('li.selected', elem.parentNode.parentNode);
@@ -1509,18 +1544,24 @@ sixd.view.post = function(id, options){
 		var name = 'swap_to_' + post_type;
 		if(self[name]){
 			self[name]();
+		}else{
+			SDDom.show(this.body);
 		}
 	}
 	
 	this.swap_to_photo = function(){
 		if(SDDom.isVisible(this.body)){
 			SDDom.hide(this.body);
-			this.frame = SDDom.create('div', {id:'post_view_frame'});
+			this.frame = SDDom('post_view_frame');
+			this.frame = this.frame === null ? SDDom.create('div', {id:'post_view_frame'}) : this.frame;
 			SDDom.insertBefore(this.frame, this.body);
 		}
+		
+		SDDom.toggleClass('photo', this.container);
 	};
 	this.swap_to_album = function(){
 		this.swap_to_photo();
+		SDDom.toggleClass('album', this.container);
 	};
 	this.set_post_type = function(post_type){
 		this.post_type = post_type;
@@ -1548,12 +1589,16 @@ sixd.view.post = function(id, options){
 		}else{
 			this.set_post_type(SDDom.findFirst('ul li input[checked="checked"]', this.container).value);
 		}
+		this.body.value = sixd.array.pluck(this.selected_images.get_list(), 'src').join('\n');			
+		for(var i = 0; i < this.selected_images.get_length(); i++){
+			this.add_image_to_frame(this.selected_images.get_list()[i]);
+		}
+		sixd.view.make_closable(this);
 	};
 	this.input_clicked = function(e){
 		if(e.target.type === 'radio'){
 			this.set_post_type(e.target.value);
 		}
-		
 	};
 	this.event_clicked = function(e){
 		var name = e.target.nodeName.toLowerCase() + '_clicked';
@@ -1577,20 +1622,39 @@ sixd.view.post = function(id, options){
 	};
 	this.image_was_added = function(publisher, info){
 		switch_post_type();
-		this.body.value = sixd.array.pluck(this.selected_images.get_list(), 'src').join('\n');
-		this.add_image_to_frame(info);
+		if(this.body){
+			this.body.value = sixd.array.pluck(this.selected_images.get_list(), 'src').join('\n');			
+			this.add_image_to_frame(info);
+		}
 	}
 	this.image_was_removed = function(publisher, info){
 		switch_post_type();
-		this.body.value = sixd.array.pluck(this.selected_images.get_list(), 'src').join('\n');
-		this.remove_image_from_frame(info);
+		if(this.body){
+			this.body.value = sixd.array.pluck(this.selected_images.get_list(), 'src').join('\n');
+			this.remove_image_from_frame(info);
+		}
 	}
-
+	this.add_person = function(person){
+		var li = SDDom.create('li', {id: 'person_id_' + person.id});
+		li.innerHTML = person.name + '<input type="hidden" value="' + person.id + '" name="people[]" />';
+		SDDom.append(this.send_to_list, li);
+	};
+	this.remove_person = function(person){
+		SDDom.remove(SDDom('person_id_' + person.id));
+	};
+	this.add_group = function(text){
+		var li = SDDom.create('li', {id: 'group_' + text.replace('/\s/g', '').toLowerCase()});
+		li.innerHTML = text + '<input type="hidden" value="' + encodeURIComponent(text) + '" name="groups[]" />';
+		SDDom.append(this.send_to_list, li);
+	};
+	this.remove_group = function(text){
+		SDDom.remove(SDDom('group_' + text.replace('/\s/g', '').toLowerCase()));
+	};
 	return this;
 };
 
 sixd.view.film_strip = function(id, options){	
-	sixd.view.apply(this, [id, options, this]);
+	sixd.view.apply(this, [id, options]);
 	this.is_selected = function(img){
 		return img.className === 'selected';
 	};
@@ -1608,6 +1672,7 @@ sixd.view.film_strip = function(id, options){
 		this.container.innerHTML = html;
 		this.controller.html_was_set(html);
 		this.make_scrollable(SDDom.findFirst('.scrollable ul', this.container));
+		sixd.view.make_closable(this);
 	};
 	this.img_clicked = function(e){
 		SDDom.toggleClass('selected', e.target);
@@ -1646,6 +1711,9 @@ sixd.view.film_strip = function(id, options){
 sixd.model.images = function(list){
 	sixd.apply(this, arguments);
 	var images = (list == null ? [] : list);
+	this.each = function(fn){
+		sixd.array.each(images, fn);
+	};
 	this.contains = function(image){
 		//return sixd.array.contains(image, images, function(item, image){return item.src == image.src;});
 		var contains = false;
@@ -1671,8 +1739,194 @@ sixd.model.images = function(list){
 		return images.length;
 	};
 };
+sixd.model.people = function(list){
+	sixd.apply(this, arguments);
+	var people = (list == null ? [] : list);
+	this.each = function(fn){
+		sixd.array.each(people, fn);
+	};
+	this.contains = function(person){
+		var contains = false;
+		sixd.array.each(person, function(p){
+			if(person.id === p.id){
+				contains = true;
+			}
+		});
+		return contains;
+	};
+	this.add = function(id){
+		people.push(id);
+		this.publish('person_was_added', id);
+	};
+	this.remove = function(id){
+		people = sixd.array.remove_from(id, people, function(item){return item == id;});
+		this.publish('person_was_removed', id);
+	};
+	this.get_list = function(){
+		return people;
+	};
+	this.get_length = function(){
+		return people.length;
+	};
+};
+sixd.model.people.decode = function(value){
+	value = decodeURIComponent(value).replace(/\+/g, '');
+	return JSON.parse(value);
+};
+sixd.model.groups = function(list){
+	sixd.apply(this, arguments);
+	var groups = (list == null ? [] : list);
+	this.each = function(fn){
+		sixd.array.each(groups, fn);
+	};
+	this.contains = function(group){
+		var contains = false;
+		sixd.array.each(group, function(g){
+			if(group === g){
+				contains = true;
+			}
+		});
+		return contains;
+	};
+	this.add = function(text){
+		groups.push(text);
+		this.publish('group_was_added', text);
+	};
+	this.remove = function(text){
+		people = sixd.array.remove_from(text, groups, function(item){return item == text;});
+		this.publish('group_was_removed', text);
+	};
+	this.get_list = function(){
+		return groups;
+	};
+	this.get_length = function(){
+		return groups.length;
+	};
+};
+sixd.model.groups.decode = function(value){
+	value = decodeURIComponent(value).replace(/\+/g, ' ');
+	return value;
+};
+
+sixd.view.addressbook = function(id, options){
+	var self = sixd.view.modal.apply(this, [id, options]);
+	var parent_event_will_hide = self.event_will_hide;
+	this.people = new sixd.model.people();
+	this.people.add_subscriber(this, 'person_was_added');
+	this.people.add_subscriber(this, 'person_was_removed');
+	this.groups = new sixd.model.groups();
+	this.groups.add_subscriber(this, 'group_was_added');
+	this.groups.add_subscriber(this, 'group_was_removed');
+	
+	this.set_html = function(html){
+		this.container.innerHTML = html;
+		this.controller.html_was_set(html);
+		sixd.view.make_closable(this);
+	};
+	this.input_clicked = function(e){
+		if(e.target.type === 'checkbox'){
+			if(e.target.name === 'groups'){
+				this.delegate.group_was_clicked(e.target);
+			}else if(e.target.name === 'people'){
+				this.delegate.person_was_clicked(e.target);
+			}
+		}
+	};
+	this.event_clicked = function(e){
+		var name = e.target.nodeName.toLowerCase() + '_clicked';
+		if(this[name]){
+			this[name](e);
+		}
+	};
+	this.event_will_hide = function(){
+		this.clear();
+		parent_event_will_hide.call(this);
+	};
+	this.group_was_added = function(publisher, text){
+		if(text === 'All Contacts'){
+			var group_checkboxes = SDDom.findAll('input[name="groups"]', this.container);
+
+			for(var i = 0; i < group_checkboxes.length; i++){
+				var checkbox = group_checkboxes[i];
+				if(checkbox.value !== 'All+Contacts'){
+					checkbox.disabled = true;
+					checkbox.checked = false;
+					var text = sixd.model.groups.decode(checkbox.value);
+					this.groups.remove(text);
+				}
+			}
+			var people_checkboxes = SDDom.findAll('input[name="people"]', this.container);
+			for(var i = 0; i < people_checkboxes.length;i++){
+				var checkbox = people_checkboxes[i];
+				checkbox.disabled = true;
+				checkbox.checked = false;
+				var person = sixd.model.people.decode(checkbox.value);
+				this.people.remove(person);
+			}
+		}
+	};
+	this.group_was_removed = function(publisher, text){
+		if(text === 'All Contacts'){
+			var checkboxes = SDDom.findAll('input[type="checkbox"]', this.container);
+			sixd.array.each(checkboxes, function(checkbox){
+				if(checkbox.value !== 'All+Contacts'){
+					checkbox.disabled = false;			
+				}
+			});
+		}
+	};
+	this.person_was_added = function(publisher, person){
+		
+	};
+	this.person_was_removed = function(publisher, text){
+		
+	};
+};
+sixd.controller.addressbook = function(view, options){
+	sixd.controller.apply(this, [view, options]);
+	var self = this;
+	view.delegate = this;
+	this.callback = options.callback;
+	this.clicked = function(e){
+		if(this.delegate && this.delegate.event_view_was_clicked){
+			this.delegate.event_view_was_clicked(this.get_view());
+		}
+	};
+	this.person_was_clicked = function(checkbox){
+		if(checkbox.checked){
+			this.get_view().people.add(sixd.model.people.decode(checkbox.value));
+		}else{
+			this.get_view().people.remove(sixd.model.people.decode(checkbox.value));
+		}
+	};
+	this.group_was_clicked = function(checkbox){
+		if(checkbox.checked){
+			this.get_view().groups.add(sixd.model.groups.decode(checkbox.value));
+		}else{
+			this.get_view().groups.remove(sixd.model.groups.decode(checkbox.value));
+		}
+	};
+	this.get_view = function(){
+		return this.views[0];
+	};
+	this.event_will_hide = function(view){
+	};
+	this.event_will_show = function(view){
+		if(this.delegate && this.delegate.event_view_will_show){
+			this.delegate.event_view_will_show(view);			
+		}
+		var url = this.handle.href;
+		sixd.get(url.replace('.html', '') + '.phtml', this.request_is_done, this);
+	};
+	this.request_is_done = function(request){
+		this.get_view().set_html(request.responseText);
+	};
+	this.html_was_set = function(html){
+	};
+};
 sixd.controller.post = function(view, options){
 	sixd.controller.apply(this, [view, options]);
+	this.addressbook_controller = null;
 	var self = this;
 	this.get_view = function(){
 		return this.views[0];
@@ -1686,6 +1940,30 @@ sixd.controller.post = function(view, options){
 	};
 	this.request_is_done = function(request){
 		this.get_view().set_html(request.responseText);
+		this.addressbook_controller = new sixd.controller.addressbook(new sixd.view.addressbook('addressbook_view', {tag:'div'}), {handle_id: 'address'});
+		this.addressbook_controller.get_view().make_active();
+		this.addressbook_controller.delegate = this;
+		this.addressbook_controller.get_view().people.add_subscriber(this, 'person_was_added');
+		this.addressbook_controller.get_view().people.add_subscriber(this, 'person_was_removed');
+		this.addressbook_controller.get_view().groups.add_subscriber(this, 'group_was_added');
+		this.addressbook_controller.get_view().groups.add_subscriber(this, 'group_was_removed');
+	};
+	this.person_was_added = function(publisher, person){
+		this.get_view().add_person(person);
+	};
+	this.person_was_removed = function(publisher, person){
+		this.get_view().remove_person(person);
+	};
+	this.group_was_added = function(publisher, text){
+		this.get_view().add_group(text);
+	};
+	this.group_was_removed = function(publisher, text){
+		this.get_view().remove_group(text);
+	};
+	this.event_view_will_show = function(view){
+		if(this.delegate !== null){
+			this.delegate.event_view_will_show(view);
+		}
 	};
 	this.html_was_set = function(html){
 		
@@ -1756,6 +2034,10 @@ sixd.app = function(controllers){
 		view.make_active(i+1);
 	};
 	this.event_view_will_show = function(view){
+		for(var i = 0; i < this.controllers.length; i++){
+			this.controllers[i].get_view().make_inactive(i);
+		}
+		view.make_active(i+1);
 	};
 };
 var fs_controller = null;

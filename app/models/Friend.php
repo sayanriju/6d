@@ -140,19 +140,19 @@
 		public static function findByEmail($email){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$list = $db->find(new ByAttribute('email', urlencode($email), 1, null), new Friend());
+			$list = $db->find(new ByAttribute('email', $email, 1, null), new Friend());
 			return $list;
 		}
 		public static function findByUrl($url){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$list = $db->find(new ByAttribute('url', urlencode($url), 1, null), new Friend());
+			$list = $db->find(new ByAttribute('url', $url, 1, null), new Friend());
 			return $list;
 		}
 		public static function findByPublicKey($public_key){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$list = $db->find(new ByAttribute('public_key', urlencode($public_key), 1, null), new Friend());
+			$list = $db->find(new ByAttribute('public_key', $public_key, 1, null), new Friend());
 			return $list;
 		}
 		public static function sort_by_name($a, $b){

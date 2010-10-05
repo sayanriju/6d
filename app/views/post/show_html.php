@@ -22,6 +22,7 @@
 		<?php
 		case('album'):?>
 	<header>
+		<h3><?php echo $post->title;?></h3>
 		<?php
 			$album = explode("\n", $post->body);
 			foreach($album as $photo):
@@ -30,7 +31,7 @@
 		<?php endforeach;?>
 	</header>
 	<section class="entry-content">
-		<p><?php echo $post->descrption;?></p>
+		<p><?php echo $post->description;?></p>
 	</section>
 		<?php
 			break;

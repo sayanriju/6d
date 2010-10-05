@@ -27,19 +27,14 @@
 	</fieldset>
 	<fieldset class="options">
     	<legend>Options</legend>
-        <p id="send_to_list">
-			<label for="send_to_list">
-				<a href="<?php echo Application::urlForWithUser('addressbook.html');?>" id="address">Send to</a>
-			</label>
+		<p>
+			<label for="description">Excerpt</label>
+			<textarea name="description" id="description">{$post->description}</textarea>
 		</p>
 		<p>
 			<label for="tags" class="inline">Tags separated by commas</label>
 			<input type="text" name="tags" id="tags" value="{$post->tags}" />
 		</p>		
-		<p>
-			<label for="description">Excerpt</label>
-			<textarea name="description" id="description">{$post->description}</textarea>
-		</p>
 		<p>
 			<label for="password">Password protect</label>
 			<input name="password" id="password" type="password" value="" />
@@ -56,6 +51,12 @@
         	<input type="checkbox" value="true" id="make_home_page" name="make_home_page"<?php echo $post->isHomePage($this->getHome_page_post_id()) ? ' checked="checked"' : null;?> />
 			<label for="make_home_page" class="checkbox">Make this your home page</label>
 		</p>
+		<p id="send_to_list">
+			<label for="send_to_list">
+				<a href="<?php echo Application::urlForWithUser('addressbook.html');?>" id="address">Send to</a>
+			</label>
+		</p>
+        
     </fieldset>
 	<nav>
 		<input type="hidden" name="last_page_viewed" value="{$last_page_viewed}" />

@@ -101,14 +101,14 @@
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
 			$owner_id = (int)$owner_id;
-			$list = $db->find(new ByClause(sprintf("url='%s' and owner_id=%d", urlencode($url), $owner_id), 1, null, null), new FriendRequest());
+			$list = $db->find(new ByClause(sprintf("url='%s' and owner_id=%d", $url, $owner_id), 1, null, null), new FriendRequest());
 			return $list;
 		}
 		
 		public static function findByEmail($email){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$list = $db->find(new ByAttribute('email', urlencode($email), 1, null), new FriendRequest());
+			$list = $db->find(new ByAttribute('email', $email, 1, null), new FriendRequest());
 			return $list;
 		}
 		

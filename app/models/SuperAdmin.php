@@ -35,7 +35,7 @@ class SuperAdmin extends Object{
 		$config = new AppConfiguration();
 		$db = Factory::get($config->db_type, $config);
 		$person = new Person();
-		$person = $db->find(new ByClause(sprintf("%s.email='%s'", $person->getTableName(), urlencode($email)), array(new BelongsTo(array('withWhom'=>$person, 'through'=>'person_id'))), 1, null), new SuperAdmin(null));
+		$person = $db->find(new ByClause(sprintf("%s.email='%s'", $person->getTableName(), $email), array(new BelongsTo(array('withWhom'=>$person, 'through'=>'person_id'))), 1, null), new SuperAdmin(null));
 		return $person;
 	}
 	

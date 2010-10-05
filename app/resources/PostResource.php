@@ -58,6 +58,7 @@ class PostResource extends AppResource{
 	}
 	public static function getAuthorUrl(Post $post){
 		$url = null;
+		error_log('from get auth');
 		if($post->source !== null && strlen($post->source) > 0){
 			$person = Person::findByUrlAndOwnerId($post->source, Application::$member->person_id);
 			if($person !== null){
@@ -244,10 +245,11 @@ class PostResource extends AppResource{
 	private function sendPostToGroups($groups, Post $post){
 		if(count($groups) > 0){
 			foreach($groups as $text){
-				if($text === 'All+Contacts'){
+				$text = urldecode($text);
+				if($text === 'All Contacts'){
 					$this->people = Person::findAllByOwner(Application::$current_user->person_id);
 				}else{
-					$this->people = Person::findByTagTextAndOwner($text, Application::$current_user->person_id);
+					$this->people = Person::findByTagTextAndOwner(urlencode($text), Application::$current_user->person_id);
 				}
 				$this->sendToPeople($this->people, $post);
 			}
@@ -266,19 +268,28 @@ class PostResource extends AppResource{
 		$responses = array();
 		$to = array();
 		foreach($people as $person){
-			if($person->id != Application::$current_user->person_id && $person->is_approved){
-				error_log(sprintf("person= %s, current user = %s",$person->name, Application::$current_user->name));
+			error_log($person->name . ' ' . $person->public_key);
+			if($person->id != Application::$current_user->person_id && $person->is_approved && $person->public_key !== null){
+				error_log(sprintf("sendToPeople -> person= %s, current user = %s",$person->name, Application::$current_user->name));
 				$datum[] = sprintf("person_post_id=%s&title=%s&body=%s&source=%s&is_published=%s&post_date=%s&public_key=%s&type=%s", urlencode($post->id), urlencode($post->title), urlencode($post->body), urlencode($post->source), $post->is_published, urlencode($post->post_date), urlencode($person->public_key), $post->type);
 				$to[] = $person;
+				error_log($datum[count($datum)-1]);
+			}else{
+				error_log("failed trying to send to " . $person->name);
 			}
 		}
-		$responses = NotificationResource::sendMultiNotifications($to, 'post', $datum, 'post');
-		if(count($responses) > 0){
-			$message = array();
-			foreach($responses as $key=>$response){
-				$person = $to[$key];
-				Resource::setUserMessage($person->name . ' responded with ' . $response);
+		if(count($datum) > 0){
+			$responses = NotificationResource::sendMultiNotifications($to, 'post', $datum, 'post');
+			if(count($responses) > 0){
+				$message = array();
+				foreach($responses as $key=>$response){
+					$person = $to[$key];
+					Resource::setUserMessage($person->name . ' responded with ' . $response);
+				}
 			}
+		}else{
+			Resource::setUserMessage("Could not send to anybody you picked because none of them have been confirmed as friends.");
 		}
+		error_log(Resource::getUserMessage());
 	}
 }

@@ -30,22 +30,24 @@ class FollowerResource extends AppResource{
 		$response = null;
 		if($request !== null){
 			if($person === null){
+				error_log('person is null in saving follower request');
 				$person = new Person(array('email'=>$request->email
 					, 'name'=>$request->name
 					, 'url'=>$request->url
 					, 'uid'=>uniqid()
 					, 'session_id'=>session_id()
-					, 'public_key'=>urlencode(Random::getPassword())
+					, 'public_key'=>Random::getPassword()
 					, 'is_approved'=>true
 					, 'do_list_in_directory'=>false
 					, 'is_owner'=>false));
 			}else{
-				$person->public_key = urlencode(Random::getPassword());
+				$person->public_key = Random::getPassword();
 				$person->is_approved = true;
 				$person->is_owner = false;
-			}			
+				error_log("reseting public key ");
+			}
 			$person->owner_id = Application::$current_user->person_id;
-			list($person, $errors) = Person::save($person);
+			list($person, $errors) = Person::save($person);			
 			if(count($errors) > 0){
 				error_log(json_encode($errors));
 				$response = implode('<br />', $errors);
@@ -62,7 +64,7 @@ class FollowerResource extends AppResource{
 	}
 	// Confirm as a friend
 	public function put(FriendRequest $request){
-		$response = null;		
+		$response = null;
 		if(!AuthController::isAuthorized()){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}else{
@@ -75,12 +77,14 @@ class FollowerResource extends AppResource{
 	}
 	private function sendNotification($person){
 		$config = new AppConfiguration();
-		$data = sprintf("_method=put&email=%s&url=%s&public_key=%s", Application::$current_user->email, Application::$current_user->url, $person->public_key);
+		$data = sprintf("_method=put&email=%s&url=%s&public_key=%s", urlencode(Application::$current_user->email), urlencode(Application::$current_user->url), $person->public_key);
+		error_log('sending notification and $data = ' . $data);	
 		$response = NotificationResource::sendNotification($person, 'followers', $data, 'post');
 		return $response;
 	}
 	// Someone has sent a friend request.
 	public function post(Person $person){
+		error_log('someone has sent a friend request from ' . $person->url);
 		$this->person = Person::findByUrlAndOwnerId($person->url, Application::$member->person_id);
 		$message = null;
 		if($this->person === null){
@@ -102,7 +106,7 @@ class FollowerResource extends AppResource{
 			}
 		}else{
 			// Someone has sent another friend request, but is already a friend.
-			$friend_request = new FriendRequest(array('name'=>$this->person->name, 'email'=>$this->person->email, 'public_key'=>$this->person->public_key, 'created'=>date('c'), 'url'=>$this->person->url));
+			$friend_request = new FriendRequest(array('name'=>$this->person->name, 'email'=>$this->person->email, 'public_key'=>$this->person->public_key, 'created'=>date('c'), 'url'=>$this->person->url, 'owner_id'=>Application::$member->person_id));
 			$response = $this->save($friend_request, $this->person);
 		}
 		if($message !== null){

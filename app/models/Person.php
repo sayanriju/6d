@@ -172,7 +172,7 @@
 			$person = new Person(null);
 			$db = Factory::get($config->db_type, $config);
 			$tag = new Tag(null);
-			$query = sprintf("select p.* from {$person->getTableName()} as p, {$tag->getTableName()} as t where t.type='group' and t.parent_id=p.id and t.text = '%s'", self::stringify($text));
+			$query = sprintf("select p.* from {$person->getTableName()} as p, {$tag->getTableName()} as t where t.type='group' and t.parent_id=p.id and t.text = '%s'", $text);
 			$list = $db->find(new All($query, null, 0, array('id'=>'asc')), $person);
 			$list = ($list == null ? array() : $list);
 			return $list;
@@ -184,7 +184,7 @@
 			$db = Factory::get($config->db_type, $config);
 			$tag = new Tag(null);
 			$owner_id = (int)$owner_id;
-			$query = sprintf("select p.* from {$person->getTableName()} as p, {$tag->getTableName()} as t where t.type='group' and t.parent_id=p.id and t.text = '%s' and p.owner_id=%d", self::stringify($text), $owner_id);
+			$query = sprintf("select p.* from {$person->getTableName()} as p, {$tag->getTableName()} as t where t.type='group' and t.parent_id=p.id and t.text = '%s' and p.owner_id=%d", $text, $owner_id);
 			$list = $db->find(new All($query, null, 0, array('id'=>'asc')), $person);
 			$list = ($list == null ? array() : $list);
 			return $list;
@@ -213,7 +213,7 @@
 		public static function findByEmailAndPassword($email, $password){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$person = $db->find(new ByClause(sprintf("email='%s' and password='%s'", urlencode($email), String::encrypt($password)), null, 1, null), new Person(null));
+			$person = $db->find(new ByClause(sprintf("email='%s' and password='%s'", $email, String::encrypt($password)), null, 1, null), new Person(null));
 			return $person;
 		}
 		public static function findBySessionId($session_id){
@@ -227,7 +227,7 @@
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
 			$owner_id = (int)$owner_id;
-			$clause = new ByClause(sprintf("public_key='%s' and url='%s'", urlencode($public_key), urlencode($url)), null, 1, null);			
+			$clause = new ByClause(sprintf("public_key='%s' and url='%s'", $public_key, $url), null, 1, null);			
 			$list = $db->find($clause, new Person());
 			return $list;
 		}
@@ -242,13 +242,12 @@
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
 			$owner_id = (int)$owner_id;
-			$list = $db->find(new ByClause(sprintf("url='%s' and owner_id=%d", urlencode($url), $owner_id), null, 1, null), new Person());
+			$clause = new ByClause(sprintf("url='%s' and owner_id=%d", $url, $owner_id), null, 1, null);
+			error_log('from person::' . $clause->clause);
+			$list = $db->find($clause, new Person());
 			return $list;
 		}
 		
-		public static function stringify($text){
-			return sprintf("%s", urlencode($text));
-		}
 		public static function delete_many($ids = array(), $owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
@@ -268,7 +267,8 @@
 		public static function save(Person $person){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$existing_person = Person::findByUrlAndOwnerId(urlencode($person->url), $person->owner_id);
+			error_log('url = ' . $person->url);
+			$existing_person = Person::findByUrlAndOwnerId($person->url, $person->owner_id);
 			$errors = array();
 			if($existing_person !== null && $person->id !== $existing_person->id){
 				$errors = array("duplicate_entry"=>"There's already somebody in your address book with that web address. I can't have 2 people with the same web address since it's what really makes each person unique in the address book. Please either edit the existing person or use a different web address for this new person.");

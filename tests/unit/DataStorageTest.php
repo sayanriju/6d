@@ -15,7 +15,7 @@
 			Member::delete($this->member);
 		}
 		public function testConnections(){
-			$this->member = new Member(new Person(array('name'=>'test', 'email'=>'test@test.com', 'member_name'=>'test', 'password'=>'test', 'url'=>'localhost/6d/test', 'is_approved'=>true, 'do_list_in_directory'=>true, 'session_id'=>session_id(), 'is_owner'=>false, 'owner_id'=>1, 'uid'=>uniqid(null, true))));
+			$this->member = new Member(new Person(array('name'=>'test', 'email'=>'test@test.com', 'member_name'=>'test', 'password'=>'test', 'url'=>urlencode('localhost/6d/test'), 'is_approved'=>true, 'do_list_in_directory'=>true, 'session_id'=>session_id(), 'is_owner'=>false, 'owner_id'=>1, 'uid'=>uniqid(null, true))));
 			$this->assert($this->member !== null, 'Initialize a member object');			
 			$inspector = new ReflectionClass(get_class($this->member));
 			$this->member = Member::saveAsPerson($this->member);

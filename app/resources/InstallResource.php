@@ -163,12 +163,13 @@
 					$member->person->email = $config->email;
 					$member->person->password = String::encrypt($config->site_password);
 					$member->person->confirmation_password = String::encrypt($config->password);
-					$member->person->name = $config->email;
+					$member->person->name = $config->site_user_name;
 					$member->person->is_approved = true;
 					$member->person->is_owner = true;
 					$member->person->uid = uniqid(null, true);
 					$member->person->session_id = session_id();
 					$member->person->do_list_in_directory = true;
+					$member->person->url = str_replace('http://', '', String::replace('/\/$/', '', FrontController::urlFor(null)));
 					$errors = Person::canSave($member->person);
 					if(count($errors) == 0){
 						$member->person->owner_id = 0;

@@ -43,8 +43,6 @@ class AuthController{
 	public static function doVerification($email, $password){
 		// I'm going to see if this is the admin trying to log, if not check the db to verify a user.
 		$config = new AppConfiguration(null);
-		$password = $password;
-		$email = $email;
 		self::$user = Member::findByEmailAndPassword($email, $password);
 		return self::$user;
 	}	

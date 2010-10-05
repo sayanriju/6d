@@ -667,7 +667,7 @@ eos;
 				if(is_numeric($value))
 					return $value;
 				else
-					return sprintf("'%s'", urlencode($value));
+					return sprintf("'%s'", $value);
 			}
 			else
 				return $value;

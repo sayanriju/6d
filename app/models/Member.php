@@ -86,7 +86,6 @@ class Member extends Object{
 	public static function findByEmail($email){
 		$config = new AppConfiguration();
 		$db = Factory::get($config->db_type, $config);
-		$email = urlencode($email);
 		$person = new Person();
 		$member = new Member();
 		$clause = new All("select m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
@@ -111,7 +110,7 @@ class Member extends Object{
 		$db = Factory::get($config->db_type, $config);
 		$person = new Person();
 		$member = new Member();
-		$member = $db->find(new ByClause(sprintf("%s.email='%s' and %s.password='%s'", $person->getTableName(), urlencode($email), $person->getTableName(), String::encrypt($password)), array(new BelongsTo(array('withWhom'=>$person, 'through'=>'person_id'))), 1, null), $member);
+		$member = $db->find(new ByClause(sprintf("%s.email='%s' and %s.password='%s'", $person->getTableName(), $email, $person->getTableName(), String::encrypt($password)), array(new BelongsTo(array('withWhom'=>$person, 'through'=>'person_id'))), 1, null), $member);
 		$member = self::unserializeProfile($member);
 		return $member;
 	}

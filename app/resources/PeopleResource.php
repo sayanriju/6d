@@ -47,7 +47,7 @@ class PeopleResource extends AppResource{
 	}
 	private function getPeople($group){
 		if($group->text !== 'All Contacts'){
-			return Person::findByTagTextAndOwner($group->text, Application::$current_user->person_id);
+			return Person::findByTagTextAndOwner(urlencode($group->text), Application::$current_user->person_id);
 		}elseif($this->group->text === 'Friend Requests'){
 			return FriendRequest::findAllForOwner(Application::$current_user->person_id);
 		}else{

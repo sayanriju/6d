@@ -19,14 +19,19 @@
 			<label for="is_approved" id="label_approved">Approved?</label>
 			<input type="checkbox" id="is_approved" name="is_approved" value="true"<?php echo $person->is_approved ? ' checked="true"' : null;?> />
 		</p>
-        <div style="clear:both;"></div>
+		<p>
+			<label for="public_key">Public key</label>
+			<span><?php echo $person->public_key;?></span>
+		</p>
 		<p>
 			<button type="submit" name="save_button" id="save_button"><span>Save</span></button>
 		</p>
-		<input type="hidden" name="id" id="id" value="{$person->id}" />
+		<p>
+			<input type="hidden" name="id" id="id" value="{$person->id}" />
 <?php if($person->id !== null):?>
-		<input type="hidden" name="_method" value="put" />
+			<input type="hidden" name="_method" value="put" />
 <?php endif;?>
+		</p>
 	</fieldset>
 </form>
 <?php if($person->url !== null):?>
