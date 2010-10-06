@@ -15,7 +15,7 @@ $application = new Application();
 $front_controller = new FrontController($_REQUEST);
 FrontController::$delegate = $application;
 $logger = new Log('logs/', 0, false, null);
-set_error_handler(array($front_controller, 'errorDidHappen'));
+set_error_handler(array($front_controller, 'errorDidHappen'), E_ALL);
 set_exception_handler(array($front_controller, 'exceptionDidHappen'));
 $output = $front_controller->execute();
 echo $output;

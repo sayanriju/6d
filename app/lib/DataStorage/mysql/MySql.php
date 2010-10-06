@@ -667,7 +667,7 @@ eos;
 				if(is_numeric($value))
 					return $value;
 				else
-					return sprintf("'%s'", $value);
+					return sprintf("'%s'", $this->sanitize($value));
 			}
 			else
 				return $value;
@@ -722,7 +722,7 @@ eos;
 				$this->setError($e);
 				throw new DSException(new Exception('Database does not exist.', 0));
 			}
-			
+			return $this->_connectionId;
 		}
 		
 		private function setError($e){
@@ -805,10 +805,12 @@ eos;
 				}
 			}
 		}
-		private function sanitize($sql){			
-			$sql = str_ireplace("'", "\'", $sql);
-			$sql = str_ireplace(";", "\;", $sql);
-			return $sql;
+		private function sanitize($value){
+			$this->connect(null);
+			$value = mysql_real_escape_string($value, $this->_connectionId);
+			//$value = str_ireplace("'", "\'", $value);
+			//$value = str_ireplace(";", "\;", $value);
+			return $value;
 		}
 		private function unsanitize($text){
 			$text = str_ireplace("\'", "'", $text);

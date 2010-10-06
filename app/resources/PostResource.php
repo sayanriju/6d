@@ -117,7 +117,7 @@ class PostResource extends AppResource{
 			if(strlen($post->password) === 0){
 				$post->password = null;
 			}
-			list($post, $errors) = Post::save($post);
+			list($post, $errors) = Post::save($post);				
 			if($errors == null){
 				if($make_home_page){
 					$setting = Setting::findByName('home_page_post_id');
@@ -128,7 +128,7 @@ class PostResource extends AppResource{
 					Setting::delete('home_page_post_id');
 				}
 				self::setUserMessage('Post was saved.');
-				$this->sendPostToGroups($groups, $post);
+				$this->sendPostToGroups($groups, $post);					
 				$this->sendPostToPeople($people, $post);
 			}else{
 				$message = 'An error occurred while saving your post:';
@@ -161,4 +161,56 @@ class PostResource extends AppResource{
 			$this->redirectTo('posts', array('page'=>$last_page_viewed, 'q'=>$this->q));
 		}
 	}
+	
+	private function sendPostToGroups($groups, Post $post){
+		if(count($groups) > 0){
+			foreach($groups as $text){
+				$text = urldecode($text);
+				if($text === 'All Contacts'){
+					$this->people = Person::findAllByOwner(Application::$current_user->person_id);
+				}else{
+					$this->people = Person::findByTagTextAndOwner(urlencode($text), Application::$current_user->person_id);
+				}
+				$this->sendToPeople($this->people, $post);
+			}
+		}
+	}
+	private function sendPostToPeople($people, Post $post){
+		if(count($people) > 0){
+			$people = Person::findByIds($people, Application::$current_user->person_id);
+			if($people !== null && count($people) > 0){
+				$this->sendToPeople($people, $post);
+			}
+		}		
+	}
+	private function sendToPeople($people, $post){
+		$datum = array();
+		$responses = array();
+		$to = array();
+		foreach($people as $person){
+			error_log($person->name . ' ' . $person->public_key);
+			if($person->id != Application::$current_user->person_id && $person->is_approved && $person->public_key !== null){
+				error_log(sprintf("sendToPeople -> person= %s, current user = %s",$person->name, Application::$current_user->name));
+				$datum[] = sprintf("person_post_id=%s&title=%s&body=%s&source=%s&is_published=%s&post_date=%s&public_key=%s&type=%s", urlencode($post->id), urlencode($post->title), urlencode($post->body), urlencode($post->source), $post->is_published, urlencode($post->post_date), urlencode($person->public_key), $post->type);
+				$to[] = $person;
+				error_log($datum[count($datum)-1]);
+			}else{
+				error_log("failed trying to send to " . $person->name);
+			}
+		}
+		if(count($datum) > 0){
+			$responses = NotificationResource::sendMultiNotifications($to, 'posts', $datum, 'post');
+			if(count($responses) > 0){
+				$message = array();
+				foreach($responses as $key=>$response){
+					$person = $to[$key];
+					Resource::setUserMessage($person->name . ' responded with ' . $response);
+				}
+			}
+		}else{
+			Resource::setUserMessage("Could not send to anybody you picked because none of them have been confirmed as friends.");
+		}
+		error_log(Resource::getUserMessage());
+	}
+	
 }

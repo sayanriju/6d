@@ -466,16 +466,6 @@ class FrontController extends Object{
 	public static function getPathInfo(){
 		$argv = array_key_exists('argv', $_SERVER) ? $_SERVER['argv'] : null;
 		$php_self = '';
-		/*console::log('DOCUMENT_ROOT = ' . $_SERVER['DOCUMENT_ROOT']);
-		console::log('SCRIPT_FILENAME = ' . $_SERVER['SCRIPT_FILENAME']);
-		console::log('REDIRECT_QUERY_STRING = ' . $_SERVER['REDIRECT_QUERY_STRING']);
-		console::log('REDIRECT_URL = ' . $_SERVER['REDIRECT_URL']);
-		console::log('REQUEST_URI = ' . $_SERVER['REQUEST_URI']);
-		console::log('QUERY_STRING = ' . $_SERVER['QUERY_STRING']);
-		console::log('SCRIPT_NAME = ' . $_SERVER['SCRIPT_NAME']);
-		console::log('PHP_SELF = ' . $_SERVER['PHP_SELF']);
-		console::log('REQUEST_TIME = ' . $_SERVER['REQUEST_TIME']);
-		*/
 		$request_uri = $_SERVER['REQUEST_URI'];
 		if(array_key_exists('r', $_GET)){
 			$r = $_GET['r'];
@@ -528,16 +518,15 @@ class FrontController extends Object{
 			if($plugin->canHandle($class_name, $method)){
 				$output .= $plugin->execute($class_name, $method, $url_parts);
 			}
-		}
-		
+		}		
 		if($output === null && file_exists($file)){
 			class_exists($class_name) || require($file);
 			ob_start();
 			try{
 				$this->resource = new $class_name(array('url_parts'=>$url_parts));		
 				$this->resource->file_type = $file_type;
-				try{					
-					$output = Resource::sendMessage($this->resource, $method, null);
+				try{
+					$output = Resource::sendMessage($this->resource, $method, null);					
 				}catch(Exception $e){
 					switch($e->getCode()){
 						case(401):
@@ -552,9 +541,9 @@ class FrontController extends Object{
 					}
 					throw $e;
 				}
-			}catch(Exception $e){
+			}catch(Exception $e){				
 				$output .= self::$delegate->exceptionHasOccured($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'exception'=>$e));
-			}
+			}			
 			$output = $this->trim($output);
 			self::$end_time = microtime(true);
 			$status = $this->resource !== null && $this->resource->status !== null ? $this->resource->status : new HttpStatus(200);

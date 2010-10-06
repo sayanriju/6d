@@ -110,7 +110,7 @@
 			return $output;
 		}		
 		protected function filterText($text){
-			$post_filters = $this->getPlugins('plugins', 'PostPlugin');
+			$post_filters = $this->getPlugins('filters', 'PostFilter');
 			foreach($post_filters as $filter){
 				$text = $filter->execute($text);
 			}
@@ -125,7 +125,7 @@ SDObject.rootUrl = '%s';
 eos;
 			$output = str_replace('</head>', sprintf($js . '
 </head>', FrontController::urlFor(null)), $output);
-			$filters = PluginController::getPlugins('plugins', 'Header');
+			$filters = PluginController::getPlugins('filters', 'HeaderFilter');
 			foreach($filters as $filter){
 				$output = $filter->execute($output);
 			}
@@ -139,7 +139,6 @@ eos;
 			if(count(console::$messages) > 0){
 				$output = str_replace('</body>', '<pre id="__6d_console">' . implode('', console::$messages) . '</pre></body>', $output);
 			}
-			
 			return $output;
 		}
 		

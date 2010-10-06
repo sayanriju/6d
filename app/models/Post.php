@@ -354,6 +354,7 @@
 		public static function save(Post $post){
 			$errors = self::canSave($post);
 			$config = new AppConfiguration();
+			$post->tags = $post->tags == null ? array() : $post->tags;
 			if(count($errors) == 0){
 				$db = Factory::get($config->db_type, $config);
 				$db->save(null, $post);
