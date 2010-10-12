@@ -104,7 +104,7 @@
 			if(!file_exists($media_folder)){
 				mkdir($media_folder, 0777, true);
 			}
-			$media_htaccess = String::replace('/\#file_check_start(.*)\#file_check_end/', 'RewriteRule ^(.*)$ index.php?r=media/$1 [QSA,L]');
+			$media_htaccess = String::replace('/\#file_check_start(.*)\#file_check_end/', 'RewriteRule ^(.*)$ index.php?r=media/$1 [QSA,L]', $htaccess);
 			$did_write_media_access_file = file_put_contents(FrontController::getRootPath('/media/.htaccess'), $media_htaccess);
 			return $did_write && $did_write_media_access_file;
 		}

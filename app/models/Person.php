@@ -215,7 +215,7 @@
 		public static function findByEmailAndPassword($email, $password){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$person = $db->find(new ByClause(sprintf("email='%s' and password='%s'", $email, String::encrypt($password)), null, 1, null), new Person(null));
+			$person = $db->find(new ByClause(sprintf("email='%s' and password='%s'", String::sanitize($email), String::encrypt($password)), null, 1, null), new Person(null));
 			return $person;
 		}
 		public static function findBySessionId($session_id){
@@ -244,7 +244,6 @@
 			$db = Factory::get($config->db_type, $config);
 			$owner_id = (int)$owner_id;
 			$clause = new ByClause(sprintf("url='%s' and owner_id=%d", $url, $owner_id), null, 1, null);
-			error_log('from person::' . $clause->clause);
 			$list = $db->find($clause, new Person());
 			return $list;
 		}

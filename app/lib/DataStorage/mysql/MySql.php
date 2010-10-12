@@ -209,22 +209,22 @@ where ' . $securedSql : '';
 			//$object_to_populate = $this->getObjectToPopulate($command->relationships, $object_to_populate);
 			$sql .= $this->addOrderBy($command);
 			$sql .= $this->addLimit($command->limit);
-			$this->execute($sql);
+			$query_id = $this->execute($sql);
 			//$records = $this->getRecords($object_to_populate);
-			$records = $this->populate($object_to_populate, $command);
+			$records = $this->populate($object_to_populate, $command, $query_id);
 			if(count($records) > 0){
 				return (count($records) == 1 && $command->limit == 1) ? $records[0] : $records;
 			}else{
 				return null;
 			}
 		}
-		private function populate($obj, $command){
+		private function populate($obj, $command, $query_id){
 			$records = array();
 			$attributes = array();
 			$className = get_class($obj);
 					
-			if($this->_queryId){
-				while($row = mysql_fetch_object($this->_queryId)){
+			if($query_id){
+				while($row = mysql_fetch_object($query_id)){
 					// Populate the object hiearchy with the result columns.
 					$attributes = get_object_vars($row);
 					$non_existing_attr = array();
@@ -396,12 +396,12 @@ eos;
 				//$this->disconnect(null);
 			}
 		}
-		public function count($obj){
+		public function count($obj, $query_id){
 			$sql = sprintf('select count(' . $obj->primaryKey .') as NumberOfRecords from ' . $obj->tableName);
 			$this->execute($sql);
 			$numberOfRecords = 0;
-			if($this->_queryId){
-				while($row = mysql_fetch_object($this->_queryId)){
+			if($query_id){
+				while($row = mysql_fetch_object($query_id)){
 					$numberOfRecords = $row->NumberOfRecords;
 				}
 				//$this->disconnect(null);
@@ -434,8 +434,8 @@ eos;
 		
 		public function tableExists($name){
 			$sql = 'SHOW TABLES';
-			$this->execute($sql);
-			$rows = $this->getRows();
+			$query_id = $this->execute($sql);
+			$rows = $this->getRows($query_id);
 			if($rows != null){
 				foreach($rows as $table){
 					if($table->{'Tables_in_'.$this->_config->database} == $name){
@@ -447,8 +447,8 @@ eos;
 		}
 		public function exists($name){
 			$test = 'SHOW DATABASES';
-			$this->execute($test);
-			$rows = $this->getRows();
+			$query_id = $this->execute($test);
+			$rows = $this->getRows($query_id);
 			foreach($rows as $row=>$database){
 				if($database->Database == $name){
 					return true;
@@ -676,8 +676,8 @@ eos;
 		public function getColumns($table_name){
 			$this->connect(null);
 			$sql = "show columns from $table_name";
-			$this->execute($sql);
-			$records = $this->getRows();
+			$query_id = $this->execute($sql);
+			$records = $this->getRows($query_id);
 			if(count($records) > 0){
 				return (count($records) == 1) ? $records[0] : $records;
 			}else{return null;}
@@ -685,8 +685,8 @@ eos;
 		public function getDatabases(){
 			$this->connect(null);
 			$sql = 'show databases';
-			$this->execute($sql);
-			$records = $this->getRows();
+			$query_id = $this->execute($sql);
+			$records = $this->getRows($query_id);
 			if(count($records) > 0){
 				return (count($records) == 1) ? $records[0] : $records;
 			}else{return null;}
@@ -694,8 +694,8 @@ eos;
 		public function getTables($db_name){
 			$this->connect(null);
 			$sql = "show tables from $db_name";
-			$this->execute($sql);
-			$records = $this->getRows();
+			$query_id = $this->execute($sql);
+			$records = $this->getRows($query_id);
 			if(count($records) > 0){
 				return $records;
 			}else{return array();}
@@ -729,16 +729,13 @@ eos;
 			$this->errorNumber = mysql_errno();
 			$this->errorMessage = mysql_error() . $e;
 		}
-		public function disconnect($queryId = null){
-			if($queryId != null)
-				mysql_free_result($queryId);
-			elseif($this->_queryId != null)
-				mysql_free_result($this->_queryId);
+		public function disconnect($query_id){
+			mysql_free_result($query_id);
 		}
-		public function getRows(){
+		public function getRows($query_id){
 			$rows = null;
-			if($this->_queryId){
-				while($row = mysql_fetch_object($this->_queryId)){
+			if($query_id){
+				while($row = mysql_fetch_object($query_id)){
 					$rows[] = $row;
 				}
 				//$this->disconnect(null);
@@ -755,13 +752,13 @@ eos;
 			}
 			return $obj;
 		}
-		private function getRecords(Object $object_to_populate){
+		private function getRecords(Object $object_to_populate, $query_id){
 			$records = array();
 			$attributes = array();
 			$className = get_class($object_to_populate);
 					
-			if($this->_queryId){
-				while($row = mysql_fetch_object($this->_queryId)){
+			if($query_id){
+				while($row = mysql_fetch_object($query_id)){
 					// Populate the object hiearchy with the result columns.
 					$attributes = get_object_vars($row);
 					$model = new $className(null);
@@ -794,7 +791,7 @@ eos;
 		public function execute($sql){
 			$this->connect($this->_config);
 			$this->_cachedSql = $sql;
-			$this->_queryId = mysql_query($sql, $this->_connectionId);
+			$query_id = mysql_query($sql, $this->_connectionId);
 			$this->setError(null);
 			if($this->errorNumber > 0){
 				error_log('MySql execute error: ' . $this->errorNumber . ' ' . $this->errorMessage);
@@ -804,6 +801,7 @@ eos;
 					throw new Exception($this->errorMessage . '(' . $this->errorNumber . ')>>> ' . $sql, $this->errorNumber);					
 				}
 			}
+			return $query_id;
 		}
 		private function sanitize($value){
 			$this->connect(null);
