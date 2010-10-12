@@ -228,7 +228,6 @@
 		public static function findByPublicKeyAndUrl($public_key, $url){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$owner_id = (int)$owner_id;
 			$clause = new ByClause(sprintf("public_key='%s' and url='%s'", $public_key, $url), null, 1, null);			
 			$list = $db->find($clause, new Person());
 			return $list;

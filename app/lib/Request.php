@@ -85,9 +85,7 @@
 					$output[] = curl_multi_getcontent($ch);
 					curl_multi_remove_handle($mh, $ch);
 				}
-				curl_multi_close($mh);
-				var_dump(curl_multi_info_read($mh));
-				
+				curl_multi_close($mh);				
 				return $output;
 			}else{
 				throw new Exception("Failed to get a curl handle");

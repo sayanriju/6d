@@ -8,12 +8,11 @@ class ProfileResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
 		$this->max_filesize = 2000000;
-		self::$default_photo = FrontController::urlFor('images') . 'nophoto.png';
 	}
 	public function __destruct(){
 		parent::__destruct();
 	}
-	public static $default_photo;
+	const DEFAULT_PHOTO_URL = 'nophoto.png';
 	public $person;
 	public $max_filesize;
 	public function getState(){
@@ -56,7 +55,7 @@ class ProfileResource extends AppResource{
 			$this->person = Application::$member;
 			$this->title = $this->person->name . "'s profile.";
 			if($this->person->profile == null){
-				$this->person->profile = new Profile(array('photo_url'=>self::$default_photo));
+				$this->person->profile = new Profile(array('photo_url'=>FrontController::urlFor('images') . self::DEFAULT_PHOTO_URL));
 			}
 			
 			if($state === 'edit'){
@@ -74,9 +73,9 @@ class ProfileResource extends AppResource{
 	public static function getPhotoUrl($person, $photo_file_type = '.png'){
 		if(!is_object($person->profile)){
 			$person->profile = unserialize($person->profile);			
-		}
+		}		
 		if($person->profile == null || $person->profile->photo_url == null){
-			return self::$default_photo;
+			return FrontController::urlFor('images') . self::DEFAULT_PHOTO_URL;
 		}		
 		if(strpos($person->profile->photo_url, 'http') !== false){
 			return $person->profile->photo_url;

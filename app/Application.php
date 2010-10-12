@@ -167,6 +167,7 @@ class Application{
 class console{
 	public static $messages = array();
 	public static function log($obj){
+		error_log(json_encode($obj));
 		self::$messages[] = $obj;
 	}
 	public function __destruct(){

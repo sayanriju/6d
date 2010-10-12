@@ -45,17 +45,18 @@
 			}
 		}
 		
-		public static function sendMultiNotifications($people, $resourceName, $datum, $type = 'get'){
+		public static function sendMultiNotifications($people, $resource_name, $datum, $type = 'get'){
 			$urls = array();
 			$responses = array();
 			$config = new AppConfiguration();
+			$path = Application::urlForWithMember($resource_name);
 			$appName = sprintf('%s%s', $_SERVER['SERVER_NAME'], $path);
 			foreach($people as $person){
 				$person->url = preg_replace('/\/$/', '', $person->url);
 				$person->url = sprintf("http://%s", $person->url);
 				$urls[] = $person->url;
 			}
-			$responses = Request::doMultiRequests($urls, $resourceName, $datum, $type, null);	
+			$responses = Request::doMultiRequests($urls, $resource_name, $datum, $type, null);	
 			return $responses;
 		}
 		public static function sendNotification($person, $name, $data, $type = 'get'){

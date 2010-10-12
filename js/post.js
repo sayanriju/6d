@@ -389,7 +389,7 @@ UIController.Post = function(options){
 	if(this.add_a_photo_link){
 		SDDom.addEventListener(this.add_a_photo_link, 'click', this.bind(this.addPhotoWasClicked));
 	}
-	SDArray.each([SDDom('title'), SDDom('body')], function(elem, i){
+	/*SDArray.each([SDDom('title'), SDDom('body')], function(elem, i){
 			if(elem.value.length == 0){
 				SDDom.show(SDDom.findFirst('label[for="' + elem.id + '"]'));			
 			}else{
@@ -408,7 +408,7 @@ UIController.Post = function(options){
 				}
 			});
 		}
-	);
+	);*/
 	var reblog = SDDom('reblog');
 	if(reblog){
 		SDDom.addEventListener(reblog, 'click', this.bind(this.didClickReblog));
