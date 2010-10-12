@@ -269,12 +269,13 @@ img.author{
 }
 #content article form fieldset.type ul li input[type="radio"]{
 	width: 140%;
-	height: 42px;
+	height: 110px;
 	display: block;
 	padding: 0;
 	margin: 0;
 	position: absolute;
-	top: -10px;
+	visibility: hidden;
+	top: -15px;
 	left: -17px;
 }
 #content article form fieldset.type ul li{

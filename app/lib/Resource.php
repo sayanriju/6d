@@ -40,7 +40,9 @@ class Resource extends Object{
 	* I've prefixed all variable names with __ to avoid collisions when extracing variables from the array.
 	*/
 	public function renderView($__file, $__data = null, $__file_type = null){
-		$this->file_type = ($this->file_type == null ? 'html' : $this->file_type);
+		if($__file_type === null && $this->file_type !== null){
+			$__file_type = $this->file_type;
+		}
 		if($__file != null){
 			$__r = new ReflectionClass(get_class($this));
 			$__properties = array();
@@ -57,8 +59,8 @@ class Resource extends Object{
 				extract($__data);
 			}
 
-			$__full_path = sprintf('%s_%s.php', $__file, $this->file_type);
-			if(!in_array($this->file_type, array('html', 'xml')) && $this->isLayout($__file)){
+			$__full_path = sprintf('%s_%s.php', $__file, $__file_type);
+			if(!in_array($__file_type, array('html', 'xml')) && $this->isLayout($__file)){
 				return $this->output;
 			}
 			
@@ -81,7 +83,7 @@ class Resource extends Object{
 			// to come up with a more structured way to implement this logic.
 			// I've also added the __file_type parameter for situations where you want to render a view inline another
 			// view so you can specify a different file type than what's assigned for the resource.
-			if($this->file_type === 'phtml'){
+			if($__file_type === 'phtml'){
 				if(file_exists($__theme_view)){
 					require($__theme_view);
 				}else if(file_exists($__default_view)){
@@ -120,10 +122,8 @@ class Resource extends Object{
 			}else if(file_exists($__view)){
 				require($__view);
 			}else{
-				throw new Exception(sprintf("404: File not found, %s.%s", $__file, $this->file_type), 404);
-			}
-						
-			
+				throw new Exception(sprintf("404: File not found, %s.%s", $__file, $__file_type), 404);
+			}			
 			$this->output = ob_get_contents();
 			ob_end_clean();
 			if($this->isLayout($__file) && method_exists($this, 'hasRenderedOutput')){
@@ -135,7 +135,7 @@ class Resource extends Object{
 			if($__data != null){
 				$this->output = $this->replace($this->output, $__data);
 			}
-			if($this->file_type == 'json'){
+			if($__file_type == 'json'){
 				$this->output = String::replace('/\n|\t/', '', $this->output);
 				$this->output = String::replace('/\"/', '"', $this->output);
 			}

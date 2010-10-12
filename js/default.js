@@ -249,8 +249,9 @@ SDDom.remove = function(elem){
 };
 SDDom.removeAllChildren = function(elem){
 	if(elem.hasChildNodes()){
-		var i = elem.childNodes.length;
-		while(child = elem.childNodes[--i]){
+		var i = 0;
+		for(i = 0; i < elem.childNodes.length; i++){
+			child = elem.childNodes[i];
 			if(child.hasChildNodes()){
 				SDDom.removeAllChildren(child);
 			}else{
@@ -1215,15 +1216,6 @@ UIView.PhotoViewer.photoDidUpload = function(response){
 };
 
 
-UIView.FilmStrip = function(){
-	this.data = null;
-	UIView.apply(this, arguments);
-}
-UIView.Notification = function(){
-	UIView.apply(this, arguments);
-}
-
-
 function sixd(){
 	var observers = [];
 	this.listen_for = function(elem, name, fn){
@@ -1247,6 +1239,11 @@ function sixd(){
 	};
 	return this;
 }
+sixd.extend = function(child, supertype){
+	child.prototype.__proto__ = supertype.prototype;
+	child.prototype.__super = supertype;
+}
+
 sixd.bind = function(fn, context){
 	return function() {
 		var args = new Array();
@@ -1369,6 +1366,8 @@ sixd.controller = function(view, options){
 	});
 };
 
+
+
 sixd.view = function(id, options){
 	sixd.apply(this, [this]);
 	var self = this;
@@ -1445,6 +1444,7 @@ sixd.view = function(id, options){
 	this.listen_for(this.container, 'dblclick', this.dbl_clicked);
 	return this;
 };
+
 sixd.view.overlay = function(){
 	var today = new Date();
 	this.id = 'overlay_' + Date.UTC(today.getFullYear(), today.getMonth(), today.getDay());
@@ -1545,7 +1545,7 @@ sixd.view.post = function(id, options){
 		if(self[name]){
 			self[name]();
 		}else{
-			SDDom.show(this.body);
+			SDDom.show(self.body);
 		}
 	}
 	
@@ -1566,9 +1566,11 @@ sixd.view.post = function(id, options){
 	this.set_post_type = function(post_type){
 		this.post_type = post_type;
 		var elem = SDDom.findFirst('input[value="' + post_type + '"]', this.container);
+		if(elem){
+			highlight_post_type(elem);
+		}
 		if(SDDom.isVisible(this.container)){
 			elem.setAttribute('checked', true);
-			highlight_post_type(elem);
 			swap_view_to(post_type);			
 		}
 	};
@@ -2044,7 +2046,7 @@ var fs_controller = null;
 var post_controller = null;
 var app = null;
 sixd.main(function(e){
-	if(SDDom('photos_link')){
+	if(SDDom('photos_link') && SDDom.findFirst('article.hentry', document)){
 		fs_controller = new sixd.controller.film_strip(new sixd.view.film_strip(null), {handle_id: 'photos_link', callback: 'fs_controller.uploader.did_upload'});
 		post_controller = new sixd.controller.post(new sixd.view.post('post_view', {tag: 'article'}), {handle_id: 'new_post_link'});
 		fs_controller.add_subscriber(post_controller, 'image_was_added');

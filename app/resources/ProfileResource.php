@@ -8,10 +8,12 @@ class ProfileResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
 		$this->max_filesize = 2000000;
+		self::$default_photo = FrontController::urlFor('images') . 'nophoto.png';
 	}
 	public function __destruct(){
 		parent::__destruct();
 	}
+	public static $default_photo;
 	public $person;
 	public $max_filesize;
 	public function getState(){
@@ -53,6 +55,10 @@ class ProfileResource extends AppResource{
 		}else{
 			$this->person = Application::$member;
 			$this->title = $this->person->name . "'s profile.";
+			if($this->person->profile == null){
+				$this->person->profile = new Profile(array('photo_url'=>self::$default_photo));
+			}
+			
 			if($state === 'edit'){
 				if(!AuthController::isAuthorized() || Application::$current_user->person_id !== Application::$member->person_id){
 					throw new Exception(FrontController::UNAUTHORIZED, 401);
@@ -60,9 +66,6 @@ class ProfileResource extends AppResource{
 				$this->output = $this->renderView('profile/edit', null);
 				return $this->renderView('layouts/default', null);
 			}else{
-				if($this->person->profile === null){
-					$this->person->profile = serialize(new Profile(null));
-				}
 				$this->output = $this->renderView('profile/index', null);
 				return $this->renderView('layouts/default', null);
 			}
@@ -70,15 +73,15 @@ class ProfileResource extends AppResource{
 	}
 	public static function getPhotoUrl($person, $photo_file_type = '.png'){
 		if(!is_object($person->profile)){
-			$person->profile = unserialize($person->profile);
+			$person->profile = unserialize($person->profile);			
 		}
-		if($person->profile === null || String::isNullOrEmpty($person->profile->photo_url)){
-			return FrontController::urlFor('images') . 'nophoto' . $photo_file_type;
-		}else if(strpos($person->profile->photo_url, 'http') !== false){
+		if($person->profile == null || $person->profile->photo_url == null){
+			return self::$default_photo;
+		}		
+		if(strpos($person->profile->photo_url, 'http') !== false){
 			return $person->profile->photo_url;
-		}else if(String::isNullOrEmpty($person->profile->photo_url) !== null){
-			return '/' . FrontController::getVirtualPath() . '/' . $person->profile->photo_url;
 		}
+		return '/' . FrontController::getVirtualPath() . '/' . $person->profile->photo_url;
 	}
 	public function put(Person $person, Profile $profile){
 		if(!AuthController::isAuthorized() || Application::$current_user->person_id !== Application::$member->person_id){
