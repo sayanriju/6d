@@ -11,7 +11,7 @@
 			<input type="password" value="" id="password" name="password" />
 		</p>
 		<p>
-			<input type="submit" value="Login" />
+			<button type="submit">Login</button>
 		</p>
 	</fieldset>
 </form>

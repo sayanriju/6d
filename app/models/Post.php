@@ -186,7 +186,34 @@
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
 			return $list;
 		}
-		
+		public static function findTodaysFeed($start, $limit, $sort_by, $sort_by_direction, $is_authed, $owner_id){
+			$list = null;
+			$config = new AppConfiguration();
+			$post = new Post(null);
+			$db = Factory::get($config->db_type, $config);
+			if($sort_by === null || strlen($sort_by) === 0){
+				$sort_by = $post->getTableName() . '.post_date';
+			}else{
+				$sort_by = $post->getTableName() . '.' . $sort_by;
+			}
+			$clause = null;
+			if($is_authed){
+				$clause = new ByClause(sprintf("owner_id=%d and post_date >= '%s'", $owner_id, date('Y/m/d', time())), null, $limit > 0 ? array($start, $limit) : 0, array($sort_by=>$sort_by_direction));
+			}else{
+				$clause = new ByClause(sprintf("is_published = 1 and owner_id=%d and post_date >= '%s'", $owner_id, date('Y/m/d', time())), null, $limit > 0 ? array($start, $limit) : 0, array($sort_by=>$sort_by_direction));
+			}
+			$list = $db->find($clause, $post);
+			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
+			return $list;
+		}
+		public static function findMostRecentStatus($owner_id){
+			$config = new AppConfiguration();				
+			$db = Factory::get($config->db_type, $config);
+			$clause = new ByClause(sprintf("is_published = 1 and owner_id=%d and type='status'", $owner_id), null, 1, array('post_date'=>'desc'));
+			$list = $db->find($clause, new Post());
+			$list = ($list == null ? new Post() : (is_array($list) ? $list : array($list)));
+			return $list;
+		}
 		public static function findAll(){
 			$config = new AppConfiguration();				
 			$db = Factory::get($config->db_type, $config);

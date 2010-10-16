@@ -7,9 +7,6 @@ class_exists('Tag') || require('models/Tag.php');
 class AddressbookResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
-		if(!AuthController::isAuthorized() || Application::$current_user->person_id != Application::$member->person_id){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
-		}
 	}
 	public function __destruct(){
 		parent::__destruct();
@@ -18,6 +15,9 @@ class AddressbookResource extends AppResource{
 	public $person;
 	public $groups;
 	public function get($mini = false){
+		if(!AuthController::isAuthorized() || Application::$current_user->person_id != Application::$member->person_id){
+			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		}		
 		$this->title = 'Address Book';
 		$this->people = Person::findAllByOwner(Application::$current_user->person_id);
 		
@@ -44,6 +44,9 @@ class AddressbookResource extends AppResource{
 		return $this->renderView($layout);
 	}
 	public function delete(Tag $group = null, Person $person = null){
+		if(!AuthController::isAuthorized() || Application::$current_user->person_id != Application::$member->person_id){
+			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		}		
 		if($group != null){
 			Tag::delete($group);
 		}elseif($person != null){
@@ -52,6 +55,9 @@ class AddressbookResource extends AppResource{
 		$this->redirectTo('addressbook');
 	}
 	public function post($name = null){
+		if(!AuthController::isAuthorized() || Application::$current_user->person_id != Application::$member->person_id){
+			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		}		
 		$errors = array();
 		if($name != null){
 			$profile = new Profile(array('name'=>$name));

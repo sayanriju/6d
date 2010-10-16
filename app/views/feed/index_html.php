@@ -1,15 +1,12 @@
 <?php class_exists('PostResource') || require('resources/PostResource.php');?>
-<?php if($posts == null):?>
-	<article class="hentry">
-		<?php if(AuthController::isAuthorized() && Application::$current_user->person_id === Application::$member->person_id):?>
-		<p>There are no posts right now.</p>
-		<a href="<?php echo Application::urlForWithUser('post');?>">Create a new one</a>
-		<?php else:?>
-		<p>There are no posts here.</p>
-		<?php endif;?>
+
+<?php if(count($posts) == 0):?>
+	<article class="hentry noposts">
+		<p>No posts</p>
 	</article>
-<?php else:?>
-	<?php foreach($posts as $key=>$post):?>
+<?php endif;?>
+
+<?php foreach($posts as $key=>$post):?>
 	<article class="hentry<?php echo ($key === 0 ? ' first': null);?> <?php echo $post->type;?>">
 		<?php switch($post->type){
 			case('status'):?>
@@ -79,17 +76,18 @@
 			</aside>
 		</footer>
 	</article>
-	<?php endforeach;?>
-<?php endif;?>
+<?php endforeach;?>
+<?php if(count($posts) > 0):?>
 	<nav id="pager">
 	<?php if(count($posts) > 0 && $page > 1):?>
 		<a href="<?php echo FrontController::urlFor(($name === 'index' ? null : $name . '/')) . ($page > 1 ? $page-1 : null) . ($this->q !== null ? '?q=' . $this->q : null);?>" title="View newer posts"> ← newer</a>
 	<?php else:?>
 		<span> ← newer</span>
 	<?php endif;?>
-<?php if(count($posts) >= $limit):?>
+	<?php if(count($posts) >= $limit):?>
 		<a href="<?php echo FrontController::urlFor(($name === 'index' ? null : $name . '/')) . ($page === 0 ? $page+2 : $page+1). ($this->q !== null ? '?q=' . $this->q : null);?>" title="View older posts">older → </a>
-<?php else:?>
+	<?php else:?>
 		<span>older → </span>
-<?php endif;?>
+	<?php endif;?>
 	</nav>
+<?php endif;?>

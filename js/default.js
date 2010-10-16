@@ -1438,8 +1438,10 @@ sixd.view = function(id, options){
 	this.controller = null;
 	this.id = id;
 	this.container = SDDom(id) || SDDom.create(this.options.tag, {id: id});
-	SDDom.setStyles({"display":"none"}, this.container);	
-	SDDom.insertBefore(this.container, document.body.children[0]);
+	SDDom.setStyles({"display":"none"}, this.container);
+	if(id == null){
+		SDDom.insertBefore(this.container, document.body.children[0]);		
+	}	
 	this.listen_for(this.container, 'click', this.clicked);
 	this.listen_for(this.container, 'dblclick', this.dbl_clicked);
 	return this;

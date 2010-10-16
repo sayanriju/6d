@@ -441,13 +441,13 @@ class FrontController extends Object{
 	/*
 		The app path is the path where the sixd code base is located. I have several sites that are running
 		the same sixd code base. AppPath is the location of the core code base. On my dev box, it's
-		"/Library/WebServer/Documents/sixd"
+		"/Library/WebServer/Documents/6d"
 	*/
 	public static function getAppPath($file){
 		return str_replace(sprintf('lib%sFrontController.php', DIRECTORY_SEPARATOR), $file, __FILE__);
 	}
 	public static function getThemedViewPath(){
-		return self::getRootPath() . '/' . self::getThemePath() . '/views/';
+		return self::getRootPath('/' . self::getThemePath() . '/views/');
 	}
 	public static function getEncoding(){
 		$encoding = $_SERVER["HTTP_ACCEPT_ENCODING"];
