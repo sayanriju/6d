@@ -23,9 +23,7 @@ class PostResource extends AppResource{
 	public $page;
 	public $photos;
 	public $people;
-	public $last_page_viewed;
-	public function get(Post $post = null, $layout = 'default', $last_page_viewed = 1){
-		$this->last_page_viewed = $last_page_viewed;
+	public function get(Post $post = null, $layout = 'default'){
 		$photo = new Photo();
 		$this->photos = $photo->findAll('media/' . Application::$member->member_name);
 		$view = 'post/show';
@@ -56,9 +54,24 @@ class PostResource extends AppResource{
 			return $this->renderView($layout, null);
 		}
 	}
+	public static function getAuthor(Post $post){
+		if($post->source !== null && strlen($post->source) > 0){
+			$person = Person::findByUrlAndOwnerId($post->source, Application::$member->person_id);
+			if($person === null){
+				$person = Person::findById($post->owner_id);
+				$person->profile = unserialize($person->profile);
+			}else{
+				$data = sprintf("public_key=%s", urlencode($person->public_key));
+				$response = NotificationResource::sendNotification($person, 'profile.json', $data, 'get');
+				$response = json_decode($response->output);
+				$person->profile = unserialize($person->profile);
+				$person->profile->photo_url = $response->person->photo_url;				
+			}
+		}
+		return $person;
+	}
 	public static function getAuthorUrl(Post $post){
 		$url = null;
-		error_log('from get auth');
 		if($post->source !== null && strlen($post->source) > 0){
 			$person = Person::findByUrlAndOwnerId($post->source, Application::$member->person_id);
 			if($person !== null){
@@ -79,14 +92,12 @@ class PostResource extends AppResource{
 		$url = ($url === null ? FrontController::urlFor('images') . 'nophoto.png' : $url);
 		return $url;
 	}
-	public function put(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array(), $last_page_viewed = 1){
+	public function put(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array(), $previous_url = null){
 		
 		if(!AuthController::isAuthorized()){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}
-		
-		$this->last_page_viewed = $last_page_viewed;
-		
+				
 		if($post->id !== null && strlen($post->id) > 0){
 			$this->post = Post::findById($post->id, Application::$current_user->person_id);
 		}
@@ -143,7 +154,7 @@ class PostResource extends AppResource{
 		$this->redirectTo(Application::$current_user->member_name . '/' . $this->post->custom_url);			
 	}
 	
-	public function delete(Post $post, $last_page_viewed, $q = null){
+	public function delete(Post $post, $q = null){
 		$this->q = $q;
 		if(!AuthController::isAuthorized()){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
@@ -156,9 +167,9 @@ class PostResource extends AppResource{
 		Post::delete($post);
 		self::setUserMessage(sprintf("'%s' was deleted.", $post->title));
 		if($this->q === null){
-			$this->redirectTo('posts/' . $last_page_viewed);
+			FrontController::setNeedsToRedirectRaw(FrontController::getReferer());
 		}else{
-			$this->redirectTo('posts', array('page'=>$last_page_viewed, 'q'=>$this->q));
+			$this->redirectTo('posts', array('q'=>$this->q));
 		}
 	}
 	

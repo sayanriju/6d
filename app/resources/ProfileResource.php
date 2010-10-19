@@ -106,8 +106,9 @@ class ProfileResource extends AppResource{
 		}
 		
 		$this->person->id = $existing_person->id;
-		$this->person->url = String::replace('/http[s]?\:\/\//', '', FrontController::$site_path);
+		/*$this->person->url = String::replace('/http[s]?\:\/\//', '', FrontController::$site_path);
 		$this->person->url = String::replace('/\/$/', '', $this->person->url);
+		*/
 		$this->person->is_owner = $existing_person->is_owner;
 		$this->person->is_approved = true;
 		try{

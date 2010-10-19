@@ -42,11 +42,7 @@ class LoginResource extends AppResource{
 		}
 	}	
 	private function redirect($user){
-		if(FrontController::requestedUrl() != null){
-			$this->redirectTo(FrontController::requestedUrl());
-		}else{		
-			$this->redirectTo($user->is_owner ? null : $user->member_name);
-		}
+		$this->redirectTo($user->is_owner ? null : $user->member_name);
 	}
 }
 ?>

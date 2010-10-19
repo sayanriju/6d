@@ -39,7 +39,7 @@ class PostsResource extends AppResource{
 			$this->posts = $this->getPostsByAuthor($author_id);
 		}else if($tag !== null){
 			$this->title = 'All Posts Tagged ' . $tag;
-			$this->posts = $this->getPostsByTag($tag);
+			$this->posts = $this->getPostsByTag(new Tag(array('text'=>$tag)));				
 		}else if($this->q !== null){
 			$this->title = "Results for $this->q";
 			$this->posts = Post::search($q, $this->page, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$current_user->person_id);
@@ -63,6 +63,11 @@ class PostsResource extends AppResource{
 		if(AuthController::isAuthorized()){
 			$post->source = Application::$current_user->url;
 			$this->save($post, $people, $groups, $make_home_page);
+			if(FrontController::getReferer() !== null){
+				FrontController::setNeedsToRedirectRaw(FrontController::getReferer());
+			}else{
+				$this->redirectTo(Application::$member->member_name . '/' . $post->custom_url);
+			}
 		}else if($public_key != null && strlen($public_key)>0){
 			$person = Person::findByPublicKeyAndUrl($public_key, $post->source);
 			$response = 'ok';
@@ -111,6 +116,8 @@ class PostsResource extends AppResource{
 		if(strlen($post->body) > 0){
 			if($post->type !== 'status'){
 				$post->custom_url = String::stringForUrl($post->title);
+			}else{
+				$post->is_published = true;
 			}
 			list($post, $errors) = Post::save($post);
 			$post->person_post_id = $post->id;
@@ -131,7 +138,6 @@ class PostsResource extends AppResource{
 				self::setUserMessage($message);
 			}
 		}
-		$this->redirectTo(Application::$member->member_name . '/' . $post->custom_url);
 	}
 	private function makeHomePage($post){
 		$setting = Setting::findByName('home_page_post_id');

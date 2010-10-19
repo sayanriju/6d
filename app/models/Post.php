@@ -2,6 +2,7 @@
 	class_exists('Object') || require('lib/Object.php');
 	class_exists('DataStorage') || require('lib/DataStorage/DataStorage.php');
 	class_exists('Tag') || require('Tag.php');
+	class_exists('Comment') || require('Comment.php');
 	class Post extends Object{
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
@@ -138,7 +139,7 @@
 				$this->password = String::encrypt($val);
 			}
 		}
-		
+
 		public function getHowLongAgo(){
 			return $this->post_date;
 		}
@@ -159,7 +160,17 @@
 			}
 			return $value;			
 		}
-		
+		public function get_author(){
+			$person = Person::findByUrlAndOwnerId($this->source, $this->owner_id);
+			if($person !== null){
+				$person->profile = unserialize($person->profile);
+			}
+			return $person;
+		}
+		public function get_comments(){
+			$comments = Comment::findByPostId($this->id, $this->owner_id);
+			return $comments;
+		}
 		public static function searchForPublished($q, $start = 0, $limit = 5, $sort_by = 'post_date', $sort_by_direction = 'desc', $owner_id){
 			$config = new AppConfiguration();
 			$post = new Post(null);
@@ -186,7 +197,7 @@
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
 			return $list;
 		}
-		public static function findTodaysFeed($start, $limit, $sort_by, $sort_by_direction, $is_authed, $owner_id){
+		public static function findTodaysPosts($start, $limit, $sort_by, $sort_by_direction, $is_authed, $owner_id){
 			$list = null;
 			$config = new AppConfiguration();
 			$post = new Post(null);
@@ -195,6 +206,9 @@
 				$sort_by = $post->getTableName() . '.post_date';
 			}else{
 				$sort_by = $post->getTableName() . '.' . $sort_by;
+			}
+			if($sort_by_direction === null){
+				$sort_by_direction = 'desc';
 			}
 			$clause = null;
 			if($is_authed){
@@ -211,7 +225,7 @@
 			$db = Factory::get($config->db_type, $config);
 			$clause = new ByClause(sprintf("is_published = 1 and owner_id=%d and type='status'", $owner_id), null, 1, array('post_date'=>'desc'));
 			$list = $db->find($clause, new Post());
-			$list = ($list == null ? new Post() : (is_array($list) ? $list : array($list)));
+			$list = ($list == null ? new Post() : (is_array($list) ? $list[0] : $list));
 			return $list;
 		}
 		public static function findAll(){
@@ -271,7 +285,7 @@
 			}
 			$tag->text = urlencode($tag->text);
 			$owner_id = (int)$owner_id;
-			$list = $db->find(new ByClause("tags like '%{$tag}%' and owner_id={$owner_id}", null, array($start, $limit), array($sort_by=>$sort_by_direction)), $post);
+			$list = $db->find(new ByClause("tags like '%{$tag->text}%' and owner_id={$owner_id}", null, $limit > 0 ? array($start, $limit) : null, array($sort_by=>$sort_by_direction)), $post);
 			$list = ($list == null ? array() : $list);
 			return $list;
 		}

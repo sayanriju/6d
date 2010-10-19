@@ -137,8 +137,10 @@ class FrontController extends Object{
 	public static $site_path;
 	public static $error_html;
 	public static $delegate;
-
 	
+	public static function getReferer(){
+		return  array_key_exists('HTTP_REFERER', $_SERVER) ? $_SERVER['HTTP_REFERER'] : null;
+	}
 	public static function sendHeaders($headers){
 		foreach($headers as $key=>$value){
 			header(sprintf("%s: %s", $key, $value));
@@ -335,24 +337,30 @@ class FrontController extends Object{
 		}else{
 	        $resource_name =  ($resource_name !== null ? $resource_name : null);
 		}
+		
 		if($resource_id !== null){
 			$resource_name .= '/' . $resource_id;
 		}
+		
 		if($path !== null){
 			$resource_name .= '/' . $path;
 		}
-        if($query_string != null){
-			$resource_name .= '&';
+        
+		if($query_string != null){
+			$resource_name .= $use_clean_urls ? '?' : '&';
             $resource_name .= implode('&', $query_string);
         }
+		
 		if(self::$delegate !== null && method_exists(self::$delegate, 'willSetUrlFor')){
 			$resource_name = self::$delegate->willSetUrlFor($resource_name);
 		}
+		
 		if($make_secure && $config != null && strlen($config->ssl_path) > 0){
 			$url = sprintf('https://%s/%s', $config->ssl_path, $resource_name);
 		}else{			
 			$url = $site_path . $resource_name;
 		}
+		
 		return $url;
 	}
 	private function initSitePath(){
@@ -597,18 +605,22 @@ class FrontController extends Object{
 	public static function redirectTo($url, $params = null, $securely = false){
 		self::setNeedsToRedirectRaw(self::urlFor($url, $params, $securely));
 	}
-	
-	public static function requestedUrl(){
-		if($_SESSION !== null && array_key_exists('requested_url', $_SESSION)){
-			return $_SESSION['requested_url'];
-		}else{
-			return null;
+	private static $requested_url;
+	public static function getRequestedUrl(){
+		if(array_key_exists('requested_url', $_COOKIE)){
+			self::$requested_url = urldecode($_COOKIE['requested_url']);
 		}
+		return self::$requested_url;
 	}
 	public static function setRequestedUrl($value){
-		$_SESSION['requested_url'] = $value;
+		self::$requested_url = $value;
+		if($value == null){
+			unset($_COOKIE['requested_url']);
+		}else{
+			setcookie('requested_url', urlencode($value), time()+1);
+		}
 	}
-	
+		
 	public function errorDidHappen($code, $message, $file, $line, $context){
 		$contents = file_get_contents($file, FILE_TEXT);
 		$lines = preg_split('/\\n/', $contents);

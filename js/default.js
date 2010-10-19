@@ -1517,7 +1517,7 @@ sixd.view.post = function(id, options){
 	this.selected_images.add_subscriber(this, 'image_was_added');
 	this.selected_images.add_subscriber(this, 'image_was_removed');
 	
-	var first_article = SDDom.findFirst('article.hentry', document);
+	var first_article = SDDom.findFirst('article.first', document);
 	SDDom.insertBefore(this.container, first_article);
 	SDDom.addClass('hentry new', this.container);
 	function set_outlets(){
@@ -1653,7 +1653,7 @@ sixd.view.post = function(id, options){
 	};
 	this.remove_group = function(text){
 		SDDom.remove(SDDom('group_' + text.replace('/\s/g', '').toLowerCase()));
-	};
+	};	
 	return this;
 };
 
@@ -1928,10 +1928,10 @@ sixd.controller.addressbook = function(view, options){
 	this.html_was_set = function(html){
 	};
 };
-sixd.controller.post = function(view, options){
-	sixd.controller.apply(this, [view, options]);
+sixd.controller.post = function(view, options){	
+	sixd.controller.apply(this, [view, options]);	
 	this.addressbook_controller = null;
-	var self = this;
+	var self = this;	
 	this.get_view = function(){
 		return this.views[0];
 	};
@@ -1987,7 +1987,7 @@ sixd.controller.film_strip = function(view, options){
 	var self = this;
 	this.uploader = null;
 	this.callback = options.callback;
-	this.selected_images = new sixd.model.images();
+	this.selected_images = new sixd.model.images();	
 	this.clicked = function(e){
 		if(e.target.nodeName === 'IMG'){
 			var image = new Image();
@@ -2022,7 +2022,7 @@ sixd.controller.film_strip = function(view, options){
 	};
 	this.did_upload = function(response){
 		this.get_view().add_image(response);
-	};
+	};	
 }
 
 sixd.app = function(controllers){
@@ -2044,15 +2044,94 @@ sixd.app = function(controllers){
 		view.make_active(i+1);
 	};
 };
+
+sixd.behaviors = function(){
+	sixd.apply(this, []);
+}
+
+sixd.behaviors.label = function(){
+	var self = sixd.behaviors.apply(this, []);
+	var text_fields = SDDom.findAll('input[type="text"]');
+	var password_fields = SDDom.findAll('input[type="password"]');
+	var textarea_fields = SDDom.findAll('textarea');
+	this.elements = [];
+	for(var i = 0; i < text_fields.length; i++){
+		this.elements.push(text_fields[i]);
+	}
+	for(var i = 0; i < password_fields.length; i++){
+		this.elements.push(password_fields[i]);
+	}
+	for(var i = 0; i < textarea_fields.length; i++){
+		this.elements.push(textarea_fields[i]);
+	}
+	var labels = SDDom.findAll('label');
+	function find_for(id){
+		for(var i = 0; i < labels.length; i++){
+			if(labels[i].getAttribute('for') === id){
+				return labels[i];
+			}
+		}
+		return null;
+	}
+	this.field_focused = function(e){
+		var label = find_for(e.target.id);
+		if(label == null){
+			return;
+		}
+		SDDom.hide(label);
+	};
+	
+	this.field_blurred = function(e){
+		var label = find_for(e.target.id);
+		if(label == null){
+			return;
+		}
+		if(e.target.value.length == 0){
+			SDDom.show(label);
+		}else{
+			SDDom.hide(label);
+		}
+	};
+	this.keypressed = function(e){
+		var label = find_for(e.target.id);
+		if(label == null){
+			return;
+		}
+		SDDom.hide(label);
+	};
+	var elem = null;
+	var label = null;
+	for(var i = 0; i < this.elements.length; i++){
+		elem = this.elements[i];
+		if(elem.value && elem.value.length > 0){
+			console.log(elem.value);
+			label = find_for(elem.id);
+			console.log(label);
+			if(label){
+				SDDom.hide(label);
+			}
+		}
+		this.listen_for(elem, 'blur', this.field_blurred);
+		this.listen_for(elem, 'focus', this.field_focused);
+		this.listen_for(elem, 'keypress', this.keypressed);
+	}
+	
+	return this;
+}
+
+
 var fs_controller = null;
 var post_controller = null;
 var app = null;
 sixd.main(function(e){
-	if(SDDom('photos_link') && SDDom.findFirst('article.hentry', document)){
+	if(SDDom('photos_link') && SDDom.findFirst('.hentry', document)){
 		fs_controller = new sixd.controller.film_strip(new sixd.view.film_strip(null), {handle_id: 'photos_link', callback: 'fs_controller.uploader.did_upload'});
 		post_controller = new sixd.controller.post(new sixd.view.post('post_view', {tag: 'article'}), {handle_id: 'new_post_link'});
 		fs_controller.add_subscriber(post_controller, 'image_was_added');
 		fs_controller.add_subscriber(post_controller, 'image_was_removed');
 		app = new sixd.app([fs_controller, post_controller]);
+	}
+	if(SDDom.findFirst('label')){
+		sixd.behaviors.label();
 	}
 });

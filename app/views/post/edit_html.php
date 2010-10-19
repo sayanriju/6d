@@ -52,14 +52,11 @@
 			<label for="make_home_page" class="checkbox">Make this your home page</label>
 		</p>
 		<p id="send_to_list">
-			<label for="send_to_list">
-				<a href="<?php echo Application::urlForWithUser('addressbook.html');?>" id="address">Send to</a>
-			</label>
+			<a href="<?php echo Application::urlForWithUser('addressbook.html');?>" id="address">Send to</a>
 		</p>
         
     </fieldset>
 	<nav>
-		<input type="hidden" name="last_page_viewed" value="{$last_page_viewed}" />
 <?php if($post->id !== null):?>
 		<input type="hidden" value="put" name="_method" />
 <?php endif;?>

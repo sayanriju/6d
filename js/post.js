@@ -15,7 +15,7 @@ UIView.PostMenu = function(id){
 UIView.TextArea = function(id, options){
 	UIView.apply(this, arguments);
 	this.onResize = function(e){
-		this.resize(SDDom.getHeight(window) - SDDom.getPosition(this.container).y - 80);
+		//this.resize(SDDom.getHeight(window) - SDDom.getPosition(this.container).y - 80);
 	};
 	
 	this.resize = function(height){
