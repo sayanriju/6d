@@ -28,7 +28,6 @@
 		<p>No posts</p>
 	</article>
 <?php endif;?>
-
 <?php foreach($posts as $key=>$post):?>
 	<?php $author = PostResource::getAuthor($post);?>
 	<article class="hentry<?php echo ($key === 0 ? ' first': null);?> <?php echo $post->type;?>">
@@ -39,7 +38,7 @@
 				<img src="<?php echo $author->profile->photo_url;?>" class="thumbnail" />
 				<time><a href="http://<?php echo $post->source;?>" title=""><?php echo $author->name;?></a> wrote <?php echo Date::time_since(time() - strtotime($post->post_date));?> ago.</time>
 			</aside>
-			<a href="<?php echo Application::urlForWithMember('comments', array('post_id'=>$post->id));?>" title="Show comments for this post"><?php echo count($post->get_comments());?> Comments</a>
+			<a href="<?php echo Application::urlForWithMember('conversation', array('post_id'=>$post->id));?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>
 			<p><?php echo $post->body;?></p>
 		</header>
 			<?php break;
@@ -49,7 +48,7 @@
 				<img src="<?php echo $author->profile->photo_url;?>" class="thumbnail" />
 				<time><a href="http://<?php echo $post->source;?>" title=""><?php echo $author->name;?></a> wrote <?php echo Date::time_since(time() - strtotime($post->post_date));?> ago.</time>
 			</aside>
-			<a href="<?php echo Application::urlForWithMember('comments', array('post_id'=>$post->id));?>" title="Show comments for this post"><?php echo count($post->get_comments());?> Comments</a>
+			<a href="<?php echo Application::urlForWithMember('conversation', array('post_id'=>$post->id));?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>
 			<h2><a href="<?php echo $post->body;?>" title="<?php echo $post->title;?>"><?php echo $post->title;?></a></h2>
 		</header>
 		<section class="entry-content">
@@ -63,7 +62,7 @@
 				<img src="<?php echo $author->profile->photo_url;?>" class="thumbnail" />
 				<time><a href="http://<?php echo $post->source;?>" title=""><?php echo $author->name;?></a> wrote <?php echo Date::time_since(time() - strtotime($post->post_date));?> ago.</time>
 			</aside>
-			<a href="<?php echo Application::urlForWithMember('comments', array('post_id'=>$post->id));?>" title="Show comments for this post"><?php echo count($post->get_comments());?> Comments</a>
+			<a href="<?php echo Application::urlForWithMember('conversation', array('post_id'=>$post->id));?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>
 			
 			<?php
 				$album = explode("\n", $post->body);
@@ -82,8 +81,7 @@
 				<img src="<?php echo $author->profile->photo_url;?>" class="thumbnail" />
 				<time><a href="http://<?php echo $post->source;?>" title=""><?php echo $author->name;?></a> wrote <?php echo Date::time_since(time() - strtotime($post->post_date));?> ago.</time>
 			</aside>
-			<a href="<?php echo Application::urlForWithMember('comments', array('post_id'=>$post->id));?>" title="Show comments for this post"><?php echo count($post->get_comments());?> Comments</a>
-			
+			<a href="<?php echo Application::urlForWithMember('conversation', array('post_id'=>$post->id));?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>
 			<?php if(stripos($post->body, '<img') !== false):?>
 			<?php echo $post->body;?>
 			<?php else:?>
@@ -101,7 +99,7 @@
 				<img src="<?php echo $author->profile->photo_url;?>" class="thumbnail" />
 				<time><a href="http://<?php echo $post->source;?>" title=""><?php echo $author->name;?></a> wrote <?php echo Date::time_since(time() - strtotime($post->post_date));?> ago.</time>
 			</aside>
-			<a href="<?php echo Application::urlForWithMember('comments', array('post_id'=>$post->id));?>" title="Show comments for this post"><?php echo count($post->get_comments());?> Comments</a>
+			<a href="<?php echo Application::urlForWithMember('conversation', array('post_id'=>$post->id));?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>
 			<h2><a href="<?php echo Application::urlForWithMember($post->custom_url);?>" rel="bookmark" title="<?php echo $post->title;?>"><?php echo $post->title;?></a></h2>
 		</header>
 		<section class="entry-content">

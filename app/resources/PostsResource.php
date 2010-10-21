@@ -47,15 +47,17 @@ class PostsResource extends AppResource{
 			$this->title = 'All Posts';
 			$this->posts = $this->getAllPosts($this->start, $this->limit, $this->sort_by, $this->sort_by_direction);
 		}
-		$this->output = $this->renderView('post/index');
 		$this->keywords = implode(', ', String::getKeyWordsFromContent($this->output));
 		if($this->post !== null){
 			$this->description = $this->post->title;
+			$this->post->conversation = json_decode($this->post->conversation);
 		}else{
-			foreach($this->posts as $post){
-				$this->description .= $post->title . ',';
+			for($i=0; $i<count($this->posts); $i++){
+				$this->description .= $this->posts[$i]->title . ',';
+				$this->posts[$i]->conversation = json_decode($this->posts[$i]->conversation);
 			}
 		}
+		$this->output = $this->renderView('post/index');
 		return $this->renderView('layouts/default');
 	}
 	public function post(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array()){

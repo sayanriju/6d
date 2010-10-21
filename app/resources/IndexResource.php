@@ -82,16 +82,18 @@ class IndexResource extends AppResource{
 			}
 		}
 		
-		$this->output = $this->renderView($view, null);
 		$this->keywords = implode(', ', String::getKeyWordsFromContent($this->output));
 		if($this->post !== null){
 			$this->description = $this->post->title;
+			$this->post->conversation = json_decode($this->post->conversation);
 		}else{
-			foreach($this->posts as $post){
-				$this->description .= $post->title . ',';
+			for($i=0; $i<count($this->posts); $i++){
+				$this->description .= $this->posts[$i]->title . ',';
+				$this->posts[$i]->conversation = json_decode($this->posts[$i]->conversation);
 			}
 		}
 		$this->title = (Application::$member->person->profile !== null ? Application::$member->person->profile->site_name : Application::$member->name);
+		$this->output = $this->renderView($view, null);
 		return $this->renderView('layouts/home', null);
 	}
 	

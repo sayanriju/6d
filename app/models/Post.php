@@ -2,7 +2,31 @@
 	class_exists('Object') || require('lib/Object.php');
 	class_exists('DataStorage') || require('lib/DataStorage/DataStorage.php');
 	class_exists('Tag') || require('Tag.php');
-	class_exists('Comment') || require('Comment.php');
+	class Author extends Object{
+		public function __construct($attributes = null){
+			parent::__construct($attributes);
+		}
+		public function __destruct(){
+			parent::__destruct();
+		}
+		public $id;
+		public $parent_id;
+		public $name;
+		public $source;
+		public $photo_url;
+	}
+	class Comment extends Object{
+		public function __construct($attributes = null){
+			parent::__construct($attributes);
+		}
+		public function __destruct(){
+			parent::__destruct();
+		}
+		public $author;
+		public $date;
+		public $post_id;
+		public $body;
+	}
 	class Post extends Object{
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
@@ -116,14 +140,6 @@
 		public function getTags(){
 			return $this->tags;
 		}
-		private $owner_id;
-		public function getOwner_id(){
-			return $this->owner_id;
-		}
-		public function setOwner_id($val){
-			$this->owner_id = $val;
-		}
-		
 		public function setTags($val){
 			$this->tags = $val;
 		}
@@ -140,9 +156,21 @@
 			}
 		}
 
-		public function getHowLongAgo(){
-			return $this->post_date;
+		private $owner_id;
+		public function getOwner_id(){
+			return $this->owner_id;
 		}
+		public function setOwner_id($val){
+			$this->owner_id = $val;
+		}
+		private $conversation;
+		public function getConversation(){
+			return $this->conversation;
+		}
+		public function setConversation($val){
+			$this->conversation = $val;
+		}
+
 		public function isHomePage($home_page_post_id){
 			return $this->id > 0 && $this->id == $home_page_post_id;
 		}
@@ -160,16 +188,18 @@
 			}
 			return $value;			
 		}
+		
+		private $author;
 		public function get_author(){
-			$person = Person::findByUrlAndOwnerId($this->source, $this->owner_id);
-			if($person !== null){
-				$person->profile = unserialize($person->profile);
+			if($this->author !== null){
+				return $this->author;
 			}
-			return $person;
-		}
-		public function get_comments(){
-			$comments = Comment::findByPostId($this->id, $this->owner_id);
-			return $comments;
+			$this->author = Person::findByUrlAndOwnerId($this->source, $this->owner_id);
+			if($this->author === null){
+				$this->author = Person::findById($this->owner_id);
+			}
+			$this->author->profile = unserialize($this->author->profile);
+			return $this->author;
 		}
 		public static function searchForPublished($q, $start = 0, $limit = 5, $sort_by = 'post_date', $sort_by_direction = 'desc', $owner_id){
 			$config = new AppConfiguration();
@@ -440,6 +470,7 @@
 				$table->addColumn('is_published', 'boolean', array('is_nullable'=>true, 'default'=>false));
 				$table->addColumn('password', 'string', array('is_nullable'=>true, 'size'=>255));
 				$table->addColumn('owner_id', 'biginteger', array('is_nullable'=>false));
+				$table->addColumn('conversation', 'text', array('is_nullable'=>true));
 				
 				$table->addKey('primary', 'id');
 				$table->addKey('key', array('owner_id_key'=>'owner_id'));
@@ -459,6 +490,5 @@
 				throw $e;
 			}
 		}
-		
 	}
 ?>
