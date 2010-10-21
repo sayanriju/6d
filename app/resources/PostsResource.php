@@ -2,7 +2,7 @@
 class_exists('AppResource') || require('AppResource.php');
 class_exists('Person') || require('models/Person.php');
 class_exists('NotificationResource') || require('NotificationResource.php');
-
+class_exists('PostResource') || require('PostResource.php');
 class PostsResource extends AppResource{
 	public function __construct($attributes){
 		parent::__construct($attributes);
@@ -50,11 +50,11 @@ class PostsResource extends AppResource{
 		$this->keywords = implode(', ', String::getKeyWordsFromContent($this->output));
 		if($this->post !== null){
 			$this->description = $this->post->title;
-			$this->post->conversation = json_decode($this->post->conversation);
+			$this->post->conversation = PostResource::get_conversation_for($this->post);
 		}else{
 			for($i=0; $i<count($this->posts); $i++){
 				$this->description .= $this->posts[$i]->title . ',';
-				$this->posts[$i]->conversation = json_decode($this->posts[$i]->conversation);
+				$this->posts[$i]->conversation = PostResource::get_conversation_for($this->posts[$i]);
 			}
 		}
 		$this->output = $this->renderView('post/index');

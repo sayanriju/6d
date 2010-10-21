@@ -14,6 +14,7 @@ class ConversationsResource extends AppResource{
 		if($this->post == null){
 			throw new Exception(FrontController::NOTFOUND, 404);
 		}
+		
 		$comment->owner_id = Application::$current_user->person_id;
 		$comment->author = new Author(array('name'=>Application::$current_user->name, 'source'=>Application::$current_user->url, 'photo_url'=>Application::$current_user->profile->photo_url));
 		$comment->date = date('c');

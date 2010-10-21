@@ -39,9 +39,12 @@ class PostResource extends AppResource{
 		}else{
 			$this->post = $post;
 		}
+		
 		if($this->post != null && strlen($this->post->id) > 0){
 			$this->title = $this->post->title;
 			$this->description = $this->post->description;
+			
+			$this->post->conversation = self::get_conversation_for($this->post);
 			$this->output = $this->renderView($view, null);
 			return $this->renderView($layout, null);
 		}else{
@@ -52,6 +55,20 @@ class PostResource extends AppResource{
 			$this->title = "New post";
 			$this->output = $this->renderView($view, null);
 			return $this->renderView($layout, null);
+		}
+	}
+	public static function get_conversation_for(Post $post){
+		if($post->person_post_id !== null){
+			$author = $post->get_author();
+			$response = Request::doRequest($author->url, 'conversation.json', 'public_key=' . $author->public_key . '&post_id=' . $post->person_post_id, 'get', null);
+			$response = json_decode($response->output);
+			return $response;
+		}else{
+			if($post->conversation !== null){
+				return json_decode($post->conversation);
+			}else{
+				return array();
+			}
 		}
 	}
 	public static function getAuthor(Post $post){

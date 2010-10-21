@@ -803,7 +803,7 @@ eos;
 			}
 			return $query_id;
 		}
-		private function sanitize($value){
+		public function sanitize($value){
 			$this->connect(null);
 			$value = mysql_real_escape_string($value, $this->_connectionId);
 			//$value = str_ireplace("'", "\'", $value);

@@ -1,5 +1,6 @@
 <?php class_exists('Date') || require('lib/Date.php');?>
-<?php $author = $post->get_author();?>
+<?php class_exists('PostResource') || require('resources/PostResource.php');?>
+<?php $author = PostResource::getAuthor($post);?>
 <article class="hentry">
 	<header>
 		<img src="<?php echo $author->profile->photo_url;?>" class="thumbnail" />
@@ -12,6 +13,7 @@
 	</header>
 	<?php echo $post->body;?>
 </article>
+<?php if(AuthController::isAuthorized()):?>
 <form method="post" action="<?php echo Application::urlForWithMember('conversations');?>">
 	<fieldset>
 		<legend>Add a comment</legend>
@@ -21,6 +23,7 @@
 		<button type="submit">Comment</button>
 	</fieldset>
 </form>
+<?php endif;?>
 <?php foreach($post->conversation as $comment):?>
 <article class="hentry">
 	<header>

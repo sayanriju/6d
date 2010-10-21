@@ -1517,7 +1517,7 @@ sixd.view.post = function(id, options){
 	this.selected_images.add_subscriber(this, 'image_was_added');
 	this.selected_images.add_subscriber(this, 'image_was_removed');
 	
-	var first_article = SDDom.findFirst('article.first', document);
+	var first_article = SDDom.findFirst('.hentry', document);
 	SDDom.insertBefore(this.container, first_article);
 	SDDom.addClass('hentry new', this.container);
 	function set_outlets(){

@@ -232,6 +232,15 @@
 			$list = $db->find($clause, new Person());
 			return $list;
 		}
+		public static function findByPublicKeyAndOwner($public_key, $owner_id){
+			$config = new AppConfiguration();
+			$db = Factory::get($config->db_type, $config);
+			$public_key = $db->sanitize($public_key);
+			$clause = new ByClause(sprintf("public_key='%s' and owner_id=%s", $public_key, $owner_id), null, 1, null);			
+			$list = $db->find($clause, new Person());
+			return $list;
+		}
+		
 		public static function findByEmail($email){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);

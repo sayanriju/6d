@@ -2,26 +2,34 @@
 	class_exists('Object') || require('lib/Object.php');
 	class_exists('DataStorage') || require('lib/DataStorage/DataStorage.php');
 	class_exists('Tag') || require('Tag.php');
-	class Author extends Object{
+	class Author{
 		public function __construct($attributes = null){
-			parent::__construct($attributes);
+			if(array_key_exists('id', $attributes)){
+				$this->id = $attributes['id'];
+			}
+			if(array_key_exists('parent_id', $attributes)){
+				$this->parent_id = $attributes['parent_id'];
+			}
+			if(array_key_exists('name', $attributes)){
+				$this->name = $attributes['name'];
+			}
+			if(array_key_exists('source', $attributes)){
+				$this->source = $attributes['source'];
+			}
+			if(array_key_exists('photo_url', $attributes)){
+				$this->photo_url = $attributes['photo_url'];
+			}
 		}
-		public function __destruct(){
-			parent::__destruct();
-		}
+		public function __destruct(){}
 		public $id;
 		public $parent_id;
 		public $name;
 		public $source;
 		public $photo_url;
 	}
-	class Comment extends Object{
-		public function __construct($attributes = null){
-			parent::__construct($attributes);
-		}
-		public function __destruct(){
-			parent::__destruct();
-		}
+	class Comment{
+		public function __construct(){}
+		public function __destruct(){}
 		public $author;
 		public $date;
 		public $post_id;
