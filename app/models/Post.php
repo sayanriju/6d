@@ -250,9 +250,9 @@
 			}
 			$clause = null;
 			if($is_authed){
-				$clause = new ByClause(sprintf("owner_id=%d and post_date >= '%s'", $owner_id, date('Y/m/d', time())), null, $limit > 0 ? array($start, $limit) : 0, array($sort_by=>$sort_by_direction));
+				$clause = new ByClause(sprintf("owner_id=%d and updated >= '%s'", $owner_id, date('Y/m/d', time())), null, $limit > 0 ? array($start, $limit) : 0, array($sort_by=>$sort_by_direction));
 			}else{
-				$clause = new ByClause(sprintf("is_published = 1 and owner_id=%d and post_date >= '%s'", $owner_id, date('Y/m/d', time())), null, $limit > 0 ? array($start, $limit) : 0, array($sort_by=>$sort_by_direction));
+				$clause = new ByClause(sprintf("is_published = 1 and owner_id=%d and updated >= '%s'", $owner_id, date('Y/m/d', time())), null, $limit > 0 ? array($start, $limit) : 0, array($sort_by=>$sort_by_direction));
 			}
 			$list = $db->find($clause, $post);
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
@@ -479,6 +479,7 @@
 				$table->addColumn('password', 'string', array('is_nullable'=>true, 'size'=>255));
 				$table->addColumn('owner_id', 'biginteger', array('is_nullable'=>false));
 				$table->addColumn('conversation', 'text', array('is_nullable'=>true));
+				$table->addColumn('updated', 'datetime', array('is_nullable'=>true, 'default'=>'CURRENT_TIMESTAMP', 'extra'=>'on update CURRENT_TIMESTAMP'));
 				
 				$table->addKey('primary', 'id');
 				$table->addKey('key', array('owner_id_key'=>'owner_id'));

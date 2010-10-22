@@ -79,6 +79,9 @@
 			if(array_key_exists('auto_increment', $this->options)){
 				$sql .= ($this->options['auto_increment'] ? ' AUTO_INCREMENT ' : '');
 			}
+			if(array_key_exists('extra', $this->options)){
+				$sql .= ' ' . $this->options['extra'];
+			}
 			$sql = trim($sql);
 			return $sql;
 		}
