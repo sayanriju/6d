@@ -45,7 +45,7 @@
 			}
 		}
 		
-		public static function sendMultiNotifications($people, $resource_name, $datum, $type = 'get'){
+		public static function sendMultiNotifications($people, $resource_name, $data, $type = 'get'){
 			$urls = array();
 			$responses = array();
 			$config = new AppConfiguration();
@@ -56,10 +56,10 @@
 				$person->url = sprintf("http://%s", $person->url);
 				$urls[] = $person->url;
 			}
-			$responses = Request::doMultiRequests($urls, $resource_name, $datum, $type, null);	
+			$responses = Request::doMultiRequests($urls, $resource_name, $data, $type, null);	
 			return $responses;
 		}
-		public static function sendNotification($person, $name, $data, $type = 'get'){
+		public static function sendNotification($person, $resource_name, $data, $type = 'get'){
 			$config = new AppConfiguration();
 			$segments = explode('/', $_SERVER['SCRIPT_NAME']);
 			array_pop($segments);
@@ -67,7 +67,7 @@
 			$person->url = preg_replace('/\/$/', '', $person->url);
 			$appName = sprintf('%s%s', $_SERVER['SERVER_NAME'], $path);
 			$url = sprintf("http://%s", $person->url);
-			$path = sprintf("%s", $name);
+			$path = sprintf("%s", $resource_name);
 			/*$aes = new aes128();
 			$key = $aes->makeKey($follower->public_key);
 			error_log($follower->public_key);

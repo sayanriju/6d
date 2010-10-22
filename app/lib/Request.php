@@ -11,7 +11,7 @@
 	class Request extends Object{
 		public function __construct(){}
 		public function __destruct(){}
-		public static function doMultiRequests($urls, $path, $datum, $method = 'get', $optionalHeaders = null){
+		public static function doMultiRequests($urls, $path, $data, $method = 'get', $options = array()){
 			$handles = array();
 			$output = array();
 			$i = 0;			
@@ -27,8 +27,8 @@
 				, CURLOPT_RETURNTRANSFER=>true
 				, CURLOPT_VERBOSE=>false
 			);
-			if($optionalHeaders != null && is_array($optionalHeaders)){
-				$curl_options = array_merge($curl_options, $optionalHeaders);
+			if($options && count($options) > 0){
+				$curl_options = array_merge($curl_options, $options);
 			}
 			if($method == 'post'){
 				$curl_options[CURLOPT_POST] = true;
@@ -45,14 +45,15 @@
 					$urls[$i] .= '/' . $path;				
 				}
 				if($method === 'post'){
-					$curl_options[CURLOPT_POSTFIELDS] = $datum[$i];
+					$curl_options[CURLOPT_POSTFIELDS] = $data[$i];
 				}elseif($method === 'get'){
-					if($datum !== null && $datum[$i] !== null){
-						$urls[$i] .= '?' . $datum[$i];
+					if($data !== null && $data[$i] !== null){
+						$urls[$i] .= '?' . $data[$i];
 					}
 				}else{
-					$curl_options[CURLOPT_INFILE] = $datum[$i];
-					$curl_options[CURLOPT_INFILESIZE] = strlen($datum[$i]);
+					$curl_options[CURLOPT_INFILE] = $data[$i];
+					$curl_options[CURLOPT_INFILESIZE] = strlen($data[$i]);
+					$curl_options[CURLOPT_HTTPHEADER] = array('Content-Length: ' . strlen($data[$i]));
 				}				
 				$curl_options[CURLOPT_URL] = $urls[$i];
 				$ch = self::getCurlHandle($curl_options);
@@ -92,7 +93,7 @@
 			}	
 		}
 		private static function getCurlHandle($curl_options){
-	        $ch = curl_init(); 
+	        $ch = curl_init();
 			curl_setopt_array($ch, $curl_options);
 			return $ch;
 		}
@@ -133,8 +134,10 @@
 				$curl_options[CURLOPT_INFILESIZE] = strlen($data);
 				$curl_options[CURLOPT_HTTPGET] = false;
 				$curl_options[CURLOPT_PUT] = true;
+				$curl_options[CURLOPT_HTTPHEADER] = array('Content-Length: ' . strlen($data[$i]));
+				
 			}
-			$curl_options[CURLOPT_URL] =$url;
+			$curl_options[CURLOPT_URL] = $url;
 			
 	        // set url 
 			curl_setopt_array($ch, $curl_options);

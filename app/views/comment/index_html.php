@@ -14,7 +14,7 @@
 	<?php echo $post->body;?>
 </article>
 <?php if(AuthController::isAuthorized()):?>
-<form method="post" action="<?php echo Application::urlForWithMember('conversations');?>">
+<form method="post" action="<?php echo Application::urlForWithMember('conversations');?>" class="comment">
 	<fieldset>
 		<legend>Add a comment</legend>
 		<label for="comment">Write a comment on <?php echo $author->name;?>'s post</label>
