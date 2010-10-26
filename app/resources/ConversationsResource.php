@@ -15,28 +15,30 @@ class ConversationsResource extends AppResource{
 		if($this->post == null){
 			throw new Exception(FrontController::NOTFOUND, 404);
 		}
-		$comment->owner_id = Application::$current_user->person_id;
-		$comment->author = new Author(array('name'=>Application::$current_user->name, 'source'=>Application::$current_user->url, 'photo_url'=>Application::$current_user->profile->photo_url));
-		$comment->date = date('c');
-		if($this->post->conversation === null){
-			$this->post->conversation = array();
-		}else{
-			$this->post->conversation = json_decode($this->post->conversation);
-		}
-		$comment->id = count($this->post->conversation);
-		$conversation = $this->post->conversation;
-		array_unshift($conversation, $comment);
-		$this->post->conversation = json_encode($conversation);
 		if($this->post->person_post_id !== null){
 			$this->send_comment_to_author($this->post, $comment);
 		}else{
-			list($this->post, $errors) = Post::save($this->post);			
+			$comment->owner_id = Application::$current_user->person_id;
+			$comment->author = new Author(array('name'=>Application::$current_user->name, 'source'=>Application::$current_user->url, 'photo_url'=>Application::$current_user->profile->photo_url));
+			$comment->date = date('c');
+			if($this->post->conversation === null){
+				$this->post->conversation = array();
+			}else{
+				$this->post->conversation = json_decode($this->post->conversation);
+			}
+			$comment->id = count($this->post->conversation);
+			$conversation = $this->post->conversation;
+			array_unshift($conversation, $comment);
+			$this->post->conversation = json_encode($conversation);
 		}
+		$this->post->updated = date('c');
+		list($this->post, $errors) = Post::save($this->post);
 		if(count($errors) > 0){
 			$message = array();
 			foreach($errors as $key=>$value){
 				$message[] = $key . ': ' . $value;
 			}
+			error_log($message);
 			self::setUserMessage(implode('<br />', $message));
 		}
 		$this->redirectTo(Application::$member->member_name . '/conversation', array('post_id'=>$this->post->id));

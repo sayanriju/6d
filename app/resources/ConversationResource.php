@@ -18,7 +18,7 @@ class ConversationResource extends AppResource{
 		$requestor = Person::findByPublicKeyAndOwner($public_key, Application::$member->person_id);
 		if(!$this->has_access($this->post, $public_key, $requestor)){			
 			throw new Exception(FrontController::UNAUTHORIZED, 401);			
-		}				
+		}
 		$this->post->conversation = PostResource::get_conversation_for($this->post);
 		$this->output = $this->renderView($view);
 		return $this->renderView('layouts/default');
@@ -49,7 +49,7 @@ class ConversationResource extends AppResource{
 					}
 					self::setUserMessage(implode(', ', $message));
 				}else{
-					$this->status = 201;
+					$this->status = new HttpStatus(201);
 				}
 				$this->output = $this->renderView('comment/index');
 				return $this->renderView('layouts/default');

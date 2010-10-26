@@ -8,6 +8,8 @@
 		public $output;
 		public $headers;
 	}
+	//Option for doing DELETE, PUT.
+	//CURLOPT_CUSTOMREQUEST
 	class Request extends Object{
 		public function __construct(){}
 		public function __destruct(){}
@@ -38,7 +40,10 @@
 				$curl_options[CURLOPT_PUT] = false;
 			}else{
 				$curl_options[CURLOPT_HTTPGET] = false;
-				$curl_options[CURLOPT_PUT] = true;
+				if($method === 'put'){
+					$curl_options[CURLOPT_PUT] = true;
+				}
+				$curl_options[CURLOPT_CUSTOMREQUEST] = $method;
 			}			
 			for($i = 0; $i < $ubounds; $i++){
 				if($path !== null){
@@ -51,9 +56,11 @@
 						$urls[$i] .= '?' . $data[$i];
 					}
 				}else{
-					$curl_options[CURLOPT_INFILE] = $data[$i];
-					$curl_options[CURLOPT_INFILESIZE] = strlen($data[$i]);
-					$curl_options[CURLOPT_HTTPHEADER] = array('Content-Length: ' . strlen($data[$i]));
+					if($method === 'put'){
+						$curl_options[CURLOPT_INFILE] = $data[$i];
+						$curl_options[CURLOPT_INFILESIZE] = strlen($data[$i]);						
+						$curl_options[CURLOPT_HTTPHEADER] = array('Content-Length: ' . strlen($data[$i]));
+					}
 				}				
 				$curl_options[CURLOPT_URL] = $urls[$i];
 				$ch = self::getCurlHandle($curl_options);

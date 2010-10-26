@@ -178,6 +178,13 @@
 		public function setConversation($val){
 			$this->conversation = $val;
 		}
+		private $updated;
+		public function getUpdated(){
+			return $this->updated;
+		}
+		public function setUpdated($val){
+			$this->updated = $val;
+		}
 
 		public function isHomePage($home_page_post_id){
 			return $this->id > 0 && $this->id == $home_page_post_id;
@@ -256,6 +263,9 @@
 			}
 			$list = $db->find($clause, $post);
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
+			foreach($list as $post){
+				$post->conversation = json_decode($post->conversation);
+			}
 			return $list;
 		}
 		public static function findMostRecentStatus($owner_id){

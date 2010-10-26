@@ -1,0 +1,1 @@
+<?php require(FrontController::getThemedViewPath() . '/layouts/default_html.php');?>

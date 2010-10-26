@@ -62,6 +62,10 @@ class PostResource extends AppResource{
 			$author = $post->get_author();
 			$response = Request::doRequest($author->url, 'conversation.json', 'public_key=' . $author->public_key . '&post_id=' . $post->person_post_id, 'get', null);
 			$response = json_decode($response->output);
+			// $response is an array when it's decoded successfully.
+			if(!is_array($response) && property_exists($response, 'message')){
+				return null;
+			}
 			return $response;
 		}else{
 			if($post->conversation !== null){
