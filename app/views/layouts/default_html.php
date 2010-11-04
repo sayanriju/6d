@@ -1,7 +1,7 @@
 <?php
 	class_exists('UserResource') || require('resources/UserResource.php');
 	class_exists('ProfileResource') || require('resources/ProfileResource.php');
-?><!doctype html>
+?><!DOCTYPE html>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
@@ -19,64 +19,60 @@
 		<![endif]-->
 		{$resource_js}
 	</head>
-	<body>
-		<header id="banner">
-			<h1><a href="<?php echo FrontController::urlFor(null);?>" title="Home"><span><?php echo Application::$member->profile != null ? Application::$member->profile->site_name : Application::$member->member_name;?></span></a></h1>
-		</header>
-		<aside id="author">
-			<a href="<?php echo Application::urlForWithMember(null);?>" title="Go back to my home page">
-			<?php if(Application::$member->person->profile != null):?>
-				<img width="52" height="52" src="<?php echo ProfileResource::getPhotoUrl(Application::$member->person);?>" alt="photo of <?php echo Application::$member->name;?>" class="author" />
-			<?php endif;?>
-			</a>
-			<nav>
-				<ul>
-<?php $pages = Post::findPublishedPages(Application::$member->person_id);?>
-<?php while($pages != null && $page = array_shift($pages)):?>
-	<?php if(!$page->isHomePage($this->getHome_page_post_id())):?>
-					<li><a href="<?php echo FrontController::urlFor($page->custom_url);?>" title="<?php echo $page->description;?>"><?php echo $page->title;?></a></li>
-	<?php endif;?>
-<?php endwhile;?>
-<?php if(AuthController::isAuthorized()):?>
-<?php endif;?>
-				</ul>
+	<body class="<?php echo $this->name;?>">
+		<div class="view">
+			<header id="banner">
+				<h1><a href="<?php echo FrontController::urlFor(null);?>" title="Home"><span><?php echo Application::$member->profile != null ? Application::$member->profile->site_name : Application::$member->member_name;?></span></a></h1>
+			</header>
+			<section id="content">
+				<div id="user_message"<?php echo (Resource::getUserMessage() !== null ? ' style="display:block;"' : null);?>>
+					<?php echo Resource::getUserMessage();?>
+				</div>
+				<div class="view">
+					<section class="menu">
+						<dl>
+							<dt>Inforstream</dt>
+							<dl>
+								<a href="<?php echo Application::urlForWithMember('today');?>" title="Today's posts">Today</a>
+							</dl>
+						</dl>
+						<footer></footer>
+					</section>
+					<section class="info-stream">
+						{$output}
+						<footer></footer>
+					</section>
+				</div>
+			</section>
+			<?php if(AuthController::isAuthorized()):?>
+			<nav id="admin_menu" class="main">
+				<a id="photos_link" href="<?php echo Application::urlForWithUser('photos');?>" title="show all photos">media</a>
+				<a href="<?php echo Application::urlForWithUser(null);?>" id="home_link" title="go to your home page">home</a>
+				<a href="<?php echo Application::urlForWithUser('post');?>" id="new_post_link" title="new post">new post</a>
+				<a href="<?php echo Application::urlForWithUser('posts');?>" id="all_posts_link" title="show all posts">posts</a>
+				<a href="<?php echo Application::urlForWithUser('addressbook');?>" id="addressbook_link" title="show your addressbook">addressbook</a>
+				<a href="<?php echo Application::urlForWithUser('profile');?>" id="profile_link" title="show your profile">profile</a>
+				<?php if(AuthController::isSuperAdmin()):?>
+				<a href="<?php echo Application::urlForWithUser('members');?>" id="members_link" title="See all the members in your network">members</a>
+				<a href="<?php echo Application::urlForWithUser('member');?>" id="member_link" title="Create a new member">add a member</a>
+				<?php endif;?>
 			</nav>
-
-		  	<footer>
+			<p>Welcome <?php echo Application::$current_user->name;?></p>
+			<?php endif;?>
+			<footer id="footer">
+				<p>&copy;<?php echo date('Y');?> Powered by <a href="http://get6d.com/" title="6d">6d</a></p>
 				<nav>
 					<?php if(!AuthController::isAuthorized()):?>
 					<a href="<?php echo FrontController::urlFor('login');?>" title="Login">Login</a>
+					<?php else:?>
+					<a href="<?php echo FrontController::urlFor('logout');?>" title="Login">Login</a>
 					<?php endif;?>
+					<a href="<?php echo Application::urlForWithMember('blog');?>" title="Blog">Blog</a>
 					<a href="<?php echo Application::urlForWithMember('profile');?>" title="Profile page">Profile</a>
 					<a href="<?php echo FrontController::urlFor('members');?>" title="Member directory">Members</a>
 				</nav>
 			</footer>
-		</aside>
-		<section id="content">
-			<div id="user_message"<?php echo (Resource::getUserMessage() !== null ? ' style="display:block;"' : null);?>>
-				<?php echo Resource::getUserMessage();?>
-			</div>
-			{$output}
-		</section>
-		<?php if(AuthController::isAuthorized()):?>
-		<nav id="admin_menu" class="main">
-			<a id="photos_link" href="<?php echo Application::urlForWithUser('photos');?>" title="show all photos">media</a>
-			<a href="<?php echo Application::urlForWithUser(null);?>" id="home_link" title="go to your home page">home</a>
-			<a href="<?php echo Application::urlForWithUser('post');?>" id="new_post_link" title="new post">new post</a>
-			<a href="<?php echo Application::urlForWithUser('posts');?>" id="all_posts_link" title="show all posts">posts</a>
-			<a href="<?php echo Application::urlForWithUser('addressbook');?>" id="addressbook_link" title="show your addressbook">addressbook</a>
-			<a href="<?php echo Application::urlForWithUser('profile');?>" id="profile_link" title="show your profile">profile</a>
-			<?php if(AuthController::isSuperAdmin()):?>
-			<a href="<?php echo Application::urlForWithUser('members');?>" id="members_link" title="See all the members in your network">members</a>
-			<a href="<?php echo Application::urlForWithUser('member');?>" id="member_link" title="Create a new member">add a member</a>
-			<?php endif;?>
-		 	<a href="<?php echo Application::urlForWithUser('logout');?>" id="logout_link">logout</a>
-		</nav>
-		<p>Welcome <?php echo Application::$current_user->name;?></p>
-		<?php endif;?>
-		<footer id="footer">
-			<p>&copy;<?php echo date('Y');?> Powered by <a href="http://get6d.com/" title="6d">6d</a></p>
-		</footer>
+		</div>
 		<noscript>requires Javascript. Please either turn on Javascript or get a browser that supports Javascript to use 6d.</noscript>
 	</body>
 </html>

@@ -25,7 +25,7 @@ class TodayResource extends AppResource{
 		}
 	}
 	public function get($id = 1, $sort_by = 'post_date', $sort_by_direction = 'desc', $direction = null, $tag = null, $q = null){
-		$this->limit = 0;
+		$this->limit = 10;
 		$this->q = $q;
 		$page = $id;
 		if($sort_by === null || strlen($sort_by) === 0){
@@ -64,9 +64,7 @@ class TodayResource extends AppResource{
 		$this->posts = self::get_todays_posts(AuthController::isAuthorized(), Application::$member->person_id, $id, $sort_by, $sort_by_direction, $direction, $tag, $q, $this->limit);
 		$this->output = $this->renderView($view, null);
 		$this->keywords = implode(', ', String::getKeyWordsFromContent($this->output));
-		foreach($this->posts as $post){
-			$this->description .= $post->title . ',';
-		}
+		$this->description = "List of Today's posts";
 		$this->title = "Today's Stream";
 		self::$cached_posts = $this->posts;
 		return $this->renderView('layouts/default', null);
@@ -91,7 +89,7 @@ class TodayResource extends AppResource{
 		}
 		
 		if($posts === null){
-			$posts = Post::findPublishedPosts(($page-1) * $limit, $limit, $sort_by, $sort_by_direction, $person_id);
+			$posts = Post::findPublishedPosts(($page-1) * $limit, $limit, array($sort_by=>$sort_by_direction), $person_id);
 			return $posts;
 		}
 		return $posts;

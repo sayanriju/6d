@@ -79,7 +79,7 @@ class Application{
 			if($file_type === 'html'){
 				FrontController::redirectTo('login');
 			}else{
-				FrontController::send401Headers('Please login', 'sixd');
+				FrontController::send401Headers('Please login', '6d');
 			}
 		}elseif($e->getCode() == 404){
 			$resource->output = $resource->renderView('error/404', array('message'=>$e->getMessage()));
@@ -134,9 +134,9 @@ class Application{
 		$page_name = $args['url_parts'][0];
 		$view = $page_name . '_' . $resource->file_type . '.php';
 		if(is_numeric($page_name)){
-			require('resources/IndexResource.php');
-			$index_resource = new IndexResource(array('file_type'=>'phtml'));
-			$resource->output = $index_resource->get($page_name);
+			require('resources/BlogResource.php');
+			$blog_resource = new BlogResource(array('file_type'=>'phtml'));
+			$resource->output = $blog_resource->get($page_name);
 		}elseif(file_exists(FrontController::getThemePath() . '/views/index/' . $view)){
 			$resource->output = $resource->renderView('index/' . $page_name);
 		}elseif(file_exists('index/' . $view)){

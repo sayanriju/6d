@@ -263,8 +263,8 @@
 			}
 			$list = $db->find($clause, $post);
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
-			foreach($list as $post){
-				$post->conversation = json_decode($post->conversation);
+			foreach($list as $key=>$post){
+				$list[$key]->conversation = json_decode($list[$key]->conversation);
 			}
 			return $list;
 		}
@@ -294,14 +294,15 @@
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
 			return $list;
 		}
-		public static function findPublishedPosts($start, $limit, $sort_by, $sort_by_direction = 'desc', $owner_id){
+		public static function findPublishedPosts($start, $limit, $sort_by, $owner_id){
 			$config = new AppConfiguration();
 			$post = new Post(null);
 			$db = Factory::get($config->db_type, $config);
-			if($sort_by === null || strlen($sort_by) === 0){
-				$sort_by = $post->getTableName() . '.id';
+			if($sort_by === null || count($sort_by) === 0){
+				$sort_by = array($post->getTableName() . '.id'=>'desc');
 			}
-			$list = $db->find(new ByClause(sprintf("is_published=1 and type != 'page' and owner_id=%d", $owner_id), null, array($start, $limit), array($sort_by=>$sort_by_direction, 'id'=>'desc')), $post);
+			$clause = new ByClause(sprintf("is_published=1 and type not in ('status', 'page') and owner_id=%d", $owner_id), null, array($start, $limit), $sort_by);
+			$list = $db->find($clause, $post);
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
 			return $list;
 		}
@@ -390,7 +391,7 @@
 		public static function findAllPublished($custom_url, $owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$cusomt_url = String::sanitize($custom_url);
+			$cusomt_url = $db->sanitize($custom_url);
 			$post = $db->find(new ByClause("is_published=1 and custom_url='{$custom_url}' and owner_id={$owner_id}", null, 1, null), new Post(null));
 			return $post;
 		}
@@ -399,6 +400,8 @@
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
 			$owner_id = (int)$owner_id;
+			$name = $db->sanitize($name);
+			$value = $db->sanitize($value);
 			$post = $db->find(new ByClause(sprintf("%s='%s' and owner_id=%d", $name, $value, $owner_id), null, 1, null), new Post(null));
 			return $post;
 		}
@@ -489,7 +492,7 @@
 				$table->addColumn('password', 'string', array('is_nullable'=>true, 'size'=>255));
 				$table->addColumn('owner_id', 'biginteger', array('is_nullable'=>false));
 				$table->addColumn('conversation', 'text', array('is_nullable'=>true));
-				$table->addColumn('updated', 'datetime', array('is_nullable'=>true, 'default'=>'CURRENT_TIMESTAMP', 'extra'=>'on update CURRENT_TIMESTAMP'));
+				$table->addColumn('updated', 'datetime', array('is_nullable'=>false, 'default'=>'CURRENT_TIMESTAMP', 'extra'=>'on update CURRENT_TIMESTAMP'));
 				
 				$table->addKey('primary', 'id');
 				$table->addKey('key', array('owner_id_key'=>'owner_id'));

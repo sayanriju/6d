@@ -1,0 +1,26 @@
+.view{
+	margin: 0 auto;
+	width: 960px;
+	text-align: center;
+}
+.view #content{
+	text-align: left;
+	margin: 0 auto;
+	width: 600px;
+	background: rgb(255,255,255);
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	padding: 10px;
+	border: solid 1px rgb(220,220,220);
+}
+.view #content a{
+	text-decoration: underline;
+}
+.view #content nav{
+	margin-bottom: 15px;
+}
+.view #content nav dl dt{
+	font-weight: bold;
+	text-transform: capitalize;
+}

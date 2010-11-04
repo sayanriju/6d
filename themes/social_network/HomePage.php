@@ -3,7 +3,7 @@
 class HomePage{
 	
 	public function __construct(){
-		$this->limit = 4;
+		$this->limit = 30;
 	}
 	public function __destruct(){}
 	private $limit;

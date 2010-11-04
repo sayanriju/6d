@@ -15,12 +15,10 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 	font-size: 100%;
 	vertical-align: baseline;
 	background: transparent;
-	color: #3F4253;
 	font-family: Helvetica, Arial, sans-serif;
 }
 body {
 	line-height: 16px;
-	width: 960px;
 }
 ol, ul {
 	list-style: none;
@@ -101,8 +99,42 @@ a{
 	color: rgb(30, 100, 200);
 	text-decoration: underline;
 }
-.main{
-	width: 960px;
+footer nav{
+	background: rgb(156,156,156);
+	color: rgb(36,36,36);
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	-webkit-border-top-left-radius: 3px;
+	-webkit-border-top-right-radius: 3px;
+	-moz-border-top-left-radius: 3px;
+	-moz-border-top-right-radius: 3px;
+	border-top: solid 1px rgb(104,104,104);
+	border-left: solid 1px rgb(104,104,104);
+	border-right: solid 1px rgb(104,104,104);
+	position: fixed;
+	bottom: 0;
+	width: 420px;
+	left: 50%;
+	margin-left: -210px;
+}
+footer nav a{
+	height: 100%;
+	color: rgb(36,36,36);
+	font-size: 13px;
+	width: 100px;
+	display: inline-block;
+	border-left: solid 1px rgb(104,104,104);
+	text-align: center;
+}
+footer nav a:first-child{
+	border-left: none;
+}
+footer nav a:hover{
+	color: rgb(255,255,255);
+	text-decoration: none;
+}
+#menu{
+	width: 100%;
 	margin: 0 auto;
 }
 
@@ -124,13 +156,21 @@ form fieldset label{
 time{
 	color: rgb(200,200,200);
 }
+body{
+	background: #f5f6f7;
+}
+#footer{
+	clear: both;
+}
+.view{
+	text-align: left;
+}
 form.comment legend{
 	display: none;
 }
 form.comment textarea{
 	width: 100%;
 }
-
 #status_form fieldset legend{
 	display: none;
 }
@@ -148,25 +188,6 @@ form.comment textarea{
 	bottom: -30px;
 	left: 305px;
 }
-.main .filter{
-	width: 160px;
-	height: 100%;
-	float: left;
-	text-align: left;
-	position: relative;
-	padding-top: 123px;
-}
-.main .filter header.main{
-	width: 160px;
-	height: 60px;
-	position: absolute;
-	top: 40px;
-	left: 0;
-}
-.main .filter header.main h1{
-	font-size: 21px;
-	line-height: 13px;
-}
 span.count{
 	font-size: 9px;
 	display: block;
@@ -182,44 +203,20 @@ span.count{
 	right: 1px;
 	text-align: center;
 }
-.main .filter dl{
-	font-size: 13px;
+.view .menu{
+	float: left;
+	width: 170px;
 }
-.main .filter dl dd{
-	position: relative;
+.view footer{
+	clear: both;
 }
-.main .info-stream{
-	text-align: left;
+.view .info-stream{
 	margin-left: 170px;
-	padding-top: 20px;
-	height: 100%;
 }
-.main .info-stream .profile-photo{
-	position: relative;
-}
-.main .info-stream img.thumbnail{
-	width: 37px;
-	position: absolute;
-	top: 0;
-	left: 0;
-}
-.main .info-stream .album .content .entry-content img
-, .main .info-stream .photo .content .entry-content img{
+#content .album .content .entry-content img
+, #content .photo .content .entry-content img{
 	width: 400px;
 }
-.main .filter dl{
-	margin: 0;
-	padding: 0;
-	width: 150px;
-}
-.main .filter dl dd{
-	padding-left: 20px;
-	border-top: solid 1px rgb(200,200,200);
-}
-.main .filter dt{
-	text-transform: uppercase;
-}
-
 #login_form{
 	background: rgba(0,0,0,.1);
 	margin: 0 auto;
@@ -237,58 +234,51 @@ span.count{
 	z-index: 1000;
 }
 .hentry{
-	background: #eee;
-	float: left;
-	overflow: hidden;
 	width: 100%;
-}
-.hentry .frame{
-	background: white;
-	right: 26%;
-	float: left;
-	position: relative;
-	width: 100%;
+	border-bottom: solid 1px rgb(200,200,200);
+	padding-bottom: 15px;
+	margin-bottom: 25px;
 }
 .hentry .content{
-	left: 26%;
-	width: 68%;
 	float: left;
-	overflow: hidden;
+	width: 50%;
 	position: relative;
-	padding-left: 43px;
+}
+.hentry .content header
+, .hentry .content .entry-content
+, .hentry .post-info
+, #status_form{
+	margin-left: 60px;
 }
 .hentry .reaction{
-	left: 27%;
-	width: 25%;
-	float: left;
-	overflow: hidden;
+	width: 45%;
+	margin-left: 55%;
 	position: relative;
-	font-size: 11px;
 }
-.hentry .content
-, .hentry .reaction{
-	border-top: solid 1px rgb(200,200,200);
+.hentry .content header aside img{
+	width: 52px;
+	position: absolute;
+	top: 3px;
+	left: 3px;
 }
-
+.hentry .reaction form input[type="text"]{
+	width: 400px;
+}
+.hentry .reaction form fieldset button{
+	display: none;
+}
+.status-entry .content
+, .status-entry .reaction{
+	border: none;
+}
 #pager{
 	clear: both;
-}
-
-.status .content
-, .status .reaction{
-	height: 100px;
 }
 
 .hentry .info{
 	position: absolute;
 	top: 0;
 	right: 0;
-}
-.status-entry{
-	padding: 10px 0 0 45px;
-}
-.hentry header{
-	position: relative;
 }
 .hint{
 	font-style: italic;
@@ -300,32 +290,16 @@ span.count{
 , .status-entry{
 	font-size: 11px;
 }
-.hentry aside[rel="author"] img.thumbnail{
-	top: 5px;
-	left: -45px;
-}
-.status-entry aside[rel="author"] img.thumbnail{
-	top: -35px;
-}
 
-.hentry .reaction li{
+.hentry .author{
 	position: relative;
-	line-height: 22px;
-}
-.hentry .reaction input{
-	width: 100%;
+	padding-left: 25px;
 }
 .hentry .author img.small{
 	width: 20px;
 	position: absolute;
-	left: -25px;
-	top: 1px;
-}
-.hentry .post-info{
-	position: absolute;
-	bottom: 0;
-	left: 45px;
-	clear: both;
+	left: 0;
+	top: 0;
 }
 .noposts{
 	position: absolute;
@@ -450,7 +424,6 @@ button.close span{
 	-webkit-border-top-right-radius: 5px 5px;
 	-moz-border-top-radius: 5px;
 	text-align: left;
-	color: #fff;
 }
 
 .conversation li{

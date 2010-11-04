@@ -14,7 +14,7 @@ class PostsResource extends AppResource{
 	public $sort_by_direction;
 	public $limit;
 	
-	public function get($id = null, $q = null, $limit = 5){
+	public function get($id = null, $q = null, $limit = 20){
 		if(!AuthController::isAuthorized()){
 			throw new Exception(FrontController::UNAUTHORIZED, 401);
 		}

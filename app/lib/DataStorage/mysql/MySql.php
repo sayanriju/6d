@@ -202,7 +202,7 @@ where ' . $key . '=' . $this->typeIt($command->id) . (strlen($securedSql) > 0 ? 
 where ' . $securedSql : '';
 					}
 					break;
-				default:
+				default:				
 					throw new Exception('Invalid find type.');
 					break;
 			}
