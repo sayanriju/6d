@@ -209,6 +209,9 @@
 			if($this->author !== null){
 				return $this->author;
 			}
+			if($this->owner_id === null){
+				return null;
+			}
 			$this->author = Person::findByUrlAndOwnerId($this->source, $this->owner_id);
 			if($this->author === null){
 				$this->author = Person::findById($this->owner_id);
@@ -263,9 +266,6 @@
 			}
 			$list = $db->find($clause, $post);
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
-			foreach($list as $key=>$post){
-				$list[$key]->conversation = json_decode($list[$key]->conversation);
-			}
 			return $list;
 		}
 		public static function findMostRecentStatus($owner_id){
@@ -446,7 +446,7 @@
 		public static function save(Post $post){
 			$errors = self::canSave($post);
 			$config = new AppConfiguration();
-			$post->tags = $post->tags == null ? array() : $post->tags;
+			$post->tags = $post->tags == null ? array() : $post->tags ;
 			if(count($errors) == 0){
 				$db = Factory::get($config->db_type, $config);
 				$db->save(null, $post);
@@ -456,7 +456,6 @@
 						Tag::delete($tag);
 					}
 				}
-
 				foreach($post->tags as $tag_text){
 					if($existing_tags == null || !in_array($tag_text, $existing_tags)){
 						Tag::save(new Tag(array('parent_id'=>$post->id, 'type'=>'post', 'text'=>$tag_text, 'owner_id'=>$post->owner_id)));

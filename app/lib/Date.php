@@ -1,5 +1,8 @@
 <?php
 class Date{
+	public static function to_date($format, $date_as_string){
+		return date($format, strtotime($date_as_string));
+	}
 	public static function time_since($since){
 		$chunks = array(
 			array(31536000, 'year')

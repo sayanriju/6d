@@ -1,0 +1,13 @@
+.view{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-left: -300px;
+	margin-top: -200px;
+	width: 600px;
+	height: 400px;
+	text-align: center;
+}
+.view .content .photo img{
+	margin-left: 200px;
+}

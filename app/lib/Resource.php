@@ -378,10 +378,13 @@ class Resource extends Object{
 		}
 		
 		if(is_int($value)){
-			$result = intval($value);
+			$result = $value;
 		}
 		if(is_float($value)){
-			$result = floatval($value);
+			$result = $value;
+		}
+		if(is_numeric($value)){
+			$result = $value;			
 		}
 		return $result;
 	}

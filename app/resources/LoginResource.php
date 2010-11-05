@@ -13,7 +13,7 @@ class LoginResource extends AppResource{
 	public function get(){
 		$this->title = 'Login';
 		$this->output = $this->renderView('user/login');
-		return $this->renderView('layouts/default');			
+		return $this->renderView('layouts/login');			
 	}
 	
 	public function post($email, $password = null){

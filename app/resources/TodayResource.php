@@ -2,6 +2,7 @@
 class_exists('AppResource') || require('AppResource.php');
 class_exists('Post') || require('models/Post.php');
 class_exists('LoginResource') || require('LoginResource.php');
+class_exists('PostsResource') || require('PostsResource.php');
 class TodayResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
@@ -24,73 +25,21 @@ class TodayResource extends AppResource{
 			return count(self::$cached_posts);
 		}
 	}
-	public function get($id = 1, $sort_by = 'post_date', $sort_by_direction = 'desc', $direction = null, $tag = null, $q = null){
-		$this->limit = 10;
-		$this->q = $q;
-		$page = $id;
-		if($sort_by === null || strlen($sort_by) === 0){
-			$sort_by = 'post_date';
-		}
-		
-		if($sort_by_direction === null || strlen($sort_by_direction) === 0){
-			$sort_by_direction = 'desc';
-		}
-		
-		if($page === null || strlen($page) === 0){
-			$page = 1;
-		}
-
-		$this->sort_by = $sort_by;
-		$this->page = $page;
-		$this->sort_by_direction = $sort_by_direction;
-		if($direction !== null){
-			switch($direction){
-				case('Previous'):
-					$this->page++;
-					break;
-				case('Back to Top'):
-					$this->page--;
-					break;
-				default:
-					$this->page = $page;
-					break;
-			}
-		}
-
+	public function get(){
 		$view = 'today/index';
-		if($this->page < 1){
-			$this->page = 1;
-		}
-		$this->posts = self::get_todays_posts(AuthController::isAuthorized(), Application::$member->person_id, $id, $sort_by, $sort_by_direction, $direction, $tag, $q, $this->limit);
+		$this->posts = self::get_todays_posts(AuthController::isAuthorized(), Application::$member->person_id, 10);
 		$this->output = $this->renderView($view, null);
-		$this->keywords = implode(', ', String::getKeyWordsFromContent($this->output));
-		$this->description = "List of Today's posts";
-		$this->title = "Today's Stream";
+		$this->keywords = "today, info stream, activity stream";
+		$this->description = "List of Today's activities";
+		$this->title = "Today's Activities";
 		self::$cached_posts = $this->posts;
 		return $this->renderView('layouts/default', null);
 	}
-	public static function get_todays_posts($is_authed, $person_id, $page, $sort_by, $sort_by_direction, $direction, $tag, $q, $limit){
+	public static function get_todays_posts($is_authed, $person_id, $limit){
 		$posts = null;
-		$posts = Post::findTodaysPosts($page, $limit, $sort_by, $sort_by_direction, $is_authed, $person_id);
-		return $posts;
-		
-		if($tag !== null){
-			$posts = Post::findPublishedByTag(new Tag(array('text'=>$tag)), ($page-1) * $limit, $limit, $sort_by, $sort_by_direction, $person_id);
-			return $posts;
-		}
-		
-		if($q !== null){
-			if($is_authed){
-				$posts = Post::search($q, $page, $limit, $sort_by, $sort_by_direction, $person_id);
-			}else{
-				$posts = Post::searchForPublished($q, $page, $limit, $sort_by, $sort_by_direction, $person_id);
-			}
-			return $posts;
-		}
-		
-		if($posts === null){
-			$posts = Post::findPublishedPosts(($page-1) * $limit, $limit, array($sort_by=>$sort_by_direction), $person_id);
-			return $posts;
+		$posts = Post::findTodaysPosts(0, $limit, 'updated', 'desc', $is_authed, $person_id);
+		for($i=0; $i<count($posts); $i++){
+			$posts[$i]->conversation = PostResource::get_conversation_for($posts[$i]);
 		}
 		return $posts;
 	}

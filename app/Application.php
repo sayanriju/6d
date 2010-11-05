@@ -161,6 +161,7 @@ class Application{
 			$resource->title = $resource->getTitleFromOutput($resource->output);				
 		}		
 		return $resource->renderView('layouts/default');
+		
 	}
 }
 

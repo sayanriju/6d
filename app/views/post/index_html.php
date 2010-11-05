@@ -5,7 +5,6 @@
 <?php else:?>
 	<span>&lt;&lt; newer</span>
 <?php endif;?>
-
 <?php if(count($posts) >= $limit):?>
 	<a href="<?php echo Application::urlForWithMember(($name === 'index' ? null : $name . '/')) . ($page === 0 ? $page+2 : $page+1). ($this->q !== null ? '?q=' . $this->q : null);?>" title="View older posts">older &gt;&gt;</a>
 <?php else:?>

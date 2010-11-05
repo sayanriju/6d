@@ -21,28 +21,11 @@
 	</head>
 	<body class="<?php echo $this->name;?>">
 		<div class="view">
-			<header id="banner">
-				<h1><a href="<?php echo FrontController::urlFor(null);?>" title="Home"><span><?php echo Application::$member->profile != null ? Application::$member->profile->site_name : Application::$member->member_name;?></span></a></h1>
-			</header>
-			<section id="content">
-				<div id="user_message"<?php echo (Resource::getUserMessage() !== null ? ' style="display:block;"' : null);?>>
-					<?php echo Resource::getUserMessage();?>
-				</div>
-				<div class="view">
-					<section class="menu">
-						<dl>
-							<dt>Inforstream</dt>
-							<dl>
-								<a href="<?php echo Application::urlForWithMember('today');?>" title="Today's posts">Today</a>
-							</dl>
-						</dl>
-						<footer></footer>
-					</section>
-					<section class="info-stream">
-						{$output}
-						<footer></footer>
-					</section>
-				</div>
+			<div id="user_message"<?php echo (Resource::getUserMessage() !== null ? ' style="display:block;"' : null);?>>
+				<?php echo Resource::getUserMessage();?>
+			</div>
+			<section class="content">
+			{$output}
 			</section>
 			<?php if(AuthController::isAuthorized()):?>
 			<nav id="admin_menu" class="main">

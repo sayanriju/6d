@@ -133,6 +133,9 @@ footer nav a:hover{
 	color: rgb(255,255,255);
 	text-decoration: none;
 }
+#footer{
+	text-align: center;
+}
 #menu{
 	width: 100%;
 	margin: 0 auto;
@@ -213,6 +216,10 @@ span.count{
 .view .info-stream{
 	margin-left: 170px;
 }
+.view .info-stream .single{
+	
+}
+
 #content .album .content .entry-content img
 , #content .photo .content .entry-content img{
 	width: 400px;
@@ -229,7 +236,7 @@ span.count{
 	height: 90px;
 	top: 50%;
 	left: 50%;
-	margin-left: -150px;
+	margin-left: -175px;
 	margin-top: -45px;
 	z-index: 1000;
 }

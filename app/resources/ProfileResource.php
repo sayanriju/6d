@@ -42,15 +42,14 @@ class ProfileResource extends AppResource{
 				if($person !== null && $person->is_approved){
 					$this->person = Application::$member;
 					$this->output = $this->renderView('profile/photo');
-					return $this->renderView('layouts/default');
 				}else{
 					throw new Exception(FrontController::NOTFOUND, 404);
 				}
 			}else{
 				$this->person = Application::$member;
 				$this->output = $this->renderView('profile/photo');
-				return $this->renderView('layouts/default');
 			}
+			return $this->renderView('layouts/profile');
 		}else{
 			$this->person = Application::$member;
 			$this->title = $this->person->name . "'s profile.";
@@ -63,11 +62,10 @@ class ProfileResource extends AppResource{
 					throw new Exception(FrontController::UNAUTHORIZED, 401);
 				}
 				$this->output = $this->renderView('profile/edit', null);
-				return $this->renderView('layouts/default', null);
 			}else{
 				$this->output = $this->renderView('profile/index', null);
-				return $this->renderView('layouts/default', null);
 			}
+			return $this->renderView('layouts/profile', null);
 		}
 	}
 	public static function getPhotoUrl($person, $photo_file_type = '.png'){

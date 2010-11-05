@@ -632,7 +632,7 @@ eos;
 			else if(is_float($value))
 				return floatval($value);
 			else if(is_int($value))
-				return intval($value);
+				return $value;
 			else if(is_object($value))
 				return $value;
 			else if(is_array($value))

@@ -20,10 +20,10 @@ class PostsResource extends AppResource{
 		}
 		$this->q = $q;
 		$tag = null;	
-		$this->limit = intval($limit);
+		$this->limit = is_numeric($limit) ? $limit : 20;
 		array_shift($this->url_parts);
 		if(count($this->url_parts) > 0){
-			$this->page = intval($this->url_parts[0]);
+			$this->page = is_numeric($this->url_parts[0]) ? $this->url_parts[0] : 0;
 			if($this->page === 0){
 				$tag = array_shift($this->url_parts);
 			}

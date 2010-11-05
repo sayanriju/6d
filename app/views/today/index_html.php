@@ -36,24 +36,19 @@
 	<?php $author = PostResource::getAuthor($post);?>
 	<article class="hentry<?php echo ($key === 0 ? ' first': null);?> <?php echo $post->type;?>">
 		<section class="content">
-	<?php switch($post->type){
-		case('status'):?>
 			<header>
 				<aside rel="author">
 					<img src="<?php echo $author->profile->photo_url;?>" class="thumbnail" />
 					<time><a href="http://<?php echo $post->source;?>" title=""><?php echo $author->name;?></a> wrote <?php echo Date::time_since(time() - strtotime($post->post_date));?> ago.</time>
 				</aside>
 				<a href="<?php echo Application::urlForWithMember('conversation', array('post_id'=>$post->id));?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>
+
+	<?php switch($post->type){
+		case('status'):?>
 				<p><?php echo $post->body;?></p>
 			</header>
 		<?php break;
 		case('link'):?>
-			<header>
-				<aside rel="author">
-					<img src="<?php echo $author->profile->photo_url;?>" class="thumbnail" />
-					<time><a href="http://<?php echo $post->source;?>" title=""><?php echo $author->name;?></a> wrote <?php echo Date::time_since(time() - strtotime($post->post_date));?> ago.</time>
-				</aside>
-				<a href="<?php echo Application::urlForWithMember('conversation', array('post_id'=>$post->id));?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>
 				<h2><a href="<?php echo $post->body;?>" title="<?php echo $post->title;?>"><?php echo $post->title;?></a></h2>
 			</header>
 			<section class="entry-content">
@@ -62,12 +57,6 @@
 		<?php
 			break;
 		case('album'):?>
-			<header>
-				<aside rel="author">
-					<img src="<?php echo $author->profile->photo_url;?>" class="thumbnail" />
-					<time><a href="http://<?php echo $post->source;?>" title=""><?php echo $author->name;?></a> wrote <?php echo Date::time_since(time() - strtotime($post->post_date));?> ago.</time>
-				</aside>
-				<a href="<?php echo Application::urlForWithMember('conversation', array('post_id'=>$post->id));?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>			
 			</header>
 			<section class="entry-content">
 			<?php
@@ -81,12 +70,6 @@
 			</section>
 		<?php break;
 		case('photo'):?>
-			<header>
-				<aside rel="author">
-					<img src="<?php echo $author->profile->photo_url;?>" class="thumbnail" />
-					<time><a href="http://<?php echo $post->source;?>" title=""><?php echo $author->name;?></a> wrote <?php echo Date::time_since(time() - strtotime($post->post_date));?> ago.</time>
-				</aside>
-				<a href="<?php echo Application::urlForWithMember('conversation', array('post_id'=>$post->id));?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>
 			</header>
 			<section class="entry-content">
 			<?php if(stripos($post->body, '<img') !== false):?>
@@ -99,13 +82,7 @@
 		<?php
 			break;
 		default:?>
-			<header>
-				<aside rel="author">
-					<img src="<?php echo $author->profile->photo_url;?>" class="thumbnail" />
-					<time><a href="http://<?php echo $post->source;?>" title=""><?php echo $author->name;?></a> wrote <?php echo Date::time_since(time() - strtotime($post->post_date));?> ago.</time>
-				</aside>
-				<a href="<?php echo Application::urlForWithMember('conversation', array('post_id'=>$post->id));?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>
-				<h2><a href="<?php echo Application::urlForWithMember($post->custom_url);?>" rel="bookmark" title="<?php echo $post->title;?>"><?php echo $post->title;?></a></h2>
+				<h2><a href="<?php echo Application::urlForWithMember('blog/' . $post->custom_url);?>" rel="bookmark" title="<?php echo $post->title;?>"><?php echo $post->title;?></a></h2>
 			</header>
 			<section class="entry-content">
 				<?php echo $post->body;?>
@@ -116,7 +93,7 @@
 		</section>
 	
 		<aside class="reaction">
-			<?php if($post->conversation !== null):?>
+			<?php if($post->conversation !== null && count($post->conversation) > 0):?>
 			<ol>
 			<?php $counter = 0;?>
 			<?php foreach($post->conversation as $comment):?>

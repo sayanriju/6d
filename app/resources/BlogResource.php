@@ -17,11 +17,11 @@ class BlogResource extends AppResource{
 	public function get($id = null, $q = null, $limit = 5, $tag = null){
 		$this->q = $q;
 		$post_title = null;
-		$this->limit = intval($limit);
+		$this->limit = is_numeric($limit) ? intval($limit) : 5;
 		$view = 'post/index';
 		array_shift($this->url_parts);
 		if(count($this->url_parts) > 0){
-			$this->page = intval($this->url_parts[0]);
+			$this->page = is_numeric($this->url_parts[0]) ? (int)$this->url_parts[0] : 0;
 			if($this->page === 0){
 				$post_title = array_shift($this->url_parts);
 			}
@@ -37,7 +37,7 @@ class BlogResource extends AppResource{
 			$this->posts = $this->getPostsByAuthor($author_id);
 		}else if($post_title !== null){
 			$this->post = Post::findAllPublished($post_title, Application::$member->person_id);
-			$this->title = $this->post->title;
+			$this->title = ($this->post !== null ? $this->post->title : "Post not found");
 		}else if($tag !== null){
 			$this->title = 'All Posts Tagged ' . $tag;
 			$this->posts = $this->getPostsByTag(new Tag(array('text'=>$tag)));				
