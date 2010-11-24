@@ -46,7 +46,7 @@ class BlogResource extends AppResource{
 			$this->posts = Post::search($q, $this->page, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$current_user->person_id);
 		}else{
 			$this->title = 'All Posts';
-			$this->posts = $this->getAllPosts($this->start, $this->limit, array($this->sort_by=>$this->sort_by_direction));
+			$this->posts = $this->getAllPosts($this->start, $this->limit, array($this->sort_by=>$this->sort_by_direction));			
 		}
 		$this->keywords = implode(', ', String::getKeyWordsFromContent($this->output));
 		if($this->post !== null){
@@ -59,8 +59,8 @@ class BlogResource extends AppResource{
 				$this->posts[$i]->conversation = PostResource::get_conversation_for($this->posts[$i]);
 			}
 		}
-		$this->output = $this->renderView($view);
-		return $this->renderView('layouts/default');
+		$this->output = $this->render($view);
+		return $this->render('layouts/default');
 	}
 	private function getAllPosts($start, $limit, $sort_by){
 		return Post::findPublishedPosts($start, $limit, $sort_by, Application::$member->person_id);			

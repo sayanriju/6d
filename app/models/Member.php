@@ -8,7 +8,15 @@ class Member extends Object{
 	public function __destruct(){
 		parent::__destruct();
 	}
-	public $person;
+	private static $person_select_statement = 'select m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from %s m inner join %s p on p.id = m.person_id';
+	
+	private $person;
+	public function getPerson(){
+		return $this->person;
+	}
+	public function setPerson(Person $val){
+		$this->person = $val;
+	}
 	private $id;
 	public function getId(){
 		return $this->id;
@@ -28,7 +36,7 @@ class Member extends Object{
 	public function getMember_name(){
 		return $this->member_name;
 	}
-	public function setmember_name($val){
+	public function setMember_name($val){
 		$this->member_name = $val;
 	}
 	
@@ -80,7 +88,7 @@ class Member extends Object{
 		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
 		inner join {$person->getTableName()} p on p.id = m.person_id where m.id = {$id}", null, 1, null);
 		$member = $db->find($clause, new Member(null));
-		$member = self::unserializeProfile($member);
+		$member = self::unserialize_profile($member);
 		return $member;
 	}
 	public static function findByEmail($email){
@@ -93,7 +101,7 @@ class Member extends Object{
 		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
 		inner join {$person->getTableName()} p on p.id = m.person_id where p.email = '{$email}'", null, 1, null);
 		$member = $db->find($clause, new Member(null));
-		$member = self::unserializeProfile($member);
+		$member = self::unserialize_profile($member);
 		return $member;
 	}
 	
@@ -102,7 +110,7 @@ class Member extends Object{
 		$db = Factory::get($config->db_type, $config);
 		$member = new Member();
 		$member = $db->find(new ById($id, null), new Member(null));
-		$member = self::unserializeProfile($member);
+		$member = self::unserialize_profile($member);
 		return $member;
 	}
 	
@@ -111,8 +119,9 @@ class Member extends Object{
 		$db = Factory::get($config->db_type, $config);
 		$person = new Person();
 		$member = new Member();
-		$member = $db->find(new ByClause(sprintf("%s.email='%s' and %s.password='%s'", $person->getTableName(), String::sanitize($email), $person->getTableName(), String::encrypt($password)), array(new BelongsTo(array('withWhom'=>$person, 'through'=>'person_id'))), 1, null), $member);
-		$member = self::unserializeProfile($member);
+		$clause = new All(sprintf(sprintf(self::$person_select_statement, $member->getTableName(), $person->getTableName()) . " where p.email='%s' and p.password='%s'", String::sanitize($email),String::encrypt($password)), null, 1, null);
+		$member = $db->find($clause, $member);
+		$member = self::unserialize_profile($member);
 		return $member;
 	}
 	
@@ -126,7 +135,7 @@ class Member extends Object{
 		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
 		inner join {$person->getTableName()} p on p.id = m.person_id where m.member_name = '{$member_name}'", null, 1, null);
 		$member = $db->find($clause, $member);
-		$member = self::unserializeProfile($member);
+		$member = self::unserialize_profile($member);
 		return $member;
 	}
 	public static function findAll(){
@@ -153,9 +162,9 @@ class Member extends Object{
 		$members = $db->find($clause, $member);
 		return $members;
 	}
-	protected static function unserializeProfile($member){
-		if($member !== null && $member->profile !==null){
-			$member->profile = unserialize($member->profile);
+	protected static function unserialize_profile($member){
+		if($member !== null && $member->person !==null && $member->person->profile !== null){
+			$member->person->profile = unserialize($member->person->profile);
 		}
 		return $member;
 	}
@@ -164,11 +173,9 @@ class Member extends Object{
 		$db = Factory::get($config->db_type, $config);
 		$person = new Person();
 		$member = new Member();
-		$clause = new All("select m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
-		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
-		inner join {$person->getTableName()} p on p.id = m.person_id where p.is_owner = 1", null, 1, null);
+		$clause = new All(sprintf(sprintf(self::$person_select_statement, $member->getTableName(), $person->getTableName()) . " where p.is_owner = 1"), null, 1, null);
 		$member = $db->find($clause, $member);
-		$member = self::unserializeProfile($member);
+		$member = self::unserialize_profile($member);
 		return $member;
 	}
 	

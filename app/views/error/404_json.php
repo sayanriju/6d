@@ -1,1 +1,1 @@
-{"message":"{$message}"}
+{"message":"<?php echo $message;?>"}

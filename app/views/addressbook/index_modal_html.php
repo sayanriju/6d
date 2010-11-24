@@ -16,5 +16,5 @@
 </section>
 <section id="people">
 	<h1>Contacts</h1>
-	<?php echo $this->renderView('person/index', null, 'phtml');?>
+	<?php echo $this->render('person/index', null, 'phtml');?>
 </section>

@@ -11,6 +11,7 @@
 	class_exists('Table') || require('Table.php');
 	class_exists('BelongsTo') || require('relationships/BelongsTo.php');
 	class_exists('HasA') || require('relationships/HasA.php');
+	class_exists('IsA') || require('relationships/IsA.php');
 	class_exists('HasMany') || require('relationships/HasMany.php');
 	class DataStorage{
 		public function __construct(){}

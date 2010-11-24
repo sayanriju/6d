@@ -1,4 +1,4 @@
-<form action="<?php echo FrontController::urlFor('contact');?>" method="post">
+<form action="<?php echo App::url_for('contact');?>" method="post">
 	<fieldset>
 		<legend>Contact us</legend>
 		<p>

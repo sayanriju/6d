@@ -115,7 +115,6 @@
 		public function setOwner_id($val){
 			$this->owner_id = $val;
 		}
-				
 		public function getTableName($config = null){
 			if($config == null){
 				$config = new AppConfiguration();

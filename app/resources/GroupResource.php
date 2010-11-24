@@ -6,9 +6,9 @@ class_exists('Person') || require('models/Person.php');
 class GroupResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
-		if(! AuthController::isAuthorized()){
-			FrontController::setRequestedUrl('addressbook');
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if(! AuthController::is_authorized()){
+			Resource::redirect_to::setRequestedUrl('addressbook');
+			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 		}
 	}
 	public function __destruct(){
@@ -19,7 +19,7 @@ class GroupResource extends AppResource{
 	public $people;
 	public function get($group_id){
 		$this->title = 'Address Book';
-		if(AuthController::isSuperAdmin()){
+		if(AuthController::is_super_admin()){
 			$this->people = Person::findAll();
 		}else{
 			$this->people = Person::findAllByOwner(Application::$current_user->person_id);
@@ -35,8 +35,8 @@ class GroupResource extends AppResource{
 		}
 		$this->groups = array_merge(array($all_contacts), $this->groups);
 		$view = 'addressbook/index';
-		$this->output = $this->renderView($view);
-		return $this->renderView('layouts/default');
+		$this->output = $this->render($view);
+		return $this->render('layouts/default');
 	}
 
 	public function delete(Tag $group = null){
@@ -50,8 +50,8 @@ class GroupResource extends AppResource{
 		}
 		$this->groups = array_merge(array($all_contacts), $this->groups);
 		$view = 'addressbook/index';
-		$this->output = $this->renderView($view);
-		return $this->renderView('layouts/default');
+		$this->output = $this->render($view);
+		return $this->render('layouts/default');
 	}
 	
 }

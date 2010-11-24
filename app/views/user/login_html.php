@@ -1,4 +1,4 @@
-<form action="<?php echo FrontController::urlFor('login');?>" method="post" id="login_form">
+<form action="<?php echo App::url_for('login');?>" method="post" id="login_form">
 	<fieldset>
 		<legend>Sign in</legend>
 		<p>

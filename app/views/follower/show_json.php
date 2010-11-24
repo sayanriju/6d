@@ -1,3 +1,3 @@
 {
-	"message": "<?php echo UserResource::getUserMessage();?>"
+	"message": "<?php echo UserResource::get_user_message();?>"
 }

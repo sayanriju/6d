@@ -1,4 +1,4 @@
-<form action="<?php echo FrontController::urlFor('members');?>" method="post" class="body" id="member_form">
+<form action="<?php echo App::url_for('members');?>" method="post" class="body" id="member_form">
 	<fieldset>
 		<legend><?php echo ($member->id === 0 ? 'New member' : $member->name);?></legend>
 		<p>
@@ -36,7 +36,7 @@
 	</fieldset>
 </form>
 <?php if($member->url !== null):?>
-<form action="<?php echo FrontController::urlFor('follower');?>" method="post" id="friend_request_form">
+<form action="<?php echo App::url_for('follower');?>" method="post" id="friend_request_form">
 	<input type="hidden" name="member[id]" id="id" value="{$member->id}" />
 	<?php if($member->public_key !== null && strlen($member->public_key) > 0):?>
 	<button id="friend_request_button" type="submit"<?php echo (strlen($member->person->url) === 0 ? ' disabled="true"':null);?>>Add as friend again</button>

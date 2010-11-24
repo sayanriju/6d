@@ -15,8 +15,8 @@ class PostsResource extends AppResource{
 	public $limit;
 	
 	public function get($id = null, $q = null, $limit = 20){
-		if(!AuthController::isAuthorized()){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if(!AuthController::is_authorized()){
+			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 		}
 		$this->q = $q;
 		$tag = null;	
@@ -57,18 +57,18 @@ class PostsResource extends AppResource{
 				$this->posts[$i]->conversation = PostResource::get_conversation_for($this->posts[$i]);
 			}
 		}
-		$this->output = $this->renderView('post/index');
-		return $this->renderView('layouts/default');
+		$this->output = $this->render('post/index');
+		return $this->render('layouts/default');
 	}
 	public function post(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array()){
 		$errors = array();
-		if(AuthController::isAuthorized()){
+		if(AuthController::is_authorized()){
 			$post->source = Application::$current_user->url;
 			$this->save($post, $people, $groups, $make_home_page);
-			if(FrontController::getReferer() !== null){
-				FrontController::setNeedsToRedirectRaw(FrontController::getReferer());
+			if(Resource::redirect_to::getReferer() !== null){
+				Resource::redirect_to::setNeedsToRedirectRaw(Resource::redirect_to::getReferer());
 			}else{
-				$this->redirectTo(Application::$member->member_name . '/' . $post->custom_url);
+				$this->redirect_to(Application::$member->member_name . '/' . $post->custom_url);
 			}
 		}else if($public_key != null && strlen($public_key)>0){
 			$person = Person::findByPublicKeyAndUrl($public_key, $post->source);
@@ -88,8 +88,8 @@ class PostsResource extends AppResource{
 				if($post->post_date === null || strlen($post->post_date) === 0 || $post->post_date === 'today'){
 					$post->post_date = date('c');
 				}
-				$post->body = $this->filterText($post->body);
-				$post->title = $this->filterText($post->title);
+				$post->body = $this->filter_text($post->body);
+				$post->title = $this->filter_text($post->title);
 				$post->body = urldecode($post->body);
 				$post->owner_id = Application::$member->person_id;
 				if($post->type !== Post::$status){
@@ -105,7 +105,7 @@ class PostsResource extends AppResource{
 				$response = "Couldn't find a person with the given public key.";
 			}
 		}else{
-			$response = 'My website doesn\'t have you in my system. You\'ll have to send me a <form action="' . FrontController::urlFor(Application::$member->member_name . '/follower') . '" method="post"><button type="submit"><span>Send Friend Request</span></button></form> to add you as a friend before you send me any messages.';
+			$response = 'My website doesn\'t have you in my system. You\'ll have to send me a <form action="' . App::url_for(Application::$member->member_name . '/follower') . '" method="post"><button type="submit"><span>Send Friend Request</span></button></form> to add you as a friend before you send me any messages.';
 		}		
 		return $response;
 	}
@@ -195,7 +195,7 @@ class PostsResource extends AppResource{
 		}else{
 			Resource::setUserMessage("Could not send to anybody you picked because none of them have been confirmed as friends.");
 		}
-		error_log(Resource::getUserMessage());
+		error_log(Resource::get_user_message());
 	}
 
 	private function getAllPosts($start, $limit, $sort_by, $sort_by_direction){

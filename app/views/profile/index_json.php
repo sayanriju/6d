@@ -1,5 +1,5 @@
 {
-	"message":"<?php echo UserResource::getUserMessage();?>"
+	"message":"<?php echo UserResource::get_user_message();?>"
 	, "person":{
 		"photo_url":"<?php echo ProfileResource::getPhotoUrl($person);?>"
 		, "name":"<?php echo $person->name;?>"

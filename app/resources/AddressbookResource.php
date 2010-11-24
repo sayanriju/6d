@@ -15,8 +15,8 @@ class AddressbookResource extends AppResource{
 	public $person;
 	public $groups;
 	public function get($mini = false){
-		if(!AuthController::isAuthorized() || Application::$current_user->person_id != Application::$member->person_id){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if(!AuthController::is_authorized() || Application::$current_user->person_id != Application::$member->person_id){
+			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 		}		
 		$this->title = 'Address Book';
 		$this->people = Person::findAllByOwner(Application::$current_user->person_id);
@@ -40,23 +40,23 @@ class AddressbookResource extends AppResource{
 		if($mini){
 			$view = 'addressbook/index_modal';
 		}
-		$this->output = $this->renderView($view);
-		return $this->renderView($layout);
+		$this->output = $this->render($view);
+		return $this->render($layout);
 	}
 	public function delete(Tag $group = null, Person $person = null){
-		if(!AuthController::isAuthorized() || Application::$current_user->person_id != Application::$member->person_id){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if(!AuthController::is_authorized() || Application::$current_user->person_id != Application::$member->person_id){
+			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 		}		
 		if($group != null){
 			Tag::delete($group);
 		}elseif($person != null){
 			Person::delete($person);
 		}
-		$this->redirectTo('addressbook');
+		$this->redirect_to('addressbook');
 	}
 	public function post($name = null){
-		if(!AuthController::isAuthorized() || Application::$current_user->person_id != Application::$member->person_id){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if(!AuthController::is_authorized() || Application::$current_user->person_id != Application::$member->person_id){
+			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 		}		
 		$errors = array();
 		if($name != null){
@@ -68,11 +68,11 @@ class AddressbookResource extends AppResource{
 			$this->person->id = $person->id;
 		}
 		if(count($errors) > 0){
-			$message = $this->renderView('error/index', array('message'=>"The following errors occurred when saving groups. Please resolve and try again.", 'errors'=>$errors));
+			$message = $this->render('error/index', array('message'=>"The following errors occurred when saving groups. Please resolve and try again.", 'errors'=>$errors));
 			self::setUserMessage($message);				
 		}
 		$view = 'addressbook/show';
-		$this->output = $this->renderView($view);
-		return $this->renderView('layouts/default');		
+		$this->output = $this->render($view);
+		return $this->render('layouts/default');		
 	}
 }

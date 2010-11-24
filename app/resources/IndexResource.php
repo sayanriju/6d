@@ -2,6 +2,7 @@
 class_exists('AppResource') || require('AppResource.php');
 class_exists('Post') || require('models/Post.php');
 class_exists('LoginResource') || require('LoginResource.php');
+class_exists('Application') || require('Application.php');
 class IndexResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
@@ -17,8 +18,8 @@ class IndexResource extends AppResource{
 	public $limit;
 	public function get(){
 		$this->title = (Application::$member->person->profile !== null ? Application::$member->person->profile->site_name : Application::$member->name);
-		$this->output = $this->renderView('index/index', null);
-		return $this->renderView('layouts/home', null);
+		$this->output = $this->render('index/index', null);
+		return $this->render_layout('home', null);
 	}
 }
 

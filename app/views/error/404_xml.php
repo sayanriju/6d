@@ -1,3 +1,3 @@
 <root>
-	<message>{$message}</message>
+	<message><?php echo $message;?></message>
 </root>

@@ -21,7 +21,7 @@ class_exists('Member') || require('models/Member.php');
 				$member_name = $this->url_parts[1];
 				$member = Member::findByMemberName($member_name);
 			}else{
-				$this->members = Member::findAllAsPerson(AuthController::isSuperAdmin() ? null : true);
+				$this->members = Member::findAllAsPerson(AuthController::is_super_admin() ? null : true);
 			}
 			if($this->members !== null){
 				$this->title = "6d Directory";	
@@ -35,8 +35,8 @@ class_exists('Member') || require('models/Member.php');
 					$this->title = "Add a member";
 				}
 			}
-			$this->output = $this->renderView($view, null);				
-			return $this->renderView('layouts/default', null);
+			$this->output = $this->render($view, null);				
+			return $this->render('layouts/default', null);
 		}
 		public function put(Member $member, Profile $profile = null){			
 			$view = 'member/edit';
@@ -75,9 +75,9 @@ class_exists('Member') || require('models/Member.php');
 					Resource::setUserMessage("{$this->member->person->name}'s info has been saved.");
 				}
 			}
-			$this->redirectTo('members');
-			$this->output = $this->renderView($view, array('errors'=>$errors));
-			return $this->renderView('layouts/default');					
+			$this->redirect_to('members');
+			$this->output = $this->render($view, array('errors'=>$errors));
+			return $this->render('layouts/default');					
 		}
 		public function post(Member $member, Profile $profile = null){
 			$view = 'member/index';
@@ -90,7 +90,7 @@ class_exists('Member') || require('models/Member.php');
 				$this->member->person->name = $member->name;
 				$this->member->person->email = $member->email;
 				$this->member->person->uid = uniqid();
-				$url = String::replace('/http\:\/\//', '', FrontController::urlFor(null));
+				$url = String::replace('/http\:\/\//', '', App::url_for(null));
 				$this->member->person->url = sprintf("%s%s", $url, $this->member->member_name);
 				$this->member->person->is_approved = $member->is_approved === null ? false : $member->is_approved;
 				$this->member->person->do_list_in_directory = $member->do_list_in_directory === null ? false : $member->do_list_in_directory;
@@ -107,11 +107,11 @@ class_exists('Member') || require('models/Member.php');
 					}
 					Resource::setUserMessage('Failed to save member - ' . implode(', ', $message));
 				}else{
-					$this->members = Member::findAllAsPerson(AuthController::isSuperAdmin() ? null : true);
+					$this->members = Member::findAllAsPerson(AuthController::is_super_admin() ? null : true);
 				}
 			}				
-			$this->output = $this->renderView($view, array('errors'=>$this->member->errors));
-			return $this->renderView('layouts/default');					
+			$this->output = $this->render($view, array('errors'=>$this->member->errors));
+			return $this->render('layouts/default');					
 		}
 	}
 ?>

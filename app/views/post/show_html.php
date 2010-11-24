@@ -13,7 +13,7 @@
 				<img src="<?php echo $author->profile->photo_url;?>" class="thumbnail" />
 				<time><a href="http://<?php echo $post->source;?>" title=""><?php echo $author->name;?></a> wrote on <?php echo Date::to_date('M jS, Y', $post->post_date);?>.</time>
 			</aside>
-			<a href="<?php echo Application::urlForWithMember('conversation', array('post_id'=>$post->id));?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>
+			<a href="<?php echo Application::url_with_member('conversation', array('post_id'=>$post->id));?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>
 	<?php switch($post->type){
 		case('status'):?>
 			<h2><?php echo $post->body;?></h2>
@@ -77,8 +77,8 @@
 		<?php else:?>
 		<p class="hint">No comments yet.</p>
 		<?php endif;?>
-		<?php if(AuthController::isAuthorized()):?>
-		<form method="post" action="<?php echo Application::urlForWithMember('conversations');?>" class="comment">
+		<?php if(AuthController::is_authorized()):?>
+		<form method="post" action="<?php echo Application::url_with_member('conversations');?>" class="comment">
 			<fieldset>
 				<legend>Add a comment</legend>
 				<label for="comment_for_<?php echo $post->id;?>">Write a comment on <?php echo $author->name;?>'s post</label>
@@ -92,7 +92,7 @@
 	<footer class="post-info">
 		<aside rel="tags">
 			<?php foreach(String::explodeAndTrim($post->tags) as $text):?>
-			<a href="<?php echo Application::urlForWithMember('posts/'. $text, array('limit'=>0));?>"><?php echo $text;?></a>
+			<a href="<?php echo Application::url_with_member('posts/'. $text, array('limit'=>0));?>"><?php echo $text;?></a>
 			<?php endforeach;?>
 		</aside>
 		<?php require('views/post/menu_html.php');?>

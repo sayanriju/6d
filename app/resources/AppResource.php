@@ -1,7 +1,6 @@
 <?php
 	class_exists('Resource') || require('lib/Resource.php');
 	class_exists('UserResource') || require('resources/UserResource.php');
-	class_exists('FrontController') || require('lib/FrontController.php');
 	class_exists('Post') || require('models/Post.php');
 	class_exists('Person') || require('models/Person.php');
 	class_exists('Setting') || require('models/Setting.php');
@@ -11,33 +10,38 @@
 	class AppResource extends Resource{
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
-			Post::addObserver($this, 'willReturnValueForKey', 'Post');
-			$resource_name = strtolower(str_replace('Resource', '', get_class($this)));				
+			Post::add_observer($this, 'will_return_value_for_key', 'Post');
+			$resource_name = strtolower(str_replace('Resource', '', $this->name));
 			$this->resource_css = $resource_name . '.css';
-			$this->resource_js = $resource_name . '.js';
-			$root = FrontController::getRootPath(null);
-			if(file_exists($root . '/' . FrontController::getThemePath() . '/js/' . $this->resource_js)){				
-				$this->resource_js = FrontController::urlFor('themes') . 'js/' . $this->resource_js;
+			$this->resource_js = $resource_name . '.js';			
+			if(file_exists(App::get_theme_path('js/' . $this->resource_js))){
+				$this->resource_js = App::url_for_theme('js/' . $this->resource_js);
 				$this->resource_js = $this->to_script_tag('text/javascript', $this->resource_js);
-			}elseif(file_exists($root . '/js/' . $this->resource_js)){
-				$this->resource_js = FrontController::urlFor('js') . $this->resource_js;
+			}elseif(file_exists(App::get_root_path('/js/' . $this->resource_js))){
+				$this->resource_js = App::url_for('js/' . $this->resource_js);
 				$this->resource_js = $this->to_script_tag('text/javascript', $this->resource_js);
 			}else{
 				$this->resource_js = null;
 			}
-			if(file_exists(FrontController::getThemePath() . '/css/' . $this->resource_css)){
-				$this->resource_css = FrontController::urlFor('themes') . 'css/' . $this->resource_css;
+			if(file_exists(App::get_theme_path('css/' . $this->resource_css))){
+				$this->resource_css = App::url_for_theme('css/' . $this->resource_css);
 				$this->resource_css = $this->to_link_tag('stylesheet', 'text/css', $this->resource_css, 'screen,projection');
-			}elseif(file_exists($root . 'css/' . $this->resource_css)){
-				$this->resource_css = FrontController::urlFor('css') . $this->resource_css;
+			}elseif(file_exists(App::get_root_path('css/' . $this->resource_css))){
+				$this->resource_css = App::url_for('css/'. $this->resource_css);
 				$this->resource_css = $this->to_link_tag('stylesheet', 'text/css', $this->resource_css, 'screen,projection');
 			}else{
 				$this->resource_css = null;
 			}
 
+			$theme_path = App::get_theme_path('/ThemeController.php');
+			if(file_exists($theme_path)){
+				class_exists('ThemeController') || require($theme_path);
+				$this->theme = new ThemeController($this);
+			}			
+
 			if(!class_exists('AppConfiguration')){
 				if(get_class($this) != 'InstallResource'){					
-					$this->redirectTo('install', null);
+					$this->redirect_to('install', null);
 				}
 			}else{
 				$this->config = new AppConfiguration();
@@ -50,13 +54,8 @@
 						Application::$current_user = Member::findByEmail(AuthController::authKey());
 						if(Application::$current_user === null){
 							AuthController::logout();
-							$this->redirectTo(null);
+							$this->redirect_to(null);
 						}
-					}
-					$theme_path = FrontController::getRootPath('/' . FrontController::getThemePath() . '/ThemeController.php');
-					if(file_exists($theme_path)){
-						class_exists('ThemeController') || require($theme_path);
-						$this->theme = new ThemeController($this);
 					}
 				}catch(Exception $e){
 					echo $e;
@@ -77,8 +76,14 @@
 		protected $config;
 		public $q;
 		public $current_user;
-		
-		public function willReturnValueForKey($key, $obj, $val){
+		protected function set_unauthorized(){
+			$this->status = new HttpStatus(401);
+			$this->headers[] = new HttpHeader(array('location'=>App::url_for('login')));
+		}
+		protected function set_not_found(){
+			$this->status = new HttpStatus(404);
+		}
+		public function will_return_value_for_key($key, $obj, $val){
 			return $val;
 		}
 		public function to_link_tag($rel, $type, $url, $media){
@@ -99,24 +104,24 @@
 			return 0;
 		}
 		
-		public function didFinishLoading(){
-			parent::didFinishLoading();
+		public function did_finish_dispatching(){
+			parent::did_finish_dispatching();
 		}
-		public function hasRenderedOutput($layout, $output){
+		public function did_render_view($layout, $output){
 			if(class_exists('AppConfiguration')){
-				$output = $this->filterHeader($output);
-				$output = $this->filterFooter($output);
+				$output = $this->filter_header($output);
+				$output = $this->filter_footer($output);
 			}
 			return $output;
 		}		
-		protected function filterText($text){
-			$post_filters = $this->getPlugins('filters', 'PostFilter');
+		protected function filter_text($text){
+			$post_filters = $this->get_plugins('filters', 'PostFilter');
 			foreach($post_filters as $filter){
 				$text = $filter->execute($text);
 			}
 			return $text;
 		}
-		private function filterHeader($output){
+		private function filter_header($output){
 			$js = <<<eos
 <script type="text/javascript">
 // This is required so the ajax requests are to the correct url in the multi member case.
@@ -124,15 +129,15 @@ SDObject.rootUrl = '%s';
 </script>
 eos;
 			$output = str_replace('</head>', sprintf($js . '
-</head>', FrontController::urlFor(null)), $output);
-			$filters = PluginController::getPlugins('filters', 'HeaderFilter');
+</head>', App::url_for(null)), $output);
+			$filters = PluginController::get_plugins('filters', 'HeaderFilter');
 			foreach($filters as $filter){
 				$output = $filter->execute($output);
 			}
 			return $output;
 		}
-		private function filterFooter($output){
-			$filters = $this->getPlugins('filters', 'FooterFilter');
+		private function filter_footer($output){
+			$filters = $this->get_plugins('filters', 'FooterFilter');
 			foreach($filters as $filter){
 				$output = $filter->execute($output);
 			}
@@ -142,8 +147,8 @@ eos;
 			return $output;
 		}
 		
-		protected function getPlugins($folder_name, $name){
-			$files = $this->getFiles($folder_name, $name);
+		protected function get_plugins($folder_name, $name){
+			$files = $this->get_files($folder_name, $name);
 			$plugins = array();
 			foreach($files as $file){
 				$parts = explode('/', $file);
@@ -154,25 +159,10 @@ eos;
 			}
 			return $plugins;
 		}
-		public function shouldShowPrevious($posts, $page){
-			return (count($posts) > 0 && $page > 1);
-		}
-		public function shouldShowNext($posts, $limit){
-			return (count($posts) >= $limit);
-		}
-		public function getPreviousPageUrl($page, $resource_name){
-			$page = ($page > 1 ? $page - 1 : null);
-			$resource_name = ($resource_name === 'index' ? null : $resource_name . '/');
-			return FrontController::urlFor($resource_name) . $page;
-		}
-		public function getNextPageUrl($page, $resource_name){
-			$page = ($page === 0 ? $page + 2 : $page + 1);
-			$resource_name = ($resource_name === 'index' ? null : $resource_name . '/');
-			return FrontController::urlFor($resource_name) . $page;
-		}
-		private function getFiles($folder_name, $name){
-			$root = FrontController::getRootPath('/' . $folder_name);
-			$folders = $this->getFolders($root);
+
+		private function get_files($folder_name, $name){
+			$root = App::get_root_path('/' . $folder_name);
+			$folders = $this->get_folders($root);
 			$plugin_paths = array();
 			foreach($folders as $folder){
 				$dir = dir($folder);
@@ -187,7 +177,7 @@ eos;
 			}
 			return $plugin_paths;
 		}
-		private function getFolders($path){
+		private function get_folders($path){
 			$folders = array();
 			$folder = dir($path);
 			if($folder !== false){
@@ -202,7 +192,7 @@ eos;
 			}
 			return $folders;
 		}
-		public function getTitleFromOutput($output){
+		public function get_title_from_output($output){
 			$matches = array();
 			preg_match( '/\<h1\>.*\<\/h1\>/' , $output, $matches);
 			if(count($matches) > 0){
@@ -210,19 +200,8 @@ eos;
 			}else{
 				return null;
 			}
-		}
-		
-		public function getPreference($name){
-			if($this->settings != null){
-				foreach($this->settings as $setting){
-					if($name == $setting->name){
-						return $setting;
-					}
-				}				
-			}
-			return null;
-		}
-		public static function randomIndexWithWeights($weights) {
+		}		
+		public static function get_random_index_with_weights($weights) {
 		    $r = mt_rand(1,1000);
 		    $offset = 0;
 		    foreach ($weights as $k => $w) {

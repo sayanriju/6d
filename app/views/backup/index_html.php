@@ -1,7 +1,7 @@
 <dl>
 <?php foreach($files as $file):?>
 	<dd>
-		<form name="backup" id="backup" action="<?php echo FrontController::urlFor('backup');?>" method="post">
+		<form name="backup" id="backup" action="<?php echo App::url_for('backup');?>" method="post">
 			<fieldset>
 				<legend><?php echo $file;?></legend>
 				<input name="file_name" type="hidden" value="<?php echo $file;?>" />
@@ -9,7 +9,7 @@
 				<button type="submit"><span>Restore</span></button>
 			</fieldset>
 		</form>
-		<form name="delete_backup" id="delete_backup" action="<?php echo FrontController::urlFor('backup');?>" method="post">
+		<form name="delete_backup" id="delete_backup" action="<?php echo App::url_for('backup');?>" method="post">
 			<input name="file_name" type="hidden" value="<?php echo $file;?>" />
 			<input name="_method" type="hidden" value="delete" />
 			<button type="submit"><span>Delete</span></button>
@@ -17,7 +17,7 @@
 	</dd>
 <?php endforeach;?>
 </dl>
-<form name="backup" id="backup" action="<?php echo FrontController::urlFor('backup');?>" method="post">
+<form name="backup" id="backup" action="<?php echo App::url_for('backup');?>" method="post">
 	<fieldset>
 		<legend>Backup content</legend>
 		<input name="file_name" type="hidden" />

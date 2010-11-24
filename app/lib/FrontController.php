@@ -121,7 +121,7 @@ class HttpStatus{
 	public $code;
 	public $message;
 }
-class FrontController extends Object{
+class Resource::redirect_to extends Object{
 	public function __construct($context){
 		self::$start_time = microtime(true);
 		$this->context = $context;
@@ -276,7 +276,7 @@ class FrontController extends Object{
 			$config = new AppConfiguration();
 		}
 		if($config != null){
-			return 'themes/' . $config->getTheme();
+			return 'themes/' . $config->get_theme();
 		}else{
 			return 'themes/default';
 		}
@@ -452,7 +452,7 @@ class FrontController extends Object{
 		"/Library/WebServer/Documents/6d"
 	*/
 	public static function getAppPath($file){
-		return str_replace(sprintf('lib%sFrontController.php', DIRECTORY_SEPARATOR), $file, __FILE__);
+		return str_replace(sprintf('lib%sResource::redirect_to.php', DIRECTORY_SEPARATOR), $file, __FILE__);
 	}
 	public static function getThemedViewPath(){
 		return self::getRootPath('/' . self::getThemePath() . '/views/');
@@ -521,7 +521,7 @@ class FrontController extends Object{
 			$file = self::getAppPath($file);
 		}
 		$method = strtolower((array_key_exists('_method', $_REQUEST) ? $_REQUEST['_method'] : $_SERVER['REQUEST_METHOD']));
-		$plugins = PluginController::getPlugins('plugins', 'Resource');
+		$plugins = PluginController::get_plugins('plugins', 'Resource');
 		foreach($plugins as $plugin){
 			if($plugin->canHandle($class_name, $method)){
 				$output .= $plugin->execute($class_name, $method, $url_parts);
@@ -538,7 +538,7 @@ class FrontController extends Object{
 				}catch(Exception $e){
 					switch($e->getCode()){
 						case(401):
-							self::$delegate->unauthorizedRequestHasOccurred($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING']));
+							self::$delegate->unauthorized_request_has_happened($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING']));
 							break;
 						case(301):
 							$matches = String::find('/href\=\"(.*)\"/', $e->getMessage());
@@ -550,19 +550,19 @@ class FrontController extends Object{
 					throw $e;
 				}
 			}catch(Exception $e){				
-				$output .= self::$delegate->exceptionHasOccured($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'exception'=>$e));
+				$output .= self::$delegate->exception_has_happened($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'exception'=>$e));
 			}			
 			$output = $this->trim($output);
 			self::$end_time = microtime(true);
 			$status = $this->resource !== null && $this->resource->status !== null ? $this->resource->status : new HttpStatus(200);
 			self::sendHeadersForFileType($status, $file_type, strlen($output));
 			ob_end_flush();
-			Resource::sendMessage($this->resource, 'didFinishLoading');
+			Resource::sendMessage($this->resource, 'did_finish_dispatching');
 			return $output;
 		}else if($output !== null){
 			return $output;
 		}else{
-			$output = self::$delegate->resourceOrMethodNotFoundDidOccur($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'server'=>$_SERVER, 'url_parts'=>$url_parts));
+			$output = self::$delegate->resource_not_found_did_happen($this, array('file_type'=>$file_type, 'query_string'=>$_SERVER['QUERY_STRING'], 'server'=>$_SERVER, 'url_parts'=>$url_parts));
 			if($output === null){
 				self::send404Headers('Resource not found');
 			}else{
@@ -602,7 +602,7 @@ class FrontController extends Object{
 		exit;
 	}
 
-	public static function redirectTo($url, $params = null, $securely = false){
+	public static function redirect_to($url, $params = null, $securely = false){
 		self::setNeedsToRedirectRaw(self::urlFor($url, $params, $securely));
 	}
 	private static $requested_url;
@@ -621,7 +621,7 @@ class FrontController extends Object{
 		}
 	}
 		
-	public function errorDidHappen($code, $message, $file, $line, $context){
+	public function error_has_happened($code, $message, $file, $line, $context){
 		$contents = file_get_contents($file, FILE_TEXT);
 		$lines = preg_split('/\\n/', $contents);
 		self::$error_html = '<code class="error">';
@@ -644,9 +644,9 @@ class FrontController extends Object{
 		self::$error_html .= '</ul>';
 		self::$error_html .= sprintf("<pre>%s</pre>", htmlentities(array_pop($lines)));
 		self::$error_html .= '</code>';
-		self::notify('errorDidHappen', $this, self::$error_html);
+		self::notify('error_has_happened', $this, self::$error_html);
 		if(self::$delegate !== null){
-			self::$delegate->errorDidHappen(self::$error_html);
+			self::$delegate->error_has_happened(self::$error_html);
 		}
 	}
 	public function exceptionDidHappen($e){

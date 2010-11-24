@@ -29,7 +29,7 @@ class DFRNIntroductionCommand{
 	private $command;
 	
 	public function execute(){
-		$dfrn_url = FrontController::urlFor('profile');
+		$dfrn_url = App::url_for('profile');
 		$data = sprintf("dfrn_url=%s", (str_replace('http://', '', $dfrn_url)));
 		$response = NotificationResource::sendNotification($this->command->target, null, $data, 'post');
 		$matches = null;

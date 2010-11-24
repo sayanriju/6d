@@ -13,12 +13,12 @@ class StreamResource extends AppResource{
 	public $limit;
 	
 	public function get(){
-		if(!AuthController::isAuthorized()){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if(!AuthController::is_authorized()){
+			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 		}
 		$this->posts = Post::findFriendsPublishedStatii(Application::$current_user->person->id);
-		$this->output = $this->renderView('post/index');
-		return $this->renderView('layouts/default');
+		$this->output = $this->render('post/index');
+		return $this->render('layouts/default');
 	}
 	private function getAllPosts($start, $limit, $sort_by, $sort_by_direction){
 		return Post::find($start, $limit, $sort_by, $sort_by_direction, Application::$current_user->person_id);			

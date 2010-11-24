@@ -1,5 +1,5 @@
 <section id="addressbook_modal" style="display: none;" class="modal"></section>
-<form action="<?php echo Application::urlForWithUser($post->id !== null ? 'post' : 'posts');?>" method="post" id="post_form">
+<form action="<?php echo Application::url_with_member($post->id !== null ? 'post' : 'posts');?>" method="post" id="post_form">
 	<fieldset class="type">
     	<legend>Type</legend>
 		<ul id="post_type">
@@ -52,7 +52,7 @@
 			<label for="make_home_page" class="checkbox">Make this your home page</label>
 		</p>
 		<p id="send_to_list">
-			<a href="<?php echo Application::urlForWithUser('addressbook.html');?>" id="address">Send to</a>
+			<a href="<?php echo Application::url_with_member('addressbook.html');?>" id="address">Send to</a>
 		</p>
         
     </fieldset>

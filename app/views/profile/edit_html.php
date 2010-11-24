@@ -4,18 +4,18 @@
 			<img src="<?php echo ProfileResource::getPhotoUrl($person);?>" alt="photo of {$person->name}" id="profile_photo" />
 		</div>
 		<div id="resizer"></div>
-<?php if(AuthController::isAuthorized() && Application::$current_user->person_id == $person->person_id && $this->getState() === 'edit'):?>
-			<form method="post" action="<?php echo Application::urlForWithUser('photo');?>" class="delete">
+<?php if(AuthController::is_authorized() && Application::$current_user->person_id == $person->person_id && $this->getState() === 'edit'):?>
+			<form method="post" action="<?php echo Application::url_with_member('photo');?>" class="delete">
 				<input type="hidden" value="delete" name="_method" />
 				<input type="hidden" value="<?php echo $person->profile->photo_url;?>" name="src" />
 				<button type="submit">Delete</button>
 			</form>
 		</div>
-		<a id="change_photo_link" href="<?php echo Application::urlForWithUser('photos');?>" title="Change your profile photo">change photo</a>
+		<a id="change_photo_link" href="<?php echo Application::url_with_member('photos');?>" title="Change your profile photo">change photo</a>
 <?php endif;?>
 	<div class="contact">
 
-		<form action="<?php echo Application::urlForWithUser('profile');?>" method="post" id="person_form">
+		<form action="<?php echo Application::url_with_member('profile');?>" method="post" id="person_form">
 			<fieldset>
 				<legend>{$person->name}</legend>
 				<input type="hidden" value="<?php echo $person->profile->photo_url;?>" name="profile[photo_url]" id="profile[photo_url]" />

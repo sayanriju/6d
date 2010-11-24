@@ -1,1 +1,1 @@
-alert('{$message} was not found.');
+alert('<?php echo $message;?> was not found.');

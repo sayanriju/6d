@@ -4,25 +4,26 @@
 	class PhotoResource extends AppResource{
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
-			$this->url = FrontController::urlFor(null);
-			if(!AuthController::isAuthorized()){
-				throw new Exception(FrontController::UNAUTHORIZED, 401);
+			$this->url = App::url_for(null);
+			if(!AuthController::is_authorized()){
+				$this->set_unauthorized();
+				return;
 			}
 		}
 		public function __destruct(){
 			parent::__destruct();
 		}
 		public function delete($src){
-			$src = str_replace(FrontController::urlFor(null), '', $src);
+			$src = str_replace(App::url_for(null), '', $src);
 			$did_delete = Photo::delete($src);
 			if(!$did_delete){
 				self::setUserMessage(sprintf('failed to delete %s', $src));
 			}
-			$this->redirectTo(Application::$current_user->member_name . '/photos');
+			$this->redirect_to(Application::$current_user->member_name . '/photos');
 		}
 		public function put($ratio, $offset_x, $offset_y, $dst_w, $dst_h, $src_file_name, $dst_file_name){
-			$src_file_name = str_replace(FrontController::urlFor(null), '', $src_file_name);
-			$dst_file_name = str_replace(FrontController::urlFor(null), '', $dst_file_name);
+			$src_file_name = str_replace(App::url_for(null), '', $src_file_name);
+			$dst_file_name = str_replace(App::url_for(null), '', $dst_file_name);
 			$extension = pathinfo($src_file_name, PATHINFO_EXTENSION);
 			$src_image = null;
 			$message = null;
@@ -79,10 +80,10 @@
 		}
 		
 		public static function getLittleSrc($src){
-			return FrontController::urlFor(null) . $src;
+			return App::url_for(null) . $src;
 		}
 		public static function getBigSrc($src){
-			return FrontController::urlFor(null) . $src;
+			return App::url_for(null) . $src;
 		}
 	}
 

@@ -8,7 +8,7 @@
         public function __construct($attributes = null){
             parent::__construct($attributes);
 			if($this->config != null && $this->config->installed){
-				$this->redirectTo(null);
+				$this->redirect_to(null);
 			}
         }
         
@@ -28,8 +28,8 @@
 				}
 			}
 			$this->title = "App Installation";
-			$this->output = $this->renderView($view, null);
-			return $this->renderView('layouts/install', null);
+			$this->output = $this->render($view, null);
+			return $this->render('layouts/install', null);
         }
 
 		public function get_install_configuration(){
@@ -41,14 +41,14 @@
 			}
 			$this->title = "Createa a Configuration File";
 			$this->configuration = unserialize($_SESSION['configuration']);			
-			$this->output = $this->renderView('install/config', null);
-			return $this->renderView('layouts/install', null);			
+			$this->output = $this->render('install/config', null);
+			return $this->render('layouts/install', null);			
 		}
 		
 		public function get_install_done(){
 			$this->title = "Completed Installation";
-			$this->output = $this->renderView('install/done', null);
-			return $this->renderView('layouts/install', null);
+			$this->output = $this->render('install/done', null);
+			return $this->render('layouts/install', null);
         }
 
         
@@ -97,30 +97,30 @@
 		private function createHttaccessFile(){
 			$htaccess_file = 'htaccess.php';
 			require($htaccess_file);
-			$virtual_path = String::replace('/\/index\.php/', '/', FrontController::getVirtualPath());
+			$virtual_path = String::replace('/\/index\.php/', '/', Resource::redirect_to::getVirtualPath());
 			$htaccess = String::replace('/6d/', $virtual_path, $htaccess);
-			$did_write = file_put_contents(FrontController::getRootPath('/.htaccess'), $htaccess);
+			$did_write = file_put_contents(Resource::redirect_to::getRootPath('/.htaccess'), $htaccess);
 			$media_folder = 'media';
 			if(!file_exists($media_folder)){
 				mkdir($media_folder, 0777, true);
 			}
 			$media_htaccess = String::replace('/\#file_check_start(.*)\#file_check_end/', 'RewriteRule ^(.*)$ index.php?r=media/$1 [QSA,L]', $htaccess);
-			$did_write_media_access_file = file_put_contents(FrontController::getRootPath('/media/.htaccess'), $media_htaccess);
+			$did_write_media_access_file = file_put_contents(Resource::redirect_to::getRootPath('/media/.htaccess'), $media_htaccess);
 			return $did_write && $did_write_media_access_file;
 		}
 		public function put(Configuration $config, $should_overwrite_htaccess = false){
 			if(!$should_overwrite_htaccess && file_exists('.htaccess')){
 				Resource::setUserMessage("6d requires the ability to rewrite URLs. It creates a file called .htaccess in the application's folder to do this. This file exists. 6d needs to overwrite this file. Do you want to continue the installation and overwrite this file?");
-				return $this->redirectTo('install/configuration', array('overwrite'=>'false'));
+				return $this->redirect_to('install/configuration', array('overwrite'=>'false'));
 			}
 			$errors = array();
 			$_SESSION['configuration'] = serialize($config);
 			$this->configuration = $_SESSION['configuration'];
 			$db = Factory::get($config->db_type, $config);
-			$path = FrontController::getRootPath(null);
+			$path = Resource::redirect_to::getRootPath(null);
 			if(!is_writable($path)){
 				self::setUserMessage("I was unable to create an httaccess file. I need write access to the folder that you're trying to install 6d.");
-				$this->redirectTo('install/configuration');
+				$this->redirect_to('install/configuration');
 				return null;
 			}
 			$this->createHttaccessFile();
@@ -144,7 +144,7 @@
 				if(count($errors) == 0){
 					$config->site_password = $config->site_password;
 					$config->installed = true;
-					$config->save(FrontController::getRootPath('/AppConfiguration.php'));
+					$config->save(Resource::redirect_to::getRootPath('/AppConfiguration.php'));
 					class_exists('AppConfiguration') || require('AppConfiguration.php');
 				}
 			}catch(Exception $e){
@@ -169,7 +169,7 @@
 					$member->person->uid = uniqid(null, true);
 					$member->person->session_id = session_id();
 					$member->person->do_list_in_directory = true;
-					$member->person->url = str_replace('http://', '', String::replace('/\/$/', '', FrontController::urlFor(null)));
+					$member->person->url = str_replace('http://', '', String::replace('/\/$/', '', App::url_for(null)));
 					$errors = Person::canSave($member->person);
 					if(count($errors) == 0){
 						$member->person->owner_id = 0;
@@ -181,12 +181,12 @@
 				}
 			}
 			if(count($errors) > 0){
-				$message = $this->renderView('install/error', array('message'=>"The following errors occurred when saving the configuration file. Please resolve and try again.", 'errors'=>$errors));					
+				$message = $this->render('install/error', array('message'=>"The following errors occurred when saving the configuration file. Please resolve and try again.", 'errors'=>$errors));					
 				self::setUserMessage($message);
-				$this->redirectTo('install/configuration');
+				$this->redirect_to('install/configuration');
 			}else{
 				unset($_SESSION['configuration']);
-				$this->redirectTo('install/done');
+				$this->redirect_to('install/done');
 			}
 
         }

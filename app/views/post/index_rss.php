@@ -6,7 +6,7 @@
 	xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title><?php echo $owner->profile->site_name;?></title>
-		<link><?php echo FrontController::urlFor(null);?></link>
+		<link><?php echo App::url_for(null);?></link>
 		<description><?php echo $owner->profile->site_name;?></description>
 		<language>en</language>
 		<ttl>240</ttl>
@@ -20,8 +20,8 @@
 			<category><?php echo $tag;?></category>
 			<?php endforeach;?>
 			<?php endif;?>
-			<guid><?php echo FrontController::urlFor(null) . $post->custom_url;?></guid>
-			<link><?php echo FrontController::urlFor(null) . $post->custom_url;?></link>
+			<guid><?php echo App::url_for(null) . $post->custom_url;?></guid>
+			<link><?php echo App::url_for(null) . $post->custom_url;?></link>
 			<content:encoded><![CDATA[<?php echo $post->body;?>]]></content:encoded>
 		</item>
 		<?php endforeach;?>

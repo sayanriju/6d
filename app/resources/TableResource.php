@@ -4,8 +4,8 @@ class_exists('DataStorage') || require('lib/DataStorage/DataStorage.php');
 class_exists('UserResource') || require('UserResource.php');
 class TableResource extends AppResource{
 	public function __construct($attributes = null){
-		if(! AuthController::isAuthorized()){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if(! AuthController::is_authorized()){
+			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 		}
 		parent::__construct($attributes);
 		$this->db = Factory::get($this->config->db_type, $this->config);
@@ -31,8 +31,8 @@ class TableResource extends AppResource{
 		$this->tables = $this->db->getTables($db_name);
 		$this->db_name= $db_name;
 		$this->field_name = "Tables_in_$db_name";
-		$this->output = $this->renderView('db/tables', null);
-		return $this->renderView(null);
+		$this->output = $this->render('db/tables', null);
+		return $this->render(null);
 	}
 	
 }

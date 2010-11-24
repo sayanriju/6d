@@ -6,14 +6,16 @@ class_exists('Member') || require('models/Member.php');
 class_exists('ProfileController') || require('controllers/ProfileController.php');
 class Application{
 	public function __construct(){
+		if(file_exists(App::get_root_path('AppConfiguration.php'))){
+			class_exists('AppConfiguration') || require('AppConfiguration.php');
+		}
 		if (array_key_exists('PHP_AUTH_DIGEST', $_SERVER) && !AuthController::authKey()){
 			$data = String::toArray($_SERVER['PHP_AUTH_DIGEST']);
 			if(class_exists('AppConfiguration')){
-				$config = new AppConfiguration();
+				self::$config = new AppConfiguration();
 			}else{
-				$config = new Object();
+				self::$config = new Object();
 			}
-			
 			/* My host runs PHP as a CGI and so I added:
 				
 				RewriteCond %{HTTP:Authorization} !^$
@@ -35,8 +37,8 @@ class Application{
 			$data['cnonce'] = str_replace('"', '', $data['cnonce']);
 			$data['nc'] = str_replace('"', '', $data['nc']);
 			$data['qop'] = str_replace('"', '', $data['qop']);
-			if(isset($data['username']) && $config->email === $data['username']){
-				$a1 = md5($data['username'] . ':' . $data['realm'] . ':' . $config->site_password);
+			if(isset($data['username']) && self::$config->email === $data['username']){
+				$a1 = md5($data['username'] . ':' . $data['realm'] . ':' . self::$config->site_password);
 				$a2 = md5($_SERVER['REQUEST_METHOD'].':'.$data['uri']);
 				$encrypted_response = md5($a1.':'.$data['nonce'].':'.$data['nc'].':'.$data['cnonce'].':'.$data['qop'].':'.$a2);
 				if ($data['response'] === $encrypted_response){
@@ -52,83 +54,73 @@ class Application{
 	public function __destruct(){}
 	public static $member;
 	public static $current_user;
+	private static $config;
+	public function get_theme(){
+		if(self::$config === null){
+			self::$config = new AppConfiguration();
+		}
+		return self::$config->getTheme();
+	}
 	public static function isPhotoPublic(){
 		return true;
 	}
-	public static function urlForWithMember($resource_name, $params = null, $make_secure = false){
+	public static function url_with_member($resource_name, $params = null, $make_secure = false){
 		if(!self::$member->is_owner){
-			return FrontController::urlFor(self::$member->member_name . '/' . $resource_name, $params, $make_secure);			
+			return App::url_for(self::$member->member_name . '/' . $resource_name, $params, $make_secure);			
 		}else{
-			return FrontController::urlFor($resource_name, $params, $make_secure);
+			return App::url_for($resource_name, $params, $make_secure);
 		}
 	}
-	public static function urlForWithUser($resource_name, $params = null, $make_secure = false){
-		$url = FrontController::urlFor($resource_name, $params, $make_secure);
-		if($resource_name !== null){
-			$url = str_replace('/' . $resource_name, '/' . self::$current_user->member_name . '/' .  $resource_name, $url);						
-		}else{
-			$url .= self::$current_user->member_name;
-		}
-		return $url;
-	}
-	public function exceptionHasOccured($sender, $args){
+	public function exception_has_happened($sender, $args){
 		$e = $args['exception'];
 		$file_type = $args['file_type'];
 		$resource = new AppResource(array('file_type'=>$file_type));
 		if($e->getCode() == 401){
-			if($file_type === 'html'){
-				FrontController::redirectTo('login');
-			}else{
-				FrontController::send401Headers('Please login', '6d');
-			}
+			$resource->status = new HttpStatus(401);
+			$resource->headers[] = new HttpHeader(array('location'=>App::url_for('login')));
 		}elseif($e->getCode() == 404){
-			$resource->output = $resource->renderView('error/404', array('message'=>$e->getMessage()));
+			$resource->output = $resource->render('error/404', array('message'=>$e->getMessage()));
 			$this->status = new HttpStatus(404);
-			return $resource->renderView('layouts/default');
+			return $resource->render_layout('default');
 		}elseif(strpos($e->getMessage(), 'No database selected') !== false || get_class($e) == 'DSException'){
 			Resource::setUserMessage($e->getMessage() . ' - You need to create the database first.');
-			$resource->output = $resource->renderView('install/index', array('message'=>$e->getMessage()));
-			return $resource->renderView('layouts/install');
+			$resource->output = $resource->render('install/index', array('message'=>$e->getMessage()));
+			return $resource->render_layout('install');
 		}else{
 			Resource::setUserMessage('Exception has occured: ' . $e->getMessage());
-			return $resource->renderView('layouts/default');
+			return $resource->render_layout('default');
 		}
 	}
-	public function unauthorizedRequestHasOccurred($sender, $args){
-		FrontController::send401Headers('Please login', 'sixd');
-		if($args['file_type'] === 'html'){
-//			FrontController::redirectTo('login');			
-		}else{
-		}
+	public function unauthorized_request_has_happened($sender, $args){
+		$resource->status = new HttpStatus(401);
+		$resource->headers[] = new HttpHeader(array('location'=>App::url_for('login')));
 	}
-	public function willExecute($path_info){
-		Photo::addObserver(new ProfileController(), 'willDeletePhoto', 'Photo');
+	public function before_dispatching($parts, $file_type){
+		Photo::add_observer(new ProfileController(), 'will_delete_photo', 'Photo');
 		if(!class_exists('AppConfiguration')){
-			return $path_info;
-		}		
-		if($path_info !== null){
-			$path = explode('/', $path_info);			
-			if(count($path) > 0){
-				$member_name = array_shift($path);
+			return $parts;
+		}
+		if($parts !== null){
+			if(count($parts) > 0){
+				$member_name = $parts[0];
 				if(strlen($member_name) > 0){
 					self::$member = Member::findByMemberName($member_name);
 					if(self::$member !== null){
-						$path_info = implode('/', $path);					
+						 array_shift($parts);					
 					}					
 				}
 			}
 		}
-
 		if(self::$member == null){
 			self::$member = Member::findOwner();
 		}
-		return $path_info;
+		return $parts;
 	}
-	public function errorDidHappen($message){
+	public function error_has_happened($message){
 		console::log($message);
 	}
 	
-	public function resourceOrMethodNotFoundDidOccur($sender, $args){
+	public function resource_not_found_did_happen($sender, $args){
 		$resource = new AppResource(array('file_type'=>$args['file_type'],'url_parts'=>$args['url_parts']));
 		$method = array_key_exists('_method', $args['server']) ? $args['server']['_method'] : $args['server']['REQUEST_METHOD'];
 		$page_name = $args['url_parts'][0];
@@ -137,30 +129,30 @@ class Application{
 			require('resources/BlogResource.php');
 			$blog_resource = new BlogResource(array('file_type'=>'phtml'));
 			$resource->output = $blog_resource->get($page_name);
-		}elseif(file_exists(FrontController::getThemePath() . '/views/index/' . $view)){
-			$resource->output = $resource->renderView('index/' . $page_name);
+		}elseif(file_exists(App::get_theme_path('/views/index/' . $view))){
+			$resource->output = $resource->render('index/' . $page_name);
 		}elseif(file_exists('index/' . $view)){
-			$resource->output = $resource->renderView('index/' . $page_name);
+			$resource->output = $resource->render('index/' . $page_name);
 		}else{
-			if(AuthController::isAuthorized()){
+			if(AuthController::is_authorized()){
 				$post = Post::findByAttribute('custom_url', $page_name, Application::$member->person_id);
 			}else{
 				$post = Post::findAllPublished($page_name, Application::$member->person_id);
 			}
 			if($post != null){
-				$resource->output = $resource->renderView('post/show', array('post'=>$post));
+				$resource->output = $resource->render('post/show', array('post'=>$post));
 				$resource->description = $post->title;
 				$resource->keywords = implode(', ', String::getKeyWordsFromContent($post->body));		
 				$resource->title = $post->title;
 			}else{
-				$resource->output = $resource->renderView('error/404', array('message'=>$method . ' ' . $page_name . ' was not found.'));
-				FrontController::send404Headers($page_name . ' was not found');
+				$resource->output = $resource->render('error/404', array('message'=>$method . ' ' . $page_name . ' was not found.'));
+				$this->status = new HttpStatus(404);
 			}				
 		}
 		if($resource->title === null){
-			$resource->title = $resource->getTitleFromOutput($resource->output);				
+			$resource->title = $resource->get_title_from_output($resource->output);				
 		}		
-		return $resource->renderView('layouts/default');
+		return $resource->render_layout('default');
 		
 	}
 }

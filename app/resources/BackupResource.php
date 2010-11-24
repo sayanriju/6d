@@ -13,8 +13,8 @@ class_exists('Model') || require('models/Model.php');
 class BackupResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
-		if(!AuthController::isSuperAdmin()){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if(!AuthController::is_super_admin()){
+			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 		}
 		$this->files = $this->getBackupFiles();
 	}
@@ -26,15 +26,15 @@ class BackupResource extends AppResource{
 	public $files;
 	public function get(){
 		$this->title = "Backup your data";
-		$this->output = $this->renderView('backup/index', null);
-		return $this->renderView('layouts/default', null);
+		$this->output = $this->render('backup/index', null);
+		return $this->render('layouts/default', null);
 	}
 	public function post(){
 		$this->archiveAll();
 		$this->files = $this->getBackupFiles();
 		$this->title = "Backup your data";
-		$this->output = $this->renderView('backup/index', null);
-		return $this->renderView('layouts/default', null);
+		$this->output = $this->render('backup/index', null);
+		return $this->render('layouts/default', null);
 	}
 	public function put($file_name){
 		$this->title = "Restoring your $file_name backup";
@@ -46,12 +46,12 @@ class BackupResource extends AppResource{
 		}else{
 			self::setUserMessage("That backup doesn't exist.");
 		}
-		$this->output = $this->renderView('backup/index', null);
-		return $this->renderView('layouts/default', null);
+		$this->output = $this->render('backup/index', null);
+		return $this->render('layouts/default', null);
 	}
 	public function delete($file_name){
 		unlink($file_name);
-		self::redirectTo('backup');
+		self::redirect_to('backup');
 	}
 	private function archiveAll($prefix = 'b'){
 		$archive = new ZipArchive();
@@ -62,7 +62,7 @@ class BackupResource extends AppResource{
 			foreach(self::$model_names as $name){
 				$this->archive($name, $archive);
 			}
-			self::setUserMessage($archive->status == ZIP_ER_OK ? sprintf('<a href="%s%s">Backup</a> has been created.', FrontController::urlFor(null), $file_name) : sprintf('Failed archiving your data: %s - %s', $archive->GetStatusString(), $archive->status));
+			self::setUserMessage($archive->status == ZIP_ER_OK ? sprintf('<a href="%s%s">Backup</a> has been created.', App::url_for(null), $file_name) : sprintf('Failed archiving your data: %s - %s', $archive->GetStatusString(), $archive->status));
 			$archive->close();
 			$this->deleteFiles(self::$model_names);
 		}

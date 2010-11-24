@@ -15,16 +15,16 @@ class FollowersResource extends AppResource{
 	public $people;
 	public function get(){
 		$errors = array();
-		if(!AuthController::isAuthorized()){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if(!AuthController::is_authorized()){
+			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 		}else{
 			$this->people = FriendRequest::findAll();
 			if($this->people === null){
 				$this->people = array();
 			}
 			$this->title = 'Friend Requests';
-			$this->output = $this->renderView('follower/index', array('errors'=>$errors));
-			return $this->renderView('layouts/default', null);
+			$this->output = $this->render('follower/index', array('errors'=>$errors));
+			return $this->render('layouts/default', null);
 		}
 		
 	}

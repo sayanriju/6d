@@ -9,17 +9,17 @@ class ContactResource extends AppResource{
 	}
 	public function get(){
 		$this->title = "Send us a message";
-		$this->output = $this->renderView('contact/index');
-		return $this->renderView('layouts/default');
+		$this->output = $this->render('contact/index');
+		return $this->render('layouts/default');
 	}
 	public function post($from, $message = null){
 		if($from === null || $message === null){
 			self::setUserMessage("Did you want to say something?");
-			$this->output = $this->renderView('contact/index');
-			return $this->renderView('layouts/default');
+			$this->output = $this->render('contact/index');
+			return $this->render('layouts/default');
 		}
 		self::setUserMessage("Thanks for dropping a line. We'll get right on it dog gone it.");
-		return $this->renderView('layouts/default');
+		return $this->render('layouts/default');
 	}
 	
 	private function send($emails, $message=null, $subject){

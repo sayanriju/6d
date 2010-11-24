@@ -21,19 +21,19 @@ class TodayResource extends AppResource{
 		if(self::$cached_posts != null){
 			return count(self::$cached_posts);
 		}else{
-			self::$cached_posts = self::get_todays_posts(AuthController::isAuthorized(), Application::$member->person_id, null, null, null, null, null, null, 0);
+			self::$cached_posts = self::get_todays_posts(AuthController::is_authorized(), Application::$member->person_id, null, null, null, null, null, null, 0);
 			return count(self::$cached_posts);
 		}
 	}
 	public function get(){
 		$view = 'today/index';
-		$this->posts = self::get_todays_posts(AuthController::isAuthorized(), Application::$member->person_id, 10);
-		$this->output = $this->renderView($view, null);
+		$this->posts = self::get_todays_posts(AuthController::is_authorized(), Application::$member->person_id, 10);
+		$this->output = $this->render($view, null);
 		$this->keywords = "today, info stream, activity stream";
 		$this->description = "List of Today's activities";
 		$this->title = "Today's Activities";
 		self::$cached_posts = $this->posts;
-		return $this->renderView('layouts/default', null);
+		return $this->render('layouts/default', null);
 	}
 	public static function get_todays_posts($is_authed, $person_id, $limit){
 		$posts = null;

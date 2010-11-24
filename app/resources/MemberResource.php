@@ -8,8 +8,8 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 	class MemberResource extends AppResource{
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
-			if(!AuthController::isSuperAdmin()){
-				throw new Exception(FrontController::UNAUTHORIZED, 401);
+			if(!AuthController::is_super_admin()){
+				throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 			}
 		}
 	
@@ -27,12 +27,12 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 				$this->member = new Member();
 			}
 			$this->title = $this->member !== null && $this->member->id > 0 ? sprintf('Member: %s', $this->member->email) : 'Add a member';
-			$this->output = $this->renderView('member/edit', null);	
-			return $this->renderView('layouts/default', null);
+			$this->output = $this->render('member/edit', null);	
+			return $this->render('layouts/default', null);
 		}
 		public function delete(Member $member){
 			if($member->id === null || strlen($member->id) === 0){
-				throw new Exception(FrontController::NOTFOUND, 404);
+				throw new Exception(Resource::redirect_to::NOTFOUND, 404);
 			}
 			$member = Member::findById($member->id);
 			$person = Person::findById($member->person_id);
@@ -43,7 +43,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 			}else{
 				Resource::setUserMessage("You can't delete the owner of the site.");
 			}
-			$this->redirectTo('members');
+			$this->redirect_to('members');
 		}
 	}
 ?>

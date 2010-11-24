@@ -7,9 +7,9 @@
     class UpgradeResource extends AppResource{
         public function __construct($attributes = null){
             parent::__construct($attributes);
-			if(! AuthController::isAuthorized()){
-				FrontController::setRequestedUrl('upgrade');
-				throw new Exception(FrontController::UNAUTHORIZED, 401);
+			if(! AuthController::is_authorized()){
+				Resource::redirect_to::setRequestedUrl('upgrade');
+				throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 			}
         }
         
@@ -19,20 +19,20 @@
        
         public function get_upgrade(){
 			$this->title = "App Upgrade";
-			$this->output = $this->renderView('upgrade/index', null);
-			return $this->renderView('layouts/install', null);
+			$this->output = $this->render('upgrade/index', null);
+			return $this->render('layouts/install', null);
         }
 
 		public function post_upgrade(){
 			$db = Factory::get($this->config->db_type, $this->config);
 			$errors = $this->createTables($db, $this->config);
 			if(count($errors) > 0){
-				$message = $this->renderView('install/error', array('message'=>"The following errors occurred when saving the configuration file. Please resolve and try again.", 'errors'=>$errors));					
+				$message = $this->render('install/error', array('message'=>"The following errors occurred when saving the configuration file. Please resolve and try again.", 'errors'=>$errors));					
 				self::setUserMessage($message);
-				$this->redirectTo('upgrade/index');
+				$this->redirect_to('upgrade/index');
 			}else{
 				self::setUserMessage('Upgrade was successful');
-				$this->redirectTo('install/done');
+				$this->redirect_to('install/done');
 			}
 		}
         

@@ -13,7 +13,7 @@ class ConversationsResource extends AppResource{
 		$errors = array();
 		$this->post = Post::findById($comment->post_id, Application::$current_user->person_id);
 		if($this->post == null){
-			throw new Exception(FrontController::NOTFOUND, 404);
+			throw new Exception(Resource::redirect_to::NOTFOUND, 404);
 		}
 		if($this->post->person_post_id !== null){
 			$this->send_comment_to_author($this->post, $comment);
@@ -41,7 +41,7 @@ class ConversationsResource extends AppResource{
 			error_log($message);
 			self::setUserMessage(implode('<br />', $message));
 		}
-		$this->redirectTo(Application::$member->member_name . '/conversation', array('post_id'=>$this->post->id));
+		$this->redirect_to(Application::$member->member_name . '/conversation', array('post_id'=>$this->post->id));
 	}
 	private function send_comment_to_author(Post $post, Comment $comment){
 		$author = $post->get_author();

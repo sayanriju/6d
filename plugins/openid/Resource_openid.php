@@ -350,25 +350,25 @@ class OpenidCommand{
 		$does_realm_match = $this->doRealmCheck($request);
 		if($does_realm_match){
 			OpenidRequest::save($request);
-			if(AuthController::isAuthorized() && $request->return_to !== null){
+			if(AuthController::is_authorized() && $request->return_to !== null){
 				$data = $this->makePositiveAssertion($request);
 				$url = $this->buildUrl($request->return_to, $data);
-				FrontController::setNeedsToRedirectRaw($url);
+				Resource::redirect_to::setNeedsToRedirectRaw($url);
 			}
-			$this->resource->output = $this->resource->renderView('plugins/openid/views/check_authentication/login', array('request'=>$request));
+			$this->resource->output = $this->resource->render('plugins/openid/views/check_authentication/login', array('request'=>$request));
 			
-			return $this->resource->renderView('layouts/default');		
+			return $this->resource->render('layouts/default');		
 		}
 	}
 	public function post($openid_mode){
 		$email = self::request('email');
 		$password = self::request('password');
 		$user = null;
-		if(!AuthController::isAuthorized()){
+		if(!AuthController::is_authorized()){
 			if(empty($email) || empty($password)){
 				$isAuthed = false;
 			}else{
-				$user = AuthController::doVerification($email, $password);
+				$user = AuthController::do_verification($email, $password);
 				if($user !== null){
 					AuthController::setAuthKey($email);
 				}
@@ -377,14 +377,14 @@ class OpenidCommand{
 		
 		$assoc_handle = self::request('openid_assoc_handle');
 		$request = $this->findExistingAssociation($assoc_handle, $request);
-		if(AuthController::isAuthorized()){
+		if(AuthController::is_authorized()){
 			$data = $this->makePositiveAssertion($request);
 			$url = $this->buildUrl($request->return_to, $data);
-			FrontController::setNeedsToRedirectRaw($url);
+			Resource::redirect_to::setNeedsToRedirectRaw($url);
 		}else{
 			$data = $this->makeNegativeAssertion($request);
 			$url = $this->buildUrl($request->return_to, $data);
-			FrontController::setNeedsToRedirectRaw($url);
+			Resource::redirect_to::setNeedsToRedirectRaw($url);
 		}
 	}
 	
@@ -396,7 +396,7 @@ class OpenidCommand{
 		$response = self::keyValueFormEncode('ns', $this->ns);
 		$response .= self::keyValueFormEncode('error', $error_message);
 		$response .= self::keyValueFormEncode('contact', '6d Support');
-		$response .= self::keyValueFormEncode('reference', FrontController::urlFor('openid'));
+		$response .= self::keyValueFormEncode('reference', App::url_for('openid'));
 		$response .= self::keyValueFormEncode('mode', 'error');
 		return $response;
 	}
@@ -405,9 +405,9 @@ class OpenidCommand{
 		throw new Exception($response, 400);
 	}
 	protected function sendIndirectErrorResponse($request, $error_message){
-		$params = array('openid.ns'=>$this->ns, 'openid.mode'=>'error', 'openid.contact'=>'6d support', 'openid.reference'=>FrontController::urlFor('openid'), 'error'=>$error_message);
+		$params = array('openid.ns'=>$this->ns, 'openid.mode'=>'error', 'openid.contact'=>'6d support', 'openid.reference'=>App::url_for('openid'), 'error'=>$error_message);
 		error_log('sending indirect response ' . $error_message);
-		FrontController::setNeedsToRedirectRaw($request->return_to, $params);
+		Resource::redirect_to::setNeedsToRedirectRaw($request->return_to, $params);
 	}
 	protected function sendDirectResponseForAssociation($request){
 		$response = '';
@@ -464,7 +464,7 @@ class OpenidCommand{
 	
 	protected function makeImmediateNegativeAssertion($request){
 		$data = array('openid.ns'=>urlencode($request->ns), 'openid.mode'=>'setup_needed');
-		FrontController::setNeedsToRedirectRaw($this->buildUrl($request->return_to, $data));
+		Resource::redirect_to::setNeedsToRedirectRaw($this->buildUrl($request->return_to, $data));
 	}
 	protected function makeNegativeAssertion($request){
 		$data = array('openid.ns'=>urlencode($request->ns), 'openid.mode'=>'cancel');
@@ -472,7 +472,7 @@ class OpenidCommand{
 	}
 	
 	protected function makePositiveAssertion($request){
-		$data = array('openid.ns'=>urlencode($request->ns), 'openid.mode'=>'id_res', 'openid.op_endpoint'=>urlencode(FrontController::urlFor('openid.txt/')));
+		$data = array('openid.ns'=>urlencode($request->ns), 'openid.mode'=>'id_res', 'openid.op_endpoint'=>urlencode(App::url_for('openid.txt/')));
 		$data['openid.signed'] = 'op_endpoint,return_to,response_nonce,assoc_handle';		
 		if($request->claimed_id !== null && $request->identity !== null){
 			$data['openid.claimed_id'] = urlencode($request->claimed_id);
@@ -522,7 +522,7 @@ class OpenidCommand{
 			$request->identity = $request->claimed_id;
 		}
 		if($request->identity === 'http://specs.openid.net/auth/2.0/identifier_select'){
-			$request->identity = FrontController::urlFor(null);
+			$request->identity = App::url_for(null);
 		}
 		
 		if($request->realm === null){
@@ -548,14 +548,14 @@ class OpenidCommand{
 			}
 			if(strpos($discovery_response->output, '<URI>' . $realm) === false){
 				Resource::setUserMessage("The realm doesn't match the site you came from.");
-				$request->return_to = FrontController::urlFor(null);
+				$request->return_to = App::url_for(null);
 				$this->sendIndirectErrorResponse($request, "The realm doesn't match the discovered endpoint.");
 				return false;
 			}
 
 			if(!$this->compareRealmWithReturnTo($request)){
 				Resource::setUserMessage("The realm doesn't match the site you came from.");
-				$request->return_to = FrontController::urlFor(null);
+				$request->return_to = App::url_for(null);
 				$this->sendIndirectErrorResponse($request, "The return_to url doesn't match the realm.");
 				return false;
 			}
@@ -630,11 +630,11 @@ class Openid_checkid_immediate extends OpenidCommand{
 		$request = $this->findExistingAssociation($assoc_handle, $request);
 		$request = $this->applyDefaultValueRules($request);	
 		$does_realm_match = $this->doRealmCheck($request);
-		if($does_realm_match && AuthController::isAuthorized()){
+		if($does_realm_match && AuthController::is_authorized()){
 			OpenidRequest::save($request);
 			$data = $this->makePositiveAssertion($request);
 			$url = $this->buildUrl($request->return_to, $data);
-			FrontController::setNeedsToRedirectRaw($url);
+			Resource::redirect_to::setNeedsToRedirectRaw($url);
 		}else{
 			return $this->makeImmediateNegativeAssertion($request);
 		}
@@ -662,7 +662,7 @@ class Openid_check_authentication extends OpenidCommand{
 		}else{
 			$sig = base64_encode($this->generateMessageSignature($request->signed, $request));
 			if($sig === self::request('openid_sig')){
-				$this->resource->output = $this->resource->renderView('plugins/openid/views/check_authentication/index', array('request'=>$request));
+				$this->resource->output = $this->resource->render('plugins/openid/views/check_authentication/index', array('request'=>$request));
 				$request->is_valid = true;
 				OpenidRequest::save($request);
 				$this->sendDirectResponse($request);
@@ -670,7 +670,7 @@ class Openid_check_authentication extends OpenidCommand{
 				$this->resource->output = "It seems like the request has been compromised. Go back and try again. If this message is displayed again, I wouldn't trust the site you're trying to login to.";
 			}
 		}
-		return $this->resource->renderView('layouts/default');
+		return $this->resource->render('layouts/default');
 	}
 	public function post($openid_mode){
 		

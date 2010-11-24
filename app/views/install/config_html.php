@@ -1,4 +1,4 @@
-<form action="<?php echo FrontController::urlFor('install/configuration');?>" method="post">
+<form action="<?php echo App::url_for('install/configuration');?>" method="post">
 	<fieldset>
 		<legend>Datbase settings</legend>
 		<p>

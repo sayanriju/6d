@@ -13,7 +13,7 @@
 				<input type="checkbox" id="group_<?php echo $key;?>" name="groups" value="<?php echo urlencode($group->text);?>" />
 				
 			<?php if(!in_array($group->text, array('All Contacts', 'Friend Requests'))):?>
-				<form action="<?php echo FrontController::urlFor('group');?>" method="post" class="delete">
+				<form action="<?php echo App::url_for('group');?>" method="post" class="delete">
 					<input type="hidden" value="<?php echo $group->text;?>" name="text" />
 					<input type="hidden" value="delete" name="_method" />
 					<button type="submit">x</button>
@@ -25,7 +25,7 @@
 	</section>
 	<section id="people">
 		<h1>Name</h1>
-		<?php echo $this->renderView('person/index', null, 'phtml');?>
+		<?php echo $this->render('person/index', null, 'phtml');?>
 	</section>
 	<section id="detail" class="detail"></section>
 	<div style="clear: both;"></div>

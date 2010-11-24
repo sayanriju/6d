@@ -1,4 +1,4 @@
-<form action="<?php echo Application::urlForWithUser('follower');?>" method="post" class="body" id="friend_request_form">
+<form action="<?php echo Application::url_with_member('follower');?>" method="post" class="body" id="friend_request_form">
 	<fieldset>
 		<legend><?php echo ($person->name == null ? 'New friend' : $person->name);?></legend>
 		<p>
@@ -17,7 +17,7 @@
 		<input type="hidden" name="id" id="id" value="{$person->id}" />
 	</fieldset>
 </form>
-<form action="<?php echo Application::urlForWithUser('follower');?>" method="post">
+<form action="<?php echo Application::url_with_member('follower');?>" method="post">
 	<input type="hidden" name="id" id="id" value="{$person->id}" />
 	<input type="hidden" name="_method" value="delete" />
 	<input type="submit" name="delete_button" value="Delete" />

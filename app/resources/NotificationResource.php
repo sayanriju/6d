@@ -23,8 +23,8 @@
 				$this->posts[] = json_decode($this->getFromFriend($notification));
 			}
 			$this->title = 'Notifications';
-			$this->output = $this->renderView('notification/recent', null);
-			return $this->renderView('layouts/default', null);
+			$this->output = $this->render('notification/recent', null);
+			return $this->render('layouts/default', null);
 		}
 		private function getFromFriend(Notification $notification){
 			$type = $notification->name;
@@ -49,7 +49,7 @@
 			$urls = array();
 			$responses = array();
 			$config = new AppConfiguration();
-			$path = Application::urlForWithMember($resource_name);
+			$path = Application::url_with_member($resource_name);
 			$appName = sprintf('%s%s', $_SERVER['SERVER_NAME'], $path);
 			foreach($people as $person){
 				$person->url = preg_replace('/\/$/', '', $person->url);

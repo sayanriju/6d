@@ -15,13 +15,13 @@ class BookmarkletsResource extends AppResource{
 	public function getDelicious(){
 		$this->title = 'Delicious Bookmarklet';
 		$view = 'bookmarklet/delicious';
-		$this->output = $this->renderView($view, null);
-		return $this->renderView('layouts/home', null);
+		$this->output = $this->render($view, null);
+		return $this->render('layouts/home', null);
 	}
 	public function getTwitter(){
 		$this->title = 'Twitter Translator Bookmarklet';
 		$view = 'bookmarklet/twitter_translate';
-		$this->output = $this->renderView($view, null);
-		return $this->renderView('layouts/home', null);
+		$this->output = $this->render($view, null);
+		return $this->render('layouts/home', null);
 	}
 }

@@ -8,12 +8,10 @@
 		public $output;
 		public $headers;
 	}
-	//Option for doing DELETE, PUT.
-	//CURLOPT_CUSTOMREQUEST
 	class Request extends Object{
 		public function __construct(){}
 		public function __destruct(){}
-		public static function doMultiRequests($urls, $path, $data, $method = 'get', $options = array()){
+		public static function doMultiRequests($urls, $path, $datum, $method = 'get', $optionalHeaders = null){
 			$handles = array();
 			$output = array();
 			$i = 0;			
@@ -29,8 +27,8 @@
 				, CURLOPT_RETURNTRANSFER=>true
 				, CURLOPT_VERBOSE=>false
 			);
-			if($options && count($options) > 0){
-				$curl_options = array_merge($curl_options, $options);
+			if($optionalHeaders != null && is_array($optionalHeaders)){
+				$curl_options = array_merge($curl_options, $optionalHeaders);
 			}
 			if($method == 'post'){
 				$curl_options[CURLOPT_POST] = true;
@@ -40,27 +38,21 @@
 				$curl_options[CURLOPT_PUT] = false;
 			}else{
 				$curl_options[CURLOPT_HTTPGET] = false;
-				if($method === 'put'){
-					$curl_options[CURLOPT_PUT] = true;
-				}
-				$curl_options[CURLOPT_CUSTOMREQUEST] = $method;
+				$curl_options[CURLOPT_PUT] = true;
 			}			
 			for($i = 0; $i < $ubounds; $i++){
 				if($path !== null){
 					$urls[$i] .= '/' . $path;				
 				}
 				if($method === 'post'){
-					$curl_options[CURLOPT_POSTFIELDS] = $data[$i];
+					$curl_options[CURLOPT_POSTFIELDS] = $datum[$i];
 				}elseif($method === 'get'){
-					if($data !== null && $data[$i] !== null){
-						$urls[$i] .= '?' . $data[$i];
+					if($datum !== null && $datum[$i] !== null){
+						$urls[$i] .= '?' . $datum[$i];
 					}
 				}else{
-					if($method === 'put'){
-						$curl_options[CURLOPT_INFILE] = $data[$i];
-						$curl_options[CURLOPT_INFILESIZE] = strlen($data[$i]);						
-						$curl_options[CURLOPT_HTTPHEADER] = array('Content-Length: ' . strlen($data[$i]));
-					}
+					$curl_options[CURLOPT_INFILE] = $datum[$i];
+					$curl_options[CURLOPT_INFILESIZE] = strlen($datum[$i]);
 				}				
 				$curl_options[CURLOPT_URL] = $urls[$i];
 				$ch = self::getCurlHandle($curl_options);
@@ -93,36 +85,37 @@
 					$output[] = curl_multi_getcontent($ch);
 					curl_multi_remove_handle($mh, $ch);
 				}
-				curl_multi_close($mh);				
+				curl_multi_close($mh);
+				var_dump(curl_multi_info_read($mh));
+				
 				return $output;
 			}else{
 				throw new Exception("Failed to get a curl handle");
 			}	
 		}
 		private static function getCurlHandle($curl_options){
-	        $ch = curl_init();
+	        $ch = curl_init(); 
 			curl_setopt_array($ch, $curl_options);
 			return $ch;
 		}
 		
 		public static function doRequest($url, $path, $data, $method = 'get', $optionalHeaders = null, $follow_redirect = true){
-			// create curl resource 
+			// create curl resource
+                    error_log("$method : $url");
 			if($path != null){
 				$url .= '/' . $path;
 			}
 	        $ch = curl_init(); 
 			$curl_options = array(
 				CURLOPT_AUTOREFERER=>true
-				//, CURLOPT_HEADER=>true
-				, CURLOPT_FOLLOWLOCATION=>false
+				, CURLOPT_FOLLOWLOCATION=>true
 				, CURLOPT_ENCODING=>''
-				, CURLOPT_USERAGENT=>'App Notifier'
+				, CURLOPT_USERAGENT=>'Chinchilla'
 				, CURLOPT_CONNECTTIMEOUT=>5
 				, CURLOPT_TIMEOUT=>5
 				, CURLOPT_MAXREDIRS=>2
 				, CURLOPT_RETURNTRANSFER=>true
 				, CURLOPT_VERBOSE=>false
-				//, CURLOPT_REFERER=>FrontController::$site_path
 			);
 			
 			if($optionalHeaders != null && is_array($optionalHeaders)){
@@ -141,17 +134,14 @@
 				$curl_options[CURLOPT_INFILESIZE] = strlen($data);
 				$curl_options[CURLOPT_HTTPGET] = false;
 				$curl_options[CURLOPT_PUT] = true;
-				$curl_options[CURLOPT_HTTPHEADER] = array('Content-Length: ' . strlen($data[$i]));
-				
 			}
-			$curl_options[CURLOPT_URL] = $url;
+			$curl_options[CURLOPT_URL] =$url;
 			
 	        // set url 
 			curl_setopt_array($ch, $curl_options);
 
 	        // $output contains the output string 
-	        $output = curl_exec($ch); 
-
+	        $output = curl_exec($ch);
 			if(curl_errno($ch) > 0){
 				error_log('curl error = ' . curl_error($ch));
 			}

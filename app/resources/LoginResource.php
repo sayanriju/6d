@@ -12,37 +12,31 @@ class LoginResource extends AppResource{
 	
 	public function get(){
 		$this->title = 'Login';
-		$this->output = $this->renderView('user/login');
-		return $this->renderView('layouts/login');			
+		$this->output = $this->render('user/login');
+		return $this->render('layouts/login');			
 	}
 	
 	public function post($email, $password = null){
 		$isAuthed = false;
-		if( AuthController::isAuthorized()){
+		if( AuthController::is_authorized()){
 			$isAuthed = true;
 		}
 		$user = null;
-		if(empty($email) || empty($password)){
-			$isAuthed = false;
-		}else{
-			$user = AuthController::doVerification($email, $password);
-			$isAuthed = $user !== null;		
-		}
-		if($isAuthed){
-			if($email != null && !empty($email)){
-				AuthController::setAuthKey($email);
-				$person = Person::findById($user->person_id);
-				$person->session_id = session_id();
-				Person::save($person);
-			}
+		if(empty($email) || empty($password)) $this->redirect_to('login');
+		$user = AuthController::do_verification($email, $password);
+		if(AuthController::is_authorized()){
+			AuthController::setAuthKey($user->email);
+			$person = Person::findById($user->person_id);
+			$person->session_id = session_id();
+			Person::save($person);
 			$this->redirect($user);
 		}else{
-			self::setUserMessage($this->renderView('error/login', array('errors'=>array('auth'=>'authorization failed'), 'message'=>"Those credentials can't be found. If you're really trying to sign in, please try it again.")));
-			$this->redirectTo('login');
+			self::setUserMessage($this->render('error/login', array('errors'=>array('auth'=>'authorization failed'), 'message'=>"Those credentials can't be found. If you're really trying to sign in, please try it again.")));
+			$this->redirect_to('login');
 		}
 	}	
 	private function redirect($user){
-		$this->redirectTo($user->is_owner ? null : $user->member_name);
+		$this->redirect_to($user->is_owner ? null : $user->member_name);
 	}
 }
 ?>

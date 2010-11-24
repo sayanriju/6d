@@ -4,8 +4,8 @@ class_exists('DataStorage') || require('lib/DataStorage/DataStorage.php');
 class_exists('UserResource') || require('UserResource.php');
 class DbResource extends AppResource{
 	public function __construct($attributes = null){
-		if(! AuthController::isAuthorized()){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if(! AuthController::is_authorized()){
+			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 		}
 		parent::__construct($attributes);
 		$this->db = Factory::get($this->config->db_type, $this->config);
@@ -23,16 +23,16 @@ class DbResource extends AppResource{
 	public function get(){
 		$this->databases = $this->db->getDatabases();
 		$this->title = $this->config->database;
-		$this->output = $this->renderView('db/index', null);
-		return $this->renderView('layouts/db', null);
+		$this->output = $this->render('db/index', null);
+		return $this->render('layouts/db', null);
 	}
 	
 	public function get_db_tables($db_name){
 		$this->tables = $this->db->getTables($db_name);
 		$this->db_name= $db_name;
 		$this->field_name = "Tables_in_$db_name";
-		$this->output = $this->renderView('db/tables', null);
-		return $this->renderView(null);
+		$this->output = $this->render('db/tables', null);
+		return $this->render(null);
 	}
 	public function show($db_name){
 		if($db_name == null)
@@ -43,13 +43,13 @@ class DbResource extends AppResource{
 			error_log($e->getMessage());
 		}
 		$this->title = "I'm mr. happy.";
-		$this->output = $this->renderView('db/tables', null);
-		return $this->renderView('layouts/db', null);
+		$this->output = $this->render('db/tables', null);
+		return $this->render('layouts/db', null);
 		
 	}
 	public function create($db_name){
 		$this->db->createDatabase($db_name);
-		$this->redirectTo('db');
+		$this->redirect_to('db');
 	}
 
 	protected function createFirstVersion(){

@@ -19,9 +19,9 @@ class PeopleResource extends AppResource{
 		if(count($this->url_parts) > 1){
 			$group = new Tag(array('text'=>urldecode(String::replace('/\..*$/', '', $this->url_parts[1])), 'type'=>'group'));
 		}
-		if(!AuthController::isAuthorized()){
-			FrontController::setRequestedUrl('people');
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if(!AuthController::is_authorized()){
+			Resource::redirect_to::setRequestedUrl('people');
+			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 		}
 		$this->person = new Person();
 		$this->people = $this->getPeople($group);
@@ -32,8 +32,8 @@ class PeopleResource extends AppResource{
 		}
 		$this->people = Person::removeOwner(Application::$current_user->person_id, $this->people);
 		$this->title = 'People';
-		$this->output = $this->renderView('person/index', null);
-		return $this->renderView('layouts/default', null);
+		$this->output = $this->render('person/index', null);
+		return $this->render('layouts/default', null);
 	}
 	public function delete($ids = array()){
 		if($ids !== null && strlen($ids) > 0){
@@ -42,8 +42,8 @@ class PeopleResource extends AppResource{
 		}
 		$this->people = Person::findAllByOwner(Application::$current_user->person_id);
 		$this->title = 'People';
-		$this->output = $this->renderView('person/index', null);
-		return $this->renderView('layouts/default', null);
+		$this->output = $this->render('person/index', null);
+		return $this->render('layouts/default', null);
 	}
 	private function getPeople($group){
 		if($group->text !== 'All Contacts'){

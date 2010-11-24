@@ -5,9 +5,9 @@ class_exists('Tag') || require('models/Tag.php');
 class GroupsResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
-		if(! AuthController::isAuthorized()){
-			FrontController::setRequestedUrl('addressbook');
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if(! AuthController::is_authorized()){
+			Resource::redirect_to::setRequestedUrl('addressbook');
+			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 		}
 	}
 	public function __destruct(){
@@ -35,11 +35,11 @@ class GroupsResource extends AppResource{
 		}
 		
 		if(count($errors) > 0){
-			$message = $this->renderView('error/index', array('message'=>"The following errors occurred when saving groups. Please resolve and try again.", 'errors'=>$errors));
+			$message = $this->render('error/index', array('message'=>"The following errors occurred when saving groups. Please resolve and try again.", 'errors'=>$errors));
 			self::setUserMessage($message);
 		}
-		$this->output = $this->renderView($view);
-		return $this->renderView('layouts/default');
+		$this->output = $this->render($view);
+		return $this->render('layouts/default');
 	}
 		
 	public function delete($groups = null, $ids = null, Tag $group = null){
@@ -57,7 +57,7 @@ class GroupsResource extends AppResource{
 		}
 		$this->groups = array_merge(array($all_contacts), $this->groups);
 		$view = 'group/index';
-		$this->output = $this->renderView($view);
-		return $this->renderView('layouts/default');
+		$this->output = $this->render($view);
+		return $this->render('layouts/default');
 	}	
 }

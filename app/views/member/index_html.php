@@ -3,13 +3,13 @@
 	<?php foreach($members as $member):?>
 	<li>
 		<p>
-			<a href="<?php echo FrontController::urlFor($member->member_name);?>" title="Go to <?php echo $member->member_name;?>'s site"><?php echo $member->name;?></a>
-			<?php if(AuthController::isAuthorized() && AuthController::isSuperAdmin()):?>
-			<a href="<?php echo FrontController::urlFor('member/' . $member->member_name);?>" title="Edit <?php echo $member->name;?>">edit</a>
+			<a href="<?php echo App::url_for($member->member_name);?>" title="Go to <?php echo $member->member_name;?>'s site"><?php echo $member->name;?></a>
+			<?php if(AuthController::is_authorized() && AuthController::is_super_admin()):?>
+			<a href="<?php echo App::url_for('member/' . $member->member_name);?>" title="Edit <?php echo $member->name;?>">edit</a>
 			<?php endif;?>
 		</p>
-	<?php if(AuthController::isSuperAdmin()):?>
-		<form action="<?php echo FrontController::urlFor('member');?>" method="post" class="delete">
+	<?php if(AuthController::is_super_admin()):?>
+		<form action="<?php echo App::url_for('member');?>" method="post" class="delete">
 			<input type="hidden" name="_method" value="delete" />
 			<input type="hidden" name="id" id="id" value="<?php echo $member->id;?>" />
 			<button type="submit"><span>Delete</span></button>

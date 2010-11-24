@@ -2,14 +2,14 @@
 <?php foreach($people as $person):?>
 	<li rel="<?php echo $person->id;?>" class="<?php echo $person->is_owner ? 'owner' : null;?>">
 	<?php if(!$person->is_owner):?>
-    	<form action="<?php echo FrontController::urlFor('person');?>" method="post" class="delete">
+    	<form action="<?php echo App::url_for('person');?>" method="post" class="delete">
 			<input type="hidden" value="<?php echo $person->id;?>" name="id" />
 			<input type="hidden" value="delete" name="_method" />
 			<button type="submit">x</button>
 		</form>
 		<input type="checkbox" id="person_checkbox_<?php echo $person->id;?>" name="people" value="<?php echo urlencode('{"name": "' . $person->name . '", "id":"' . $person->id . '", "is_owner":' . $person->is_owner . '}');?>" />
 	
-		<a href="<?php echo FrontController::urlFor('person/' . $person->id);?>" title="edit <?php echo $person->name;?>"><span rel="<?php echo $person->id;?>"><?php echo $person->name;?></span>
+		<a href="<?php echo App::url_for('person/' . $person->id);?>" title="edit <?php echo $person->name;?>"><span rel="<?php echo $person->id;?>"><?php echo $person->name;?></span>
 		</a>
 	<?php else:?>
 	<span rel="<?php echo $person->id;?>"><?php echo $person->name;?></span>

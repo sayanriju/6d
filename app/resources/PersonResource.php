@@ -8,8 +8,8 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 	class PersonResource extends AppResource{
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
-			if(!AuthController::isAuthorized()){
-				throw new Exception(FrontController::UNAUTHORIZED, 401);
+			if(!AuthController::is_authorized()){
+				throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 			}
 		}
 	
@@ -31,13 +31,13 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 					$this->person = Person::findByIdAndOwner($person->id, Application::$current_user->person_id);
 				}
 				$this->title = 'Person: ' . $this->person->email;				
-				$this->output = $this->renderView('person/show', null);				
-				return $this->renderView('layouts/default', null);
+				$this->output = $this->render('person/show', null);				
+				return $this->render('layouts/default', null);
 			}else{
 				$this->person = new Person();
 				$this->title = "Add a person";
-				$this->output = $this->renderView('person/show', null);
-				return $this->renderView('layouts/default', null);
+				$this->output = $this->render('person/show', null);
+				return $this->render('layouts/default', null);
 			}
 			
 		}
@@ -51,7 +51,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 			}else{
 				Resource::setUserMessage("You can't delete the owner of the site.");
 			}
-			$this->redirectTo('addressbook');
+			$this->redirect_to('addressbook');
 		}
 		
 		public function put(Person $person, Profile $profile = null){
@@ -81,8 +81,8 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 				}
 				Resource::setUserMessage($user_message);
 			}
-			$this->output = $this->renderView($view, array('user_message'=>$user_message));
-			return $this->renderView('layouts/default');					
+			$this->output = $this->render($view, array('user_message'=>$user_message));
+			return $this->render('layouts/default');					
 		}
 		public function post(Person $person, Profile $profile = null){
 			$view = 'person/index';
@@ -111,8 +111,8 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 					$this->people = Person::findAllByOwner(Application::$current_user->person_id);
 				}
 			}				
-			$this->output = $this->renderView($view);
-			return $this->renderView('layouts/default');					
+			$this->output = $this->render($view);
+			return $this->render('layouts/default');					
 		}
 	}
 ?>

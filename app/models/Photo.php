@@ -115,7 +115,7 @@
 		}
 		public static function delete($file_name_with_path){
 			$file_name_with_path = str_replace('/', DIRECTORY_SEPARATOR, $file_name_with_path);
-			self::notify('willDeletePhoto', new Photo(), $file_name_with_path);
+			self::notify('will_delete_photo', new Photo(), $file_name_with_path);
 			$did_delete = false;
 			
 			if(file_exists($file_name_with_path)){

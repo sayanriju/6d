@@ -1,4 +1,4 @@
-<form action="<?php echo FrontController::urlFor('person');?>" method="post" class="body" id="person_form">
+<form action="<?php echo App::url_for('person');?>" method="post" class="body" id="person_form">
 	<fieldset>
 		<legend><?php echo ($person->id === 0 ? 'New person' : $person->name);?></legend>
 		<p>
@@ -35,7 +35,7 @@
 	</fieldset>
 </form>
 <?php if($person->url !== null):?>
-<form action="<?php echo FrontController::urlFor('follower');?>" method="post" id="friend_request_form">
+<form action="<?php echo App::url_for('follower');?>" method="post" id="friend_request_form">
 	<input type="hidden" name="person[id]" id="id" value="{$person->id}" />
 <?php if(!$person->is_owner):?>
 	<?php if($person->public_key !== null && strlen($person->public_key) > 0):?>

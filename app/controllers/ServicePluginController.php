@@ -9,7 +9,7 @@ class ServicePluginController{
 		return self::getServicePlugin($command)->execute($command);
 	}
 	public static function getServicePlugin($command){
-		$plugins = PluginController::getPlugins('plugins', 'Service');
+		$plugins = PluginController::get_plugins('plugins', 'Service');
 		$servicePlugin = null;
 		foreach($plugins as $plugin){
 			if($plugin->canHandle($command)){

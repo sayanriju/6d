@@ -28,13 +28,14 @@ class PostResource extends AppResource{
 		$this->photos = $photo->findAll('media/' . Application::$member->member_name);
 		$view = 'post/show';
 		$layout = 'layouts/' . $layout;
-		if( AuthController::isAuthorized()){
+		if( AuthController::is_authorized()){
 			$view = 'post/edit';
 		}
 		if(count($this->url_parts) > 1){
 			$this->post = Post::findById($this->url_parts[1], Application::$member->person_id);
 			if($this->post == null){
-				throw new Exception(FrontController::NOTFOUND, 404);
+				$this->set_not_found();
+				return;
 			}
 		}else{
 			$this->post = $post;
@@ -45,16 +46,17 @@ class PostResource extends AppResource{
 			$this->description = $this->post->description;
 			
 			$this->post->conversation = self::get_conversation_for($this->post);
-			$this->output = $this->renderView($view, null);
-			return $this->renderView($layout, null);
+			$this->output = $this->render($view, null);
+			return $this->render($layout, null);
 		}else{
-			if(!AuthController::isAuthorized()){
-				throw new Exception(FrontController::UNAUTHORIZED, 401);
+			if(!AuthController::is_authorized()){
+				$this->set_unauthorized();
+				return;
 			}
 			$this->post = new Post();
 			$this->title = "New post";
-			$this->output = $this->renderView($view, null);
-			return $this->renderView($layout, null);
+			$this->output = $this->render($view, null);
+			return $this->render($layout, null);
 		}
 	}
 	public static function get_conversation_for(Post $post){
@@ -80,7 +82,7 @@ class PostResource extends AppResource{
 			$person = Person::findByUrlAndOwnerId($post->source, Application::$member->person_id);
 			if($person === null){
 				$person = Person::findById($post->owner_id);
-				$person->profile = unserialize($person->profile);
+				$person->setProfile(unserialize($person->profile));
 			}else{
 				$data = sprintf("public_key=%s", urlencode($person->public_key));
 				$response = NotificationResource::sendNotification($person, 'profile.json', $data, 'get');
@@ -110,21 +112,23 @@ class PostResource extends AppResource{
 				$url = ProfileResource::getPhotoUrl($person);
 			}
 		}
-		$url = ($url === null ? FrontController::urlFor('images') . 'nophoto.png' : $url);
+		$url = ($url === null ? App::url_for('images') . 'nophoto.png' : $url);
 		return $url;
 	}
 	public function put(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array(), $previous_url = null){
 		
-		if(!AuthController::isAuthorized()){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if(!AuthController::is_authorized()){
+			$this->set_unauthorized();
+			return;
 		}
 				
 		if($post->id !== null && strlen($post->id) > 0){
 			$this->post = Post::findById($post->id, Application::$current_user->person_id);
 		}
 		
-		if($this->post->owner_id !== Application::$current_user->person_id && !AuthController::isSuperAdmin()){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if($this->post->owner_id !== Application::$current_user->person_id && !AuthController::is_super_admin()){
+			$this->set_unauthorized();
+			return;
 		}
 		
 		if($this->post !== null){
@@ -172,25 +176,27 @@ class PostResource extends AppResource{
 		}else{
 			self::setUserMessage("That post doesn't exist.");
 		}
-		$this->redirectTo(Application::$current_user->member_name . '/' . $this->post->custom_url);			
+		$this->redirect_to(Application::$current_user->member_name . '/' . $this->post->custom_url);			
 	}
 	
 	public function delete(Post $post, $q = null){
 		$this->q = $q;
-		if(!AuthController::isAuthorized()){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if(!AuthController::is_authorized()){
+			$this->set_unauthorized();
+			return;
 		}
 		$post = Post::findById($post->id, Application::$current_user->person_id);
-		if($post->owner_id !== Application::$current_user->person_id && !AuthController::isSuperAdmin()){
-			throw new Exception(FrontController::UNAUTHORIZED, 401);
+		if($post->owner_id !== Application::$current_user->person_id && !AuthController::is_super_admin()){
+			$this->set_unauthorized();
+			return;
 		}
 		
 		Post::delete($post);
 		self::setUserMessage(sprintf("'%s' was deleted.", $post->title));
 		if($this->q === null){
-			FrontController::setNeedsToRedirectRaw(FrontController::getReferer());
+			Resource::redirect_to(App::get_referrer());
 		}else{
-			$this->redirectTo('posts', array('q'=>$this->q));
+			$this->redirect_to('posts', array('q'=>$this->q));
 		}
 	}
 	
@@ -242,7 +248,7 @@ class PostResource extends AppResource{
 		}else{
 			Resource::setUserMessage("Could not send to anybody you picked because none of them have been confirmed as friends.");
 		}
-		error_log(Resource::getUserMessage());
+		error_log(Resource::get_user_message());
 	}
 	
 }

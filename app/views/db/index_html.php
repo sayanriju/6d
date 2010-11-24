@@ -27,7 +27,7 @@
 	function dbDidClick(e){
 		db_name = this.text;
 		(new SDAjax({method: 'get', parameters: 'db_name=' + db_name
-			, DONE: [window, onDbWasClicked]})).send('<?php echo FrontController::urlFor('tables');?>');
+			, DONE: [window, onDbWasClicked]})).send('<?php echo App::url_for('tables');?>');
 		
 		SDArray.each(SDDom.findAll('ul.horizontal li'), function(li){
 			li.className = 'closed';
@@ -63,7 +63,7 @@
 		if(confirm('Are you sure you want to delete ' + table_name + '?')){
 			
 			(new SDAjax({method: 'post', parameters: SDDom.toQueryString(form_to_submit)
-				, DONE: [window, onDeleteTable]})).send('<?php echo FrontController::urlFor('table');?>');
+				, DONE: [window, onDeleteTable]})).send('<?php echo App::url_for('table');?>');
 
 		}
 		return false;
@@ -77,7 +77,7 @@
 	function executeLinkWasClicked(e){
 		var query = SDDom('query').value;
 		(new SDAjax({method: 'post', parameters: 'db_name=' + db_name + '&query=' + query
-			, DONE: [window, onQueryDidExecute]})).send('<?php echo FrontController::urlFor('query');?>');
+			, DONE: [window, onQueryDidExecute]})).send('<?php echo App::url_for('query');?>');
 		
 		return false;
 	}

@@ -13,15 +13,15 @@ class ConversationResource extends AppResource{
 		$view = 'comment/index';
 		$this->post = Post::findById($post_id, Application::$member->person_id);
 		if($this->post == null){
-			throw new Exception(FrontController::NOTFOUND, 404);
+			throw new Exception(Resource::redirect_to::NOTFOUND, 404);
 		}
 		$requestor = Person::findByPublicKeyAndOwner($public_key, Application::$member->person_id);
 		if(!$this->has_access($this->post, $public_key, $requestor)){			
-			throw new Exception(FrontController::UNAUTHORIZED, 401);			
+			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);			
 		}
 		$this->post->conversation = PostResource::get_conversation_for($this->post);
-		$this->output = $this->renderView($view);
-		return $this->renderView('layouts/default');
+		$this->output = $this->render($view);
+		return $this->render('layouts/default');
 	}
 	public function put(Comment $comment, $public_key){
 		if($public_key !== null){
@@ -51,8 +51,8 @@ class ConversationResource extends AppResource{
 				}else{
 					$this->status = new HttpStatus(201);
 				}
-				$this->output = $this->renderView('comment/index');
-				return $this->renderView('layouts/default');
+				$this->output = $this->render('comment/index');
+				return $this->render('layouts/default');
 			}
 		}
 	}
@@ -64,7 +64,7 @@ class ConversationResource extends AppResource{
 			}
 		}
 		
-		if($this->post->is_published || (AuthController::isAuthorized() && $this->post->owner_id == Application::$current_user->person_id)){
+		if($this->post->is_published || (AuthController::is_authorized() && $this->post->owner_id == Application::$current_user->person_id)){
 			return true;
 		}
 		return false;

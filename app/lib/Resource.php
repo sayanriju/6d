@@ -1,9 +1,13 @@
 <?php
 class_exists('Object') || require('Object.php');
+class_exists('HttpHeader') || require('HttpHeader.php');
+class_exists('String') || require('lib/String.php');
 class Resource extends Object{
 	public function __construct($attributes = null){
+		$this->status = new HttpStatus(200);
 		parent::__construct($attributes);
 		$this->name = strtolower(String::replace('/Resource/', '', get_class($this)));
+		$this->headers = array(new HttpHeader(array('file_type'=>$this->file_type)));
 	}
 	public function __destruct(){
 		parent::__destruct();
@@ -18,7 +22,7 @@ class Resource extends Object{
 	public $file_type;
 	public $redirect_parameters;
 	public $url_parts;
-	
+	public $headers;
 	public static function pathWithoutExtension($url_part){
 		if(stripos($url_part, '.') !== false){
 			$parts = explode('.', $url_part);
@@ -27,54 +31,52 @@ class Resource extends Object{
 		}
 		return $url_part;
 	}
-	
-	protected function redirectTo($resource_name, $query_parameters = null, $make_secure = false){
-		$this->redirect_parameters = array('resource_name'=>$resource_name, 'query_parameters'=>$query_parameters, 'make_secure'=>$make_secure);
-		//TODO: This needs to be moved out of here. It's just a stop gap to solve a redirect problem.		
-		FrontController::redirectTo($this->redirect_parameters['resource_name'], $this->redirect_parameters['query_parameters'], $this->redirect_parameters['make_secure']);
+	protected function redirect_to($url, $query_parameters = null, $make_secure = false){
+		$this->status = new HttpStatus(303);
+		$this->headers[] = new HttpHeader(array('file_type'=>$this->file_type, 'location'=>$url));
 	}
-	
+
+	public function render_layout($name, $data = null, $file_type = null){
+		if($file_type === null && $this->file_type !== null){
+			$file_type = $this->file_type;
+		}
+		if(!in_array($file_type, array('html', 'xml'))){
+			return $this->output;
+		}		
+		return $this->render('layouts/' . $name, $data, $file_type);
+	}
 	/* This method is for rendering a view. It's based on the file type and assumes that the file type is html.
 	* It also maps the resources properties to the templates in the view like {$person->name} or you can send 
 	* in an array that will be exported for the view to use the variables.
 	* I've prefixed all variable names with __ to avoid collisions when extracing variables from the array.
 	*/
-	public function renderView($__file, $__data = null, $__file_type = null){
-		if($__file_type === null && $this->file_type !== null){
-			$__file_type = $this->file_type;
+	public function render($file, $data = null, $file_type = null){
+		if($file_type === null && $this->file_type !== null){
+			$file_type = $this->file_type;
 		}
-		if($__file != null){
-			$__r = new ReflectionClass(get_class($this));
-			$__properties = array();
-			foreach($__r->getProperties() as $property){
-				if($property->isPublic()){
-					$name = $property->getName();
-					$__properties[$name] = $this->{$name};
-				}
-			}
-			if(count($__properties) > 0){
-				extract($__properties);
-			}
-			if($__data != null){
-				extract($__data);
-			}
-
-			$__full_path = sprintf('%s_%s.php', $__file, $__file_type);
-			if(!in_array($__file_type, array('html', 'xml')) && $this->isLayout($__file)){
+		$file_type = $file_type !== null ? $file_type : 'html';
+		if($file != null){
+			$full_path = sprintf('%s_%s.php', $file, $file_type);
+			if(!in_array($file_type, array('html', 'xml')) && $this->is_layout($file)){
 				return $this->output;
 			}
-			
+			$r = new ReflectionClass(get_class($this));
+			$resource_fields = array();
+			foreach($r->getProperties() as $property){
+				if($property->isPublic()){
+					$name = $property->getName();
+					$resource_fields[$name] = $this->{$name};
+				}
+			}
+			if(count($resource_fields) > 0){
+				extract($resource_fields);
+			}
+			if($data != null){
+				extract($data);
+			}
 			ob_start();
-			
-			$__theme_view = FrontController::getRootPath('/' . FrontController::getThemePath() . '/views/' . $__full_path);
-			$__default_view = str_replace(sprintf('lib%sResource.php', DIRECTORY_SEPARATOR), '', __FILE__) . 'views/' . $__full_path;
-			$__view = str_replace(sprintf('app%slib%sResource.php', DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR), '', __FILE__) . $__full_path;
-			/*printf("root = %s<br />virtual = %s<br />app = %s<br />theme = %s<br /><br />", FrontController::getRootPath()
-				, FrontController::getVirtualPath(), FrontController::getAppPath()
-				, FrontController::getThemePath());
-				
-			echo $__theme_view . '<br />';
-			echo $__default_view;*/
+			$theme_view = App::get_theme_path('views/' . $full_path);
+			$default_view = App::get_app_path('views/' . $full_path);
 			// phtml is a special file type that I want to provide fallback logic for. If the file type
 			// is phtml, then I want to check for a view with that extension but if it doesn't exist, 
 			// the code should fall back and load the html view instead. This allows us to use .html views
@@ -82,113 +84,108 @@ class Resource extends Object{
 			// I don't like the way this is coded. Nested if statements are confusing. But it works. I'd like
 			// to come up with a more structured way to implement this logic.
 			// I've also added the __file_type parameter for situations where you want to render a view inline another
-			// view so you can specify a different file type than what's assigned for the resource.
-			if($__file_type === 'phtml'){
-				if(file_exists($__theme_view)){
-					require($__theme_view);
-				}else if(file_exists($__default_view)){
-					require($__default_view);
+			// view so you can specify a different file type than what's assigned for the resource.						
+			if($file_type === 'phtml'){
+				if(file_exists($theme_view)){
+					require($theme_view);
+				}else if(file_exists($default_view)){
+					require($default_view);
 				}else{
-					$__phtml_theme_view = String::replace('/\_phtml/', '_html', $__theme_view);
-					$__phtml_default_view = String::replace('/\_phtml/', '_html', $__default_view);
-					if(file_exists($__phtml_theme_view)){
-						require($__phtml_theme_view);
-					}else if(file_exists($__phtml_default_view)){
-						require($__phtml_default_view);
+					$phtml_theme_view = String::replace('/\_phtml/', '_html', $theme_view);
+					$phtml_default_view = String::replace('/\_phtml/', '_html', $default_view);
+					if(file_exists($phtml_theme_view)){
+						require($phtml_theme_view);
+					}else if(file_exists($phtml_default_view)){
+						require($phtml_default_view);
 					}else{
-						throw new Exception("404: File not found for phtml", 404);
+						$this->status = new HttpStatus(404);
 					}
 				}
-			}else if($__file_type === 'phtml'){
-				$__phtml_theme_view = String::replace('/\_html/', '_' . $__file_type, $__theme_view);
-				$__phtml_default_view = String::replace('/\_html/', '_' . $__file_type, $__default_view);
-				if(file_exists($__phtml_theme_view)){
-					require($__phtml_theme_view);
-				}else if(file_exists($__phtml_default_view)){
-					require($__phtml_default_view);
+			}else if($file_type === 'phtml'){
+				$phtml_theme_view = String::replace('/\_html/', '_' . $file_type, $theme_view);
+				$phtml_default_view = String::replace('/\_html/', '_' . $file_type, $default_view);
+				if(file_exists($phtml_theme_view)){
+					require($phtml_theme_view);
+				}else if(file_exists($phtml_default_view)){
+					require($phtml_default_view);
 				}else{
-					if(file_exists($__theme_view)){
-						require($__theme_view);
-					}else if(file_exists($__default_view)){
-						require($__default_view);
+					if(file_exists($theme_view)){
+						require($theme_view);
+					}else if(file_exists($default_view)){
+						require($default_view);
 					}else{
-						throw new Exception("404: File not found for phtml", 404);
+						$this->status = new HttpStatus(404);
 					}
 				}
-			}else if(file_exists($__theme_view)){
-				require($__theme_view);
-			}else if(file_exists($__default_view)){
-				require($__default_view);
-			}else if(file_exists($__view)){
-				require($__view);
+			}else if(file_exists($theme_view)){				
+				require($theme_view);				
+			}else if(file_exists($default_view)){				
+				require($default_view);
 			}else{
-				throw new Exception(sprintf("404: File not found, %s.%s", $__file, $__file_type), 404);
-			}			
+				$this->status = new HttpStatus(404);
+			}
 			$this->output = ob_get_contents();
 			ob_end_clean();
-			if($this->isLayout($__file) && method_exists($this, 'hasRenderedOutput')){
-				$this->output = $this->hasRenderedOutput($__file, $this->output);
+			if($this->is_layout($file) && method_exists($this, 'output_has_rendered')){
+				$this->output = $this->output_has_rendered($file, $this->output);
 			}
-			if(count($__properties) > 0){
-				$__data = array_merge($__data == null ? array() : $__data, $__properties);
-			}
-			if($__data != null){
-				$this->output = $this->replace($this->output, $__data);
-			}
-			if($__file_type == 'json'){
+			if($file_type == 'json'){
 				$this->output = String::replace('/\n|\t/', '', $this->output);
 				$this->output = String::replace('/\"/', '"', $this->output);
 			}
-		}	
-		return $this->output;
-	}
-	private function isLayout($file){
-		return strpos($file, 'layouts/') !== false;
-	}
-	
-	protected function replace($output, $data){
-		$name = null;
-		foreach($data as $key=>$value){
-			if(is_object($value)){
-				$r = new ReflectionClass(get_class($value));
-				foreach($r->getProperties() as $property){					
-					$name = $property->getName();
-					if($property->isPublic()){
-						if(!is_object($value->$name) && !is_array($value->$name)){
-							$output = str_replace(sprintf("{\$%s->%s}", $key, $name), $value->$name, $output);								
-						}
-					}
-				}				
-				$methods = $r->getMethods();
-				$result = null;
-				foreach($methods as $method){
-					$method_name = $method->getName();
-					if($method->isPublic() && strpos($method_name, 'get') !== false && strpos($method_name, '__get') === false){
-						$property_name = str_replace('get', '', $method_name);
-						$property_name = String::decamelize($property_name);
-						$result = $method->invoke($value);
-						if(!is_array($result) && !is_object($result)){
-							$output = str_replace(sprintf("{\$%s->%s}", $key, $property_name), $result, $output);								
-						}
-					}
-				}
-				$name = null;
-				if(property_exists($value, '_attributes')){					
-					$list = $value->_attributes->getList();
-					foreach($list as $name=>$val){
-						if(!is_array($val) && !is_object($val)){
-							$output = str_replace(sprintf("{\$%s->%s}", $key, $name), $val, $output);								
-						}
-					}					
-				}
-							
-			}elseif(!is_array($value)){
-				$output = str_replace(sprintf("{\$%s}", $key), $value, $output);
+			if(count($this->headers) === 0){
+				$this->headers[] = new HttpHeader(array('file_type'=>$file_type));
 			}
 		}
+		return $this->output;
+	}
+	private function is_layout($file){
+		return strpos($file, 'layouts/') !== false;
+	}
+	public function call_with($method, $url_parts, $env){
+		if(method_exists($this, $method)){
+			$method_info = new ReflectionMethod($this, $method);
+			return $this->call_method($method_info, $url_parts, $env);
+		}else{
+			return null;
+		}
+	}
+	private function call_method($method_info, $url_parts, $env){
+		if($method_info == null){
+			return null;
+		}
+		$parm_count = $method_info->getNumberOfParameters();
+		if($parm_count === 0){
+			return $this->{$method_info->getName()}();
+		}
+		$parms = array();
+		if(count($url_parts) >= 3 && is_numeric($url_parts[0]) && is_numeric($url_parts[1]) && is_numeric($url_parts[2])){
+			if(checkdate($url_parts[1], $url_parts[2], $url_parts[0])){
+				$parms = array(date(sprintf('%d/%d/%d', $url_parts[1], $url_parts[2], $url_parts[0])));
+				array_shift($url_parts);
+				array_shift($url_parts);
+				array_shift($url_parts);
+			}
+		}
+		
+		if(count($url_parts) > 0 && $parm_count > 0){
+			foreach($url_parts as $value){
+				if(strlen($value) > 0 && count($parms) < $parm_count){
+					$parms[] = $value;					
+				}
+			}
+		}
+		
+		if(count($parms) < $parm_count){
+			$method_parameters = $method_info->getParameters();
+			foreach($method_parameters as $parameter){
+				$parms[] = self::populateParameter($parameter);
+			}
+		}
+		$output = null;
+		$output = $method_info->invokeArgs($this, $parms);
 		return $output;
 	}
-	
 	public static function sendMessage($obj, $message, $resource_id = 0){
 		$class_name = get_class($obj);
 		$reflector = new ReflectionClass($class_name);
@@ -210,15 +207,15 @@ class Resource extends Object{
 			$output = $method->invokeArgs($obj, $args);
 			return $output;
 		}else{
-			throw new Exception("404: {$class_name}::{$message} not found.", 404);
+			throw new Exception("404: {$class_name}::<?php echo $message;?> not found.", 404);
 		}
 	}
 	
-	public function didFinishLoading(){
+	public function did_finish_loading(){
 		self::setUserMessage(null);
 	}
 	private static $user_message;
-	public static function getUserMessage(){
+	public static function get_user_message(){
 		if(array_key_exists('userMessage', $_COOKIE)){
 			self::$user_message = urldecode($_COOKIE['userMessage']);
 		}
@@ -241,7 +238,11 @@ class Resource extends Object{
 		$ref_class = null;
 		$class_name = null;
 		$name = $param->getName();
-		$ref_class = $param->getClass();
+                $ref_class = null;
+                try{
+                    $ref_class = $param->getClass();
+                }catch(Exception $e){}
+                
 		if($id > 0 && $name == 'id'){
 			return $id;
 		}
@@ -377,16 +378,14 @@ class Resource extends Object{
 			$result = ($value == 'true');
 		}
 		
-		if(is_int($value)){
-			$result = $value;
-		}
-		if(is_float($value)){
-			$result = $value;
-		}
-		if(is_numeric($value)){
-			$result = $value;			
-		}
-		return $result;
+                if(is_numeric($value)){
+                    if(strpos($value, '.') === false){
+                        $result = (int)$value;
+                    }else{
+                        $result = (float)$value;
+                    }
+                }
+                return $result;
 	}
 	
 }

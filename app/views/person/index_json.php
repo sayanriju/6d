@@ -6,5 +6,5 @@
 		<?php echo ($key > 0 ? ', ' : null);?>{"id":"<?php echo $person->id;?>", "name": "<?php echo $person->name;?>", "is_owner":<?php echo $person->is_owner ? 'true' : 'false';?>}
 	<?php endforeach;?>
 	]
-	, "user_message":"<?php echo Resource::getUserMessage();?>"
+	, "user_message":"<?php echo Resource::get_user_message();?>"
 }

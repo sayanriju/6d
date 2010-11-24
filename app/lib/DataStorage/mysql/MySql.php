@@ -206,11 +206,9 @@ where ' . $securedSql : '';
 					throw new Exception('Invalid find type.');
 					break;
 			}
-			//$object_to_populate = $this->getObjectToPopulate($command->relationships, $object_to_populate);
 			$sql .= $this->addOrderBy($command);
 			$sql .= $this->addLimit($command->limit);
 			$query_id = $this->execute($sql);
-			//$records = $this->getRecords($object_to_populate);
 			$records = $this->populate($object_to_populate, $command, $query_id);
 			if(count($records) > 0){
 				return (count($records) == 1 && $command->limit == 1) ? $records[0] : $records;
@@ -222,32 +220,27 @@ where ' . $securedSql : '';
 			$records = array();
 			$attributes = array();
 			$className = get_class($obj);
-					
 			if($query_id){
 				while($row = mysql_fetch_object($query_id)){
 					// Populate the object hiearchy with the result columns.
 					$attributes = get_object_vars($row);
-					$non_existing_attr = array();
 					$model = new $className(null);
 					$r = new ReflectionClass($className);
-					foreach($attributes as $key=>$value){
-						if(!is_object($model->{$key})){
-							$value = $this->castIt($row->$key);
-							$model->$key = $value;
-						}
-					}
-					
-					if($command->relationships != null && count($command->relationships) > 0){
-						foreach($command->relationships as $relationship){
-							$child_name = get_class($relationship->withWhom);
-							$child_name = strtolower(String::decamelize($child_name));
-							if($r->hasProperty($child_name)){
-								$property = $r->getProperty($child_name);
-								$child = $this->populateObjectWithRow($property->getValue($model), $row);
-								$model->{$child_name} = $child;
+					$methods = $r->getMethods();
+					foreach($methods as $method){
+						if($method->isPublic() && strpos($method->getName(), 'set') === 0){
+							$name = str_replace('set', '', $method->getName());
+							$parms = $method->getParameters();
+							$parm_class = $parms[0]->getClass();
+							if($parm_class == null){
+								if(array_key_exists(strtolower($name), $attributes)){
+									$method->invokeArgs($model, array($row->{strtolower($name)}));
+								}
+							}else{
+								$method->invokeArgs($model, array($this->populateWithRow($parm_class->newInstance(), $row)));
 							}
 						}
-					}
+					}					
 					$records[] = $model;
 					$model = null;
 				}
@@ -259,11 +252,19 @@ where ' . $securedSql : '';
 		private function populateWithRow($obj, $row){
 			$attributes = get_object_vars($row);
 			$r = new ReflectionClass(get_class($obj));
-			foreach($attributes as $attribute=>$value){
-				if($r->hasProperty($attribute)){
-					$property = $r->getProperty($attribute);
-					$value = $this->castIt($value);
-					$obj->{$attribute} = $value;
+			$methods = $r->getMethods();
+			foreach($methods as $method){
+				if($method->isPublic() && strpos($method->getName(), 'set') === 0){
+					$name = str_replace('set', '', $method->getName());
+					$parms = $method->getParameters();
+					$parm_class = $parms[0]->getClass();
+					if($parm_class == null){
+						if(array_key_exists(strtolower($name), $attributes)){
+							$method->invokeArgs($obj, array($row->{strtolower($name)}));
+						}
+					}else{
+						$method->invokeArgs($obj, array($this->populateWithRow($parm_class->newInstance(), $row)));
+					}
 				}
 			}
 			return $obj;			
@@ -393,7 +394,6 @@ eos;
 
 				$sql = sprintf($sql, implode(', ', $columnBuilder) . ')', ($table->options != null) ? implode(' ', $table->options) : '');
 				$this->execute($sql);
-				//$this->disconnect(null);
 			}
 		}
 		public function count($obj, $query_id){
@@ -404,7 +404,6 @@ eos;
 				while($row = mysql_fetch_object($query_id)){
 					$numberOfRecords = $row->NumberOfRecords;
 				}
-				//$this->disconnect(null);
 			}else{
 				throw new Exception('MySql error: ' . $this->errorNumber . '=' . $this->errorMessage);
 			}
@@ -414,7 +413,6 @@ eos;
 			if($this->exists($databaseName) && !in_array($databaseName, array('information_schema', 'mysql'))){
 				$sql = "DROP SCHEMA $databaseName";
 				$this->execute($sql);
-				//$this->disconnect(null);
 				return true;
 			}
 			return false;
@@ -738,7 +736,6 @@ eos;
 				while($row = mysql_fetch_object($query_id)){
 					$rows[] = $row;
 				}
-				//$this->disconnect(null);
 			}else{
 				throw new Exception('MySql error: ' . $this->errorNumber . '=' . $this->errorMessage);
 			}
@@ -751,36 +748,6 @@ eos;
 				$obj->{$attribute} = $value;
 			}
 			return $obj;
-		}
-		private function getRecords(Object $object_to_populate, $query_id){
-			$records = array();
-			$attributes = array();
-			$className = get_class($object_to_populate);
-					
-			if($query_id){
-				while($row = mysql_fetch_object($query_id)){
-					// Populate the object hiearchy with the result columns.
-					$attributes = get_object_vars($row);
-					$model = new $className(null);
-					
-					$r = new ReflectionClass($className);
-					$properties = $r->getProperties();
-					foreach($properties as $property){
-						$name = $property->getName();
-						if($property->isPublic()){
-							if(!is_object($model->{$name})){
-								$value = $this->castIt($row->$name);
-								$model->{$name} = $value;
-							}
-						}
-					}
-					$records[] = $model;
-					$model = null;
-				}
-			}else{
-				throw new Exception('MySql error: ' . $this->errorNumber . '=' . $this->errorMessage);
-			}
-			return $records;
 		}
 		private function getInsertedId(){
 			return mysql_insert_id($this->_connectionId);
@@ -806,8 +773,6 @@ eos;
 		public function sanitize($value){
 			$this->connect(null);
 			$value = mysql_real_escape_string($value, $this->_connectionId);
-			//$value = str_ireplace("'", "\'", $value);
-			//$value = str_ireplace(";", "\;", $value);
 			return $value;
 		}
 		private function unsanitize($text){
