@@ -1,32 +1,43 @@
-<h1>Index</h1>
 <?php
-	$posts = Post::findPublishedPosts(0, 10, array('updated'=>'desc', 'type'=>'desc'), Application::$member->person_id);
-	$pages = Post::findPublishedPages(Application::$member->person_id);
-	$cat = null;
+	$posts = Post::findPublishedPosts(0, 5, array('updated'=>'desc', 'type'=>'desc'), Application::$member->person_id);
 ?>
-<nav>
-	<dl>
-		<dt>Pages</dt>
-<?php while($pages != null && $page = array_shift($pages)):?>
-<?php if(!$page->isHomePage($this->getHome_page_post_id())):?>
-		<dd><a href="<?php echo App::url_for($page->custom_url);?>" title="<?php echo urldecode($page->description);?>"><?php echo urldecode($page->title);?></a></dd>
-<?php endif;?>
-<?php endwhile;?>
-<?php if(AuthController::is_authorized()):?>
-<?php endif;?>
-	</dl>
-</nav>
-<h2>Latest</h2>
-<nav>
-	<dl>
-	<?php foreach($posts as $post):?>
-		<?php if($cat !== $post->type):?>
-		<dt><?php echo $post->type === 'post' ? 'articles' : $post->type;?>
+<section class="list">
+<?php foreach($posts as $post):?>
+	<article class="hentry <?php echo $post->type;?>">
+		<time><span class="month"><?php echo date('M', strtotime($post->updated));?></span><span class="day"><?php echo date('d', strtotime($post->updated));?></span></time>
+	
+		<?php if($post->type === 'status'):?>
+		<header>
+			<h2><a href="<?php echo Application::url_with_member('blog/' . $post->custom_url);?>" rel="bookmark" title="<?php echo urldecode($post->title);?>"><?php echo urldecode($post->title);?></a></h2>
+		</header>
+		<section class="entry-content">
+			<p><?php echo urldecode($post->body);?></p>
+		</section>
+		<?php elseif($post->type === 'photo'):?>
+		<header>
+			<h2><a href="<?php echo Application::url_with_member('blog/' . $post->custom_url);?>" rel="bookmark" title="<?php echo urldecode($post->title);?>"><?php echo urldecode($post->title);?></a></h2>
+			<p><?php echo $post->description;?></p>
+		</header>
+		<section class="entry-content">
+			<img src="<?php echo urldecode($post->body);?>" alt="<?php echo $post->title;?>" />
+		</section>	
+		<?php elseif($post->type === 'video'):?>
+		<header>
+			<h2><a href="<?php echo Application::url_with_member('blog/' . $post->custom_url);?>" rel="bookmark" title="<?php echo urldecode($post->title);?>"><?php echo urldecode($post->title);?></a></h2>
+		<?php echo Post::get_excerpt($post);?>
+		</header>
+		<section class="entry-content">
+			<?php echo urldecode($post->body);?>
+		</section>	
+		<?php else:?>
+		<header>
+			<h2><a href="<?php echo Application::url_with_member('blog/' . $post->custom_url);?>" rel="bookmark" title="<?php echo urldecode($post->title);?>"><?php echo urldecode($post->title);?></a></h2>
+		</header>
+		<section class="entry-content">
+		<?php echo Post::get_excerpt($post);?>
+		</section>
 		<?php endif;?>
-		<?php $cat = $post->type;?>
-		<dd class="<?php echo $post->type;?>">
-			<a href="<?php echo Application::url_with_member('blog/' . $post->custom_url);?>"><?php echo strlen($post->title) === 0 ? urldecode($post->body) : urldecode($post->title);?></a>
-		</dd>
-	<?php endforeach;?>
-	</dl>
-</nav>
+	
+	</article>
+<?php endforeach;?>
+</section>

@@ -120,16 +120,25 @@ class Application{
 		console::log($message);
 	}
 	
-	public function resource_not_found_did_happen($sender, $args){
-		$resource = new AppResource(array('file_type'=>$args['file_type'],'url_parts'=>$args['url_parts']));
-		$method = array_key_exists('_method', $args['server']) ? $args['server']['_method'] : $args['server']['REQUEST_METHOD'];
-		$page_name = $args['url_parts'][0];
+	public function file_not_found($url_parts, $file_type){
+		$resource = new AppResource(array('file_type'=>$file_type,'url_parts'=>$url_parts));
+		$method = array_key_exists('_method', $_SERVER) ? $_SERVER['_method'] : $_SERVER['REQUEST_METHOD'];
+		$page_name = $url_parts !== null && count($url_parts) > 0 ? $url_parts[0] : null;
 		$view = $page_name . '_' . $resource->file_type . '.php';
-		if(is_numeric($page_name)){
-			require('resources/BlogResource.php');
-			$blog_resource = new BlogResource(array('file_type'=>'phtml'));
-			$resource->output = $blog_resource->get($page_name);
-		}elseif(file_exists(App::get_theme_path('/views/index/' . $view))){
+		$parms = array();
+		
+		//TODO: Not sure what to do with this yet. 
+		// Check for a date in the URL.
+		if(count($url_parts) >= 3 && is_numeric($url_parts[0]) && is_numeric($url_parts[1]) && is_numeric($url_parts[2])){
+			if(checkdate($url_parts[1], $url_parts[2], $url_parts[0])){
+				$parms = array(date(sprintf('%d/%d/%d', $url_parts[1], $url_parts[2], $url_parts[0])));
+				array_shift($url_parts);
+				array_shift($url_parts);
+				array_shift($url_parts);
+			}
+		}
+		
+		if(file_exists(App::get_theme_path('/views/index/' . $view))){
 			$resource->output = $resource->render('index/' . $page_name);
 		}elseif(file_exists('index/' . $view)){
 			$resource->output = $resource->render('index/' . $page_name);
@@ -140,20 +149,22 @@ class Application{
 				$post = Post::findAllPublished($page_name, Application::$member->person_id);
 			}
 			if($post != null){
-				$resource->output = $resource->render('post/show', array('post'=>$post));
 				$resource->description = $post->title;
 				$resource->keywords = implode(', ', String::getKeyWordsFromContent($post->body));		
 				$resource->title = $post->title;
+				$resource->output = $resource->render('post/show', array('post'=>$post));
 			}else{
+				$resource->title = "Not found page";
+				$resource->description = "The requested page was not found on this sever.";
 				$resource->output = $resource->render('error/404', array('message'=>$method . ' ' . $page_name . ' was not found.'));
 				$this->status = new HttpStatus(404);
-			}				
+			}
+			$resource->output = $resource->render_layout('default');
 		}
 		if($resource->title === null){
 			$resource->title = $resource->get_title_from_output($resource->output);				
 		}		
-		return $resource->render_layout('default');
-		
+		return $resource;
 	}
 }
 

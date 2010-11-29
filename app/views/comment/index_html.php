@@ -9,9 +9,9 @@
 				<a href="http://<?php echo $post->source;?>" title="<?php echo $author->name;?>'s site"><?php echo $author->name;?></a> wrote <?php echo Date::time_since(time() - strtotime($post->post_date));?> ago.
 			</time>
 		</aside>
-		<a href="<?php echo Application::url_with_member('conversation', array('post_id'=>$post->id));?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>
+		<a href="<?php echo Application::url_with_member('conversation/' . $post->id);?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>
 	</header>
-	<?php echo $post->body;?>
+	<?php echo urldecode($post->body);?>
 </article>
 <?php if(AuthController::is_authorized()):?>
 <form method="post" action="<?php echo Application::url_with_member('conversations');?>" class="comment">

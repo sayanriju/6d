@@ -3,12 +3,12 @@
 		<legend><?php echo ($person->name == null ? 'New friend' : $person->name);?></legend>
 		<p>
 			<label for="email">Email</label>
-			<span id="email">{$person->email}</span>
+			<span id="email"><?php echo $person->email;?></span>
 		</p>
 
 		<p>
 			<label for="url">Url</label>
-			<input type="text" name="url" id="url" value="{$person->url}" />
+			<input type="text" name="url" id="url" value="<?php echo $person->url;?>" />
 		</p>
 		<p>
 			<button type="submit" name="cofirm">Confirm as a friend</button>

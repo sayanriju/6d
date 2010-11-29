@@ -14,11 +14,13 @@ class BlogResource extends AppResource{
 	public $sort_by;
 	public $sort_by_direction;
 	public $limit;
+	public $start;
 	public function get($id = null, $q = null, $limit = 5, $tag = null){
 		$this->q = $q;
 		$post_title = null;
 		$this->limit = is_numeric($limit) ? intval($limit) : 5;
 		$view = 'post/index';
+		$this->page = 0;
 		array_shift($this->url_parts);
 		if(count($this->url_parts) > 0){
 			$this->page = is_numeric($this->url_parts[0]) ? (int)$this->url_parts[0] : 0;
@@ -29,6 +31,7 @@ class BlogResource extends AppResource{
 		if($this->page <= 0){
 			$this->page = 1;
 		}
+		
 		$this->start = ($this->page-1) * $this->limit;
 		$this->sort_by = 'id';
 		$this->sort_by_direction = 'desc';
@@ -50,17 +53,18 @@ class BlogResource extends AppResource{
 		}
 		$this->keywords = implode(', ', String::getKeyWordsFromContent($this->output));
 		if($this->post !== null){
-			$this->description = $this->post->title;
+			$this->description = Post::get_excerpt($this->post, false);
 			$this->post->conversation = PostResource::get_conversation_for($this->post);
 			$view = 'post/show';
+			$this->display_date = strtotime($this->post->post_date);
 		}else{
 			for($i=0; $i<count($this->posts); $i++){
-				$this->description .= $this->posts[$i]->title . ',';
+				$this->description .= Post::get_excerpt($this->posts[$i], false) . ',';
 				$this->posts[$i]->conversation = PostResource::get_conversation_for($this->posts[$i]);
 			}
 		}
 		$this->output = $this->render($view);
-		return $this->render('layouts/default');
+		return $this->render_layout('default');
 	}
 	private function getAllPosts($start, $limit, $sort_by){
 		return Post::findPublishedPosts($start, $limit, $sort_by, Application::$member->person_id);			

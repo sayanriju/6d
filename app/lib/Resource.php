@@ -46,7 +46,7 @@ class Resource extends Object{
 		return $this->render('layouts/' . $name, $data, $file_type);
 	}
 	/* This method is for rendering a view. It's based on the file type and assumes that the file type is html.
-	* It also maps the resources properties to the templates in the view like {$person->name} or you can send 
+	* It also maps the resources properties to the templates in the view like <?php echo $person->name;?> or you can send 
 	* in an array that will be exported for the view to use the variables.
 	* I've prefixed all variable names with __ to avoid collisions when extracing variables from the array.
 	*/
@@ -159,16 +159,7 @@ class Resource extends Object{
 			return $this->{$method_info->getName()}();
 		}
 		$parms = array();
-		if(count($url_parts) >= 3 && is_numeric($url_parts[0]) && is_numeric($url_parts[1]) && is_numeric($url_parts[2])){
-			if(checkdate($url_parts[1], $url_parts[2], $url_parts[0])){
-				$parms = array(date(sprintf('%d/%d/%d', $url_parts[1], $url_parts[2], $url_parts[0])));
-				array_shift($url_parts);
-				array_shift($url_parts);
-				array_shift($url_parts);
-			}
-		}
-		
-		if(count($url_parts) > 0 && $parm_count > 0){
+		if(count($url_parts) > 0){
 			foreach($url_parts as $value){
 				if(strlen($value) > 0 && count($parms) < $parm_count){
 					$parms[] = $value;					
@@ -238,11 +229,10 @@ class Resource extends Object{
 		$ref_class = null;
 		$class_name = null;
 		$name = $param->getName();
-                $ref_class = null;
-                try{
-                    $ref_class = $param->getClass();
-                }catch(Exception $e){}
-                
+		$ref_class = null;
+		try{
+			$ref_class = $param->getClass();
+		}catch(Exception $e){}
 		if($id > 0 && $name == 'id'){
 			return $id;
 		}

@@ -2,6 +2,7 @@
 	class_exists('Object') || require('lib/Object.php');
 	class_exists('DataStorage') || require('lib/DataStorage/DataStorage.php');
 	class_exists('Tag') || require('Tag.php');
+	class_exists('Post') || require('Comment.php');
 	class Author{
 		public function __construct($attributes = null){
 			if(array_key_exists('id', $attributes)){
@@ -26,14 +27,6 @@
 		public $name;
 		public $source;
 		public $photo_url;
-	}
-	class Comment{
-		public function __construct(){}
-		public function __destruct(){}
-		public $author;
-		public $date;
-		public $post_id;
-		public $body;
 	}
 	class Post extends Object{
 		public function __construct($attributes = null){
@@ -192,14 +185,13 @@
 		// I need a way to tell the data storage whether or not to add the id in the sql statement
 		// when inserting a new record. This is it. The data storage should default it to false, so
 		// if this method doesn't exist, it'll default to false.
-		public function shouldInsertId(){
+		public function should_insert_id(){
 			return true;
 		}
-		public function willAddFieldToSaveList($name, $value){
-			
+		public function will_add_field_to_save_list($name, $value){
 			if($name === 'id' && ($this->id === null || strlen($this->id) === 0)){
-				$this->{$name} = uniqid(null, true);
-				return $this->{$name};
+				$this->id = uniqid(null, true);
+				return $this->id;
 			}
 			return $value;			
 		}
@@ -218,6 +210,21 @@
 			}
 			$this->author->profile = unserialize($this->author->profile);
 			return $this->author;
+		}
+		public static function get_excerpt($post, $include_html = true){
+			$p_start = '<p>';
+			$p_end = '</p>';
+			$include_tags = '<a>';
+			if(!$include_html){
+				$p_start = null;
+				$p_end = null;
+				$include_tags = null;
+			}
+			if(!empty($post->description)) return $p_start . $post->description . $p_end;
+			$body = String::stripHtmlTags(urldecode($post->body), $include_tags);
+			$body = String::truncate($body, 400);
+			$body = str_replace(PHP_EOL, $p_end . $p_start, $body);
+			return $p_start . $body . $p_end;
 		}
 		public static function searchForPublished($q, $start = 0, $limit = 5, $sort_by = 'post_date', $sort_by_direction = 'desc', $owner_id){
 			$config = new AppConfiguration();
@@ -410,9 +417,9 @@
 			$config = new AppConfiguration();				
 			$db = Factory::get($config->db_type, $config);
 			$owner_id = (int)$owner_id;
-			$clause = new ByClause(sprintf("id='%s' and owner_id=%d", $id, $owner_id), null, 0, null);
+			$clause = new ByClause(sprintf("id='%s' and owner_id=%d", $id, $owner_id), null, 1, null);
 			$post = $db->find($clause, new Post(null));
-			return $post !== null && count($post) > 0 ? $post[0] : $post;
+			return $post;
 		}
 		public static function findHomePage($id = null, $owner_id){
 			$config = new AppConfiguration();

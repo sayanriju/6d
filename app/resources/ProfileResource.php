@@ -52,7 +52,7 @@ class ProfileResource extends AppResource{
 			}
 			return $this->render_layout('profile');
 		}else{
-			$this->person = Application::$member;
+			$this->person = Application::$member->person;
 			$this->title = $this->person->name . "'s profile.";
 			if($this->person->profile == null){
 				$this->person->profile = new Profile(array('photo_url'=>App::url_for('images') . self::DEFAULT_PHOTO_URL));
@@ -73,9 +73,9 @@ class ProfileResource extends AppResource{
 	public static function getPhotoUrl($person, $photo_file_type = '.png'){
 		if(!is_object($person->profile)){
 			$person->profile = unserialize($person->profile);			
-		}		
+		}
 		if($person->profile == null || $person->profile->photo_url == null){
-			return App::url_for('images') . self::DEFAULT_PHOTO_URL;
+			return App::url_for('images/' . self::DEFAULT_PHOTO_URL);
 		}		
 		if(strpos($person->profile->photo_url, 'http') !== false){
 			return $person->profile->photo_url;

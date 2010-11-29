@@ -10,6 +10,7 @@
 	class AppResource extends Resource{
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
+			$this->display_date = time();
 			Post::add_observer($this, 'will_return_value_for_key', 'Post');
 			$resource_name = strtolower(str_replace('Resource', '', $this->name));
 			$this->resource_css = $resource_name . '.css';
@@ -76,6 +77,7 @@
 		protected $config;
 		public $q;
 		public $current_user;
+		public $display_date;
 		protected function set_unauthorized(){
 			$this->status = new HttpStatus(401);
 			$this->headers[] = new HttpHeader(array('location'=>App::url_for('login')));

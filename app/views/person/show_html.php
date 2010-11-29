@@ -3,17 +3,17 @@
 		<legend><?php echo ($person->id === 0 ? 'New person' : $person->name);?></legend>
 		<p>
 			<label for="name">Name</label>
-			<input type="text" id="name" name="name" value="{$person->name}" />
+			<input type="text" id="name" name="name" value="<?php echo $person->name;?>" />
 		</p>
 
 		<p>
 			<label for="title">Email</label>
-			<input type="text" id="email" name="email" value="{$person->email}" />
+			<input type="text" id="email" name="email" value="<?php echo $person->email;?>" />
 		</p>
 
 		<p>
 			<label for="url">Url</label>
-			<input type="text" name="url" id="url" value="{$person->url}" />
+			<input type="text" name="url" id="url" value="<?php echo $person->url;?>" />
 		</p>
 		<p>
 			<label for="is_approved" id="label_approved">Approved?</label>

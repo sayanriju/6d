@@ -39,7 +39,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 			if($member !== null && $member->id > 0 && !$person->is_owner){
 				Person::delete($person);
 				Member::delete($member);
-				Resource::setUserMessage("{$person->name} was deleted.");
+				Resource::setUserMessage("<?php echo $person->name;?> was deleted.");
 			}else{
 				Resource::setUserMessage("You can't delete the owner of the site.");
 			}

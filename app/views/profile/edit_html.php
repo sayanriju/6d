@@ -1,7 +1,7 @@
 <section class="vcard">
 	<div class="photo">
 		<div class="canvas">
-			<img src="<?php echo ProfileResource::getPhotoUrl($person);?>" alt="photo of {$person->name}" id="profile_photo" />
+			<img src="<?php echo ProfileResource::getPhotoUrl($person);?>" alt="photo of <?php echo $person->name;?>" id="profile_photo" />
 		</div>
 		<div id="resizer"></div>
 <?php if(AuthController::is_authorized() && Application::$current_user->person_id == $person->person_id && $this->getState() === 'edit'):?>
@@ -17,20 +17,20 @@
 
 		<form action="<?php echo Application::url_with_member('profile');?>" method="post" id="person_form">
 			<fieldset>
-				<legend>{$person->name}</legend>
+				<legend><?php echo $person->name;?></legend>
 				<input type="hidden" value="<?php echo $person->profile->photo_url;?>" name="profile[photo_url]" id="profile[photo_url]" />
 		        <p class="fn name">
 					<label for="name">Name</label>
-					<input type="text" id="name" name="name" value="{$person->name}" />
+					<input type="text" id="name" name="name" value="<?php echo $person->name;?>" />
 				</p>
 		
 				<p class="email">
 					<label for="email">Email</label>
-					<input type="email" id="email" name="email" value="{$person->email}" />
+					<input type="email" id="email" name="email" value="<?php echo $person->email;?>" />
 				</p>
 				<p>
 					<label for="url">Url</label>
-					<input name="url" id="url" value="{$person->url}" />
+					<input name="url" id="url" value="<?php echo $person->url;?>" />
 				</p>
 				<p>
 					<label for="profile[site_name]">Site Name</label>

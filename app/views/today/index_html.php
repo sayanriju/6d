@@ -16,7 +16,7 @@
 		<header>
 			<aside rel="author">
 				<?php $most_recent_status = Post::findMostRecentStatus(Application::$member->person_id);?>
-				<img src="<?php echo Application::$current_user->profile->photo_url;?>" class="thumbnail" title="This is me!" />
+				<img src="<?php echo Application::$current_user->person->profile->photo_url;?>" class="thumbnail" title="This is me!" />
 			</aside>
 			<p><?php echo $most_recent_status->body;?></p>
 			<time><?php echo Date::time_since(time() - strtotime($most_recent_status->post_date));?> ago.</time>

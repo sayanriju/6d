@@ -23,31 +23,24 @@ class PostResource extends AppResource{
 	public $page;
 	public $photos;
 	public $people;
-	public function get(Post $post = null, $layout = 'default'){
+	public function get($id){
 		$photo = new Photo();
 		$this->photos = $photo->findAll('media/' . Application::$member->member_name);
 		$view = 'post/show';
-		$layout = 'layouts/' . $layout;
 		if( AuthController::is_authorized()){
 			$view = 'post/edit';
 		}
-		if(count($this->url_parts) > 1){
-			$this->post = Post::findById($this->url_parts[1], Application::$member->person_id);
-			if($this->post == null){
-				$this->set_not_found();
-				return;
-			}
-		}else{
-			$this->post = $post;
+		$this->post = Post::findById($id, Application::$member->person_id);
+		if($this->post == null){
+			$this->set_not_found();
+			return;
 		}
-		
 		if($this->post != null && strlen($this->post->id) > 0){
 			$this->title = $this->post->title;
-			$this->description = $this->post->description;
-			
+			$this->description = $this->post->description;	
 			$this->post->conversation = self::get_conversation_for($this->post);
 			$this->output = $this->render($view, null);
-			return $this->render($layout, null);
+			return $this->render_layout('default', null);
 		}else{
 			if(!AuthController::is_authorized()){
 				$this->set_unauthorized();
@@ -56,7 +49,7 @@ class PostResource extends AppResource{
 			$this->post = new Post();
 			$this->title = "New post";
 			$this->output = $this->render($view, null);
-			return $this->render($layout, null);
+			return $this->render_layout($layout, null);
 		}
 	}
 	public static function get_conversation_for(Post $post){
@@ -176,7 +169,7 @@ class PostResource extends AppResource{
 		}else{
 			self::setUserMessage("That post doesn't exist.");
 		}
-		$this->redirect_to(Application::$current_user->member_name . '/' . $this->post->custom_url);			
+		$this->redirect_to($this->post->custom_url);			
 	}
 	
 	public function delete(Post $post, $q = null){

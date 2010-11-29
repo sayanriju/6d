@@ -1,446 +1,221 @@
-/* v1.0 | 20080212 */
-html, body, div, span, applet, object, iframe,
+/* 
+html5doctor.com Reset Stylesheet
+v1.6.1
+Last Updated: 2010-09-17
+Author: Richard Clark - http://richclarkdesign.com 
+Twitter: @rich_clark
+*/
+
+html, body, div, span, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, font, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
+abbr, address, cite, code,
+del, dfn, em, img, ins, kbd, q, samp,
+small, strong, sub, sup, var,
+b, i,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	outline: 0;
-	font-size: 100%;
-	vertical-align: baseline;
-	background: transparent;
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section, summary,
+time, mark, audio, video {
+    margin:0;
+    padding:0;
+    border:0;
+    outline:0;
+    font-size:100%;
+    vertical-align:baseline;
+    background:transparent;
+	font-weight: normal;
 }
+
 body {
-	line-height: 16px;
-	width: 900px;
+    line-height:1;
 }
-ol, ul {
-	list-style: none;
+
+article,aside,details,figcaption,figure,
+footer,header,hgroup,menu,nav,section { 
+    display:block;
 }
+
+nav ul {
+    list-style:none;
+}
+
 blockquote, q {
-	quotes: none;
+    quotes:none;
 }
+
 blockquote:before, blockquote:after,
 q:before, q:after {
-	content: '';
-	content: none;
+    content:'';
+    content:none;
 }
 
-/* remember to define focus styles! */
-:focus {
-	outline: 0;
+a {
+    margin:0;
+    padding:0;
+    font-size:100%;
+    vertical-align:baseline;
+    background:transparent;
 }
 
-/* remember to highlight inserts somehow! */
+/* change colours to suit your needs */
 ins {
-	text-decoration: none;
+    background-color:#ff9;
+    color:#000;
+    text-decoration:none;
 }
+
+/* change colours to suit your needs */
+mark {
+    background-color:#ff9;
+    color:#000; 
+    font-style:italic;
+    font-weight:bold;
+}
+
 del {
-	text-decoration: line-through;
+    text-decoration: line-through;
 }
 
-/* tables still need 'cellspacing="0"' in the markup */
+abbr[title], dfn[title] {
+    border-bottom:1px dotted;
+    cursor:help;
+}
+
 table {
-	border-collapse: collapse;
-	border-spacing: 0;
+    border-collapse:collapse;
+    border-spacing:0;
 }
 
-html{
-	width: 100%;
-	height: 100%;
-	margin: 0;
-	padding: 0;
-	background-color: rgb(200, 200,200);
+/* change border colour to suit your needs */
+hr {
+    display:block;
+    height:1px;
+    border:0;   
+    border-top:1px solid #cccccc;
+    margin:1em 0;
+    padding:0;
 }
+
+input, select {
+    vertical-align:middle;
+}
+
+/*End of html5 reset*/
 body{
-	margin: 0 auto;
-	font: normal normal normal 12px/18px 'Lucida Grande', 'Lucida Sans Unicode', Arial, Verdana, sans-serif;
-	line-height: 1.5;
+	background: #f5f6f7;
 	text-align: center;
+	margin: 0 auto 80px auto;
 	height: 100%;
-}
-header, footer, aside, nav, article, section, figure, time{
-	display: block;
-}
-h1, h2, h3, h4, h5, h6{
-	font-family: Georgia, Helvetica, Palatino, serif;
-	font-variant: small-caps;
-	margin: 0 0 10px 0;
-}
-h1{
-	font-size: 27px;
-}
-h2{
-	font-size: 23px;
-	line-height: .9em;
-}
-h3{font-size: 17px;}
-h4{font-size: 15px;}
-h5{font-size: 13px;}
-h6{font-size: 100%;}
-
-a{outline: 0;}
-a img{border: 0; text-decoration: none;}
-a:link, a:visited{
-	text-decoration: none;
-}
-a:hover, a:active{
-	text-decoration: underline;
-}
-
-blockquote{font-style: italic;}
-#admin_menu{
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
 	width: 100%;
-	height: 25px;
-	background: rgba(0,0,0,.5);
+	font-family: Geneva, Helvetica, Sans-serif;
+	line-height: 1.5em;
 }
-#admin_menu a{
-	color: #fff;
-}
-#pager {
-	position: fixed;
-	bottom: 0;
-	left: 50%;
-	margin-left: -200px;
-	width: 400px;
-	background: rgba(0,0,0,.5);
-	border-top-left-radius: 5px;
-	border-top-right-radius: 5px;
-	-webkit-border-top-left-radius: 5px 5px;
-	-webkit-border-top-right-radius: 5px 5px;
-	-moz-border-top-radius: 5px;
-	text-align: center;
-	z-index: 1000;
-}
-
-#__6d_console {
-	bottom: 0;
-	left: 0;
-	width: 100%;
-	border-top-left-radius: 5px;
-	border-top-right-radius: 5px;
-	-webkit-border-top-left-radius: 5px 5px;
-	-webkit-border-top-right-radius: 5px 5px;
-	-moz-border-top-radius: 5px;
-	text-align: center;
-}
-#login_form{
-	background: rgba(0,0,0,.5);
-	margin: 0 auto;
-	padding: 20px;
-	border-radius: 5px;
-	-webkit-border-radius: 5px 5px;
-	-moz-border-radius: 5px;
-}
-form p, form address p{
-	line-height: 20px;
-	margin: 0 0 15px 0;
-	padding: 0;
-}
-
-form p label{
-	display: block;
-}
-form input[type=text], form input[type=email], form input[type=url], form input[type=password]{
-	font-size: 23px;
-	width: 100%;
-}
-#content{
-	float: right;
-	padding: 30px 30px 30px 30px;
-	width: 580px;
-	color: rgb(153,153,153);
-	background: rgb(240, 240,240);
-	border-radius: 10px 10px;
-	-webkit-border-radius: 10px 10px;
-	-moz-border-radius: 10px 10px;
-	margin: 0 auto;
-}
-#author{
-	margin: 0 auto;
-	float: left;
-	width: 220px;
-	padding: 15px;
-	line-height: 25px;
-	color: rgb(153,153,153);
-	background: rgb(240, 240,240);
-	border-radius: 10px 10px;
-	-webkit-border-radius: 10px 10px;
-	-moz-border-radius: 10px 10px;
-	text-align: left;
-}
-#author footer{
-	margin-top: 20px;
-}
-#author footer date{
-	font-size: 13px;
-	opacity: .8;
-	filter: alpha(opacity=80);
-}
-#author footer small{
-	display: block;
-	font-size: 11px;
-	text-align: center;
-}
-img.author{
-	width: 220px;
-	height: 220px;
-}
-#content article{
-	padding: 20px;
-	margin-top: 40px;
-	background: rgb(250,250,250);
-	border-radius: 10px 10px;
-	-webkit-border-radius: 10px 10px;
-	-moz-border-radius: 10px 10px;
-	position: relative;
-}
-#content article form fieldset legend{
-	display: none;
-}
-#content article form fieldset.type ul{
-	position: relative;
-	height: 21px;
-	width: 100%;
-}
-#content article form fieldset.type ul li{
-	float: left;
-	margin-right: 1px;
-	display: block;
-	width: 13%;
-	height: 21px;
-	border: solid 1px rgb(50,50,50);
-	border-radius: 5px;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	text-align: center;
-	position: relative;
-}
-#content article form fieldset.type ul li label{
-	display: block;
-	position: absolute;
-	top: 3px;
-	left: 50%;
-	margin-left: -25%;
-}
-#content article form fieldset.type ul li input[type="radio"]{
-	width: 140%;
-	height: 110px;
-	display: block;
-	padding: 0;
-	margin: 0;
-	position: absolute;
-	visibility: hidden;
-	top: -15px;
-	left: -17px;
-}
-#content article form fieldset.type ul li{
-	position: relative;
-	overflow: hidden;
-}
-
-#content article form fieldset.type ul li.selected{
-	background: blue;
-	color: white;
-}
-#content article.first{
-	margin-top: 0;
-}
-article footer{
-	margin-top: 20px;
-}
-.new{
-	margin-bottom: 30px;
-}
-
-.hentry section article footer time, #content article footer time{
-	font-size: 11px;
-	color: rgb(100,100,100);
-	position: absolute;
-	right: 3px;
-	bottom: 0;
-}
-.hentry footer{
-	
-}
-.hentry p{
+p{
 	margin: 0 0 20px 0;
 }
-.hentry header, .hentry section.entry-content{
-	position: relative;
-}
-.hentry footer{
-	position: relative;
-}
-.hentry footer form{
-	width: 100%;
-	text-align: right;
-}
-.hentry aside[rel=tags]{
-	height: 1em;
-}
-.hentry{
-	-webkit-box-shadow: 1px 1px 5px rgb(100,100,100);
-}
-.hentry form fieldset input{
-	font-size: 13px;
-	border: none;
-	background: rgb(200,200,200);
-	border-bottom: solid 1px rgb(0,0,0);
-}
-.hentry form fieldset textarea{
-	border: none;
-	height: 80px;
-	width: 100%;
-	background: rgb(200,200,200);
-}
-code.error ul li{
-	text-align: left;
-}
-article.album img
-, article.photo img{
-	width: 500px;
-}
-nav.pages{
-	font-size: 23px;
-	width: 200px;
-	margin: 0 auto;
-}
-nav.pages a{
-	line-height: 23px;
-}
-.vcard .photo .canvas{
-	width: 200px;
-	height: 200px;
-	border: solid 1px rgb(100,100,100);
-	overflow: hidden;
-}
-#status_form{
-	margin: 0 auto 20px auto;
-}
-#status_form button{
-	float: right;
-}
-
-/* Photo viewier*/
-#photo_viewer{
-	position: relative;
-}
-#media_form{
-	background: rgba(255,255,255, .5);
-	color: rgb(255,255,255);
-	height: 60px;
-}
-#photo_viewer{
-	margin: 0 auto;
-	border-radius: 5px;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	-webkit-box-shadow: 1px 1px 10px rgb(0,0,0);
-}
-#photo_viewer form{
-	position: absolute;
-	bottom: 0;
-	right: 0;
-	left: 0;
-}
-#photo_viewer form.delete{
-	position: relative;
+time{
 	display: block;
 }
-#photo_viewer section ul li img{
-	border: solid 3px rgb(255,255,255);
+a{
+	text-decoration: underline;
+	color: #5C9AED;
+}
+h1{
+	font-family: Georgia, Serif;
+}
+h2, h3, h4, h5, h6{
+	font-family: Geneva, Helvetica, Sans-serif;
+}
+h1{
+	font-size: 37px;
+}
+h2{
+	color: #000;
+	font-size: 21px;
+}
+h2 a{
+	color: #000;
+}
+.banner{
+	padding-top: 20px;
+	text-align: left;
+	margin-bottom: 40px;
+	padding-left: 70px;
+}
+.banner h1 a{
+	text-decoration: none;
+}
+.hentry, footer.main{
+	padding-left: 50px;
+}
+time{
+	color: #000;
+	text-transform: uppercase;
+	font-family: "Arial Black", Arial;
+}
+.banner time{
+	position: absolute;
+	top:20px;
+	right: 20px;
+	z-index: -1;
+	font-size: 67px;
+}
+.banner time .month{
+	color: #e2e2e2;
+}
+.main{
+	text-align: left;
+	margin: 0 auto;
+	padding-left: 20px;
+}
+.list .hentry {
+	position: relative;
+	margin-bottom: 20px;
+	margin-right: 20px;
+	padding-right: 50px;
+	padding-top: 20px;
+	width: 500px;
+	height: 245px;
+	float: left;
+	background: #e2e2e2;
+}
+.list .hentry time{
+	position: absolute;
+	top: 20px;
+	left: 10px;
+	text-align: center;
+	font-size: 11px;
+	line-height: 13px;
+	color: #666666;
+}
+.list .hentry time span{
+	display: block;
+}
+.hentry header, .photo h2, .video h2{
+	margin-bottom: 15px;
+}
+.list .video header, .list .photo header{
+	position: absolute;
+	left: 375px;
+}
+.list .video object{
+	width: 300px;
+	height: 169px;
+}
+.list .photo .entry-content img{
+	vertical-align: top;
 	width: 300px;
 }
-#photo_viewer section ul li img.selected{
-	border: solid 3px rgb(130,200,255);
-}
-
-.film_strip{
-	box-shadow: 0px 3px 7px rgb(50,50,50);
-	-webkit-box-shadow: 0px 3px 7px rgb(50,50,50);
-	-moz-box-shadow: 0px 3px 7px rgb(50,50,50);
-	overflow: hidden;
+footer.main{
+	width: 100%;
 	position: fixed;
-	top: 25px;
-	left: 0;
-	right: 0;
+	background: #5C9AED;
+	bottom: 0;
+	height: 80px;
+	color: #fff;
 }
-.film_strip .scrollable{
-	overflow-x: scroll;
-	overflow-y: hidden;
-	height: 130px;
-	width: 100%;
-}
-.film_strip ul{
-	margin: 0;
-	padding: 0;
-	height: 130px;
-}
-.film_strip ul li{
-	float: left;
-	margin: 0 20px 0 0;
-	display: block;
-	padding: 0;
-}
-.film_strip ul li img{
-	height: 72px;
-	border: solid 3px transparent;
-}
-.film_strip ul li img.selected{
-	border-color: rgb(130,200,255);
-}
-.film_strip form{
-	height:; 30px;
-	padding: 0;
-	margin: 0;
-}
-.film_strip form fieldset legend{
-	display: none;
-}
-.film_strip li.profile{
-}
-.modal form{
-	background: rgb(0,0,0);
-}
-.modal #post_type li{
-	float: left;
-}
-button.close{
-	border: none;
-	color: rgb(255,255,255);
-	background: rgb(0,0,0);
-	border-radius: 15px;
-	-webkit-border-radius: 15px;
-	-moz-border-radius: 15px;
-	width: 15px;
-	height: 15px;
-	padding: 0;
-	margin: 0;
-	position: relative;
-	position: absolute;
-	left: 3px;
-	top: 3px;
-	opacity: .8;
-	filter: alpha(opacity=80);
-}
-button.close span{
-	position: absolute;
-	top: -2px;
-	left: .9px;
-	font-size: 14px;
-	display: block;
-	width: 100%;
-	height: 100%;
-	font-family: Arial;
+footer.main a{
+	color: #fff;
 }

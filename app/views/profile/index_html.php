@@ -1,14 +1,14 @@
 <section class="vcard">
 	<div class="photo">
 		<div class="canvas">
-			<img class="photo" src="<?php echo ProfileResource::getPhotoUrl($person);?>" alt="photo of {$person->name}" id="profile_photo" />
+			<img class="photo" src="<?php echo ProfileResource::getPhotoUrl($person);?>" alt="photo of <?php echo $person->name;?>" id="profile_photo" />
 		</div>
 		
 	</div>
 	<div class="contact">
-		<span class="fn name">{$person->name}</span>
+		<span class="fn name"><?php echo $person->name;?></span>
 <?php if($person->email !== null):?>
-		<a class="email" href="mailto:{$person->email}">{$person->email}</a>
+		<a class="email" href="mailto:<?php echo $person->email;?>"><?php echo $person->email;?></a>
 <?php endif;?>
 		<address class="adr">
 <?php if($person->profile->address !== null):?>

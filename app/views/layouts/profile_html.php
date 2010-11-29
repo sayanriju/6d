@@ -6,18 +6,10 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
         <title><?php echo $title;?></title>
-		<link rel="icon" href="<?php echo App::url_for('images');?>6dicon.png"/>
+		<link rel="icon" href="<?php echo App::url_for('images/6dicon.png');?>"/>
 		<meta name="description" content="<?php echo $description;?>"/>
 		<meta name="keywords" content="{$keywords}"/>
 		<meta name="viewport" content="width=980"/>
-	  	<link rel="stylesheet" type="text/css" href="<?php echo App::url_for_theme('css/default.css');?>" media="screen" />	
-		<?php echo $resource_css;?>
-		<script type="text/javascript" charset="utf-8" src="<?php echo App::url_for('js/NotificationCenter.js');?>"></script>
-		<script type="text/javascript" charset="utf-8" src="<?php echo App::url_for('js/default.js');?>" id="default_script"></script>
-		<!--[if IE]>
-		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-		<![endif]-->
-		<?php echo $resource_js;?>
 	</head>
 	<body class="<?php echo $this->name;?>">
 		<div class="view">
@@ -40,10 +32,11 @@
 				<a href="<?php echo Application::url_with_member('member');?>" id="member_link" title="Create a new member">add a member</a>
 				<?php endif;?>
 			</nav>
-			<p>Welcome <?php echo Application::$current_user->name;?></p>
+			<p>Welcome <?php echo Application::$current_user->person->name;?></p>
 			<?php endif;?>
 			<footer id="footer">
 				<p>Powered by <a href="http://get6d.com/" title="6d">6d</a></p>
+				<p><?php echo App::get_peak_memory();?> megabytes of memory</p>
 				<nav>
 					<?php if(!AuthController::is_authorized()):?>
 					<a href="<?php echo App::url_for('login');?>" title="Login">Login</a>
@@ -58,4 +51,12 @@
 		</div>
 		<noscript>requires Javascript. Please either turn on Javascript or get a browser that supports Javascript to use 6d.</noscript>
 	</body>
+	<link rel="stylesheet" type="text/css" href="<?php echo App::url_for_theme('css/default.css');?>" media="screen" />	
+	<?php echo $resource_css;?>
+	<script type="text/javascript" charset="utf-8" src="<?php echo App::url_for('js/NotificationCenter.js');?>"></script>
+	<script type="text/javascript" charset="utf-8" src="<?php echo App::url_for('js/default.js');?>" id="default_script"></script>
+	<!--[if IE]>
+	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<?php echo $resource_js;?>
 </html>

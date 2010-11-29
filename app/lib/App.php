@@ -92,6 +92,9 @@ class App {
         }
         return $site_path . '/' . $resource_name;
     }
+	public static function get_peak_memory(){
+		return round(memory_get_peak_usage() / 1024 / 1024, 2);
+	}
 	public static function add_request_time_to_footer($output, $start_time, $end_time){
 		return str_replace('</body>', sprintf("<small>Processed in %s</small>
 </body>", $end_time - $start_time), $output);
@@ -109,15 +112,18 @@ class App {
 		if(self::$delegate !== null && method_exists(self::$delegate, 'before_dispatching')){
 			$parts = self::$delegate->before_dispatching($parts, $file_type);
 		}
-		$first_part = $parts !== null && count($parts) > 0 ? array_shift($parts) : null;
+		$first_part = $parts !== null && count($parts) > 0 ? $parts[0] : null;
 		$resource = self::get_resource($first_part, $parts, $file_type);
-		if($resource === null) return self::file_not_found($parts, $file_type);		
+		if($resource === null) return self::file_not_found($parts, $file_type);
+		// Get rid of the first part of the url that include the resource name.
+		array_shift($parts);
 		$resource->output = $resource->call_with($method, $parts, $env);
 		$end_time = gettimeofday(true);
 		$resource->output = self::add_request_time_to_footer($resource->output, $start_time, $end_time);
 		return $resource;
 	}
 	private static function file_not_found($url_parts, $file_type){
+		if(method_exists(self::$delegate, 'file_not_found')) return self::$delegate->file_not_found($url_parts, $file_type);
 		$resource = new AppResource(array('url_parts'=>$url_parts, 'file_type'=>$file_type));
 		$resource->status = new HttpStatus(404);
 		$resource->output = $resource->render('error/404', array('message'=>implode('/', $url_parts)));
@@ -130,9 +136,11 @@ class App {
 			$last_part = $parts[count($parts)-1];
 			if(strpos($last_part, '.') !== false){
 				$last_part = explode('.', $last_part);
-				array_pop($last_part);
-				$last_part = implode('', $last_part);
-				$parts[count($parts)-1] = $last_part;
+				if(!is_numeric($last_part[1])){
+					array_pop($last_part);
+					$last_part = implode('', $last_part);
+					$parts[count($parts)-1] = $last_part;
+				}
 			}
 		}
 		return $parts;
@@ -161,6 +169,7 @@ class App {
 		}
 		$file_type = explode('.', $last_part);
 		$file_type = $file_type[count($file_type) - 1];
+		if(is_numeric($file_type)) $file_type = 'html';
 		return $file_type;
 	}
 	public static function error_did_happen($number, $message, $file, $line){

@@ -40,7 +40,7 @@
 				<a href="<?php echo Application::url_with_member('member');?>" id="member_link" title="Create a new member">add a member</a>
 				<?php endif;?>
 			</nav>
-			<p>Welcome <?php echo Application::$current_user->name;?></p>
+				<p>Welcome <?php echo Application::$current_user->person->name;?></p>
 			<?php endif;?>
 			<footer id="footer">
 				<p>Powered by <a href="http://get6d.com/" title="6d">6d</a></p>

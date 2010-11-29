@@ -16,7 +16,8 @@ class AddressbookResource extends AppResource{
 	public $groups;
 	public function get($mini = false){
 		if(!AuthController::is_authorized() || Application::$current_user->person_id != Application::$member->person_id){
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+			$this->set_unauthorized();
+			return null;
 		}		
 		$this->title = 'Address Book';
 		$this->people = Person::findAllByOwner(Application::$current_user->person_id);
@@ -45,7 +46,8 @@ class AddressbookResource extends AppResource{
 	}
 	public function delete(Tag $group = null, Person $person = null){
 		if(!AuthController::is_authorized() || Application::$current_user->person_id != Application::$member->person_id){
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+			$this->set_unauthorized();
+			return null;
 		}		
 		if($group != null){
 			Tag::delete($group);
@@ -56,7 +58,8 @@ class AddressbookResource extends AppResource{
 	}
 	public function post($name = null){
 		if(!AuthController::is_authorized() || Application::$current_user->person_id != Application::$member->person_id){
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+			$this->set_unauthorized();
+			return null;
 		}		
 		$errors = array();
 		if($name != null){

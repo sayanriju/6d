@@ -10,14 +10,18 @@ class ConversationResource extends AppResource{
 	public function __destruct(){}
 	public $post;
 	public function get($post_id, $public_key = null){
+		array_shift($this->url_parts);
+		if(count($this->url_parts) > 0 && $post_id === null) $post_id = $this->url_parts[0];
 		$view = 'comment/index';
 		$this->post = Post::findById($post_id, Application::$member->person_id);
 		if($this->post == null){
-			throw new Exception(Resource::redirect_to::NOTFOUND, 404);
+			$this->set_not_found();
+			return null;
 		}
 		$requestor = Person::findByPublicKeyAndOwner($public_key, Application::$member->person_id);
-		if(!$this->has_access($this->post, $public_key, $requestor)){			
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);			
+		if(!$this->has_access($this->post, $public_key, $requestor)){
+			$this->set_unauthorized();		
+			return null;
 		}
 		$this->post->conversation = PostResource::get_conversation_for($this->post);
 		$this->output = $this->render($view);

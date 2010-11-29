@@ -6,7 +6,6 @@ class AuthController{
 	public function __destruct(){}
 	public static $member;
 	public static function is_authorized(){
-		error_log('is authed = ' . self::authKey());
 		return self::authKey() !== null;
 	}
 	public static $is_super_admin;

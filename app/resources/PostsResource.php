@@ -16,7 +16,7 @@ class PostsResource extends AppResource{
 	
 	public function get($id = null, $q = null, $limit = 20){
 		if(!AuthController::is_authorized()){
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+			return $this->set_unauthorized();
 		}
 		$this->q = $q;
 		$tag = null;	
@@ -65,11 +65,7 @@ class PostsResource extends AppResource{
 		if(AuthController::is_authorized()){
 			$post->source = Application::$current_user->url;
 			$this->save($post, $people, $groups, $make_home_page);
-			if(Resource::redirect_to::getReferer() !== null){
-				Resource::redirect_to::setNeedsToRedirectRaw(Resource::redirect_to::getReferer());
-			}else{
-				$this->redirect_to(Application::$member->member_name . '/' . $post->custom_url);
-			}
+			$this->redirect_to(Application::$member->member_name . '/' . $post->custom_url);
 		}else if($public_key != null && strlen($public_key)>0){
 			$person = Person::findByPublicKeyAndUrl($public_key, $post->source);
 			$response = 'ok';

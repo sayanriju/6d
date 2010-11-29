@@ -515,8 +515,8 @@ eos;
 				if(method_exists($obj, 'getPrimaryKey')){
 					$key = $obj->getPrimaryKey();
 				}
-				if(method_exists($obj, 'shouldInsertId')){
-					$should_insert_id = $obj->shouldInsertId();
+				if(method_exists($obj, 'should_insert_id')){
+					$should_insert_id = $obj->should_insert_id();
 				}
 				$methods = $reflector->getMethods();
 				foreach($methods as $method){
@@ -534,8 +534,8 @@ eos;
 							if($should_add){
 								$columns[] = $lower_case_name;
 
-								if(method_exists($obj, 'willAddFieldToSaveList')){
-									$value = $obj->willAddFieldToSaveList($lower_case_name, $value);
+								if(method_exists($obj, 'will_add_field_to_save_list')){
+									$value = $obj->will_add_field_to_save_list($lower_case_name, $value);
 								}
 								// 2009-09-23, jguerra: I put this here instead of above the willAdd... check because 
 								// it needs to type the value after the observer has a chance to modify it.

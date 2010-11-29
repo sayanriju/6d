@@ -16,24 +16,24 @@
 		<legend>Post</legend>
 		<p>
 			<label for="title">Title</label>
-			<input type="text" id="title" name="title" value="{$post->title}" />
+			<input type="text" id="title" name="title" value="<?php echo urldecode($post->title);?>" />
 		</p>
 		<p>
 			<label for="body">Post</label>
-			<textarea name="body" id="body">{$post->body}</textarea>
+			<textarea name="body" id="body"><?php echo urldecode($post->body);?></textarea>
 		</p>
-		<input type="hidden" name="id" value="{$post->id}" />
-		<input type="hidden" name="source" value="{$post->source}" />
+		<input type="hidden" name="id" value="<?php echo $post->id;?>" />
+		<input type="hidden" name="source" value="<?php echo $post->source;?>" />
 	</fieldset>
 	<fieldset class="options">
     	<legend>Options</legend>
 		<p>
 			<label for="description">Excerpt</label>
-			<textarea name="description" id="description">{$post->description}</textarea>
+			<textarea name="description" id="description"><?php echo urldecode($post->description);?></textarea>
 		</p>
 		<p>
 			<label for="tags" class="inline">Tags separated by commas</label>
-			<input type="text" name="tags" id="tags" value="{$post->tags}" />
+			<input type="text" name="tags" id="tags" value="<?php echo urldecode($post->tags);?>" />
 		</p>		
 		<p>
 			<label for="password">Password protect</label>
@@ -41,7 +41,7 @@
 		</p>
 		<p>
 			<label for="post_date">Date posted</label>
-			<input type="text" name="post_date" value="{$post->post_date}" id="post_date" />
+			<input type="text" name="post_date" value="<?php echo $post->post_date;?>" id="post_date" />
 		</p>
     	<p>
         	<input type="checkbox" id="is_published" name="is_published" value="true"<?php echo $post->is_published ? ' checked="checked"' : '';?> />
@@ -65,7 +65,7 @@
 				<?php echo $post->id !== null ? 'Save post' : 'Create post';?>
 			</span>
 		</button>
-<?php if($post->source !== Application::$current_user->url):?>
+<?php if($post->source !== Application::$current_user->person->url):?>
 		<button type="submit" name="reblog" id="reblog">Reblog</button>
 <?php endif;?>
 	</nav>

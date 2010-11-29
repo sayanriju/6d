@@ -124,10 +124,10 @@
 		// I need a way to tell the data storage whether or not to add the id in the sql statement
 		// when inserting a new record. This is it. The data storage should default it to false, so
 		// if this method doesn't exist, it'll default to false.
-		public function shouldInsertId(){
+		public function should_insert_id(){
 			return true;
 		}
-		public function willAddFieldToSaveList($name, $value){
+		public function will_add_field_to_save_list($name, $value){
 			
 			if($name === 'uid' && $this->uid !== null && strlen($this->uid) > 0){
 				return uniqid(null, true);

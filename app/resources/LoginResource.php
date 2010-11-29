@@ -23,13 +23,12 @@ class LoginResource extends AppResource{
 		}
 		$user = null;
 		if(empty($email) || empty($password)) $this->redirect_to('login');
-		$user = AuthController::do_verification($email, $password);
+		$member = AuthController::do_verification($email, $password);
 		if(AuthController::is_authorized()){
-			AuthController::setAuthKey($user->email);
-			$person = Person::findById($user->person_id);
+			$person = Person::findById($member->person_id);
 			$person->session_id = session_id();
 			Person::save($person);
-			$this->redirect($user);
+			$this->redirect($member);
 		}else{
 			self::setUserMessage($this->render('error/login', array('errors'=>array('auth'=>'authorization failed'), 'message'=>"Those credentials can't be found. If you're really trying to sign in, please try it again.")));
 			$this->redirect_to('login');

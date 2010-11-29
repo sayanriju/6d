@@ -37,6 +37,7 @@
 <section id="instructions">
 	<ul>
 		<li>You can delete a group or contact by selecting it and pressing the delete key</li>
-		<li>Add a group or contact by clicking on the plus (+) sign under the respective section, filling out a name in the new field and pressing the "enter" or "return" key.
+		<li>Add a group by clicking on "Create a Group", filling out a name in the new field and pressing the "enter" or "return" key.</li>
+		<li>Add a contact by clicking on "Create a Card" (as in roladex card), filling out their name in the new field and pressing hte "enter" or "return" key.</li>
 	</ul>
 </section>

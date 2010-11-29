@@ -9,54 +9,57 @@
 <article class="hentry single <?php echo $post->type;?>">
 	<section class="content">
 		<header>
-			<aside rel="author">
-				<img src="<?php echo $author->profile->photo_url;?>" class="thumbnail" />
-				<time><a href="http://<?php echo $post->source;?>" title=""><?php echo $author->name;?></a> wrote on <?php echo Date::to_date('M jS, Y', $post->post_date);?>.</time>
-			</aside>
-			<a href="<?php echo Application::url_with_member('conversation', array('post_id'=>$post->id));?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>
 	<?php switch($post->type){
 		case('status'):?>
-			<h2><?php echo $post->body;?></h2>
+			<h2><?php echo urldecode($post->body);?></h2>
 		</header>
 		<?php break;
 		case('link'):?>
-			<h2><a href="<?php echo $post->body;?>" title="<?php echo $post->title;?>"><?php echo $post->title;?></a></h2>
+			<h2><a href="<?php echo urldecode($post->body);?>" title="<?php echo $post->title;?>"><?php echo urldecode($post->title);?></a></h2>
 		</header>
 		<section class="entry-content">
-			<p><?php echo $post->description;?></p>
+			<p><?php echo urldecode($post->description);?></p>
 		</section>	
 		<?php
 		case('album'):?>
-			<h3><?php echo $post->title;?></h3>
+			<h3><?php echo urldecode($post->title);?></h3>
 			<?php
-				$album = explode("\n", $post->body);
+				$album = explode("\n", urldecode($post->body));
 				foreach($album as $photo):
 			?>
 			<img src="<?php echo $photo;?>" />			
 			<?php endforeach;?>
 		</header>
 		<section class="entry-content">
-			<p><?php echo $post->description;?></p>
+			<p><?php echo urldecode($post->description);?></p>
 		</section>
 		<?php
 			break;
 		case('photo'):?>
-			<?php if(stripos($post->body, '<img') !== false):?>
-			<?php echo $post->body;?>
+			<?php if(stripos(urldecode($post->body), '<img') !== false):?>
+			<?php echo urldecode($post->body);?>
 			<?php else:?>
-			<img src="<?php echo $post->body;?>" alt="<?php echo $post->title;?>" />
+			<img src="<?php echo urldecode($post->body);?>" alt="<?php echo urldecode($post->title);?>" />
 			<?php endif;?>
 		</header>
 		<section class="entry-content">
-			<p><?php echo $post->description;?></p>
+			<p><?php echo urldecode($post->description);?></p>
 		</section>
 		<?php
 			break;
+		case('video'):?>
+				<h2><a href="<?php echo Application::url_with_member('blog/' . $post->custom_url);?>" rel="bookmark" title="<?php echo urldecode($post->title);?>"><?php echo urldecode($post->title);?></a></h2>
+			</header>
+			<section class="entry-content">
+				<?php echo urldecode($post->body);?>
+			</section>
+		<?php
+			break;
 		default:?>
-			<h2><?php echo $post->title;?></h2>
+			<h2><?php echo urldecode($post->title);?></h2>
 		</header>
 		<section class="entry-content">
-			<?php echo $post->body;?>
+			<?php echo urldecode($post->body);?>
 		</section>
 		<?php 
 			break;

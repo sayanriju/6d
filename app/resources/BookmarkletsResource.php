@@ -8,17 +8,23 @@ class BookmarkletsResource extends AppResource{
 		parent::__destruct();
 	}
 	public function get(){
-		if(count($this->url_parts) > 1){
-			return $this->{'get' . ucwords($this->url_parts[1])}();
+		$view = 'bookmarklet/index';
+		$this->title = 'List of Bookmarklets';
+		if(count($this->url_parts) > 1 && strlen($this->url_parts[1]) > 0){
+			$view = 'bookmarklet/' . $this->url_parts[1];
+			$this->title = ucwords($this->url_parts[1]) . ' Bookmarklet';
 		}
+
+		$this->output = $this->render($view);
+		return $this->render_layout('default');
 	}
-	public function getDelicious(){
+	public function get_delicious(){
 		$this->title = 'Delicious Bookmarklet';
 		$view = 'bookmarklet/delicious';
 		$this->output = $this->render($view, null);
 		return $this->render('layouts/home', null);
 	}
-	public function getTwitter(){
+	public function get_twitter(){
 		$this->title = 'Twitter Translator Bookmarklet';
 		$view = 'bookmarklet/twitter_translate';
 		$this->output = $this->render($view, null);
