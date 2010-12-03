@@ -17,7 +17,9 @@ class IndexResource extends AppResource{
 	public $sort_by_direction;
 	public $limit;
 	public function get(){
+		$this->page = 2;
 		$this->title = (Application::$member->person->profile !== null ? Application::$member->person->profile->site_name : Application::$member->name);
+		$this->posts = Post::findPublishedPosts(0, 5, array('updated'=>'desc', 'type'=>'desc'), Application::$member->person_id);		
 		$this->output = $this->render('index/index', null);
 		return $this->render_layout('home', null);
 	}

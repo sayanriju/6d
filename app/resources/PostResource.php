@@ -31,7 +31,7 @@ class PostResource extends AppResource{
 			$view = 'post/edit';
 		}
 		$this->post = Post::findById($id, Application::$member->person_id);
-		if($this->post == null){
+		if($id !== null && $this->post == null){
 			$this->set_not_found();
 			return;
 		}
@@ -49,7 +49,7 @@ class PostResource extends AppResource{
 			$this->post = new Post();
 			$this->title = "New post";
 			$this->output = $this->render($view, null);
-			return $this->render_layout($layout, null);
+			return $this->render_layout('default', null);
 		}
 	}
 	public static function get_conversation_for(Post $post){

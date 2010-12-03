@@ -7,7 +7,8 @@
 			parent::__construct($attributes);
 			$this->max_filesize = 2000000;
 			if(!AuthController::is_authorized()){
-				throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+				$this->set_unauthorized();
+				return;
 			}
 		}
 		public function __destruct(){
@@ -20,7 +21,7 @@
 			$this->photos = $photo->findAll(sprintf("media/%s", Application::$current_user->member_name));
 			$this->title = "Photo Wall";
 			$this->output = $this->render('photo/index', null);
-			return $this->render('layouts/default', null);
+			return $this->render_layout('default', null);
 		}
 		
 		public function post($photo = null, $callback = null){
@@ -69,7 +70,6 @@
 			$photo_path = str_replace('/' . Application::$member->member_name . '/', '/', App::url_for(null)) . $path;
 			return $this->render('photo/show', array('photo'=>$photo, 'photo_name'=>$photo['name'], 'file_name'=>$photo_name, 'photo_path'=>$photo_path, 'width'=>$width, 'callback'=>$callback));
 		}
-		
 	}
 
 ?>

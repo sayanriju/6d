@@ -4,6 +4,7 @@ class_exists('PostResource') || require('PostResource.php');
 class BlogResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
+		$this->total = 0;
 	}
 	public function __destruct(){
 		parent::__destruct();
@@ -15,77 +16,43 @@ class BlogResource extends AppResource{
 	public $sort_by_direction;
 	public $limit;
 	public $start;
-	public function get($id = null, $q = null, $limit = 5, $tag = null){
-		$this->q = $q;
-		$post_title = null;
-		$this->limit = is_numeric($limit) ? intval($limit) : 5;
-		$view = 'post/index';
-		$this->page = 0;
-		array_shift($this->url_parts);
-		if(count($this->url_parts) > 0){
-			$this->page = is_numeric($this->url_parts[0]) ? (int)$this->url_parts[0] : 0;
-			if($this->page === 0){
-				$post_title = array_shift($this->url_parts);
-			}
-		}
-		if($this->page <= 0){
-			$this->page = 1;
-		}
-		
-		$this->start = ($this->page-1) * $this->limit;
+	public $total;
+	public function get($page_or_title = null){
+		$this->limit = 5;
+		$view = 'index/index';
 		$this->sort_by = 'id';
 		$this->sort_by_direction = 'desc';
-		if($post_title === 'author'){
-			$author_id = array_shift($this->url_parts);
-			$this->posts = $this->getPostsByAuthor($author_id);
-		}else if($post_title !== null){
-			$this->post = Post::findAllPublished($post_title, Application::$member->person_id);
-			$this->title = ($this->post !== null ? $this->post->title : "Post not found");
-		}else if($tag !== null){
-			$this->title = 'All Posts Tagged ' . $tag;
-			$this->posts = $this->getPostsByTag(new Tag(array('text'=>$tag)));				
-		}else if($this->q !== null){
-			$this->title = "Results for $this->q";
-			$this->posts = Post::search($q, $this->page, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$current_user->person_id);
+		if(is_numeric($page_or_title)){
+			$this->page =  $page_or_title;
+			if($this->page <= 0){
+				$this->page = 1;
+			}
+			$this->start = ($this->page-1) * $this->limit;
+			$this->title = 'Page ' . $this->page . ' Posts';
+			$this->description = 'This is page ' . $this->page . ' of a list of Blog posts on ' . Application::$member->person->profile->site_name;
+			$this->posts = Post::findPublished($this->start, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$member->person_id);
+			$this->total = Post::get_total_published(Application::$member->person_id);
 		}else{
-			$this->title = 'All Posts';
-			$this->posts = $this->getAllPosts($this->start, $this->limit, array($this->sort_by=>$this->sort_by_direction));			
+			$this->page = 0;
+			$this->post = Post::findAllPublished($page_or_title, Application::$member->person_id);
+			$this->title = ($this->post !== null ? $this->post->title : "Post not found");
 		}
-		$this->keywords = implode(', ', String::getKeyWordsFromContent($this->output));
 		if($this->post !== null){
 			$this->description = Post::get_excerpt($this->post, false);
 			$this->post->conversation = PostResource::get_conversation_for($this->post);
 			$view = 'post/show';
 			$this->display_date = strtotime($this->post->post_date);
 		}else{
+			if(count($this->posts) === 0){
+				$this->set_not_found();
+				return;
+			}
 			for($i=0; $i<count($this->posts); $i++){
-				$this->description .= Post::get_excerpt($this->posts[$i], false) . ',';
 				$this->posts[$i]->conversation = PostResource::get_conversation_for($this->posts[$i]);
 			}
 		}
+		$this->keywords = implode(', ', String::getKeyWordsFromContent($this->output));
 		$this->output = $this->render($view);
 		return $this->render_layout('default');
-	}
-	private function getAllPosts($start, $limit, $sort_by){
-		return Post::findPublishedPosts($start, $limit, $sort_by, Application::$member->person_id);			
-	}
-	
-	private function getPostsByTag($tag){
-		return Post::findByTag($tag, $this->start, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$member->person_id);
-	}
-	private function getPostsByAuthor($author){
-		$person = new Person(array('id'=>$author_id));
-		if($person->id > 0){
-			$person = Person::findById($person->id);
-			if($person !== null){
-				if($person->is_owner){
-					$person->url = null;
-				}
-				$posts = Post::findByPerson($person, $start, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$current_user->person_id);
-				$this->title = "All Posts by " . $person->name;
-			}
-		}
-		return $posts;
-	}
-	
+	}	
 }

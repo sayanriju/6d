@@ -1,7 +1,8 @@
-<?php
-	$posts = Post::findPublishedPosts(0, 5, array('updated'=>'desc', 'type'=>'desc'), Application::$member->person_id);
-?>
 <section class="list">
+	<aside>
+		<a href="<?php echo $page > 1 ? Application::url_with_member('blog/' . ($page - 1)) : null;?>">Previous</a>
+		<a href="<?php echo $page*$limit < $total->number ? Application::url_with_member('blog/' . ($page + 1)) : null;?>">Next</a>
+	</aside>
 <?php foreach($posts as $post):?>
 	<article class="hentry <?php echo $post->type;?>">
 		<time><span class="month"><?php echo date('M', strtotime($post->updated));?></span><span class="day"><?php echo date('d', strtotime($post->updated));?></span></time>
@@ -37,7 +38,6 @@
 		<?php echo Post::get_excerpt($post);?>
 		</section>
 		<?php endif;?>
-	
 	</article>
 <?php endforeach;?>
 </section>

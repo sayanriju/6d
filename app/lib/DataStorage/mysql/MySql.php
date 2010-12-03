@@ -219,7 +219,7 @@ where ' . $securedSql : '';
 		private function populate($obj, $command, $query_id){
 			$records = array();
 			$attributes = array();
-			$className = get_class($obj);
+			$className = get_class($obj);	
 			if($query_id){
 				while($row = mysql_fetch_object($query_id)){
 					// Populate the object hiearchy with the result columns.
@@ -227,20 +227,26 @@ where ' . $securedSql : '';
 					$model = new $className(null);
 					$r = new ReflectionClass($className);
 					$methods = $r->getMethods();
-					foreach($methods as $method){
-						if($method->isPublic() && strpos($method->getName(), 'set') === 0){
-							$name = str_replace('set', '', $method->getName());
-							$parms = $method->getParameters();
-							$parm_class = $parms[0]->getClass();
-							if($parm_class == null){
-								if(array_key_exists(strtolower($name), $attributes)){
-									$method->invokeArgs($model, array($row->{strtolower($name)}));
-								}
-							}else{
-								$method->invokeArgs($model, array($this->populateWithRow($parm_class->newInstance(), $row)));
-							}
+					if($className == 'stdClass'){
+						foreach($row as $key=>$value){
+							$model->{$key} = $value;
 						}
-					}					
+					}else{
+						foreach($methods as $method){
+							if($method->isPublic() && strpos($method->getName(), 'set') === 0){
+								$name = str_replace('set', '', $method->getName());
+								$parms = $method->getParameters();
+								$parm_class = $parms[0]->getClass();
+								if($parm_class == null){
+									if(array_key_exists(strtolower($name), $attributes)){
+										$method->invokeArgs($model, array($row->{strtolower($name)}));
+									}
+								}else{
+									$method->invokeArgs($model, array($this->populateWithRow($parm_class->newInstance(), $row)));
+								}
+							}
+						}					
+					}
 					$records[] = $model;
 					$model = null;
 				}

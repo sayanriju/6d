@@ -142,7 +142,6 @@ h2 a{
 	padding-top: 20px;
 	text-align: left;
 	margin-bottom: 40px;
-	padding-left: 70px;
 }
 .banner h1 a{
 	text-decoration: none;
@@ -165,7 +164,8 @@ time{
 .banner time .month{
 	color: #e2e2e2;
 }
-.main{
+.view{
+	width: 58.875em;
 	text-align: left;
 	margin: 0 auto;
 	padding-left: 20px;
@@ -176,10 +176,8 @@ time{
 	margin-right: 20px;
 	padding-right: 50px;
 	padding-top: 20px;
-	width: 500px;
-	height: 245px;
-	float: left;
-	background: #e2e2e2;
+	padding-bottom: 20px;
+	border-bottom: dotted 1px #333;
 }
 .list .hentry time{
 	position: absolute;
@@ -209,8 +207,6 @@ time{
 	width: 300px;
 }
 footer.main{
-	width: 100%;
-	position: fixed;
 	background: #5C9AED;
 	bottom: 0;
 	height: 80px;

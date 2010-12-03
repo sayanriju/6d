@@ -290,6 +290,16 @@
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
 			return $list;
 		}
+		public static function get_total_published($owner_id){
+			$owner_id = (int)$owner_id;
+			$config = new AppConfiguration();
+			$post = new Post(null);
+			$post_count = (object) array('number'=>0);
+			$db = Factory::get($config->db_type, $config);
+			$post_count = $db->find(new All(sprintf("select count(*) as number from %s where is_published=1 and owner_id=%d", $post->getTableName(), $owner_id), null, 1, null), $post_count);
+			$post_count->number = (int)$post_count->number;
+			return $post_count;
+		}
 		public static function findPublished($start, $limit, $sort_by, $sort_by_direction = 'desc', $owner_id){
 			$config = new AppConfiguration();
 			$post = new Post(null);
