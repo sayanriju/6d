@@ -47,7 +47,7 @@ class TablesResource extends AppResource{
 		}
 		$this->title = "I'm mr. happy.";
 		$this->output = $this->render('db/tables', null);
-		return $this->render('layouts/db', null);
+		return $this->render_layout('db', null);
 		
 	}
 	public function create($db_name){

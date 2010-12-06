@@ -42,14 +42,14 @@ class SettingsResource extends AppResource{
 				if($person !== null && $person->is_approved){
 					$this->person = Application::$member;
 					$this->output = $this->render('profile/photo');
-					return $this->render('layouts/default');
+					return $this->render_layout('default');
 				}else{
 					throw new Exception(Resource::redirect_to::NOTFOUND, 404);
 				}
 			}else{
 				$this->person = Application::$member;
 				$this->output = $this->render('profile/photo');
-				return $this->render('layouts/default');
+				return $this->render_layout('default');
 			}
 		}else{
 			$this->person = Application::$member;
@@ -63,10 +63,10 @@ class SettingsResource extends AppResource{
 					throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
 				}
 				$this->output = $this->render('profile/edit', null);
-				return $this->render('layouts/default', null);
+				return $this->render_layout('default', null);
 			}else{
 				$this->output = $this->render('profile/index', null);
-				return $this->render('layouts/default', null);
+				return $this->render_layout('default', null);
 			}
 		}
 	}
@@ -120,7 +120,7 @@ class SettingsResource extends AppResource{
 		$this->person->profile = unserialize($this->person->profile);
 		$view = 'profile/index';
 		$this->output = $this->render($view, null);
-		return $this->render('layouts/default');
+		return $this->render_layout('default');
 	}
 }
 

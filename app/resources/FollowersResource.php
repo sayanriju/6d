@@ -76,12 +76,12 @@ class FollowersResource extends AppResource{
 		}else{
 			// Someone has sent another friend request, but is already a friend.
 			$friend_request = new FriendRequest(array('name'=>$this->person->name, 'email'=>$this->person->email, 'public_key'=>$this->person->public_key, 'created'=>date('c'), 'url'=>$this->person->url, 'owner_id'=>Application::$member->person_id));
-			$response = $this->save($friend_request, $this->person);
+			$friend_request = FriendRequest::save($friend_request);
 		}
 		if($message !== null){
 			return $message;
 		}else{
-			return "Thanks for the request. I'll make sure " . Application::$member->name . " gets it.";
+			return "Thanks for the request. I'll make sure " . Application::$member->person->name . " gets it.";
 		}
 	}
 }

@@ -28,7 +28,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 			}
 			$this->title = $this->member !== null && $this->member->id > 0 ? sprintf('Member: %s', $this->member->email) : 'Add a member';
 			$this->output = $this->render('member/edit', null);	
-			return $this->render('layouts/default', null);
+			return $this->render_layout('default', null);
 		}
 		public function delete(Member $member){
 			if($member->id === null || strlen($member->id) === 0){

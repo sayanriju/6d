@@ -123,7 +123,7 @@ class ProfileResource extends AppResource{
 		$this->person->profile = unserialize($this->person->profile);
 		$view = 'profile/index';
 		$this->output = $this->render($view, null);
-		return $this->render('layouts/default');
+		return $this->render_layout('default');
 	}
 }
 

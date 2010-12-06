@@ -13,7 +13,7 @@
 		public function get_videochannel(){
 			$this->title = "Video Channel";
 			$this->output = $this->render('videochannel/index', null);
-			return $this->render('layouts/default', null);
+			return $this->render_layout('default', null);
 		}
 	}
 

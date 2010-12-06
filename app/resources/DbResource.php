@@ -24,7 +24,7 @@ class DbResource extends AppResource{
 		$this->databases = $this->db->getDatabases();
 		$this->title = $this->config->database;
 		$this->output = $this->render('db/index', null);
-		return $this->render('layouts/db', null);
+		return $this->render_layout('db', null);
 	}
 	
 	public function get_db_tables($db_name){
@@ -32,7 +32,7 @@ class DbResource extends AppResource{
 		$this->db_name= $db_name;
 		$this->field_name = "Tables_in_$db_name";
 		$this->output = $this->render('db/tables', null);
-		return $this->render(null);
+		return $this->render_layout(null);
 	}
 	public function show($db_name){
 		if($db_name == null)
@@ -44,7 +44,7 @@ class DbResource extends AppResource{
 		}
 		$this->title = "I'm mr. happy.";
 		$this->output = $this->render('db/tables', null);
-		return $this->render('layouts/db', null);
+		return $this->render_layout('db', null);
 		
 	}
 	public function create($db_name){

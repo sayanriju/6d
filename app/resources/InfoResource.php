@@ -11,7 +11,7 @@ class InfoResource extends AppResource{
 	public function get(){		
 		$this->title = "PHP info";
 		$this->output = phpinfo();
-		return $this->render('layouts/default', null);
+		return $this->render_layout('default', null);
 	}
 	
 }

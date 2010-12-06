@@ -28,12 +28,12 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 				}
 				$this->title = 'Person: ' . $this->person->email;				
 				$this->output = $this->render('person/show', null);				
-				return $this->render('layouts/default', null);
+				return $this->render_layout('default', null);
 			}else{
 				$this->person = new Person();
 				$this->title = "Add a person";
 				$this->output = $this->render('person/show', null);
-				return $this->render('layouts/default', null);
+				return $this->render_layout('default', null);
 			}
 			
 		}

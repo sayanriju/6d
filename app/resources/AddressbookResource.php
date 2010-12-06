@@ -76,6 +76,6 @@ class AddressbookResource extends AppResource{
 		}
 		$view = 'addressbook/show';
 		$this->output = $this->render($view);
-		return $this->render('layouts/default');		
+		return $this->render_layout('default');		
 	}
 }

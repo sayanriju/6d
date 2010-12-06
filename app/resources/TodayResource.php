@@ -33,7 +33,7 @@ class TodayResource extends AppResource{
 		$this->description = "List of Today's activities";
 		$this->title = "Today's Activities";
 		self::$cached_posts = $this->posts;
-		return $this->render('layouts/default', null);
+		return $this->render_layout('default', null);
 	}
 	public static function get_todays_posts($is_authed, $person_id, $limit){
 		$posts = null;

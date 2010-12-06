@@ -42,7 +42,7 @@ class Resource extends Object{
 		}
 		if(!in_array($file_type, array('html', 'xml'))){
 			return $this->output;
-		}		
+		}
 		$output = $this->render('layouts/' . $name, $data, $file_type);
 		$output = $this->did_render_layout($name, $output);
 		return $output;

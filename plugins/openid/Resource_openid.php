@@ -357,7 +357,7 @@ class OpenidCommand{
 			}
 			$this->resource->output = $this->resource->render('plugins/openid/views/check_authentication/login', array('request'=>$request));
 			
-			return $this->resource->render('layouts/default');		
+			return $this->resource->render_layout('default');		
 		}
 	}
 	public function post($openid_mode){
@@ -670,7 +670,7 @@ class Openid_check_authentication extends OpenidCommand{
 				$this->resource->output = "It seems like the request has been compromised. Go back and try again. If this message is displayed again, I wouldn't trust the site you're trying to login to.";
 			}
 		}
-		return $this->resource->render('layouts/default');
+		return $this->resource->render_layout('default');
 	}
 	public function post($openid_mode){
 		

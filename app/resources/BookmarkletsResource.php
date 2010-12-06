@@ -22,12 +22,12 @@ class BookmarkletsResource extends AppResource{
 		$this->title = 'Delicious Bookmarklet';
 		$view = 'bookmarklet/delicious';
 		$this->output = $this->render($view, null);
-		return $this->render('layouts/home', null);
+		return $this->render_layout('home', null);
 	}
 	public function get_twitter(){
 		$this->title = 'Twitter Translator Bookmarklet';
 		$view = 'bookmarklet/twitter_translate';
 		$this->output = $this->render($view, null);
-		return $this->render('layouts/home', null);
+		return $this->render_layout('home', null);
 	}
 }

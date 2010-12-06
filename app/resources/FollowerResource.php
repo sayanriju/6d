@@ -15,18 +15,20 @@ class FollowerResource extends AppResource{
 		parent::__destruct();
 	}
 	public $person;
-	public function get(){
+	public function get($id){
 		if(!AuthController::is_authorized()){
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+			$this->set_unauthorized();
+			return;
 		}
-		
-		if(count($this->url_parts) > 1){
-			$id = String::replace('/\..*$/', '', $this->url_parts[1]);
-			$this->person = FriendRequest::findByIdAndOwnerId($id, Application::$current_user->person_id);
-			$this->title =  $this->person->name;
+		$id = (int)$id;
+		if($id == 0){
+			$this->set_not_found();
+			return;
 		}
+		$this->person = FriendRequest::findByIdAndOwnerId($id, Application::$current_user->person_id);
+		$this->title =  $this->person->name;
 		$this->output = $this->render('follower/show');
-		return $this->render('layouts/default', null);
+		return $this->render_layout('default', null);
 	}
 	private function save($request, $person = null){
 		$response = null;
@@ -68,7 +70,8 @@ class FollowerResource extends AppResource{
 	public function put(FriendRequest $request){
 		$response = null;
 		if(!AuthController::is_authorized()){
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+			$this->set_unauthorized();
+			return;
 		}else{
 			$request = FriendRequest::findByIdAndOwnerId($request->id, Application::$current_user->person_id);
 			$this->person = Person::findByUrlAndOwnerId($request->url, Application::$current_user->person_id);
@@ -87,13 +90,14 @@ class FollowerResource extends AppResource{
 	public function post(Person $person){
 		$errors = array();
 		if(!AuthController::is_authorized()){
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+			$this->set_unauthorized();
+			return;
 		}elseif($person->id !== null){
 			$this->person = Person::findByIdAndOwner($person->id, Application::$current_user->person_id);
 			if($this->person->url !== null && strlen($this->person->url) > 0){
 				error_log('found ' . $this->person->url . ' to send a friend request to.');
 				$config = new AppConfiguration();
-				$site_path = String::replace('/\/$/', '', Resource::redirect_to::$site_path);
+				$site_path = App::url_for(null);
 				$response = ServicePluginController::execute(new IntroductionCommand($this->person, Application::$current_user));				
 				if($response->headers['http_code'] == 404){
 					Resource::setUserMessage("That web address was not found. Please go back and confirm that " . $this->person->url . " is a working site.");
@@ -108,18 +112,19 @@ class FollowerResource extends AppResource{
 				Resource::setUserMessage($errors['url']);
 			}
 			error_log(Resource::get_user_message());
-			return $this->render('layouts/default', null);
+			return $this->render_layout('default', null);
 		}
 	}
 	public function delete(FriendRequest $request){
 		if(!AuthController::is_authorized()){
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+			$this->set_unauthorized();
+			return;
 		}
 		if($request->id > 0){
 			$response = FriendRequest::delete($request);
 			Resource::setUserMessage('Request has been deleted: ' . $response);
 		}
 		$this->output = $this->render('follower/index');
-		return $this->render('layouts/default');
+		return $this->render_layout('default');
 	}
 }

@@ -14,11 +14,11 @@
 			<button type="submit" name="cofirm">Confirm as a friend</button>
 		</p>
 		<input type="hidden" name="_method" value="put" />
-		<input type="hidden" name="id" id="id" value="{$person->id}" />
+		<input type="hidden" name="id" id="id" value="<?php echo $person->id;?>" />
 	</fieldset>
 </form>
 <form action="<?php echo Application::url_with_member('follower');?>" method="post">
-	<input type="hidden" name="id" id="id" value="{$person->id}" />
+	<input type="hidden" name="id" id="id" value="<?php echo $person->id;?>" />
 	<input type="hidden" name="_method" value="delete" />
 	<input type="submit" name="delete_button" value="Delete" />
 </form>

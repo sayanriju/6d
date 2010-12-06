@@ -36,7 +36,7 @@ class GroupResource extends AppResource{
 		$this->groups = array_merge(array($all_contacts), $this->groups);
 		$view = 'addressbook/index';
 		$this->output = $this->render($view);
-		return $this->render('layouts/default');
+		return $this->render_layout('default');
 	}
 
 	public function delete(Tag $group = null){
@@ -51,7 +51,7 @@ class GroupResource extends AppResource{
 		$this->groups = array_merge(array($all_contacts), $this->groups);
 		$view = 'addressbook/index';
 		$this->output = $this->render($view);
-		return $this->render('layouts/default');
+		return $this->render_layout('default');
 	}
 	
 }

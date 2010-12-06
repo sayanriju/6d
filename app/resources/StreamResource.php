@@ -18,7 +18,7 @@ class StreamResource extends AppResource{
 		}
 		$this->posts = Post::findFriendsPublishedStatii(Application::$current_user->person->id);
 		$this->output = $this->render('post/index');
-		return $this->render('layouts/default');
+		return $this->render_layout('default');
 	}
 	private function getAllPosts($start, $limit, $sort_by, $sort_by_direction){
 		return Post::find($start, $limit, $sort_by, $sort_by_direction, Application::$current_user->person_id);			

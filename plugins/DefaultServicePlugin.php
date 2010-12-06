@@ -24,7 +24,7 @@ class DefaultIntroductionCommand{
 	public function __destruct(){}
 	private $command;
 	public function execute(){
-		$site_path = String::replace('/\/$/', '', Resource::redirect_to::$site_path);
+		$site_path = String::replace('/\/$/', '', App::url_for(null));
 		$data = sprintf("email=%s&name=%s&url=%s&created=%s", urlencode($this->command->sender->email), urlencode($this->command->sender->name),  urlencode(str_replace('http://', '', $site_path)), urlencode(date('c')));
 		$response = NotificationResource::sendNotification($this->command->target, 'followers', $data, 'post');
 		return $response;

@@ -82,7 +82,7 @@
 					<button type="submit" name="save_button" id="save_button"><span>Save</span></button>
 				</p>
 				
-				<input type="hidden" id="id" name="id" value="{$person->id}" />
+				<input type="hidden" id="id" name="id" value="<?php echo $person->id;?>" />
 				<input type="hidden" name="_method" value="put" />
 			</fieldset>
 		</form>

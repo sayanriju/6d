@@ -5,9 +5,9 @@ class_exists('Tag') || require('models/Tag.php');
 class GroupsResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
-		if(! AuthController::is_authorized()){
-			Resource::redirect_to::setRequestedUrl('addressbook');
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+		if(!AuthController::is_authorized()){
+			$this->set_unauthorized();
+			throw new Exception("Unauthorized");
 		}
 	}
 	public function __destruct(){
@@ -39,7 +39,7 @@ class GroupsResource extends AppResource{
 			self::setUserMessage($message);
 		}
 		$this->output = $this->render($view);
-		return $this->render('layouts/default');
+		return $this->render_layout('default');
 	}
 		
 	public function delete($groups = null, $ids = null, Tag $group = null){
@@ -58,6 +58,6 @@ class GroupsResource extends AppResource{
 		$this->groups = array_merge(array($all_contacts), $this->groups);
 		$view = 'group/index';
 		$this->output = $this->render($view);
-		return $this->render('layouts/default');
+		return $this->render_layout('default');
 	}	
 }

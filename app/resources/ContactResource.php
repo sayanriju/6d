@@ -10,16 +10,16 @@ class ContactResource extends AppResource{
 	public function get(){
 		$this->title = "Send us a message";
 		$this->output = $this->render('contact/index');
-		return $this->render('layouts/default');
+		return $this->render_layout('default');
 	}
 	public function post($from, $message = null){
 		if($from === null || $message === null){
 			self::setUserMessage("Did you want to say something?");
 			$this->output = $this->render('contact/index');
-			return $this->render('layouts/default');
+			return $this->render_layout('default');
 		}
 		self::setUserMessage("Thanks for dropping a line. We'll get right on it dog gone it.");
-		return $this->render('layouts/default');
+		return $this->render_layout('default');
 	}
 	
 	private function send($emails, $message=null, $subject){

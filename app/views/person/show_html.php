@@ -27,7 +27,7 @@
 			<button type="submit" name="save_button" id="save_button"><span>Save</span></button>
 		</p>
 		<p>
-			<input type="hidden" name="id" id="id" value="{$person->id}" />
+			<input type="hidden" name="id" id="id" value="<?php echo $person->id;?>" />
 <?php if($person->id !== null):?>
 			<input type="hidden" name="_method" value="put" />
 <?php endif;?>
@@ -36,7 +36,7 @@
 </form>
 <?php if($person->url !== null):?>
 <form action="<?php echo App::url_for('follower');?>" method="post" id="friend_request_form">
-	<input type="hidden" name="person[id]" id="id" value="{$person->id}" />
+	<input type="hidden" name="person[id]" id="id" value="<?php echo $person->id;?>" />
 <?php if(!$person->is_owner):?>
 	<?php if($person->public_key !== null && strlen($person->public_key) > 0):?>
 	<button id="friend_request_button" type="submit"<?php echo (strlen($person->url) === 0 ? ' disabled="true"':null);?>>Add as friend again</button>

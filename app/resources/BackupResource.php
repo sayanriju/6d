@@ -27,14 +27,14 @@ class BackupResource extends AppResource{
 	public function get(){
 		$this->title = "Backup your data";
 		$this->output = $this->render('backup/index', null);
-		return $this->render('layouts/default', null);
+		return $this->render_layout('default', null);
 	}
 	public function post(){
 		$this->archiveAll();
 		$this->files = $this->getBackupFiles();
 		$this->title = "Backup your data";
 		$this->output = $this->render('backup/index', null);
-		return $this->render('layouts/default', null);
+		return $this->render_layout('default', null);
 	}
 	public function put($file_name){
 		$this->title = "Restoring your $file_name backup";
@@ -47,7 +47,7 @@ class BackupResource extends AppResource{
 			self::setUserMessage("That backup doesn't exist.");
 		}
 		$this->output = $this->render('backup/index', null);
-		return $this->render('layouts/default', null);
+		return $this->render_layout('default', null);
 	}
 	public function delete($file_name){
 		unlink($file_name);

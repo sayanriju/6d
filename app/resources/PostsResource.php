@@ -58,7 +58,7 @@ class PostsResource extends AppResource{
 			}
 		}
 		$this->output = $this->render('post/index');
-		return $this->render('layouts/default');
+		return $this->render_layout('default');
 	}
 	public function post(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array()){
 		$errors = array();

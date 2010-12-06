@@ -20,7 +20,7 @@
         public function get_upgrade(){
 			$this->title = "App Upgrade";
 			$this->output = $this->render('upgrade/index', null);
-			return $this->render('layouts/install', null);
+			return $this->render_layout('install', null);
         }
 
 		public function post_upgrade(){

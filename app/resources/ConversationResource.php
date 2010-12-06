@@ -25,7 +25,7 @@ class ConversationResource extends AppResource{
 		}
 		$this->post->conversation = PostResource::get_conversation_for($this->post);
 		$this->output = $this->render($view);
-		return $this->render('layouts/default');
+		return $this->render_layout('default');
 	}
 	public function put(Comment $comment, $public_key){
 		if($public_key !== null){
@@ -56,7 +56,7 @@ class ConversationResource extends AppResource{
 					$this->status = new HttpStatus(201);
 				}
 				$this->output = $this->render('comment/index');
-				return $this->render('layouts/default');
+				return $this->render_layout('default');
 			}
 		}
 	}

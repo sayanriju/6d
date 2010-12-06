@@ -15,11 +15,11 @@ class BookmarkletResource extends AppResource{
 	public function getDelicious(){
 		$view = 'bookmarklet/delicious';
 		$this->output = $this->render($view, null);
-		return $this->render('layouts/home', null);
+		return $this->render_layout('home', null);
 	}
 	public function getTwitter(){
 		$view = 'bookmarklet/twitter_translate';
 		$this->output = $this->render($view, null);
-		return $this->render('layouts/home', null);
+		return $this->render_layout('home', null);
 	}
 }

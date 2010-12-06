@@ -36,7 +36,7 @@ class_exists('Member') || require('models/Member.php');
 				}
 			}
 			$this->output = $this->render($view, null);				
-			return $this->render('layouts/default', null);
+			return $this->render_layout('default', null);
 		}
 		public function put(Member $member, Profile $profile = null){			
 			$view = 'member/edit';
@@ -77,7 +77,7 @@ class_exists('Member') || require('models/Member.php');
 			}
 			$this->redirect_to('members');
 			$this->output = $this->render($view, array('errors'=>$errors));
-			return $this->render('layouts/default');					
+			return $this->render_layout('default');					
 		}
 		public function post(Member $member, Profile $profile = null){
 			$view = 'member/index';
@@ -111,7 +111,7 @@ class_exists('Member') || require('models/Member.php');
 				}
 			}				
 			$this->output = $this->render($view, array('errors'=>$this->member->errors));
-			return $this->render('layouts/default');					
+			return $this->render_layout('default');					
 		}
 	}
 ?>

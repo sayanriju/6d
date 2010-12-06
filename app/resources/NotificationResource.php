@@ -24,7 +24,7 @@
 			}
 			$this->title = 'Notifications';
 			$this->output = $this->render('notification/recent', null);
-			return $this->render('layouts/default', null);
+			return $this->render_layout('default', null);
 		}
 		private function getFromFriend(Notification $notification){
 			$type = $notification->name;

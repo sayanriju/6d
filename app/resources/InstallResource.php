@@ -29,7 +29,7 @@
 			}
 			$this->title = "App Installation";
 			$this->output = $this->render($view, null);
-			return $this->render('layouts/install', null);
+			return $this->render_layout('install', null);
         }
 
 		public function get_install_configuration(){
@@ -42,13 +42,13 @@
 			$this->title = "Createa a Configuration File";
 			$this->configuration = unserialize($_SESSION['configuration']);			
 			$this->output = $this->render('install/config', null);
-			return $this->render('layouts/install', null);			
+			return $this->render_layout('install', null);			
 		}
 		
 		public function get_install_done(){
 			$this->title = "Completed Installation";
 			$this->output = $this->render('install/done', null);
-			return $this->render('layouts/install', null);
+			return $this->render_layout('install', null);
         }
 
         
