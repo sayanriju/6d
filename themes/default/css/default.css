@@ -138,6 +138,17 @@ h2{
 h2 a{
 	color: #000;
 }
+
+fieldset p label{
+	display: block;
+}
+input{
+	padding: 3px;
+	margin: 0;
+	font-size: 21px;
+	font-weight: bold;
+}
+
 .banner{
 	padding-top: 20px;
 	text-align: left;
@@ -145,9 +156,6 @@ h2 a{
 }
 .banner h1 a{
 	text-decoration: none;
-}
-.hentry, footer.main{
-	padding-left: 50px;
 }
 time{
 	color: #000;
@@ -164,16 +172,20 @@ time{
 .banner time .month{
 	color: #e2e2e2;
 }
-.view{
+.view, footer.main{
 	width: 58.875em;
+}
+.view{
 	text-align: left;
 	margin: 0 auto;
-	padding-left: 20px;
+	position: relative;
 }
+
 .list .hentry {
 	position: relative;
 	margin-bottom: 20px;
 	margin-right: 20px;
+	padding-left: 50px;
 	padding-right: 50px;
 	padding-top: 20px;
 	padding-bottom: 20px;
@@ -208,10 +220,68 @@ time{
 }
 footer.main{
 	background: #5C9AED;
-	bottom: 0;
-	height: 80px;
+	height: 60px;
 	color: #fff;
+	position: fixed;
+	bottom: 0;
+	text-align: center;
 }
 footer.main a{
 	color: #fff;
+}
+button.close{
+	border: solid 1px #fff;
+	background: transparent;
+	color: #fff;
+	border-radius: 20px;
+	-webkit-border-radius: 20px;
+	-moz-border-radius: 20px;
+}
+/* new post on the index page */
+.new fieldset.type ul li{
+	float: left;
+	display: block;
+	margin-right: 20px;
+}
+.new{
+	width: 100%;
+}
+.new input[type="text"], .new textarea{
+	width: 700px;
+}
+.new fieldset.content textarea{
+	height: 100px;
+}
+.new fieldset.options textarea{
+	height: 50px;
+}
+.new fieldset.options p input[type="checkbox"]{
+	float: left;
+	margin-top: 5px;
+}
+.new fieldset.options p label{
+	margin-left: 20px;
+	color: #fff;
+}
+.new fieldset.options{
+	position: absolute;
+	top: 0;
+	right: 0;
+	background: rgba(0,0,0,.8);
+}
+/* film strip*/
+.film_strip ul li{
+	float: left;
+	display: block;
+	margin-right: 5px;
+	width: 75px;
+	height: 90px;
+	position: relative;
+}
+.film_strip img{
+	width: 100%;
+}
+.film_strip li form{
+	position: absolute;
+	bottom: 0;
 }

@@ -19,7 +19,7 @@
 			if(!$did_delete){
 				self::setUserMessage(sprintf('failed to delete %s', $src));
 			}
-			$this->redirect_to(Application::$current_user->member_name . '/photos');
+			$this->redirect_to('photos');
 		}
 		public function put($ratio, $offset_x, $offset_y, $dst_w, $dst_h, $src_file_name, $dst_file_name){
 			$src_file_name = str_replace(App::url_for(null), '', $src_file_name);

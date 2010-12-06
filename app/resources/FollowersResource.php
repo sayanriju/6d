@@ -16,7 +16,8 @@ class FollowersResource extends AppResource{
 	public function get(){
 		$errors = array();
 		if(!AuthController::is_authorized()){
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+			$this->set_unauthorized();
+			return;
 		}else{
 			$this->people = FriendRequest::findAll();
 			if($this->people === null){
@@ -24,7 +25,7 @@ class FollowersResource extends AppResource{
 			}
 			$this->title = 'Friend Requests';
 			$this->output = $this->render('follower/index', array('errors'=>$errors));
-			return $this->render('layouts/default', null);
+			return $this->render_layout('default');
 		}
 		
 	}

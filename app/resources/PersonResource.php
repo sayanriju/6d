@@ -9,7 +9,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
 			if(!AuthController::is_authorized()){
-				throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+				$this->set_unauthorized();
 			}
 		}
 	
@@ -19,16 +19,12 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 
 		public $people;
 		public $person;
-		public function get(Person $person = null){
-			if(count($this->url_parts) > 1){
-				$person = new Person(array('id'=>self::pathWithoutExtension($this->url_parts[1])));
-			}
-			
-			if($person != null && $person->id > 0){
-				if($person->id == Application::$current_user->person_id){
+		public function get($id = 0){			
+			if($id > 0){
+				if($id == Application::$current_user->person_id){
 					$this->person = Application::$current_user;
 				}else{
-					$this->person = Person::findByIdAndOwner($person->id, Application::$current_user->person_id);
+					$this->person = Person::findByIdAndOwner($id, Application::$current_user->person_id);
 				}
 				$this->title = 'Person: ' . $this->person->email;				
 				$this->output = $this->render('person/show', null);				
@@ -82,7 +78,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 				Resource::setUserMessage($user_message);
 			}
 			$this->output = $this->render($view, array('user_message'=>$user_message));
-			return $this->render('layouts/default');					
+			return $this->render_layout('default');					
 		}
 		public function post(Person $person, Profile $profile = null){
 			$view = 'person/index';
@@ -112,7 +108,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 				}
 			}				
 			$this->output = $this->render($view);
-			return $this->render('layouts/default');					
+			return $this->render_layout('default');					
 		}
 	}
 ?>

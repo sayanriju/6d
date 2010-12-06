@@ -290,24 +290,24 @@
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
 			return $list;
 		}
-		public static function get_total_published($owner_id){
+		public static function get_total_published_posts($owner_id, $sort_by = array('post_date'=>'desc')){
 			$owner_id = (int)$owner_id;
 			$config = new AppConfiguration();
 			$post = new Post(null);
 			$post_count = (object) array('number'=>0);
 			$db = Factory::get($config->db_type, $config);
-			$post_count = $db->find(new All(sprintf("select count(*) as number from %s where is_published=1 and owner_id=%d", $post->getTableName(), $owner_id), null, 1, null), $post_count);
+			$post_count = $db->find(new All(sprintf("select count(*) as number from %s where is_published=1 and owner_id=%d and type not in ('status', 'page')", $post->getTableName(), $owner_id), $sort_by, 1, null), $post_count);
 			$post_count->number = (int)$post_count->number;
 			return $post_count;
 		}
-		public static function findPublished($start, $limit, $sort_by, $sort_by_direction = 'desc', $owner_id){
+		public static function findPublished($start, $limit, $sort_by, $owner_id){
 			$config = new AppConfiguration();
 			$post = new Post(null);
 			$db = Factory::get($config->db_type, $config);
-			if($sort_by === null || strlen($sort_by) === 0){
-				$sort_by = $post->getTableName() . '.id';
+			if($sort_by === null){
+				$sort_by = array($post->getTableName() . '.id'=>'desc');
 			}
-			$list = $db->find(new ByClause(sprintf("is_published=1 and owner_id=%d", $owner_id), null, array($start, $limit), array($sort_by=>$sort_by_direction)), $post);
+			$list = $db->find(new ByClause(sprintf("is_published=1 and owner_id=%d", $owner_id), null, array($start, $limit), $sort_by), $post);
 			$list = ($list == null ? array() : (is_array($list) ? $list : array($list)));
 			return $list;
 		}
@@ -405,11 +405,11 @@
 			return $list;
 		}
 		
-		public static function findAllPublished($custom_url, $owner_id){
+		public static function findPublishedByCustomUrl($custom_url, $owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
 			$cusomt_url = $db->sanitize($custom_url);
-			$post = $db->find(new ByClause("is_published=1 and custom_url='{$custom_url}' and owner_id={$owner_id}", null, 1, null), new Post(null));
+			$post = $db->find(new ByClause("is_published=1 and custom_url='{$custom_url}' and owner_id={$owner_id}", null, 1, array('post_date'=>'desc')), new Post(null));
 			return $post;
 		}
 		
@@ -463,7 +463,7 @@
 		public static function save(Post $post){
 			$errors = self::canSave($post);
 			$config = new AppConfiguration();
-			$post->tags = $post->tags == null ? array() : $post->tags ;
+			$post->tags = $post->tags == null ? array() : $post->tags;
 			if(count($errors) == 0){
 				$db = Factory::get($config->db_type, $config);
 				$db->save(null, $post);
@@ -478,7 +478,7 @@
 						Tag::save(new Tag(array('parent_id'=>$post->id, 'type'=>'post', 'text'=>$tag_text, 'owner_id'=>$post->owner_id)));
 					}
 				}
-				self::notify('didSavePost', $post, $post);
+				self::notify('post_was_saved', $post, $post);
 			}
 			return array($post, $errors);
 		}

@@ -109,13 +109,13 @@
 		public function did_finish_dispatching(){
 			parent::did_finish_dispatching();
 		}
-		public function did_render_view($layout, $output){
+		public function did_render_layout($layout, $output){			
 			if(class_exists('AppConfiguration')){
 				$output = $this->filter_header($output);
 				$output = $this->filter_footer($output);
 			}
 			return $output;
-		}		
+		}
 		protected function filter_text($text){
 			$post_filters = $this->get_plugins('filters', 'PostFilter');
 			foreach($post_filters as $filter){
@@ -124,14 +124,6 @@
 			return $text;
 		}
 		private function filter_header($output){
-			$js = <<<eos
-<script type="text/javascript">
-// This is required so the ajax requests are to the correct url in the multi member case.
-SDObject.rootUrl = '%s';
-</script>
-eos;
-			$output = str_replace('</head>', sprintf($js . '
-</head>', App::url_for(null)), $output);
 			$filters = PluginController::get_plugins('filters', 'HeaderFilter');
 			foreach($filters as $filter){
 				$output = $filter->execute($output);

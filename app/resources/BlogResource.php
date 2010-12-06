@@ -20,7 +20,7 @@ class BlogResource extends AppResource{
 	public function get($page_or_title = null){
 		$this->limit = 5;
 		$view = 'index/index';
-		$this->sort_by = 'id';
+		$this->sort_by = 'post_date';
 		$this->sort_by_direction = 'desc';
 		if(is_numeric($page_or_title)){
 			$this->page =  $page_or_title;
@@ -30,11 +30,11 @@ class BlogResource extends AppResource{
 			$this->start = ($this->page-1) * $this->limit;
 			$this->title = 'Page ' . $this->page . ' Posts';
 			$this->description = 'This is page ' . $this->page . ' of a list of Blog posts on ' . Application::$member->person->profile->site_name;
-			$this->posts = Post::findPublished($this->start, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$member->person_id);
-			$this->total = Post::get_total_published(Application::$member->person_id);
+			$this->posts = Post::findPublishedPosts($this->start, $this->limit, array($this->sort_by=>$this->sort_by_direction), Application::$member->person_id);
+			$this->total = Post::get_total_published_posts(Application::$member->person_id);
 		}else{
 			$this->page = 0;
-			$this->post = Post::findAllPublished($page_or_title, Application::$member->person_id);
+			$this->post = Post::findPublishedByCustomUrl($page_or_title, Application::$member->person_id);
 			$this->title = ($this->post !== null ? $this->post->title : "Post not found");
 		}
 		if($this->post !== null){

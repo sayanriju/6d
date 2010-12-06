@@ -122,6 +122,9 @@ class App {
 		$resource->output = self::add_request_time_to_footer($resource->output, $start_time, $end_time);
 		return $resource;
 	}
+	public static function get_referrer(){
+		return $_SERVER['HTTP_REFERER'];
+	}
 	private static function file_not_found($url_parts, $file_type){
 		if(method_exists(self::$delegate, 'file_not_found')) return self::$delegate->file_not_found($url_parts, $file_type);
 		$resource = new AppResource(array('url_parts'=>$url_parts, 'file_type'=>$file_type));

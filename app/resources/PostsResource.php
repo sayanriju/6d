@@ -65,7 +65,7 @@ class PostsResource extends AppResource{
 		if(AuthController::is_authorized()){
 			$post->source = Application::$current_user->url;
 			$this->save($post, $people, $groups, $make_home_page);
-			$this->redirect_to(Application::$member->member_name . '/' . $post->custom_url);
+			$this->redirect_to($post->custom_url);
 		}else if($public_key != null && strlen($public_key)>0){
 			$person = Person::findByPublicKeyAndUrl($public_key, $post->source);
 			$response = 'ok';

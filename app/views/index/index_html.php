@@ -5,7 +5,7 @@
 	</aside>
 <?php foreach($posts as $post):?>
 	<article class="hentry <?php echo $post->type;?>">
-		<time><span class="month"><?php echo date('M', strtotime($post->updated));?></span><span class="day"><?php echo date('d', strtotime($post->updated));?></span></time>
+		<time><span class="month"><?php echo date('M', strtotime($post->post_date));?></span><span class="day"><?php echo date('d', strtotime($post->post_date));?></span></time>
 	
 		<?php if($post->type === 'status'):?>
 		<header>

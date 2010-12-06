@@ -22,7 +22,7 @@ class AddressbookResource extends AppResource{
 		$this->title = 'Address Book';
 		$this->people = Person::findAllByOwner(Application::$current_user->person_id);
 		
-		$layout = 'layouts/default';
+		$layout = 'default';
 		if($this->people == null){
 			$this->people = array();
 		}else{
@@ -42,7 +42,7 @@ class AddressbookResource extends AppResource{
 			$view = 'addressbook/index_modal';
 		}
 		$this->output = $this->render($view);
-		return $this->render($layout);
+		return $this->render_layout($layout);
 	}
 	public function delete(Tag $group = null, Person $person = null){
 		if(!AuthController::is_authorized() || Application::$current_user->person_id != Application::$member->person_id){

@@ -83,6 +83,8 @@ class PostResource extends AppResource{
 				$person->profile = unserialize($person->profile);
 				$person->profile->photo_url = $response->person->photo_url;				
 			}
+		}else{
+			$person = Application::$member;
 		}
 		return $person;
 	}

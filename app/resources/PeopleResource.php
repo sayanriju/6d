@@ -15,16 +15,13 @@ class PeopleResource extends AppResource{
 	public $person;
 	public $follow_requestors;
 	
-	public function get(Tag $group = null){
-		if(count($this->url_parts) > 1){
-			$group = new Tag(array('text'=>urldecode(String::replace('/\..*$/', '', $this->url_parts[1])), 'type'=>'group'));
-		}
+	public function get($group = null){
 		if(!AuthController::is_authorized()){
-			Resource::redirect_to::setRequestedUrl('people');
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+			$this->set_unauthorized();
+			return;
 		}
 		$this->person = new Person();
-		$this->people = $this->getPeople($group);
+		$this->people = $this->getPeople(new Tag(array('text'=>$group, 'type'=>'group')));
 		if($this->people == null){
 			$this->people = array();
 		}else{
@@ -33,7 +30,7 @@ class PeopleResource extends AppResource{
 		$this->people = Person::removeOwner(Application::$current_user->person_id, $this->people);
 		$this->title = 'People';
 		$this->output = $this->render('person/index', null);
-		return $this->render('layouts/default', null);
+		return $this->render_layout('default');
 	}
 	public function delete($ids = array()){
 		if($ids !== null && strlen($ids) > 0){
@@ -43,12 +40,12 @@ class PeopleResource extends AppResource{
 		$this->people = Person::findAllByOwner(Application::$current_user->person_id);
 		$this->title = 'People';
 		$this->output = $this->render('person/index', null);
-		return $this->render('layouts/default', null);
+		return $this->render_layout('default');
 	}
 	private function getPeople($group){
 		if($group->text !== 'All Contacts'){
 			return Person::findByTagTextAndOwner(urlencode($group->text), Application::$current_user->person_id);
-		}elseif($this->group->text === 'Friend Requests'){
+		}elseif($group->text === 'Friend Requests'){
 			return FriendRequest::findAllForOwner(Application::$current_user->person_id);
 		}else{
 			return Person::findAllByOwner(Application::$current_user->person_id);

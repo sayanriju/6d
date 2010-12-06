@@ -48,6 +48,9 @@
 	<?php echo $resource_css;?>
 	<script type="text/javascript" charset="utf-8" src="<?php echo App::url_for('js/NotificationCenter.js');?>"></script>
 	<script type="text/javascript" charset="utf-8" src="<?php echo App::url_for('js/default.js');?>" id="default_script"></script>
+	<script type="text/javascript">
+		SDObject.rootUrl = '<?php echo App::url_for(null);?>';
+	</script>
 	<!--[if IE]>
 	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->

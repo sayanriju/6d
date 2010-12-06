@@ -146,7 +146,7 @@ class Application{
 			if(AuthController::is_authorized()){
 				$post = Post::findByAttribute('custom_url', $page_name, Application::$member->person_id);
 			}else{
-				$post = Post::findAllPublished($page_name, Application::$member->person_id);
+				$post = Post::findPublishedByCustomUrl($page_name, Application::$member->person_id);
 			}
 			if($post != null){
 				$resource->description = $post->title;

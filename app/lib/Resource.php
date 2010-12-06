@@ -43,7 +43,9 @@ class Resource extends Object{
 		if(!in_array($file_type, array('html', 'xml'))){
 			return $this->output;
 		}		
-		return $this->render('layouts/' . $name, $data, $file_type);
+		$output = $this->render('layouts/' . $name, $data, $file_type);
+		$output = $this->did_render_layout($name, $output);
+		return $output;
 	}
 	/* This method is for rendering a view. It's based on the file type and assumes that the file type is html.
 	* It also maps the resources properties to the templates in the view like <?php echo $person->name;?> or you can send 
@@ -201,7 +203,9 @@ class Resource extends Object{
 			throw new Exception("404: {$class_name}::<?php echo $message;?> not found.", 404);
 		}
 	}
-	
+	public function did_render_layout($layout, $output){
+		return $output;
+	}
 	public function did_finish_loading(){
 		self::setUserMessage(null);
 	}
