@@ -19,7 +19,7 @@ class FollowersResource extends AppResource{
 			$this->set_unauthorized();
 			return;
 		}else{
-			$this->people = FriendRequest::findAll();
+			$this->people = FriendRequest::findAllForOwner(Application::$member->person_id);
 			if($this->people === null){
 				$this->people = array();
 			}
