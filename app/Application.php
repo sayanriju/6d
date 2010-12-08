@@ -44,7 +44,7 @@ class Application{
 				if ($data['response'] === $encrypted_response){
 					AuthController::setAuthKey($data['username']);
 				}				
-			}			
+			}
 		}
 		if(class_exists('AppConfiguration') && AuthController::authKey() !== null){
 			self::$current_user = Member::findByEmail(AuthController::authKey());
@@ -56,9 +56,8 @@ class Application{
 	public static $current_user;
 	private static $config;
 	public function get_theme(){
-		if(self::$config === null){
-			self::$config = new AppConfiguration();
-		}
+		if(!class_exists('AppConfiguration')) return null;
+		self::$config = new AppConfiguration();
 		return self::$config->getTheme();
 	}
 	public static function isPhotoPublic(){
@@ -121,6 +120,7 @@ class Application{
 	}
 	
 	public function file_not_found($url_parts, $file_type){
+		if(!class_exists('AppConfiguration')) return null;
 		$resource = new AppResource(array('file_type'=>$file_type,'url_parts'=>$url_parts));
 		$method = array_key_exists('_method', $_SERVER) ? $_SERVER['_method'] : $_SERVER['REQUEST_METHOD'];
 		$page_name = $url_parts !== null && count($url_parts) > 0 ? $url_parts[0] : null;
@@ -157,7 +157,7 @@ class Application{
 				$resource->title = "Not found page";
 				$resource->description = "The requested page was not found on this sever.";
 				$resource->output = $resource->render('error/404', array('message'=>$method . ' ' . $page_name . ' was not found.'));
-				$this->status = new HttpStatus(404);
+				$resource->status = new HttpStatus(404);
 			}
 			$resource->output = $resource->render_layout('default');
 		}

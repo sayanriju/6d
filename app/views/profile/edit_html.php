@@ -4,7 +4,7 @@
 			<img src="<?php echo ProfileResource::getPhotoUrl($person);?>" alt="photo of <?php echo $person->name;?>" id="profile_photo" />
 		</div>
 		<div id="resizer"></div>
-<?php if(AuthController::is_authorized() && Application::$current_user->person_id == $person->person_id && $this->getState() === 'edit'):?>
+<?php if(AuthController::is_authorized() && Application::$current_user->person_id == $person->id && $this->getState() === 'edit'):?>
 			<form method="post" action="<?php echo Application::url_with_member('photo');?>" class="delete">
 				<input type="hidden" value="delete" name="_method" />
 				<input type="hidden" value="<?php echo $person->profile->photo_url;?>" name="src" />
@@ -34,15 +34,11 @@
 				</p>
 				<p>
 					<label for="profile[site_name]">Site Name</label>
-					<textarea name="profile[site_name]" id="profile[site_name]" cols="20" rows="5">
-						<?php echo $person->profile->site_name;?>
-					</textarea>
+					<textarea name="profile[site_name]" id="profile[site_name]" cols="20" rows="5"><?php echo $person->profile->site_name;?></textarea>
 				</p>
 				<p>
 					<label for="profile[site_description]">Site Description</label>
-					<textarea name="profile[site_description]" id="profile[site_description]" cols="20" rows="5">
-						<?php echo $person->profile->site_description;?>
-					</textarea>
+					<textarea name="profile[site_description]" id="profile[site_description]" cols="20" rows="5"><?php echo $person->profile->site_description;?></textarea>
 				</p>
 				<p>
 					<label for="do_list_in_directory">List in directory?</label>

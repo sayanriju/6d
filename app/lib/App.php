@@ -2,6 +2,7 @@
 class_exists('Resource') || require('lib/Resource.php');
 class_exists('HttpStatus') || require('lib/HttpStatus.php');
 class_exists('Chin_session') || require('lib/Chin_session.php');
+class_exists('AppResource') || require('resources/AppResource.php');
 class AppRequest {
     public $url;
     public $resource;
@@ -33,7 +34,7 @@ class App {
 		return self::get_root_path('themes/' . self::get_theme() . '/' . $file_path);
 	}
 	public static function get_app_path($file_path = null){
-		return self::get_root_path(APP_ROOT . $file_path);
+		return str_replace('lib/App.php', $file_path, __FILE__);
 	}
     private static function get_site_url($is_secure = false) {
         if (self::$site_path == null) {
@@ -100,8 +101,8 @@ class App {
 </body>", $end_time - $start_time), $output);
 	}
 	public static function dispatch($method, $url, $env) {
-		if(file_exists(APP_ROOT . 'Application.php')){
-			class_exists('Application') || require(APP_ROOT . 'Application.php');
+		if(file_exists(self::get_app_path() . 'Application.php')){
+			class_exists('Application') || require(self::get_app_path() . 'Application.php');
 		}
 		self::$delegate = class_exists('Application') ? new Application() : null;
 		$start_time = gettimeofday(true);
@@ -117,6 +118,7 @@ class App {
 		if($resource === null) return self::file_not_found($parts, $file_type);
 		// Get rid of the first part of the url that include the resource name.
 		array_shift($parts);
+		if($resource->status->code !== 200) return $resource;
 		$resource->output = $resource->call_with($method, $parts, $env);
 		$end_time = gettimeofday(true);
 		$resource->output = self::add_request_time_to_footer($resource->output, $start_time, $end_time);
@@ -153,11 +155,11 @@ class App {
 		self::$resource = null;
 		$first_part = $first_part === null ? 'index' : $first_part;
 		$class_name = ucwords($first_part) . 'Resource';
-		if(!file_exists(self::get_root_path(APP_ROOT . 'resources/' . $class_name . '.php'))){
+		if(!file_exists(self::get_app_path('resources/' . $class_name . '.php'))){
 			return null;
 		}
 		if(!class_exists($class_name)) {
-			require(APP_ROOT . 'resources/' . $class_name . '.php');
+			require(self::get_app_path('resources/' . $class_name . '.php'));
 		}
 		self::$resource = new $class_name(array('file_type'=>$file_type, 'url_parts'=>$parts));
 		return self::$resource;

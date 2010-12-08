@@ -168,7 +168,6 @@ class Resource extends Object{
 				}
 			}
 		}
-		
 		if(count($parms) < $parm_count){
 			$method_parameters = $method_info->getParameters();
 			foreach($method_parameters as $parameter){

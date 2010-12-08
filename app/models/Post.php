@@ -487,7 +487,7 @@
 			$errors = array();
 			return $errors;
 		}
-		public function install(Configuration $config){
+		public function install($config){
 			$message = '';
 			$db = Factory::get($config->db_type, $config);
 			try{
@@ -508,7 +508,7 @@
 				$table->addColumn('password', 'string', array('is_nullable'=>true, 'size'=>255));
 				$table->addColumn('owner_id', 'biginteger', array('is_nullable'=>false));
 				$table->addColumn('conversation', 'text', array('is_nullable'=>true));
-				$table->addColumn('updated', 'datetime', array('is_nullable'=>false, 'default'=>'CURRENT_TIMESTAMP', 'extra'=>'on update CURRENT_TIMESTAMP'));
+				$table->addColumn('updated', 'timestamp', array('is_nullable'=>false, 'default'=>'CURRENT_TIMESTAMP', 'extra'=>'on update CURRENT_TIMESTAMP'));
 				
 				$table->addKey('primary', 'id');
 				$table->addKey('key', array('owner_id_key'=>'owner_id'));

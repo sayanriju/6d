@@ -107,7 +107,7 @@ class PostResource extends AppResource{
 				$url = ProfileResource::getPhotoUrl($person);
 			}
 		}
-		$url = ($url === null ? App::url_for('images') . 'nophoto.png' : $url);
+		$url = ($url === null ? App::url_for('images/nophoto.png') : $url);
 		return $url;
 	}
 	public function put(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array(), $previous_url = null){
@@ -189,7 +189,7 @@ class PostResource extends AppResource{
 		Post::delete($post);
 		self::setUserMessage(sprintf("'%s' was deleted.", $post->title));
 		if($this->q === null){
-			Resource::redirect_to(App::get_referrer());
+			$this->redirect_to('posts');
 		}else{
 			$this->redirect_to('posts', array('q'=>$this->q));
 		}

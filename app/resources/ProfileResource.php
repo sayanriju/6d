@@ -24,7 +24,7 @@ class ProfileResource extends AppResource{
 	
 	public function post($state = null){
 		$this->setState($state);
-		$this->redirect_to(Application::$member->member_name . '/profile');
+		$this->redirect_to('profile');
 		return '';
 	}
 	public function get($state = null, Person $person = null){
@@ -55,7 +55,7 @@ class ProfileResource extends AppResource{
 			$this->person = Application::$member->person;
 			$this->title = $this->person->name . "'s profile.";
 			if($this->person->profile == null){
-				$this->person->profile = new Profile(array('photo_url'=>App::url_for('images') . self::DEFAULT_PHOTO_URL));
+				$this->person->profile = new Profile(array('photo_url'=>App::url_for('images/'. self::DEFAULT_PHOTO_URL)));
 			}
 			
 			if($state === 'edit'){

@@ -41,8 +41,8 @@
 			}			
 
 			if(!class_exists('AppConfiguration')){
-				if(get_class($this) != 'InstallResource'){					
-					$this->redirect_to('install', null);
+				if(!in_array(get_class($this), array('InstallResource', 'ConfigurationResource'))){
+					$this->redirect_to(App::url_for('install'), null);
 				}
 			}else{
 				$this->config = new AppConfiguration();

@@ -70,6 +70,13 @@ class Comment extends Object{
 		$comments = $db->find($clause, new Comment(null));
 		return $comments;
 	}
+	public function getTableName($config = null){
+		if($config == null){
+			$config = new AppConfiguration();
+		}
+		return $config->prefix . 'comments';
+	}
+	
 	public function install(Configuration $config){
 		$message = '';
 		$db = Factory::get($config->db_type, $config);
@@ -80,7 +87,6 @@ class Comment extends Object{
 			$table->addColumn('body', 'text', array('is_nullable'=>true, 'default'=>''));
 			$table->addColumn('created', 'datetime', array('is_nullable'=>false));
 			$table->addColumn('owner_id', 'biginteger', array('is_nullable'=>false));
-			$table->addColumn('updated', 'datetime', array('is_nullable'=>false, 'default'=>'CURRENT_TIMESTAMP', 'extra'=>'on update CURRENT_TIMESTAMP'));
 			
 			$table->addKey('primary', 'id');
 			$table->addKey('key', array('owner_id_key'=>'owner_id'));

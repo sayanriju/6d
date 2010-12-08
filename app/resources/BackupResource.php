@@ -14,7 +14,8 @@ class BackupResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
 		if(!AuthController::is_super_admin()){
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+			$this->set_unauthorized();
+			return;
 		}
 		$this->files = $this->getBackupFiles();
 	}
@@ -62,7 +63,7 @@ class BackupResource extends AppResource{
 			foreach(self::$model_names as $name){
 				$this->archive($name, $archive);
 			}
-			self::setUserMessage($archive->status == ZIP_ER_OK ? sprintf('<a href="%s%s">Backup</a> has been created.', App::url_for(null), $file_name) : sprintf('Failed archiving your data: %s - %s', $archive->GetStatusString(), $archive->status));
+			self::setUserMessage($archive->status == ZIPARCHIVE::ER_OK ? sprintf('<a href="%s%s">Backup</a> has been created.', App::url_for(null), $file_name) : sprintf('Failed archiving your data: %s - %s', $archive->GetStatusString(), $archive->status));
 			$archive->close();
 			$this->deleteFiles(self::$model_names);
 		}

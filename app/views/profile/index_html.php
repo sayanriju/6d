@@ -1,7 +1,7 @@
 <section class="vcard">
 	<div class="photo">
 		<div class="canvas">
-			<img class="photo" src="<?php echo ProfileResource::getPhotoUrl($person);?>" alt="photo of <?php echo $person->name;?>" id="profile_photo" />
+			<img class="photo" src="<?php echo $person->profile->photo_url;?>" alt="photo of <?php echo $person->name;?>" id="profile_photo" />
 		</div>
 		
 	</div>

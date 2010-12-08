@@ -71,6 +71,8 @@
 					$sql .= ' DEFAULT ' . $this->options['default'] . ' ';
 				else if(is_bool($this->options['default']))
 					$sql .= ' DEFAULT ' . ($this->options['default'] ? '1' : '0') . ' ';
+				else if($this->type === 'timestamp' && $this->options['default'] === 'CURRENT_TIMESTAMP')
+					$sql .= ' DEFAULT ' . $this->options['default'] . ' ';
 				else if(strstr($this->options['default'], '(') === false)
 					$sql .= " DEFAULT '" . $this->options['default'] . "' ";
 				else
