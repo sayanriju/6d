@@ -37,7 +37,9 @@ class PeopleResource extends AppResource{
 			$ids = explode(',', $ids);
 			$deleted_people = Person::delete_many($ids, Application::$current_user->person_id);
 		}
+		$this->person = new Person();
 		$this->people = Person::findAllByOwner(Application::$current_user->person_id);
+		$this->people = $this->people === null ? array() : $this->people;
 		$this->title = 'People';
 		$this->output = $this->render('person/index', null);
 		return $this->render_layout('default');

@@ -340,6 +340,7 @@ UIController.AddressBook = function(views){
 		}
 	};
 	this.selectPersonItem = function(id, elem){
+		
 		var text = this.selectedGroup.getAttribute('rel');
 		var url = 'person/' + id + '.phtml';
 		if(text === 'Friend Requests'){
@@ -479,7 +480,7 @@ UIController.AddressBook = function(views){
 		var response = JSON.parse(request.responseText, false);
 		this.getView('groups', this.views).removeDeletedItems();
 	};
-	this.onPersonDeleteDONE = function(request){		
+	this.onPersonDeleteDONE = function(request){	
 		var response = JSON.parse(request.responseText, false);
 		this.getView('people', this.views).removeDeletedItems();
 		SDDom('detail').innerHTML = null;
@@ -571,10 +572,7 @@ SDDom.addEventListener(window, 'load', function(){
 	try{
 		var groupListView = new UIView.List('groups', {field_name: 'group[text]', field_default_value:'new group', is_draggable: false});
 		var personListView = new UIView.List('people', {is_droppable: false, field_name: 'person[name]', field_default_value: 'new person'});
-		//var groupToolBarView = new UIView.ToolBar(SDDom.findFirst('#groups footer nav'), groupListView, null);	
-		//var peopleToolBarView = new UIView.ToolBar(SDDom.findFirst('#people footer nav'), personListView, null);
 		var toolbarView = new UIView.ToolBar(SDDom('toolbar'), [groupListView, personListView], null);	
-
 		var controller = new UIController.AddressBook([groupListView, personListView, toolbarView]);
 	}catch(e){
 		alert('Oh snap!' + e);

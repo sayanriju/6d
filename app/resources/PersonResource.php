@@ -19,13 +19,15 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 
 		public $people;
 		public $person;
-		public function get($id = 0){			
+		public function get($id = 0){
+			$id = (int)$id;		
 			if($id > 0){
 				if($id == Application::$current_user->person_id){
 					$this->person = Application::$current_user;
 				}else{
 					$this->person = Person::findByIdAndOwner($id, Application::$current_user->person_id);
 				}
+				if($this->person === null) return $this->set_not_found();
 				$this->title = 'Person: ' . $this->person->email;				
 				$this->output = $this->render('person/show', null);				
 				return $this->render_layout('default', null);
