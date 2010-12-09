@@ -3,9 +3,9 @@
 	<?php foreach($members as $member):?>
 	<li>
 		<p>
-			<a href="<?php echo App::url_for($member->member_name);?>" title="Go to <?php echo $member->member_name;?>'s site"><?php echo $member->name;?></a>
+			<a href="<?php echo App::url_for($member->member_name);?>" title="Go to <?php echo $member->person->name;?>'s site"><?php echo $member->person->name;?></a>
 			<?php if(AuthController::is_authorized() && AuthController::is_super_admin()):?>
-			<a href="<?php echo App::url_for('member/' . $member->member_name);?>" title="Edit <?php echo $member->name;?>">edit</a>
+			<a href="<?php echo App::url_for('member/' . $member->member_name);?>" title="Edit <?php echo $member->person->name;?>">edit</a>
 			<?php endif;?>
 		</p>
 	<?php if(AuthController::is_super_admin()):?>

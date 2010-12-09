@@ -8,7 +8,7 @@ class Member extends Object{
 	public function __destruct(){
 		parent::__destruct();
 	}
-	private static $person_select_statement = 'select m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from %s m inner join %s p on p.id = m.person_id';
+	private static $person_select_statement = 'select m.member_name, m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from %s m inner join %s p on p.id = m.person_id';
 	
 	private $person;
 	public function getPerson(){
@@ -84,7 +84,7 @@ class Member extends Object{
 		$person = new Person();
 		$member = new Member();
 		$id = (int)$id;
-		$clause = new All("select m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
+		$clause = new All("select m.member_name, m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
 		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
 		inner join {$person->getTableName()} p on p.id = m.person_id where m.id = {$id}", null, 1, null);
 		$member = $db->find($clause, new Member(null));
@@ -97,7 +97,7 @@ class Member extends Object{
 		$person = new Person();
 		$member = new Member();
 		$email = String::sanitize($email);
-		$clause = new All("select m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
+		$clause = new All("select m.id, m.member_name, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
 		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
 		inner join {$person->getTableName()} p on p.id = m.person_id where p.email = '{$email}'", null, 1, null);
 		$member = $db->find($clause, new Member(null));
@@ -131,9 +131,7 @@ class Member extends Object{
 		$person = new Person();
 		$member_name = String::sanitize($member_name);
 		$member = new Member();
-		$clause = new All("select m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
-		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
-		inner join {$person->getTableName()} p on p.id = m.person_id where m.member_name = '{$member_name}'", null, 1, null);
+		$clause = new All(sprintf(sprintf(self::$person_select_statement, $member->getTableName(), $person->getTableName()) . " where m.member_name = '%s'", $member_name), null, 1, null);
 		$member = $db->find($clause, $member);
 		$member = self::unserialize_profile($member);
 		return $member;
@@ -151,13 +149,9 @@ class Member extends Object{
 		$person = new Person();
 		$clause = null;
 		if($in_directory !== null){
-			$clause = new All("select m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
-			, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
-			inner join {$person->getTableName()} p on p.id = m.person_id where p.do_list_in_directory={$in_directory} and p.is_owner = 0", null, 0, null);
+			$clause = new All(sprintf(sprintf(self::$person_select_statement, $member->getTableName(), $person->getTableName()) . " where p.do_list_in_directory=%c and p.is_owner = 0", $in_directory), null, 0, null);			
 		}else{
-			$clause = new All("select m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
-			, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
-			inner join {$person->getTableName()} p on p.id = m.person_id where p.is_owner = 0", null, 0, null);
+			$clause = new All(sprintf(sprintf(self::$person_select_statement, $member->getTableName(), $person->getTableName()) . " where p.is_owner = 0"), null, 0, null);
 		}
 		$members = $db->find($clause, $member);
 		return $members;
