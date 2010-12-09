@@ -299,7 +299,6 @@ UIController.AddressBook = function(views){
 	this.views = views;
 	this.selectedGroup = null;
 	this.eventPersonWasClicked = null;
-	
 	this.itemWasDoubleClicked = function(view, elem, e){
 		switch(view.id){
 			case('groups'):

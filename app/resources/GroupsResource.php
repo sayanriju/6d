@@ -7,7 +7,7 @@ class GroupsResource extends AppResource{
 		parent::__construct($attributes);
 		if(!AuthController::is_authorized()){
 			$this->set_unauthorized();
-			throw new Exception("Unauthorized");
+			return;
 		}
 	}
 	public function __destruct(){

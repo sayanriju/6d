@@ -97,15 +97,15 @@ class App {
 		return round(memory_get_peak_usage() / 1024 / 1024, 2);
 	}
 	public static function add_request_time_to_footer($output, $start_time, $end_time){
-		return str_replace('</body>', sprintf("<small>Processed in %s</small>
+		return str_replace('</body>', sprintf("<small>Processed in %s seconds</small>
 </body>", $end_time - $start_time), $output);
 	}
-	public static function dispatch($method, $url, $env) {
+	public static function dispatch($method, $url, $env) {		
 		if(file_exists(self::get_app_path() . 'Application.php')){
 			class_exists('Application') || require(self::get_app_path() . 'Application.php');
 		}
 		self::$delegate = class_exists('Application') ? new Application() : null;
-		$start_time = gettimeofday(true);
+		$start_time = gettimeofday(true);		
 		if ($url == null) $url = 'index';
 		$parts = explode('/', $url);
 		$file_type = self::get_file_type($parts);
@@ -113,7 +113,8 @@ class App {
 		if(self::$delegate !== null && method_exists(self::$delegate, 'before_dispatching')){
 			$parts = self::$delegate->before_dispatching($parts, $file_type);
 		}
-		$first_part = $parts !== null && count($parts) > 0 ? $parts[0] : null;
+		// if the URL contains a / at the end, $parts will have 1 empty item in it.
+		$first_part = $parts !== null && count($parts) > 0 && strlen($parts[0]) > 0 ? $parts[0] : null;
 		$resource = self::get_resource($first_part, $parts, $file_type);
 		if($resource === null) return self::file_not_found($parts, $file_type);
 		// Get rid of the first part of the url that include the resource name.

@@ -81,8 +81,9 @@
 			$list = $db->find(new ById($id), new $self_name());
 			return $list;
 		}
-		public static function findGroupTagsByText($text, int $owner_id){
+		public static function findGroupTagsByText($text, $owner_id){
 			$clause = null;
+			$owner_id = (int)$owner_id;
 			if(is_array($text)){
 				$text = array_map(array('Tag', 'stringify'), $text);
 				$clause = new ByClause(sprintf("type='group' and text in (%s) and owner_id=%d", implode(',', $text), $owner_id), null, 0, array('text'=>'asc'));

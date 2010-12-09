@@ -29,10 +29,12 @@ class AuthController{
 		$_SESSION['authKey'] = $email;
 	}
 	public static function logout(){
+		$person = Person::findBySessionId(session_id());
+		if($person !== null){
+			$person->session_id = null;
+			Person::save($person);
+		}		
 		$_SESSION = array();
-		$member = Person::findBySessionId(session_id());
-		$member->session_id = null;
-		Person::save($member);
 		if(ini_get('session.use_cookies')){
 			$params = session_get_cookie_params();
 			setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);

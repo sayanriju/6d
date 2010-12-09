@@ -149,7 +149,7 @@
 			$header = array();
 			// 301 and 302 are redirects. I'm seeing this happen when I don't use www. in the domain name for the url.
 			// So i'm going to just get the location to redirect to and repost.
-			if($headers['http_code'] == 301 || $headers['http_code'] == 302){
+			if(in_array($headers['http_code'], array(301,302,303))){
 				$output = preg_replace('/\\r\\n/', '\r\n', $output);
 				$lines = explode('\r\n\r\n', $output);
 				$lines = explode('\r\n', $lines[0]);

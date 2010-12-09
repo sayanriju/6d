@@ -119,7 +119,6 @@
 			$sql = '';
 			$records = null;
 			$securedSql = $this->security->find($command, $obj);
-			$object_to_populate = $obj;
 			$key = 'id';
 			$tableName = String::pluralize(String::decamelize(get_class($obj)));
 			if(method_exists($obj, 'getPrimaryKey')){
@@ -209,7 +208,7 @@ where ' . $securedSql : '';
 			$sql .= $this->addOrderBy($command);
 			$sql .= $this->addLimit($command->limit);
 			$query_id = $this->execute($sql);
-			$records = $this->populate($object_to_populate, $command, $query_id);
+			$records = $this->populate($obj, $command, $query_id);
 			if(count($records) > 0){
 				return (count($records) == 1 && $command->limit == 1) ? $records[0] : $records;
 			}else{

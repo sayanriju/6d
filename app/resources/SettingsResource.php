@@ -44,7 +44,7 @@ class SettingsResource extends AppResource{
 					$this->output = $this->render('profile/photo');
 					return $this->render_layout('default');
 				}else{
-					$this->set_file_not_found();
+					$this->set_not_found();
 					return;
 				}
 			}else{
@@ -94,7 +94,7 @@ class SettingsResource extends AppResource{
 		$this->person->session_id = session_id();
 		$existing_person = Person::findById(Application::$current_user->person_id);
 		if($existing_person === null || $existing_person->id === 0){
-			$this->set_file_not_found();
+			$this->set_not_found();
 			return;
 		}
 		

@@ -683,6 +683,11 @@ function UIView(id, options){
 	if(id){
 		this.container = SDDom(id);
 	}
+	if(this.container == null){
+		this.container = SDDom.create('div', {id:this.getUniqueId()});
+		SDDom.setStyles({"display":"none"}, this.container);
+		SDDom.insertBefore(this.container, document.body.children[0]);
+	}
 	if(this.container && !this.container.id){
 		this.container.id = this.getUniqueId();
 	}
@@ -1284,7 +1289,7 @@ sixd.array.remove_from = function(item, ary, fn){
 sixd.array.each = function(ary, fn){
 	var i = 0;
 	for(i = 0; i < ary.length; i++){
-		fn(ary[i]);
+		fn(ary[i], i);
 	}
 	return ary;
 };
@@ -1370,6 +1375,7 @@ sixd.controller = function(view, options){
 
 sixd.view = function(id, options){
 	sixd.apply(this, [this]);
+	this.has_loaded = false;
 	var self = this;
 	this.options = SDObject.extend({tag: 'div'}, options);
 	this.event_clicked = function(e){};
@@ -1461,8 +1467,9 @@ sixd.view.modal = function(id, options){
 	this.overlay = new sixd.view.overlay();
 	this.overlay.make_active(999);
 	var self = sixd.view.apply(this, [id, options]);
-	this.options = SDObject.extend({background: 'rgb(0,0,0)', width: 400, height: 400, color: 'rgb(255,255,255)', padding: '0px'}, options);
-	SDDom.setStyles({"position":"fixed", "top":"25%", "left":"50%", "margin-left":-1 * this.options.width / 2 + 'px', "z-index":1000, "display": 'none', "background": this.options.background, "color": this.options.color, "padding": this.options.padding, "width": this.options.width + 'px', "height": this.options.height + 'px'}, this.container);
+	this.options = SDObject.extend({width: 400, color: 'rgb(255,255,255)'}, options);
+	SDDom.setStyles({"position":"fixed", "top":"25%", "left":"50%", "margin-left":-1 * this.options.width / 2 + 'px', "z-index":1000, "display": 'none', "background": this.options.background, "color": this.options.color, "width": this.options.width + 'px', "height": this.options.height + 'px'}, this.container);
+	SDDom.insertBefore(this.container, document.body.children[0]);
 	var parent_event_will_show = self.event_will_show;
 	var parent_event_will_hide = self.event_will_hide;
 	
@@ -1487,12 +1494,12 @@ sixd.view.make_closable = function(view){
 		view.hide();
 	}, this);
 	
-	this.listen_for(close_button, 'click', this.clicked);
 	if(view.container.firstChild){
 		SDDom.insertBefore(close_button, view.container.firstChild);
 	}else{
 		SDDom.append(view.container, close_button);
 	}
+	this.listen_for(close_button, 'click', this.clicked);
 	return this;
 };
 sixd.view.post = function(id, options){	
@@ -1793,11 +1800,10 @@ sixd.model.groups = function(list){
 		return contains;
 	};
 	this.add = function(text){
-		groups.push(text);
 		this.publish('group_was_added', text);
 	};
 	this.remove = function(text){
-		people = sixd.array.remove_from(text, groups, function(item){return item == text;});
+		groups = sixd.array.remove_from(text, groups, function(item){return item == text;});
 		this.publish('group_was_removed', text);
 	};
 	this.get_list = function(){
@@ -1821,12 +1827,25 @@ sixd.view.addressbook = function(id, options){
 	this.groups = new sixd.model.groups();
 	this.groups.add_subscriber(this, 'group_was_added');
 	this.groups.add_subscriber(this, 'group_was_removed');
-	
+	this.container.className = 'modal';
 	this.set_html = function(html){
 		this.container.innerHTML = html;
 		this.controller.html_was_set(html);
-		sixd.view.make_closable(this);
+		this.set_selected();
+		if(!this.has_loaded) sixd.view.make_closable(this);
+		this.has_loaded = true;
 	};
+	this.set_selected = function(){
+		var group_checkboxes = SDDom.findAll('input[name="groups"]', this.container);
+		this.groups.each(function(group, i){
+			group_checkboxes[i].checked = true;
+		});
+		var people_checkboxes = SDDom.findAll('input[name="people"]', this.container);
+		this.people.each(function(person, i){
+			people_checkboxes[i].checked = true;
+		});
+	};
+	
 	this.input_clicked = function(e){
 		if(e.target.type === 'checkbox'){
 			if(e.target.name === 'groups'){
@@ -1843,7 +1862,6 @@ sixd.view.addressbook = function(id, options){
 		}
 	};
 	this.event_will_hide = function(){
-		this.clear();
 		parent_event_will_hide.call(this);
 	};
 	this.group_was_added = function(publisher, text){
@@ -1919,6 +1937,7 @@ sixd.controller.addressbook = function(view, options){
 		if(this.delegate && this.delegate.event_view_will_show){
 			this.delegate.event_view_will_show(view);			
 		}
+		if(view.has_loaded) return;
 		var url = this.handle.href;
 		sixd.get(url.replace('.html', '') + '.phtml', this.request_is_done, this);
 	};
@@ -1944,7 +1963,7 @@ sixd.controller.post = function(view, options){
 	};
 	this.request_is_done = function(request){
 		this.get_view().set_html(request.responseText);
-		this.addressbook_controller = new sixd.controller.addressbook(new sixd.view.addressbook('addressbook_view', {tag:'div'}), {handle_id: 'address'});
+		this.addressbook_controller = new sixd.controller.addressbook(new sixd.view.addressbook('addressbook_modal', {tag:'div'}), {handle_id: 'address'});
 		this.addressbook_controller.get_view().make_active();
 		this.addressbook_controller.delegate = this;
 		this.addressbook_controller.get_view().people.add_subscriber(this, 'person_was_added');
@@ -2104,9 +2123,7 @@ sixd.behaviors.label = function(){
 	for(var i = 0; i < this.elements.length; i++){
 		elem = this.elements[i];
 		if(elem.value && elem.value.length > 0){
-			console.log(elem.value);
 			label = find_for(elem.id);
-			console.log(label);
 			if(label){
 				SDDom.hide(label);
 			}
@@ -2131,7 +2148,7 @@ sixd.main(function(e){
 		fs_controller.add_subscriber(post_controller, 'image_was_removed');
 		app = new sixd.app([fs_controller, post_controller]);
 	}
-	if(SDDom.findFirst('label')){
+	if(SDDom.findFirst('label')){		
 		sixd.behaviors.label();
 	}
 });

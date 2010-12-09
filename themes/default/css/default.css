@@ -259,16 +259,6 @@ button.close{
 	float: left;
 	margin-top: 5px;
 }
-.new fieldset.options p label{
-	margin-left: 20px;
-	color: #fff;
-}
-.new fieldset.options{
-	position: absolute;
-	top: 0;
-	right: 0;
-	background: rgba(0,0,0,.8);
-}
 /* film strip*/
 .film_strip ul li{
 	float: left;
@@ -284,4 +274,74 @@ button.close{
 .film_strip li form{
 	position: absolute;
 	bottom: 0;
+}
+.addressbook .left{
+	float: left;
+	width: 25%;
+}
+.addressbook .right{
+	float: left;
+	width: 25%;
+}
+.addressbook .detail{
+	width: 50%;
+	float: left;
+}
+.addressbook ul{
+	margin: 0;
+	padding: 0;
+	width: 100%;
+}
+.addressbook li{
+	list-style: none;
+	text-align: left;
+}
+.modal{
+	padding: 10px;
+	border-radius: 10px;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border: solid 1px #fff;
+	background: rgba(0,0,0,.7);
+}
+.modal h1{
+	font-size: 1.3em;
+}
+.modal .close{
+	position: absolute;
+	top: -7px;
+	left: -7px;
+	background: #000;
+	font-size: .7em;
+	width: 20px;
+	height: 20px;
+	line-height: 1em;
+}
+.addressbook ul li{
+	position: relative;
+}
+.addressbook ul li form.delete{
+	position: absolute;
+	top: 2px;
+	right: 7px;
+}
+#addressbook_modal form.delete{
+	display: none;
+}
+#addressbook_modal .addressbook .left{
+	width: 50%;
+}
+
+#addressbook_modal .addressbook .right{
+	width: 50%;
+}
+#addressbook_modal .addressbook .detail{
+	display: none;
+}
+
+#addressbook_modal .addressbook .footer{
+	display: none;
+}
+#addressbook_modal .instructions{
+	display: none;
 }

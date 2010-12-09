@@ -109,7 +109,7 @@ class Application{
 					}					
 				}
 			}
-		}
+		}		
 		if(self::$member == null){
 			self::$member = Member::findOwner();
 		}
@@ -119,14 +119,13 @@ class Application{
 		console::log($message);
 	}
 	
-	public function file_not_found($url_parts, $file_type){
+	public function file_not_found($url_parts, $file_type){		
 		if(!class_exists('AppConfiguration')) return null;
 		$resource = new AppResource(array('file_type'=>$file_type,'url_parts'=>$url_parts));
 		$method = array_key_exists('_method', $_SERVER) ? $_SERVER['_method'] : $_SERVER['REQUEST_METHOD'];
 		$page_name = $url_parts !== null && count($url_parts) > 0 ? $url_parts[0] : null;
 		$view = $page_name . '_' . $resource->file_type . '.php';
 		$parms = array();
-		
 		//TODO: Not sure what to do with this yet. 
 		// Check for a date in the URL.
 		if(count($url_parts) >= 3 && is_numeric($url_parts[0]) && is_numeric($url_parts[1]) && is_numeric($url_parts[2])){

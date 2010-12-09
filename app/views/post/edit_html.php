@@ -1,4 +1,3 @@
-<section id="addressbook_modal" style="display: none;" class="modal"></section>
 <form action="<?php echo Application::url_with_member($post->id !== null ? 'post' : 'posts');?>" method="post" id="post_form">
 	<fieldset class="type">
     	<legend>What type of post do you want to create?</legend>
@@ -35,10 +34,10 @@
 			<label for="tags" class="inline">Tags separated by commas</label>
 			<input type="text" name="tags" id="tags" value="<?php echo urldecode($post->tags);?>" />
 		</p>		
-		<p>
+		<!--<p>
 			<label for="password">Password protect</label>
 			<input name="password" id="password" type="password" value="" />
-		</p>
+		</p>-->
 		<p>
 			<label for="post_date">Date posted (optional and will default to today)</label>
 			<input type="text" name="post_date" value="<?php echo $post->post_date;?>" id="post_date" />
