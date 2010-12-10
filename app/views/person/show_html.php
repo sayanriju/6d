@@ -7,7 +7,7 @@
 		</p>
 
 		<p>
-			<label for="title">Email</label>
+			<label for="email">Email</label>
 			<input type="text" id="email" name="email" value="<?php echo $person->email;?>" />
 		</p>
 
@@ -16,12 +16,12 @@
 			<input type="text" name="url" id="url" value="<?php echo $person->url;?>" />
 		</p>
 		<p>
-			<label for="is_approved" id="label_approved">Approved?</label>
 			<input type="checkbox" id="is_approved" name="is_approved" value="true"<?php echo $person->is_approved ? ' checked="true"' : null;?> />
+			<label for="is_approved" id="label_approved">Approved?</label>
 		</p>
 		<p>
 			<label for="public_key">Public key</label>
-			<span><?php echo $person->public_key;?></span>
+			<input type="text" disabled value="<?php echo $person->public_key;?>" />
 		</p>
 		<p>
 			<button type="submit" name="save_button" id="save_button"><span>Save</span></button>

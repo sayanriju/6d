@@ -18,15 +18,15 @@ class FollowersResource extends AppResource{
 		if(!AuthController::is_authorized()){
 			$this->set_unauthorized();
 			return;
-		}else{
-			$this->people = FriendRequest::findAllForOwner(Application::$member->person_id);
-			if($this->people === null){
-				$this->people = array();
-			}
-			$this->title = 'Friend Requests';
-			$this->output = $this->render('follower/index', array('errors'=>$errors));
-			return $this->render_layout('default');
 		}
+		
+		$this->people = FriendRequest::findAllForOwner(Application::$current_user->person_id);
+		if($this->people === null){
+			$this->people = array();
+		}
+		$this->title = 'Friend Requests';
+		$this->output = $this->render('follower/index', array('errors'=>$errors));
+		return $this->render_layout('default');
 		
 	}
 	// If someone confirms the friend request, a request is made to this method.
@@ -58,6 +58,7 @@ class FollowersResource extends AppResource{
 		$message = null;
 		if($this->person === null){
 			$friend_request = FriendRequest::findByUrlAndOwnerId($person->url, Application::$member->person_id);
+			error_log('finding ' . $friend_request->id);
 			if($friend_request === null){
 				$friend_request = new FriendRequest(array('name'=>$person->name, 'email'=>$person->email, 'public_key'=>$person->public_key, 'created'=>date('c'), 'url'=>$person->url, 'owner_id'=>Application::$member->person_id));
 				try{
@@ -67,9 +68,11 @@ class FollowersResource extends AppResource{
 							$message .= sprintf("%s: %s", $key, $value);
 						}
 					}else{
+						error_log('saving friend request');
 						$friend_request = FriendRequest::save($friend_request);
 					}
 				}catch(Exception $e){
+					error_log($e);
 					$message = $e->getMessage();
 				}
 			}

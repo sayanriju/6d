@@ -374,6 +374,7 @@ UIController.AddressBook = function(views){
 		if(person_form){
 			SDDom.addEventListener(person_form, 'submit', this.eventPersonFormDidSubmit);
 		}
+		sixd.behaviors.label();
 	};
 	this.onGetPeopleDONE = function(request){
 		SDDom('detail').innerHTML = null;

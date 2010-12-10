@@ -14,11 +14,12 @@ class ServicePluginController{
 		foreach($plugins as $plugin){
 			if($plugin->canHandle($command)){
 				$servicePlugin = $plugin;
+				$servicePlugin->command = $command;
 				break;
 			}
 		}
 		if($servicePlugin === null){
-			$servicePlugin = new DefaultServicePlugin();
+			$servicePlugin = new DefaultServicePlugin($command);
 		}
 		return $servicePlugin;
 	}

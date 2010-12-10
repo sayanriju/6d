@@ -239,6 +239,20 @@
 			$string = preg_replace( array("`[^a-z0-9]`i","`[-]+`") , "-", $string);
 			return strtolower(trim($string, '-'));
 		}
+		public static function strip_whitespace($text){
+			$lines = preg_split('/\n/', $text);
+			$upper_bounds = count($lines);
+			$temp = '';
+			for($i=0; $i < $upper_bounds; $i++){
+				$temp = trim($lines[$i]);
+				if($temp !== null && strlen($temp) > 0){
+					$lines[$i] = $temp;
+				}
+			}
+			$text = join(chr(10), $lines);
+			return $text;
+		}
+		
 		public static function toLower($value){
 			return strtolower($value);
 		}

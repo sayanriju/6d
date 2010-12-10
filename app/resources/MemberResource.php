@@ -9,7 +9,8 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
 			if(!AuthController::is_super_admin()){
-				throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+				$this->set_unauthorized();
+				return;
 			}
 		}
 	
@@ -19,27 +20,24 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 
 		public $members;
 		public $member;
-		public function get(Member $member = null){
-			if(count($this->url_parts) > 1){
-				$member_name = $this->url_parts[1];
-				$this->member = Member::findByMemberName($member_name);
-			}else{
-				$this->member = new Member();
-			}
+		public function get($member_name = null){
+			$this->member = Member::findByMemberName($member_name);
 			$this->title = $this->member !== null && $this->member->id > 0 ? sprintf('Member: %s', $this->member->email) : 'Add a member';
+			$this->member = $this->member == null ? new Member() : $this->member;
 			$this->output = $this->render('member/edit', null);	
 			return $this->render_layout('default', null);
 		}
 		public function delete(Member $member){
 			if($member->id === null || strlen($member->id) === 0){
-				throw new Exception(Resource::redirect_to::NOTFOUND, 404);
+				$this->set_not_found();
+				return;
 			}
 			$member = Member::findById($member->id);
 			$person = Person::findById($member->person_id);
 			if($member !== null && $member->id > 0 && !$person->is_owner){
 				Person::delete($person);
 				Member::delete($member);
-				Resource::setUserMessage("<?php echo $person->name;?> was deleted.");
+				Resource::setUserMessage("{$person->name} was deleted.");
 			}else{
 				Resource::setUserMessage("You can't delete the owner of the site.");
 			}

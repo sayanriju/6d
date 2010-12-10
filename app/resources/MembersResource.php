@@ -38,7 +38,7 @@ class_exists('Member') || require('models/Member.php');
 			$this->output = $this->render($view, null);				
 			return $this->render_layout('default', null);
 		}
-		public function put(Member $member, Profile $profile = null){			
+		public function put(Person $person, Member $member, Profile $profile = null){			
 			$view = 'member/edit';
 			$this->member = Member::findById($member->id);
 			if($this->member !== null){
@@ -46,11 +46,11 @@ class_exists('Member') || require('models/Member.php');
 				$this->member->member_name = $member->member_name;
 				$this->member->person->id = $this->member->person_id;
 				$this->member->person->session_id = session_id();
-				$this->member->person->name = $member->name;
-				$this->member->person->email = $member->email;
+				$this->member->person->name = $person->name;
+				$this->member->person->email = $person->email;
 				$this->member->person->url = sprintf("%s/%s", Application::$current_user->url, $this->member->member_name);
-				$this->member->person->is_approved = $member->is_approved === null ? false : $member->is_approved;
-				$this->member->person->do_list_in_directory = $member->do_list_in_directory === null ? false : $member->do_list_in_directory;
+				$this->member->person->is_approved = $person->is_approved === null ? false : $person->is_approved;
+				$this->member->person->do_list_in_directory = $person->do_list_in_directory === null ? false : $person->do_list_in_directory;
 				$this->member->person->is_owner = false;
 				if($profile !== null){
 					$this->member->person->profile = serialize($profile);
@@ -69,7 +69,6 @@ class_exists('Member') || require('models/Member.php');
 					foreach($this->member->errors as $key=>$value){
 						$message[] = sprintf("%s: %s", $key, $value);
 					}
-					
 					Resource::setUserMessage('Failed to save member - ' . implode(', ', $message));
 				}else{
 					Resource::setUserMessage("{$this->member->person->name}'s info has been saved.");
@@ -79,21 +78,21 @@ class_exists('Member') || require('models/Member.php');
 			$this->output = $this->render($view, array('errors'=>$errors));
 			return $this->render_layout('default');					
 		}
-		public function post(Member $member, Profile $profile = null){
+		public function post(Person $person, Member $member, Profile $profile = null){			
 			$view = 'member/index';
 			$this->member = $member;
 			// Posting to a resource means you're creating a new object of this type.
 			// I added this logic to assert that assumption.
 			if($member->id === null || strlen($member->id) === 0){
 				$this->member->person->session_id = session_id();
-				$this->member->person->password = String::encrypt($member->password);
-				$this->member->person->name = $member->name;
-				$this->member->person->email = $member->email;
+				$this->member->person->password = String::encrypt($person->password);
+				$this->member->person->name = $person->name;
+				$this->member->person->email = $person->email;
 				$this->member->person->uid = uniqid();
 				$url = String::replace('/http\:\/\//', '', App::url_for(null));
 				$this->member->person->url = sprintf("%s%s", $url, $this->member->member_name);
-				$this->member->person->is_approved = $member->is_approved === null ? false : $member->is_approved;
-				$this->member->person->do_list_in_directory = $member->do_list_in_directory === null ? false : $member->do_list_in_directory;
+				$this->member->person->is_approved = $person->is_approved === null ? false : $person->is_approved;
+				$this->member->person->do_list_in_directory = $person->do_list_in_directory === null ? false : $person->do_list_in_directory;
 				$this->member->person->is_owner = false;
 				if($profile !== null){
 					$this->member->person->profile = serialize($profile);

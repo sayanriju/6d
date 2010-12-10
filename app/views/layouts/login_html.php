@@ -8,7 +8,7 @@
         <title><?php echo $title;?></title>
 		<link rel="icon" href="<?php echo App::url_for('images/6dicon.png');?>"/>
 		<meta name="description" content="<?php echo $description;?>"/>
-		<meta name="keywords" content="{$keywords}"/>
+		<meta name="keywords" content="<?php echo $keywords;?>"/>
 		<meta name="viewport" content="width=980"/>
 	  	<link rel="stylesheet" type="text/css" href="<?php echo App::url_for_theme('css/default.css');?>" media="screen" />	
 		<?php echo $resource_css;?>

@@ -21,7 +21,6 @@ class AddressbookResource extends AppResource{
 		}		
 		$this->title = 'Address Book';
 		$this->people = Person::findAllByOwner(Application::$current_user->person_id);
-		
 		$layout = 'default';
 		if($this->people == null){
 			$this->people = array();

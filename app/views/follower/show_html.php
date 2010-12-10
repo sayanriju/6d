@@ -3,7 +3,7 @@
 		<legend><?php echo ($person->name == null ? 'New friend' : $person->name);?></legend>
 		<p>
 			<label for="email">Email</label>
-			<span id="email"><?php echo $person->email;?></span>
+			<input type="text" id="email" value="<?php echo $person->email;?>" disabled />
 		</p>
 
 		<p>
@@ -20,5 +20,5 @@
 <form action="<?php echo Application::url_with_member('follower');?>" method="post">
 	<input type="hidden" name="id" id="id" value="<?php echo $person->id;?>" />
 	<input type="hidden" name="_method" value="delete" />
-	<input type="submit" name="delete_button" value="Delete" />
+	<button type="submit">Delete</button>
 </form>

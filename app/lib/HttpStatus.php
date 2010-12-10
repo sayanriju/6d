@@ -126,6 +126,6 @@ class HttpStatus{
 		}
 		if($this->code === 404){
 			header('Status: 404 Not Found');
-		}		
+		}
 	}
 }

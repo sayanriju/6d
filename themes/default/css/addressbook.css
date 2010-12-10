@@ -62,10 +62,6 @@
 	width:70px;
 	float:left;	
 }
-#is_approved {
-	float:left;
-	margin-top:4px;
-}
 form.delete button{
 	margin: 0;
 	padding: 0;

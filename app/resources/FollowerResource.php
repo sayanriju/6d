@@ -95,10 +95,8 @@ class FollowerResource extends AppResource{
 		}elseif($person->id !== null){
 			$this->person = Person::findByIdAndOwner($person->id, Application::$current_user->person_id);
 			if($this->person->url !== null && strlen($this->person->url) > 0){
-				error_log('found ' . $this->person->url . ' to send a friend request to.');
-				$config = new AppConfiguration();
-				$site_path = App::url_for(null);
-				$response = ServicePluginController::execute(new IntroductionCommand($this->person, Application::$current_user));				
+				error_log('found ' . $this->person->name . ' to send a friend request to.');
+				$response = ServicePluginController::execute(new IntroductionCommand($this->person, Application::$current_user->person));
 				if($response->headers['http_code'] == 404){
 					Resource::setUserMessage("That web address was not found. Please go back and confirm that " . $this->person->url . " is a working site.");
 				}else{

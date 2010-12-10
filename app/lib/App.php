@@ -123,6 +123,7 @@ class App {
 		$resource->output = $resource->call_with($method, $parts, $env);
 		$end_time = gettimeofday(true);
 		$resource->output = self::add_request_time_to_footer($resource->output, $start_time, $end_time);
+		$resource->output = String::strip_whitespace($resource->output);
 		return $resource;
 	}
 	public static function get_referrer(){

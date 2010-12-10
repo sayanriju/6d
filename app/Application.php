@@ -65,7 +65,7 @@ class Application{
 	}
 	public static function url_with_member($resource_name, $params = null, $make_secure = false){
 		if(!self::$member->is_owner){
-			return App::url_for(self::$member->member_name . '/' . $resource_name, $params, $make_secure);			
+			return App::url_for(self::$member->member_name . ($resource_name !== null ? '/' : null) . $resource_name, $params, $make_secure);			
 		}else{
 			return App::url_for($resource_name, $params, $make_secure);
 		}
