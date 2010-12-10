@@ -63,8 +63,15 @@ class Application{
 	public static function isPhotoPublic(){
 		return true;
 	}
+	public static function url_with_user($resource_name, $params = null, $make_secure = false){
+		if(!self::$current_user->person->is_owner){
+			return App::url_for(self::$current_user->member_name . ($resource_name !== null ? '/' : null) . $resource_name, $params, $make_secure);
+		}else{
+			return App::url_for($resource_name, $params, $make_secure);
+		}
+	}
 	public static function url_with_member($resource_name, $params = null, $make_secure = false){
-		if(!self::$member->is_owner){
+		if(!self::$member->person->is_owner){
 			return App::url_for(self::$member->member_name . ($resource_name !== null ? '/' : null) . $resource_name, $params, $make_secure);			
 		}else{
 			return App::url_for($resource_name, $params, $make_secure);

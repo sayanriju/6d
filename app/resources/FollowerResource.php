@@ -51,7 +51,7 @@ class FollowerResource extends AppResource{
 				error_log("reseting public key ");
 			}
 			$person->owner_id = Application::$current_user->person_id;
-			list($person, $errors) = Person::save($person);			
+			list($person, $errors) = Person::save($person);
 			if(count($errors) > 0){
 				error_log(json_encode($errors));
 				$response = implode('<br />', $errors);
@@ -75,14 +75,14 @@ class FollowerResource extends AppResource{
 		}else{
 			$request = FriendRequest::findByIdAndOwnerId($request->id, Application::$current_user->person_id);
 			$this->person = Person::findByUrlAndOwnerId($request->url, Application::$current_user->person_id);
-			$response = $this->save($request, $person);
+			$response = $this->save($request, $this->person);
 			Resource::setUserMessage(sprintf("%s has been made a friend. %s", $request->name, $response->output));
 		}
-		$this->redirect_to(Application::$current_user->member_name . '/addressbook');
+		$this->redirect_to(Application::url_with_member('addressbook'));
 	}
 	private function sendNotification($person){
 		$config = new AppConfiguration();
-		$data = sprintf("_method=put&email=%s&url=%s&public_key=%s", urlencode(Application::$current_user->email), urlencode(Application::$current_user->url), $person->public_key);
+		$data = sprintf("_method=put&email=%s&url=%s&public_key=%s", urlencode(Application::$current_user->person->email), urlencode(Application::$current_user->person->url), $person->public_key);
 		error_log('sending notification and $data = ' . $data);	
 		$response = NotificationResource::sendNotification($person, 'followers', $data, 'post');
 		return $response;
@@ -122,7 +122,7 @@ class FollowerResource extends AppResource{
 			$response = FriendRequest::delete($request);
 			Resource::setUserMessage('Request has been deleted: ' . $response);
 		}
-		$this->output = $this->render('follower/index');
-		return $this->render_layout('default');
+		$this->redirect_to(Application::url_with_member('addressbook'));
+		return;
 	}
 }

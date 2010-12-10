@@ -31,7 +31,7 @@ class FollowersResource extends AppResource{
 	}
 	// If someone confirms the friend request, a request is made to this method.
 	public function put(Person $person){
-		error_log('some has confirmed a request from ' . $person->url . ' with the public_key = ' . $person->public_key);
+		error_log('confirmed a request from ' . $person->url . ' with the public_key = ' . $person->public_key);
 		//TODO: check remote host against the url to verify who's sending the response.
 		//error_log(sprintf('request from: host=%s, referrer=%s, ip=%s, public key = %s', $_SERVER['HTTP_HOST'], $_SERVER['HTTP_REFERER'], $_SERVER['REMOTE_ADDR'], urlencode($person->public_key)));
 		if($person->public_key !== null && strlen($person->public_key) > 0 && $person->url !== null && strlen($person->url) > 0){
@@ -58,7 +58,6 @@ class FollowersResource extends AppResource{
 		$message = null;
 		if($this->person === null){
 			$friend_request = FriendRequest::findByUrlAndOwnerId($person->url, Application::$member->person_id);
-			error_log('finding ' . $friend_request->id);
 			if($friend_request === null){
 				$friend_request = new FriendRequest(array('name'=>$person->name, 'email'=>$person->email, 'public_key'=>$person->public_key, 'created'=>date('c'), 'url'=>$person->url, 'owner_id'=>Application::$member->person_id));
 				try{

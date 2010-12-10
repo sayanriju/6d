@@ -1,6 +1,7 @@
 <?php
 	class_exists('UserResource') || require('resources/UserResource.php');
 	class_exists('ProfileResource') || require('resources/ProfileResource.php');
+	class_exists('FriendRequest') || require('models/FriendRequest.php');
 ?><!DOCTYPE html>
 <html>
 	<head>
@@ -26,17 +27,17 @@
 			<footer class="main">
 				<?php if(AuthController::is_authorized()):?>
 				<nav id="admin_menu">
-					<a id="photos_link" href="<?php echo Application::url_with_member('photos');?>" title="show all photos">media</a>
-					<a href="<?php echo Application::url_with_member(null);?>" id="home_link" title="go to your home page">home</a>
-					<a href="<?php echo Application::url_with_member('post');?>" id="new_post_link" title="new post">new post</a>
-					<a href="<?php echo Application::url_with_member('posts');?>" id="all_posts_link" title="show all posts">posts</a>
-					<a href="<?php echo Application::url_with_member('addressbook');?>" id="addressbook_link" title="show your addressbook">addressbook</a>
-					<a href="<?php echo Application::url_with_member('profile');?>" id="profile_link" title="show your profile">profile</a>
+					<a id="photos_link" href="<?php echo Application::url_with_user('photos');?>" title="show all photos">media</a>
+					<a href="<?php echo Application::url_with_user(null);?>" id="home_link" title="go to your home page">home</a>
+					<a href="<?php echo Application::url_with_user('post');?>" id="new_post_link" title="new post">new post</a>
+					<a href="<?php echo Application::url_with_user('posts');?>" id="all_posts_link" title="show all posts">posts</a>
+					<a href="<?php echo Application::url_with_user('addressbook');?>" id="addressbook_link" title="show your addressbook">addressbook (<?php echo FriendRequest::get_total_friend_requests(Application::$current_user->person_id)->number;?>)</a>
+					<a href="<?php echo Application::url_with_user('profile');?>" id="profile_link" title="show your profile">profile</a>
 					<?php if(AuthController::is_super_admin()):?>
-					<a href="<?php echo Application::url_with_member('members');?>" id="members_link" title="See all the members in your network">members</a>
-					<a href="<?php echo Application::url_with_member('member');?>" id="member_link" title="Create a new member">add a member</a>
+					<a href="<?php echo Application::url_with_user('members');?>" id="members_link" title="See all the members in your network">members</a>
+					<a href="<?php echo Application::url_with_user('member');?>" id="member_link" title="Create a new member">add a member</a>
 					<?php endif;?>
-				 	<a href="<?php echo Application::url_with_member('logout');?>" id="logout_link">logout <?php echo Application::$current_user->member_name;?></a>
+				 	<a href="<?php echo Application::url_with_user('logout');?>" id="logout_link">logout <?php echo Application::$current_user->member_name;?></a>
 				</nav>
 				<?php endif;?>
 				<p>&copy;<?php echo date('Y');?> Powered by <a href="http://get6d.com/" title="6d">6d</a></p>
@@ -49,7 +50,7 @@
 	<script type="text/javascript" charset="utf-8" src="<?php echo App::url_for('js/NotificationCenter.js');?>"></script>
 	<script type="text/javascript" charset="utf-8" src="<?php echo App::url_for('js/default.js');?>" id="default_script"></script>
 	<script type="text/javascript">
-		SDObject.rootUrl = '<?php echo App::url_for(null);?>';
+		SDObject.rootUrl = '<?php echo Application::url_with_member(null);?>/';
 	</script>
 	<!--[if IE]>
 	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>

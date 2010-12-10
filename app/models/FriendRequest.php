@@ -76,6 +76,17 @@
 			self::notify('didSaveFriendRequest', $request, $request);
 			return $request;
 		}
+		public static function get_total_friend_requests($owner_id){
+			$owner_id = (int)$owner_id;
+			$config = new AppConfiguration();
+			$request = new FriendRequest(null);
+			$request_count = (object) array('number'=>0);
+			$db = Factory::get($config->db_type, $config);
+			$request_count = $db->find(new All(sprintf("select count(*) as number from %s where owner_id=%u", $request->getTableName(), $owner_id), null, 1, null), $request_count);
+			$request_count->number = (int)$request_count->number;
+			return $request_count;
+		}
+		
 		public static function findAllForOwner($owner_id){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
