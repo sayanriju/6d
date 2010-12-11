@@ -13,34 +13,24 @@ class PostsResource extends AppResource{
 	public $sort_by;
 	public $sort_by_direction;
 	public $limit;
+	public $start;
+	public $q;
 	
-	public function get($id = null, $q = null, $limit = 20){
+	public function get($id = null, $q = null, $page = 0, $limit = 20){
 		if(!AuthController::is_authorized()){
 			return $this->set_unauthorized();
 		}
 		$this->q = $q;
 		$tag = null;	
-		$this->limit = is_numeric($limit) ? $limit : 20;
-		array_shift($this->url_parts);
-		if(count($this->url_parts) > 0){
-			$this->page = is_numeric($this->url_parts[0]) ? $this->url_parts[0] : 0;
-			if($this->page === 0){
-				$tag = array_shift($this->url_parts);
-			}
-		}
+		$this->limit = (int)$limit;
+		$this->page = (int)$page;
 		if($this->page <= 0){
 			$this->page = 1;
 		}
-		$this->start = ($this->page-1) * $this->limit;
-		$this->sort_by = 'id';
+		$this->start = ($this->page - 1) * $this->limit;		
+		$this->sort_by = 'post_date';
 		$this->sort_by_direction = 'desc';
-		if($tag === 'author'){
-			$author_id = array_shift($this->url_parts);
-			$this->posts = $this->getPostsByAuthor($author_id);
-		}else if($tag !== null){
-			$this->title = 'All Posts Tagged ' . $tag;
-			$this->posts = $this->getPostsByTag(new Tag(array('text'=>$tag)));				
-		}else if($this->q !== null){
+		if($this->q !== null){
 			$this->title = "Results for $this->q";
 			$this->posts = Post::search($q, $this->page, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$current_user->person_id);
 		}else{

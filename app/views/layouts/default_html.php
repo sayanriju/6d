@@ -15,7 +15,7 @@
 	<body class="<?php echo $this->name;?>">
 		<div class="view">
 			<header class="banner">
-				<h1><a href="<?php echo App::url_for(null);?>" title="Home"><span><?php echo Application::$member->person->profile != null ? Application::$member->person->profile->site_name : Application::$member->member_name;?></span></a></h1>
+				<h1><a href="<?php echo Application::url_with_member(null);?>" title="Home"><span><?php echo Application::$member->person->profile != null ? Application::$member->person->profile->site_name : Application::$member->member_name;?></span></a></h1>
 				<time><span class="month"><?php echo date('M', $display_date);?></span><span class="day"><?php echo date('d', $display_date);?></span></time>
 			</header>
 			<section class="main">
