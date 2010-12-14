@@ -171,7 +171,7 @@ class PostResource extends AppResource{
 		}else{
 			self::setUserMessage("That post doesn't exist.");
 		}
-		$this->redirect_to($this->post->custom_url);			
+		$this->redirect_to(Application::url_with_member('blog/'. $this->post->custom_url));
 	}
 	
 	public function delete(Post $post, $q = null){

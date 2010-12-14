@@ -101,7 +101,6 @@
 		
 		public static function doRequest($url, $path, $data, $method = 'get', $optionalHeaders = null, $follow_redirect = true){
 			// create curl resource
-                    error_log("$method : $url");
 			if($path != null){
 				$url .= '/' . $path;
 			}

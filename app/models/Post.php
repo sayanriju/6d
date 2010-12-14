@@ -409,7 +409,8 @@
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
 			$cusomt_url = $db->sanitize($custom_url);
-			$post = $db->find(new ByClause("is_published=1 and custom_url='{$custom_url}' and owner_id={$owner_id}", null, 1, array('post_date'=>'desc')), new Post(null));
+			$clause = new ByClause("is_published=1 and custom_url='{$custom_url}' and owner_id={$owner_id}", null, 1, array('post_date'=>'desc'));
+			$post = $db->find($clause, new Post(null));
 			return $post;
 		}
 		

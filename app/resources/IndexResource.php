@@ -19,7 +19,7 @@ class IndexResource extends AppResource{
 	public $limit;
 	public $total;
 	public function get(){
-		$this->page = 0;
+		$this->page = 1;
 		$this->title = (Application::$member->person->profile !== null ? Application::$member->person->profile->site_name : Application::$member->name);
 		$this->total = Post::get_total_published_posts(Application::$member->person_id);
 		$this->posts = Post::findPublishedPosts(0, 5, array('post_date'=>'desc'), Application::$member->person_id);		

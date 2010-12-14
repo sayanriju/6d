@@ -20,7 +20,7 @@
 		<section class="entry-content">
 			<p><?php echo urldecode($post->description);?></p>
 		</section>	
-		<?php
+		<?php break;
 		case('album'):?>
 			<h3><?php echo urldecode($post->title);?></h3>
 			<?php

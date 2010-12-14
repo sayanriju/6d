@@ -14,9 +14,9 @@ class ConversationResource extends AppResource{
 		if(count($this->url_parts) > 0 && $post_id === null) $post_id = $this->url_parts[0];
 		$view = 'comment/index';
 		$this->post = Post::findById($post_id, Application::$member->person_id);
-		if($this->post == null){
+		if($this->post == null){			
 			$this->set_not_found();
-			return null;
+			return json_encode((object)array('output'=>'not found'));
 		}
 		$requestor = Person::findByPublicKeyAndOwner($public_key, Application::$member->person_id);
 		if(!$this->has_access($this->post, $public_key, $requestor)){

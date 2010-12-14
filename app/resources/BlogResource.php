@@ -22,6 +22,7 @@ class BlogResource extends AppResource{
 		$view = 'index/index';
 		$this->sort_by = 'post_date';
 		$this->sort_by_direction = 'desc';
+		$this->start = 0;
 		if(is_numeric($page_or_title)){
 			$this->page =  $page_or_title;
 			if($this->page <= 0){
@@ -34,7 +35,11 @@ class BlogResource extends AppResource{
 			$this->total = Post::get_total_published_posts(Application::$member->person_id);
 		}else{
 			$this->page = 0;
-			$this->post = Post::findPublishedByCustomUrl($page_or_title, Application::$member->person_id);
+			if(AuthController::is_authorized()){
+				$this->post = Post::findByAttribute('custom_url', $page_or_title, Application::$current_user->person_id);
+			}else{
+				$this->post = Post::findPublishedByCustomUrl($page_or_title, Application::$member->person_id);				
+			}
 			$this->title = ($this->post !== null ? $this->post->title : "Post not found");
 		}
 		if($this->post !== null){
