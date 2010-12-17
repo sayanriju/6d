@@ -6,7 +6,7 @@ var profile_controller;
 var photo_viewer;
 
 sixd.main(function(e){
-	user_message = Resource::get_user_message();		
+	user_message = get_user_message();		
 	photo = get_photo();
 	slider = get_slider();
 	cropper = get_cropper();	
@@ -22,7 +22,7 @@ function get_slider(){
 	var original_size = {width: SDDom.getWidth(photo), height: SDDom.getHeight(photo)};
 	return UIView.Slider('resizer', {direction: 'horizontal', delegate: {sliderIsMoving: function(percent){SDDom.setStyles({width: ((percent.x * original_size.width) + original_size.width) + 'px'}, photo);}}});
 }
-function Resource::get_user_message(){
+function get_user_message(){
 	return SDDom('user_message');
 }
 function get_photo(){

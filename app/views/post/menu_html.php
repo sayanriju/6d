@@ -3,6 +3,6 @@
 		<input type="hidden" name="id" value="<?php echo $post->id;?>" />
 		<input type="hidden" name="_method" value="delete" />
 		<button type="submit" name="delete_button">delete</button>
-        <a href="<?php echo Application::url_with_member('post', array('id'=>$post->id, 'previous_url'=>$this->previous_url));?>">edit</a>
+        <a href="<?php echo Application::url_with_member('post/' . $post->id);?>">edit</a>
 	</form>
 <?php endif;?>

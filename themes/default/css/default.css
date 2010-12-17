@@ -144,11 +144,8 @@ fieldset p{
 }
 fieldset p label{
 	display: block;
-	position: absolute;
-	top: 2px;
-	left: 17px;
-	z-index: 1;
 	color: #333;
+	margin-left: 20px;
 }
 input{
 	padding: 3px;
@@ -264,8 +261,9 @@ button.close{
 	height: 50px;
 }
 .new fieldset.options p input[type="checkbox"]{
-	float: left;
-	margin-top: 5px;
+	position: absolute;
+	top:0;
+	left: 0;
 }
 /* film strip*/
 .film_strip ul li{

@@ -2,7 +2,7 @@
 class_exists('Object') || require('lib/Object.php');
 class Profile extends Object{
 	
-	public function __construct($attributes = ull){
+	public function __construct($attributes = null){
 		parent::__construct($attributes);
 	}
 	public function __destruct(){

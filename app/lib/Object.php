@@ -37,7 +37,6 @@
 						$observer->obj->{$notification}($sender, $info);
 					}
 				}
-				
 			}
 		}
 
@@ -47,9 +46,8 @@
 				$val = $this->{'get' . ucwords($key)}();				
 			}
 			if(count(self::$observers) > 0){
-				$publisher = get_class($this);
 				foreach(self::$observers as $observer){
-					if(method_exists($observer->obj, 'will_return_value_for_key') && $observer->publisher === $publisher){
+					if(method_exists($observer->obj, 'will_return_value_for_key') && $observer->publisher === $key){
 						$val = $observer->obj->will_return_value_for_key($key, $this, $val);
 					}
 				}
@@ -58,10 +56,9 @@
 		}
 		public function __set($key, $val){
 			if(count(self::$observers) > 0){
-				$publisher = get_class($this);
 				foreach(self::$observers as $observer){
-					if(method_exists($observer->obj, 'observe_for_key_path') && $observer->publisher === $publisher){
-						$observer->obj->observe_for_key_path($key, $this, $val);
+					if(method_exists($observer->obj, 'observe_for_key_path') && $observer->publisher === $key){
+						$val = $observer->obj->observe_for_key_path($key, $this, $val);
 					}
 				}
 			}

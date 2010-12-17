@@ -38,6 +38,10 @@
 		<?php echo Post::get_excerpt($post);?>
 		</section>
 		<?php endif;?>
+		<footer>
+			<?php require('views/post/menu_html.php');?>
+		</footer>
+		
 	</article>
 <?php endforeach;?>
 </section>

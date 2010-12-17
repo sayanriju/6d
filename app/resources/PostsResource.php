@@ -6,6 +6,7 @@ class_exists('PostResource') || require('PostResource.php');
 class PostsResource extends AppResource{
 	public function __construct($attributes){
 		parent::__construct($attributes);
+		$this->total = 0;
 	}
 	public function __destruct(){}
 	public $posts;
@@ -14,42 +15,39 @@ class PostsResource extends AppResource{
 	public $sort_by_direction;
 	public $limit;
 	public $start;
-	public $q;
+	public $post;
+	public $total;
 	
-	public function get($id = null, $q = null, $page = 0, $limit = 20){
+	public function get($page = 0){
 		if(!AuthController::is_authorized()){
-			return $this->set_unauthorized();
+			$this->set_unauthorized();
+			return null;
 		}
-		$this->q = $q;
-		$tag = null;	
-		$this->limit = (int)$limit;
-		$this->page = (int)$page;
+		$this->limit = 5;
+		$view = 'post/index';
+		$this->sort_by = 'post_date';
+		$this->sort_by_direction = 'desc';
+		$this->start = 0;
+		$this->page =  $page;
 		if($this->page <= 0){
 			$this->page = 1;
 		}
-		$this->start = ($this->page - 1) * $this->limit;		
-		$this->sort_by = 'post_date';
-		$this->sort_by_direction = 'desc';
-		if($this->q !== null){
-			$this->title = "Results for $this->q";
-			$this->posts = Post::search($q, $this->page, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$current_user->person_id);
-		}else{
-			$this->title = 'All Posts';
-			$this->posts = $this->getAllPosts($this->start, $this->limit, $this->sort_by, $this->sort_by_direction);
+		$this->start = ($this->page-1) * $this->limit;
+		$this->title = 'Page ' . $this->page . ' Posts';
+		$this->description = 'This is page ' . $this->page . ' of a list of posts on ' . Application::$member->person->profile->site_name;
+		$this->posts = Post::find($this->start, $this->limit, $this->sort_by, $this->sort_by_direction, Application::$member->person_id);
+		$this->total = Post::get_total_published_posts(Application::$member->person_id);
+		if(count($this->posts) === 0){
+			$this->set_not_found();
+			return;
+		}
+		for($i=0; $i<count($this->posts); $i++){
+			$this->posts[$i]->conversation = PostResource::get_conversation_for($this->posts[$i]);
 		}
 		$this->keywords = implode(', ', String::getKeyWordsFromContent($this->output));
-		if($this->post !== null){
-			$this->description = $this->post->title;
-			$this->post->conversation = PostResource::get_conversation_for($this->post);
-		}else{
-			for($i=0; $i<count($this->posts); $i++){
-				$this->description .= $this->posts[$i]->title . ',';
-				$this->posts[$i]->conversation = PostResource::get_conversation_for($this->posts[$i]);
-			}
-		}
-		$this->output = $this->render('post/index');
+		$this->output = $this->render($view);
 		return $this->render_layout('default');
-	}
+	}	
 	public function post(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array()){
 		$errors = array();
 		if(AuthController::is_authorized()){

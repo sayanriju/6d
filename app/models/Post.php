@@ -464,20 +464,20 @@
 		public static function save(Post $post){
 			$errors = self::canSave($post);
 			$config = new AppConfiguration();
-			$post->tags = $post->tags == null ? array() : $post->tags;
+			$tags = $post->tags == null ? array() : $post->tags;
 			if(count($errors) == 0){
 				$db = Factory::get($config->db_type, $config);
+				if(is_array($post->tags)) $post->tags = implode(',', $post->tags);
 				$db->save(null, $post);
 				$existing_tags = Tag::findAllForPost($post->id, $post->owner_id);
 				if($existing_tags != null){
-					foreach($existing_tags as $tag){
+					foreach($tags as $tag){
 						Tag::delete($tag);
 					}
 				}
+				$post->tags = String::explodeAndTrim($post->tags);
 				foreach($post->tags as $tag_text){
-					if($existing_tags == null || !in_array($tag_text, $existing_tags)){
-						Tag::save(new Tag(array('parent_id'=>$post->id, 'type'=>'post', 'text'=>$tag_text, 'owner_id'=>$post->owner_id)));
-					}
+					Tag::save(new Tag(array('parent_id'=>$post->id, 'type'=>'post', 'text'=>$tag_text, 'owner_id'=>$post->owner_id)));
 				}
 				self::notify('post_was_saved', $post, $post);
 			}

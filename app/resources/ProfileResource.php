@@ -30,7 +30,7 @@ class ProfileResource extends AppResource{
 	public function get($state = null, Person $person = null){
 		$state = $state == null ? $this->getState() : $state;
 		$this->setState($state);
-		if(count($this->url_parts) > 1){
+		if(count($this->url_parts) > 1 && strlen($this->url_parts[1]) > 0){
 			// Get the person's photo.
 			$photo_file_type = '.png';
 			$matches = String::find('/\.(.+$)/', $this->url_parts[1]);

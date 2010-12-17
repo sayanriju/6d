@@ -7,11 +7,75 @@ class_exists('Post') || require('models/Post.php');
 class_exists('Photo') || require('models/Photo.php');
 class_exists('NotificationResource') || require('NotificationResource.php');
 class_exists('Person') || require('models/Person.php');
+class TagValidator{
+	public function observe_for_key_path($key, $obj, $val){
+		if($val !== null){
+			$val = String::explodeAndTrim($val);
+		}
+		return $val;
+	}
+}
+class DateTranslator{
+	public function observe_for_key_path($key, $obj, $val){
+		switch($val){
+			case('today'):
+				$val = date('c');
+				break;
+			case('tomorrow'):
+				$val = date('c', strtotime('+1 day'));
+				break;
+			case('yesterday'):
+				$val = date('c', strtotime('-1 day'));
+				break;
+			case('next week'):
+				$val = date('c', strtotime('+1 week'));
+				break;
+		}		
+		return $val;
+	}
+}
+
+class CustomUrlCreator{
+	public function observe_for_key_path($key, $obj, $val){
+		if($val !== 'status'){
+			$obj->custom_url = String::stringForUrl($obj->title);
+		}
+		return $val;
+	}
+}
+class PasswordValidator{
+	public function observe_for_key_path($key, $obj, $val){
+		if(strlen($val) === 0){
+			$val = null;
+		}
+		return $val;
+	}
+}
+class PostProxy{
+	public function post_has_been_submitted($sender, $post){
+		if(!AuthController::is_authorized()){
+			$sender->set_unauthorized();
+			return;
+		}
+		if($post == null){
+			$sender->set_not_found();
+			return;
+		}
+		if($post->owner_id !== Application::$current_user->person_id && !AuthController::is_super_admin()){
+			$sender->set_unauthorized();
+			return;
+		}
+	}
+}
 class PostResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
 		$this->max_filesize = 2000000;
 		$this->post = new Post();
+		Post::add_observer(new TagValidator(), 'observe_for_key_path', 'tags');
+		Post::add_observer(new DateTranslator(), 'observe_for_key_path', 'post_date');		
+		Post::add_observer(new CustomUrlCreator(), 'observe_for_key_path', 'type');		
+		Post::add_observer(new PasswordValidator(), 'observe_for_key_path', 'password');		
 	}
 	public function __destruct(){
 		parent::__destruct();
@@ -58,9 +122,9 @@ class PostResource extends AppResource{
 			$response = Request::doRequest($author->url, 'conversation.json', 'public_key=' . $author->public_key . '&post_id=' . $post->person_post_id, 'get', null);
 			$response = json_decode($response->output);
 			// $response is an array when it's decoded successfully.
-			if(!is_array($response) && property_exists($response, 'message')){
-				return null;
-			}
+			if($response == null) return null;
+			if(!is_array($response)) return null;
+			if(!property_exists($response, 'message')) return null;
 			return $response;
 		}else{
 			if($post->conversation !== null){
@@ -80,7 +144,7 @@ class PostResource extends AppResource{
 				$data = sprintf("public_key=%s", urlencode($person->public_key));
 				$response = NotificationResource::sendNotification($person, 'profile.json', $data, 'get');
 				$response = json_decode($response->output);
-				$person->profile = unserialize($person->profile);
+				$person->profile = strlen($person->profile > 0) ? unserialize($person->profile) : new Profile();
 				$person->profile->photo_url = $response->person->photo_url;				
 			}
 		}else{
@@ -111,65 +175,31 @@ class PostResource extends AppResource{
 		return $url;
 	}
 	public function put(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array(), $previous_url = null){
-		
-		if(!AuthController::is_authorized()){
-			$this->set_unauthorized();
-			return;
-		}
-				
+		$post->owner_id = Application::$current_user->person_id;
 		if($post->id !== null && strlen($post->id) > 0){
 			$this->post = Post::findById($post->id, Application::$current_user->person_id);
 		}
-		
-		if($this->post->owner_id !== Application::$current_user->person_id && !AuthController::is_super_admin()){
-			$this->set_unauthorized();
-			return;
-		}
-		
-		if($this->post !== null){
-			switch($post->post_date){
-				case('today'):
-					$post->post_date = date('c');
-					break;
-				case('tomorrow'):
-					$post->post_date = date('c', strtotime('+1 day'));
-					break;
-				case('yesterday'):
-					$post->post_date = date('c', strtotime('-1 day'));
-					break;
-				case('next week'):
-					$post->post_date = date('c', strtotime('+1 week'));
-					break;
+		self::add_observer(new PostProxy(), 'post_has_been_submitted', $this);
+		self::notify('post_has_been_submitted', $this, $post);
+		list($post, $errors) = Post::save($post);
+		if($errors == null){
+			if($make_home_page){
+				$setting = Setting::findByName('home_page_post_id');
+				$setting->value = $post->id;
+				$setting->owner_id = Application::$current_user->person_id;
+				Setting::save($setting);
+			}else if($post->isHomePage($this->getHome_page_post_id())){
+				Setting::delete('home_page_post_id');
 			}
-			$post->owner_id = Application::$current_user->person_id;
-			if($post->type !== 'status'){
-				$post->custom_url = String::stringForUrl($post->title);
-			}
-			if(strlen($post->password) === 0){
-				$post->password = null;
-			}
-			list($post, $errors) = Post::save($post);				
-			if($errors == null){
-				if($make_home_page){
-					$setting = Setting::findByName('home_page_post_id');
-					$setting->value = $post->id;
-					$setting->owner_id = Application::$current_user->person_id;
-					Setting::save($setting);
-				}else if($post->isHomePage($this->getHome_page_post_id())){
-					Setting::delete('home_page_post_id');
-				}
-				self::setUserMessage('Post was saved.');
-				$this->sendPostToGroups($groups, $post);					
-				$this->sendPostToPeople($people, $post);
-			}else{
-				$message = 'An error occurred while saving your post:';
-				foreach($errors as $key=>$value){
-					$message .= "$key=$value";
-				}
-				self::setUserMessage($message);
-			}
+			self::setUserMessage('Post was saved.');
+			$this->sendPostToGroups($groups, $post);					
+			$this->sendPostToPeople($people, $post);
 		}else{
-			self::setUserMessage("That post doesn't exist.");
+			$message = 'An error occurred while saving your post:';
+			foreach($errors as $key=>$value){
+				$message .= "$key=$value";
+			}
+			self::setUserMessage($message);
 		}
 		$this->redirect_to(Application::url_with_member('blog/'. $this->post->custom_url));
 	}

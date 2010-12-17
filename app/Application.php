@@ -60,6 +60,7 @@ class Application{
 		self::$config = new AppConfiguration();
 		return self::$config->getTheme();
 	}
+
 	public static function isPhotoPublic(){
 		return true;
 	}
