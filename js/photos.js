@@ -34,7 +34,7 @@ function photosDidLoad(request){
 	var html = '<dl>';
 	for(var i = 0; i < response.length; i++){
 		html += '<dt>' + response[i].title + '</dt>';
-		html += '<dd><form action="' + SDObject.rootUrl + '/photo/" method="post" class="delete"><img src="' + response[i].little_src + '" width="' + response[i].width + '" /><input name="src" value="' + response[i].src + '" type="hidden" /><input name="_method" type="hidden" value="delete" /><button type="submit">Delete</button></form></dd>';
+		html += '<dd><form action="' + SDObject.rootUrl + 'photo/" method="post" class="delete"><img src="' + response[i].little_src + '" width="' + response[i].width + '" /><input name="src" value="' + response[i].src + '" type="hidden" /><input name="_method" type="hidden" value="delete" /><button type="submit">Delete</button></form></dd>';
 	}
 	html += '</dl>';
 	SDDom('list-of-photos').innerHTML = html;

@@ -1137,7 +1137,6 @@ UIView.Cropper = function(id, options){
 }
 
 UIView.PhotoViewer = function(id, options){
-	SDDom.append(document.body.children[0], SDDom.create('div', {id:id}));
 	var self = UIView.apply(this, arguments);
 	SDDom.setStyles({position: 'absolute', margin: '0 auto', display: 'block', top: 0, left: 0, width: '360px', height: '400px', border: 'solid 5px #fff', background: '#000', overflow: 'hidden'}, this.container);
 	var bounds = {ux: SDDom.getWidth(window), lx: 0, uy: SDDom.getHeight(window), ly: 0};
@@ -1147,7 +1146,6 @@ UIView.PhotoViewer = function(id, options){
 	SDDom.setStyles({height: height, "margin-top": handle_view.height + 'px'}, this.frame);
 	this.scroll_view = SDDom.create('div', {className: 'scroll_view', id: 'scroll_view'});
 	SDDom.setStyles({height: height, top: handle_view.height + 'px', overflow: 'auto', width: '100%'}, this.scroll_view);
-	
 	this.close_link = SDDom.create('a', {title: 'close the photo viewer', innerHTML: 'x', href: 'javascript:void(0);'});
 	SDDom.setStyles({position: 'absolute', top: '0', left: '0', display: 'block', width: '20px', height: '15px', "z-index":"10001", border: 'solid 1px rgb(100,100,100)', "border-radius": '10px', color: 'rgb(80,80,80)', "line-height":"12px", "text-align":"center", "text-decoration":"none", "box-shadow":"1px 1px 7px rgb(0,0,0)"}, this.close_link);
 	SDDom.append(this.container, this.close_link);
@@ -1155,6 +1153,8 @@ UIView.PhotoViewer = function(id, options){
 	SDDom.append(this.frame, this.scroll_view);
 	SDDom.append(this.container, this.frame);
 	var photo_upload_field = null;
+	SDDom.setStyles({"z-index":1000}, this.container);			
+	
 	this.isMoving = function(percent){
 		//SDDom.setStyles({top: percent.y * 200 + 'px', left: percent.x * 100 + 'px'}, this.container);
 	};
@@ -1190,7 +1190,7 @@ UIView.PhotoViewer.photosDidLoad = function(request){
 	var html = '<ul>';
 	for(var i = 0; i < response.length; i++){
 		html += '<h3>' + response[i].title + '</h3>';
-		html += '<li><form action="' + SDObject.rootUrl + '/photo/" method="post" class="delete"><img src="' + response[i].little_src + '" width="' + response[i].width + '" /><input name="src" value="' + response[i].src + '" type="hidden" /><input name="_method" type="hidden" value="delete" /><button type="submit">Delete</button></form></li>';
+		html += '<li><form action="' + SDObject.rootUrl + 'photo/" method="post" class="delete"><img src="' + response[i].little_src + '" width="' + response[i].width + '" /><input name="src" value="' + response[i].src + '" type="hidden" /><input name="_method" type="hidden" value="delete" /><button type="submit">Delete</button></form></li>';
 	}
 	html += '</ul>';
 	SDDom('list-of-photos').innerHTML = html;
@@ -1409,7 +1409,7 @@ sixd.view = function(id, options){
 	this.clear = function(){
 		SDDom.removeAllChildren(this.container);
 	};
-	this.toggle = function(){		
+	this.toggle = function(){
 		if(SDDom.isVisible(this.container)){
 			this.hide();
 		}else{
@@ -1702,7 +1702,7 @@ sixd.view.film_strip = function(id, options){
 		var li = SDDom.create('li');
 		var title = SDDom.create('h3');
 		var img = new Image();
-		var form = SDDom.create('form', {method:'post', action: SDObject.rootUrl + '/photo', className:'delete'});
+		var form = SDDom.create('form', {method:'post', action: SDObject.rootUrl + 'photo', className:'delete'});
 		img.src = image.photo_path;
 		SDDom.append(form, SDDom.create('input', {type: 'hidden', value:'delete', name:'_method'}));
 		SDDom.append(form, SDDom.create('input', {type: 'hidden', value:image.photo_path, name:'src'}));

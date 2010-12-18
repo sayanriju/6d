@@ -109,17 +109,16 @@ class FollowerResource extends AppResource{
 				$errors['url'] = "I need the person's website address to follow them.";
 				Resource::setUserMessage($errors['url']);
 			}
-			error_log(Resource::get_user_message());
 			return $this->render_layout('default', null);
 		}
 	}
-	public function delete(FriendRequest $request){
+	public function delete($id = 0){		
 		if(!AuthController::is_authorized()){
 			$this->set_unauthorized();
 			return;
 		}
-		if($request->id > 0){
-			$response = FriendRequest::delete($request);
+		if($id > 0){			
+			$response = FriendRequest::delete(new FriendRequest(array('id'=>$id)));
 			Resource::setUserMessage('Request has been deleted: ' . $response);
 		}
 		$this->redirect_to(Application::url_with_member('addressbook'));

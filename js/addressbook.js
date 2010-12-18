@@ -481,7 +481,7 @@ UIController.AddressBook = function(views){
 		var response = JSON.parse(request.responseText, false);
 		this.getView('groups', this.views).removeDeletedItems();
 	};
-	this.onPersonDeleteDONE = function(request){	
+	this.onPersonDeleteDONE = function(request){
 		var response = JSON.parse(request.responseText, false);
 		this.getView('people', this.views).removeDeletedItems();
 		SDDom('detail').innerHTML = null;
@@ -515,6 +515,10 @@ UIController.AddressBook = function(views){
 				if(confirm('Just to make sure, did you want to delete the selected person(s) from your address book? If so, click Ok. Otherwise, click Cancel.')){
 					(new SDAjax({method: 'delete', parameters: 'ids=' + people
 						, DONE: [this, this.onPersonDeleteDONE]})).send(SDObject.rootUrl + 'people.json');					
+				}
+			}else if(group === 'Friend Requests'){
+				if(confirm('Do you want to delete this friend request?')){
+					(new SDAjax({method:'delete', parameters: 'id=' + people, DONE:[this, this.onPersonDeleteDONE]})).send(SDObject.rootUrl + 'follower/' + people + '.json');
 				}
 			}else if(confirm('Do you want to remove ' + people + ' from the ' + group + ' group?')){
 				(new SDAjax({method: 'delete', parameters: 'ids[]=' + people + '&group[text]=' + group

@@ -174,7 +174,6 @@
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
 			if($type !== null && count($parent_ids) > 0){
-				$text = array_map(array('Tag', 'stringify'), $tags);
 				$clause = new ByClause(sprintf("type='%s' and parent_id in (%s)", $type, implode(',', $parent_ids)), null, 0, array('text'=>'asc'));
 				return $db->delete($clause, new Tag(null));
 			}
