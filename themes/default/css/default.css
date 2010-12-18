@@ -159,6 +159,9 @@ input{
 	text-align: left;
 	margin-bottom: 40px;
 }
+.banner h1{
+	line-height: 40px;
+}
 .banner h1 a{
 	text-decoration: none;
 }
