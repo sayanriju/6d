@@ -26,6 +26,7 @@ function photoDidChange(e){
 		alert("you've already added that photo.");
 		SDDom.stop(e);
 	}else{
+		SDDom('media_form').action += '?callback=photoDidUpload';
 		SDDom('media_form').submit();
 	}
 }
@@ -39,21 +40,26 @@ function photosDidLoad(request){
 	html += '</dl>';
 	SDDom('list-of-photos').innerHTML = html;
 }
-
+var photo_list = null;
 function photoDidUpload(response){
 	if(response.message.length > 0){
 		alert(response.message);
 	}else{
+		photo_list = SDDom('photo_list');
+		if(!photo_list){
+			var list = SDDom.create('dl', {id:'photo_list'});
+			SDDom.insertBefore(list, SDDom('list-of-photos'));
+		}
 		SDDom('photo_upload_field').value = null;
 		var dd = SDDom.create('dd');
 		dd.innerHTML = response.photo_name;
-		var items = SDDom.findAll('#photos dd');
+		var items = SDDom.findAll('#photo_list dd');
 		var count = 0;
 		if(items && items.length > 0){
 			count = items.length;
 		}
 		var hidden_field = SDDom.create('input', {"type":"hidden", "value":response.photo_name + '=' + response.file_name, "id":"photo_names[" + response.photo_name + "]", "name":"photo_names[]"});
-		SDDom.append(SDDom('photos'), dd);
+		SDDom.append(SDDom('photo_list'), dd);
 		(new SDAjax({method: 'get', DONE: [top, photosDidLoad]})).send(SDDom('media_form').action.replace('photos', 'photos.json'));
 	}
 }

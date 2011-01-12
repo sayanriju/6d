@@ -746,14 +746,6 @@ eos;
 			}
 			return $rows;
 		}
-		private function populateObjectWithRow($obj, $row){
-			$attributes = get_object_vars($row);
-			foreach($attributes as $attribute=>$value){				
-				$value = $this->castIt($value);
-				$obj->{$attribute} = $value;
-			}
-			return $obj;
-		}
 		private function getInsertedId(){
 			return mysql_insert_id($this->_connectionId);
 		}

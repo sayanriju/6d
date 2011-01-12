@@ -4,10 +4,11 @@ class_exists('DataStorage') || require('lib/DataStorage/DataStorage.php');
 class_exists('UserResource') || require('UserResource.php');
 class DbResource extends AppResource{
 	public function __construct($attributes = null){
-		if(! AuthController::is_authorized()){
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
-		}
 		parent::__construct($attributes);
+		if(!AuthController::is_authorized() || !Application::$current_user->person->is_owner){
+			$this->set_unauthorized();
+			return;
+		}
 		$this->db = Factory::get($this->config->db_type, $this->config);
 		$this->host = $this->config->host;
 	}

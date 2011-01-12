@@ -20,7 +20,7 @@
 
 		public function put(Configuration $config, $should_overwrite_htaccess = false){
 			if(!$should_overwrite_htaccess && file_exists('.htaccess')){
-				Resource::setUserMessage("6d requires the ability to rewrite URLs. It creates a file called .htaccess in the application's folder to do this. This file exists. 6d needs to overwrite this file. Do you want to continue the installation and overwrite this file?");
+				Resource::set_user_message("6d requires the ability to rewrite URLs. It creates a file called .htaccess in the application's folder to do this. This file exists. 6d needs to overwrite this file. Do you want to continue the installation and overwrite this file?");
 				return $this->redirect_to(App::url_for('install'), array('overwrite'=>'false'));
 			}
 			$errors = array();
@@ -29,7 +29,7 @@
 			$db = Factory::get($config->db_type, $config);
 			$path = App::get_root_path();
 			if(!is_writable($path)){
-				self::setUserMessage("I was unable to create an httaccess file. I need write access to the folder that you're trying to install 6d.");
+				self::set_user_message("I was unable to create an httaccess file. I need write access to the folder that you're trying to install 6d.");
 				$this->redirect_to(App::url_for('install'));
 				return null;
 			}
@@ -94,10 +94,10 @@
 				$config->installed = false;
 				$config->save(App::get_root_path('AppConfiguration.php'));
 				$message = $this->render('install/error', array('message'=>"The following errors occurred when saving the configuration file. Please resolve and try again.", 'errors'=>$errors));					
-				self::setUserMessage($message);
+				self::set_user_message($message);
 			}else{
 				unset($_SESSION['configuration']);
-				Resource::setUserMessage('Installation is complete! Sign in.');
+				Resource::set_user_message('Installation is complete! Sign in.');
 			}
 			$this->redirect_to(App::url_for('login'));
         }
@@ -147,7 +147,6 @@
 			$htaccess_file = 'htaccess.php';
 			require($htaccess_file);
 			$virtual_path = String::replace('/\/$', '', App::get_virtual_path());
-			echo $virtual_path;
 			$htaccess = String::replace('/6d/', $virtual_path, $htaccess);
 			$did_write = file_put_contents(App::get_root_path('.htaccess'), $htaccess);
 			$media_folder = 'media';

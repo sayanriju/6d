@@ -4,8 +4,9 @@ class_exists('DataStorage') || require('lib/DataStorage/DataStorage.php');
 class_exists('UserResource') || require('UserResource.php');
 class TablesResource extends AppResource{
 	public function __construct($attributes = null){
-		if(! AuthController::is_authorized()){
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+		if(!AuthController::is_authorized() || !Application::$current_user->person->is_owner){
+			$this->set_unauthorized();
+			return;
 		}
 		parent::__construct($attributes);
 		$this->db = Factory::get($this->config->db_type, $this->config);
@@ -26,7 +27,7 @@ class TablesResource extends AppResource{
 		$this->db_name= $db_name;
 		$this->field_name = "Tables_in_$db_name";
 		$this->output = $this->render('db/tables', null);
-		return $this->render(null);
+		return $this->render_layout('db', null);
 	}
 	
 	public function showColumnsFor($db_name, $table_name){
@@ -35,7 +36,7 @@ class TablesResource extends AppResource{
 		$this->view->setDb_name($db_name);
 		$this->view->setTable_name($table_name);
 		$this->view->addFileWithTheme('database/columns');
-		return $this->view->render();
+		return $this->render_layout('db', null);
 	}
 	public function show($db_name){
 		if($db_name == null)

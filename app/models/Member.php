@@ -84,9 +84,7 @@ class Member extends Object{
 		$person = new Person();
 		$member = new Member();
 		$id = (int)$id;
-		$clause = new All("select m.member_name, m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
-		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
-		inner join {$person->getTableName()} p on p.id = m.person_id where m.id = {$id}", null, 1, null);
+		$clause = new All("select m.member_name, m.id, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m inner join {$person->getTableName()} p on p.id = m.person_id where m.id = {$id}", null, 1, null);
 		$member = $db->find($clause, new Member(null));
 		$member = self::unserialize_profile($member);
 		return $member;
@@ -97,9 +95,7 @@ class Member extends Object{
 		$person = new Person();
 		$member = new Member();
 		$email = String::sanitize($email);
-		$clause = new All("select m.id, m.member_name, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password
-		, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m
-		inner join {$person->getTableName()} p on p.id = m.person_id where p.email = '{$email}'", null, 1, null);
+		$clause = new All("select m.id, m.member_name, m.person_id, p.uid, p.url, p.session_id, p.public_key, p.name, p.email, p.password, p.is_approved, p.is_owner, p.do_list_in_directory, p.profile, p.owner_id, m.member_name from {$member->getTableName()} m inner join {$person->getTableName()} p on p.id = m.person_id where p.email = '{$email}'", null, 1, null);
 		$member = $db->find($clause, new Member(null));
 		$member = self::unserialize_profile($member);
 		return $member;

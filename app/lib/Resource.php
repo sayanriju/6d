@@ -40,7 +40,7 @@ class Resource extends Object{
 		if($file_type === null && $this->file_type !== null){
 			$file_type = $this->file_type;
 		}
-		if(!in_array($file_type, array('html', 'xml'))){
+		if(!in_array($file_type, array('html', 'xml', 'rss', 'atom'))){
 			return $this->output;
 		}
 		$output = $this->render('layouts/' . $name, $data, $file_type);
@@ -59,7 +59,9 @@ class Resource extends Object{
 		$file_type = $file_type !== null ? $file_type : 'html';
 		if($file != null){
 			$full_path = sprintf('%s_%s.php', $file, $file_type);
-			if(!in_array($file_type, array('html', 'xml')) && $this->is_layout($file)){
+			//TODO: This class should not care or know about the file types that can be handled.
+			// need to get this knowledge out of here and into the application, where it should be.
+			if(!in_array($file_type, array('html', 'xml', 'rss', 'atom')) && $this->is_layout($file)){
 				return $this->output;
 			}
 			$r = new ReflectionClass(get_class($this));
@@ -77,8 +79,10 @@ class Resource extends Object{
 				extract($data);
 			}
 			ob_start();
-			$theme_view = App::get_theme_path('views/' . $full_path);
-			$default_view = App::get_app_path('views/' . $full_path);
+			$file_path = sprintf('views/%s', $full_path);
+			$theme_view = App::get_theme_path($file_path);
+			$default_view = App::get_app_path($file_path);
+			$root_view = App::get_root_path($file_path);
 			// phtml is a special file type that I want to provide fallback logic for. If the file type
 			// is phtml, then I want to check for a view with that extension but if it doesn't exist, 
 			// the code should fall back and load the html view instead. This allows us to use .html views
@@ -92,29 +96,18 @@ class Resource extends Object{
 					require($theme_view);
 				}else if(file_exists($default_view)){
 					require($default_view);
+				}else if(file_exists($root_view)){
+					require($root_view);
 				}else{
 					$phtml_theme_view = String::replace('/\_phtml/', '_html', $theme_view);
 					$phtml_default_view = String::replace('/\_phtml/', '_html', $default_view);
+					$phtml_root_view = String::replace('/\_phtml/', '_html', $root_view);
 					if(file_exists($phtml_theme_view)){
 						require($phtml_theme_view);
 					}else if(file_exists($phtml_default_view)){
 						require($phtml_default_view);
-					}else{
-						$this->status = new HttpStatus(404);
-					}
-				}
-			}else if($file_type === 'phtml'){
-				$phtml_theme_view = String::replace('/\_html/', '_' . $file_type, $theme_view);
-				$phtml_default_view = String::replace('/\_html/', '_' . $file_type, $default_view);
-				if(file_exists($phtml_theme_view)){
-					require($phtml_theme_view);
-				}else if(file_exists($phtml_default_view)){
-					require($phtml_default_view);
-				}else{
-					if(file_exists($theme_view)){
-						require($theme_view);
-					}else if(file_exists($default_view)){
-						require($default_view);
+					}else if(file_exists($phtml_root_view)){
+						require($phtml_root_view);
 					}else{
 						$this->status = new HttpStatus(404);
 					}
@@ -123,6 +116,8 @@ class Resource extends Object{
 				require($theme_view);				
 			}else if(file_exists($default_view)){				
 				require($default_view);
+			}else if(file_exists($root_view)){				
+				require($root_view);
 			}else{
 				$this->status = new HttpStatus(404);
 			}
@@ -215,7 +210,7 @@ class Resource extends Object{
 		}
 		return self::$user_message;
 	}
-	public static function setUserMessage($value){
+	public static function set_user_message($value){
 		self::$user_message = $value;
 		if($value == null){
 			unset($_COOKIE['userMessage']);
@@ -268,16 +263,11 @@ class Resource extends Object{
 		}else{
 			// This else block handles the case where you want to populate an object with a form that has the object property names as their field names. For instance, I want to save a "post" and the form field names match the attributes on a Post object.			
 			if($ref_class != null){
-				$obj = $ref_class->newInstance(null);
+				$obj = $ref_class->newInstance(null);				
 				$is_null = true;
 				foreach($_REQUEST as $key=>$value){
-					//if($ref_class->hasProperty($key)){
-					//	$prop = $ref_class->getProperty($key);
-					//	if($prop != null){
-							$obj->{$key} = self::valueWithCast(self::sanitize_magic_quotes($value), null);
-							$is_null = false;
-					//	}
-					//}
+					$obj->{$key} = self::valueWithCast(self::sanitize_magic_quotes($value), null);
+					$is_null = false;
 				}
 				// 2009-12-01, jguerra: I want to handle the situation where the id is passed in the url as a path
 				// value like user/1. Right now, this code assumes that there's a property called id and it's an integer.

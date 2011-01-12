@@ -2,7 +2,7 @@
 	class_exists('Object') || require('lib/Object.php');
 	class_exists('DataStorage') || require('lib/DataStorage/DataStorage.php');
 	class_exists('Tag') || require('Tag.php');
-	class_exists('Post') || require('Comment.php');
+	class_exists('Comment') || require('Comment.php');
 	class Author{
 		public function __construct($attributes = null){
 			if(array_key_exists('id', $attributes)){
@@ -211,6 +211,11 @@
 			$this->author->profile = unserialize($this->author->profile);
 			return $this->author;
 		}
+		public static function get_conversation($post, $owner_id){
+			$owner_id = (int)$owner_id;
+			$comments = Comment::find_by_post_id($post->id, $owner_id);
+			return $comments == null ? array() : $comments;
+		}
 		public static function get_excerpt($post, $include_html = true){
 			$p_start = '<p>';
 			$p_end = '</p>';
@@ -300,6 +305,18 @@
 			$post_count->number = (int)$post_count->number;
 			return $post_count;
 		}
+		public static function get_total_tagged_posts($tag, $owner_id, $sort_by = array('post_date'=>'desc')){
+			$owner_id = (int)$owner_id;
+			$config = new AppConfiguration();
+			$post = new Post(null);
+			$post_count = (object) array('number'=>0);
+			$db = Factory::get($config->db_type, $config);
+			$clause = new All(sprintf("select count(*) as number from %s where is_published=1 and owner_id=%d and type not in ('status', 'page') and tags like '%s'", $post->getTableName(), $owner_id, "%{$tag}%"), $sort_by, 1, null);
+			$post_count = $db->find($clause, $post_count);
+			$post_count->number = (int)$post_count->number;
+			return $post_count;
+		}
+		
 		public static function findPublished($start, $limit, $sort_by, $owner_id){
 			$config = new AppConfiguration();
 			$post = new Post(null);
@@ -351,7 +368,8 @@
 			}
 			$tag->text = urlencode($tag->text);
 			$owner_id = (int)$owner_id;
-			$list = $db->find(new ByClause("tags like '%{$tag->text}%' and owner_id={$owner_id}", null, $limit > 0 ? array($start, $limit) : null, array($sort_by=>$sort_by_direction)), $post);
+			$clause = new ByClause("tags like '%{$tag->text}%' and owner_id={$owner_id}", null, $limit > 0 ? array($start, $limit) : null, array($sort_by=>$sort_by_direction));
+			$list = $db->find($clause, $post);
 			$list = ($list == null ? array() : $list);
 			return $list;
 		}
@@ -394,7 +412,7 @@
 			$db = Factory::get($config->db_type, $config);
 			$owner_id = (int)$owner_id;
 			$list = $db->find(new ByClause("type='page' and is_published=1 and owner_id={$owner_id}", null, 0, null), $post);
-			return $list;
+			return $list !== null ? $list : array();
 		}
 		public static function findFriendsPublishedStatii($owner_id){
 			$config = new AppConfiguration();
@@ -468,10 +486,10 @@
 			if(count($errors) == 0){
 				$db = Factory::get($config->db_type, $config);
 				if(is_array($post->tags)) $post->tags = implode(',', $post->tags);
-				$db->save(null, $post);
+				$post = $db->save(null, $post);
 				$existing_tags = Tag::findAllForPost($post->id, $post->owner_id);
 				if($existing_tags != null){
-					foreach($tags as $tag){
+					foreach($existing_tags as $tag){
 						Tag::delete($tag);
 					}
 				}

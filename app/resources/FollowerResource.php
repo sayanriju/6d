@@ -69,6 +69,7 @@ class FollowerResource extends AppResource{
 	// Confirm as a friend
 	public function put(FriendRequest $request){
 		$response = null;
+		self::notify('friend_is_being_confirmed', $request, $this);
 		if(!AuthController::is_authorized()){
 			$this->set_unauthorized();
 			return;
@@ -76,18 +77,20 @@ class FollowerResource extends AppResource{
 			$request = FriendRequest::findByIdAndOwnerId($request->id, Application::$current_user->person_id);
 			$this->person = Person::findByUrlAndOwnerId($request->url, Application::$current_user->person_id);
 			$response = $this->save($request, $this->person);
-			Resource::setUserMessage(sprintf("%s has been made a friend. %s", $request->name, $response->output));
+			error_log($response);
+			Resource::set_user_message(sprintf("%s has been made a friend. %s", $request->name, $response->output));
 		}
 		$this->redirect_to(Application::url_with_member('addressbook'));
 	}
 	private function sendNotification($person){
 		$config = new AppConfiguration();
-		$data = sprintf("_method=put&email=%s&url=%s&public_key=%s", urlencode(Application::$current_user->person->email), urlencode(Application::$current_user->person->url), $person->public_key);
+		$data = sprintf("_method=put&email=%s&url=%s&public_key=%s", urlencode(Application::$current_user->person->email), urlencode(Application::$current_user->person->url), base64_encode($person->public_key));
 		error_log('sending notification and $data = ' . $data);	
 		$response = NotificationResource::sendNotification($person, 'followers', $data, 'post');
 		return $response;
 	}
 	public function post(Person $person){
+		self::notify('add_as_friend', $this, $person);
 		$errors = array();
 		if(!AuthController::is_authorized()){
 			$this->set_unauthorized();
@@ -98,16 +101,16 @@ class FollowerResource extends AppResource{
 				error_log('found ' . $this->person->name . ' to send a friend request to.');
 				$response = ServicePluginController::execute(new IntroductionCommand($this->person, Application::$current_user->person));
 				if($response->headers['http_code'] == 404){
-					Resource::setUserMessage("That web address was not found. Please go back and confirm that " . $this->person->url . " is a working site.");
+					Resource::set_user_message("That web address was not found. Please go back and confirm that " . $this->person->url . " is a working site.");
 				}else{
-					Resource::setUserMessage($this->person->name . "'s site responded with " . $response->output);
+					Resource::set_user_message($this->person->name . "'s site responded with " . $response->output);
 					$this->output = $this->render('follower/confirmation');
 				}
 				$this->title = 'Request Sent!';
 			}else{
 				$this->output = $this->render('follower/show', array('errors'=>$errors));
 				$errors['url'] = "I need the person's website address to follow them.";
-				Resource::setUserMessage($errors['url']);
+				Resource::set_user_message($errors['url']);
 			}
 			return $this->render_layout('default', null);
 		}
@@ -119,7 +122,7 @@ class FollowerResource extends AppResource{
 		}
 		if($id > 0){			
 			$response = FriendRequest::delete(new FriendRequest(array('id'=>$id)));
-			Resource::setUserMessage('Request has been deleted: ' . $response);
+			Resource::set_user_message('Request has been deleted: ' . $response);
 		}
 		$this->redirect_to(Application::url_with_member('addressbook'));
 		return;

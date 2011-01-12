@@ -30,7 +30,7 @@ class LoginResource extends AppResource{
 			Person::save($person);
 			$this->redirect($member);
 		}else{
-			self::setUserMessage($this->render('error/login', array('errors'=>array('auth'=>'authorization failed'), 'message'=>"Those credentials can't be found. If you're really trying to sign in, please try it again.")));
+			self::set_user_message($this->render('error/login', array('errors'=>array('auth'=>'authorization failed'), 'message'=>"Those credentials can't be found. If you're really trying to sign in, please try it again.")));
 			$this->redirect_to('login');
 		}
 	}	

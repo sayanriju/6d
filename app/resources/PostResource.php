@@ -9,7 +9,7 @@ class_exists('NotificationResource') || require('NotificationResource.php');
 class_exists('Person') || require('models/Person.php');
 class TagValidator{
 	public function observe_for_key_path($key, $obj, $val){
-		if($val !== null){
+		if($val !== null && !is_array($val)){
 			$val = String::explodeAndTrim($val);
 		}
 		return $val;
@@ -37,9 +37,9 @@ class DateTranslator{
 
 class CustomUrlCreator{
 	public function observe_for_key_path($key, $obj, $val){
-		if($val !== 'status'){
-			$obj->custom_url = String::stringForUrl($obj->title);
-		}
+		if($obj->custom_url !== null) return $val;
+		if($obj->type == 'status') return $val;
+		$obj->custom_url = String::stringForUrl($val);
 		return $val;
 	}
 }
@@ -67,14 +67,16 @@ class PostProxy{
 		}
 	}
 }
+
 class PostResource extends AppResource{
 	public function __construct($attributes = null){
 		parent::__construct($attributes);
 		$this->max_filesize = 2000000;
 		$this->post = new Post();
+		
 		Post::add_observer(new TagValidator(), 'observe_for_key_path', 'tags');
 		Post::add_observer(new DateTranslator(), 'observe_for_key_path', 'post_date');		
-		Post::add_observer(new CustomUrlCreator(), 'observe_for_key_path', 'type');		
+		Post::add_observer(new CustomUrlCreator(), 'observe_for_key_path', 'title');		
 		Post::add_observer(new PasswordValidator(), 'observe_for_key_path', 'password');		
 	}
 	public function __destruct(){
@@ -88,8 +90,6 @@ class PostResource extends AppResource{
 	public $photos;
 	public $people;
 	public function get($id){
-		$photo = new Photo();
-		$this->photos = $photo->findAll('media/' . Application::$member->member_name);
 		$view = 'post/show';
 		if( AuthController::is_authorized()){
 			$view = 'post/edit';
@@ -116,22 +116,23 @@ class PostResource extends AppResource{
 			return $this->render_layout('default', null);
 		}
 	}
+	public static function get_preview_image(Post $post){
+		$matches = String::find('/<img.*\/>/', $post->body);
+		if(count($matches) === 0) return '<img src="images/nophoto.png" />';
+		return $matches[0];
+	}
 	public static function get_conversation_for(Post $post){
 		if($post->person_post_id !== null){
 			$author = $post->get_author();
-			$response = Request::doRequest($author->url, 'conversation.json', 'public_key=' . $author->public_key . '&post_id=' . $post->person_post_id, 'get', null);
+			$response = Request::doRequest($author->url, 'conversation.json', 'public_key=' . base64_encode($author->public_key) . '&post_id=' . $post->person_post_id, 'get', null);
 			$response = json_decode($response->output);
 			// $response is an array when it's decoded successfully.
 			if($response == null) return null;
 			if(!is_array($response)) return null;
 			if(!property_exists($response, 'message')) return null;
 			return $response;
-		}else{
-			if($post->conversation !== null){
-				return json_decode($post->conversation);
-			}else{
-				return array();
-			}
+		}else{			
+			return Post::get_conversation($post, Application::$member->person_id);
 		}
 	}
 	public static function getAuthor(Post $post){
@@ -141,14 +142,14 @@ class PostResource extends AppResource{
 				$person = Person::findById($post->owner_id);
 				$person->setProfile(unserialize($person->profile));
 			}else{
-				$data = sprintf("public_key=%s", urlencode($person->public_key));
+				$data = sprintf("public_key=%s", base64_encode($person->public_key));
 				$response = NotificationResource::sendNotification($person, 'profile.json', $data, 'get');
 				$response = json_decode($response->output);
 				$person->profile = strlen($person->profile > 0) ? unserialize($person->profile) : new Profile();
 				$person->profile->photo_url = $response->person->photo_url;				
 			}
 		}else{
-			$person = Application::$member;
+			$person = Application::$member->person;			
 		}
 		return $person;
 	}
@@ -157,7 +158,7 @@ class PostResource extends AppResource{
 		if($post->source !== null && strlen($post->source) > 0){
 			$person = Person::findByUrlAndOwnerId($post->source, Application::$member->person_id);
 			if($person !== null){
-				$data = sprintf("public_key=%s", urlencode($person->public_key));
+				$data = sprintf("public_key=%s", base64_encode($person->public_key));
 				$response = NotificationResource::sendNotification($person, 'profile.json', $data, 'get');
 				$response = json_decode($response->output);
 				$url = $response->person->photo_url;
@@ -176,22 +177,37 @@ class PostResource extends AppResource{
 	}
 	public function put(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array(), $previous_url = null){
 		$post->owner_id = Application::$current_user->person_id;
-		if($post->id !== null && strlen($post->id) > 0){
-			$this->post = Post::findById($post->id, Application::$current_user->person_id);
-		}
 		self::add_observer(new PostProxy(), 'post_has_been_submitted', $this);
 		self::notify('post_has_been_submitted', $this, $post);
-		list($post, $errors) = Post::save($post);
-		if($errors == null){
+		if($this->status->code !== 200){
+			return;
+		}
+		
+		$this->post = Post::findById($post->id, Application::$current_user->person_id);
+		if($this->post == null){
+			$this->set_not_found();
+			return;
+		}
+		$this->post->title = $post->title != null ? $post->title : $this->post->title;
+		$this->post->body = $post->body != null ? $post->body : $this->post->body;
+		$this->post->type = $post->type != null ? $post->type : $this->post->type;
+		$this->post->source = $post->source != null ? $post->source : $this->post->source;
+		$this->post->url = $post->url != null ? $post->url : $this->post->url;
+		$this->post->description = $post->description != null ? $post->description : $this->post->description;
+		$this->post->post_date = $post->post_date != null ? $post->post_date : $this->post->post_date;
+		$this->post->tags = $post->tags != null ? $post->tags : $this->post->tags;
+		$this->post->is_published = $post->is_published != null ? $post->is_published : $this->post->is_published;
+		list($this->post, $errors) = Post::save($this->post);
+		if(count($errors) == 0){
 			if($make_home_page){
 				$setting = Setting::findByName('home_page_post_id');
-				$setting->value = $post->id;
+				$setting->value = $this->post->id;
 				$setting->owner_id = Application::$current_user->person_id;
 				Setting::save($setting);
 			}else if($post->isHomePage($this->getHome_page_post_id())){
 				Setting::delete('home_page_post_id');
 			}
-			self::setUserMessage('Post was saved.');
+			self::set_user_message('Post was saved.');
 			$this->sendPostToGroups($groups, $post);					
 			$this->sendPostToPeople($people, $post);
 		}else{
@@ -199,9 +215,11 @@ class PostResource extends AppResource{
 			foreach($errors as $key=>$value){
 				$message .= "$key=$value";
 			}
-			self::setUserMessage($message);
+			self::set_user_message($message);
 		}
-		$this->redirect_to(Application::url_with_member('blog/'. $this->post->custom_url));
+		$this->headers[] = new HttpHeader(array('file_type'=>$this->file_type, 'content_location'=>Application::url_with_member('post/' . $this->post->id)));
+		$this->output = $this->render('post/show');
+		return $this->render_layout('default');
 	}
 	
 	public function delete(Post $post, $q = null){
@@ -217,7 +235,7 @@ class PostResource extends AppResource{
 		}
 		
 		Post::delete($post);
-		self::setUserMessage(sprintf("'%s' was deleted.", $post->title));
+		self::set_user_message(sprintf("'%s' was deleted.", $post->title));
 		if($this->q === null){
 			$this->redirect_to('posts');
 		}else{
@@ -254,7 +272,7 @@ class PostResource extends AppResource{
 			error_log($person->name . ' ' . $person->public_key);
 			if($person->id != Application::$current_user->person_id && $person->is_approved && $person->public_key !== null){
 				error_log(sprintf("sendToPeople -> person= %s, current user = %s",$person->name, Application::$current_user->name));
-				$datum[] = sprintf("person_post_id=%s&title=%s&body=%s&source=%s&is_published=%s&post_date=%s&public_key=%s&type=%s", urlencode($post->id), urlencode($post->title), urlencode($post->body), urlencode($post->source), $post->is_published, urlencode($post->post_date), urlencode($person->public_key), $post->type);
+				$datum[] = sprintf("person_post_id=%s&title=%s&body=%s&source=%s&is_published=%s&post_date=%s&public_key=%s&type=%s", urlencode($post->id), urlencode($post->title), urlencode($post->body), urlencode($post->source), $post->is_published, urlencode($post->post_date), base64_encode($person->public_key), $post->type);
 				$to[] = $person;
 				error_log($datum[count($datum)-1]);
 			}else{
@@ -267,11 +285,11 @@ class PostResource extends AppResource{
 				$message = array();
 				foreach($responses as $key=>$response){
 					$person = $to[$key];
-					Resource::setUserMessage($person->name . ' responded with ' . $response);
+					Resource::set_user_message($person->name . ' responded with ' . $response);
 				}
 			}
 		}else{
-			Resource::setUserMessage("Could not send to anybody you picked because none of them have been confirmed as friends.");
+			Resource::set_user_message("Could not send to anybody you picked because none of them have been confirmed as friends.");
 		}
 		error_log(Resource::get_user_message());
 	}

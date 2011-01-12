@@ -5,7 +5,9 @@
 		<li<?php echo strpos($image->src, 'profile') !== false ? ' class="profile"' : null;?>>
 		<?php if(strpos($image->src, 'http://') === false):?>
 			<h3><?php echo $image->title;?></h3>
-			<img src="<?php echo PhotoResource::getLittleSrc($image->src);?>" />
+			<a href="<?php echo $image->src;?>" title="">
+				<img src="<?php echo PhotoResource::getLittleSrc($image->src);?>" />
+			</a>
 		<?php if(AuthController::is_authorized() && Application::$current_user->person_id == Application::$member->person_id):?>
 			<form method="post" action="<?php echo Application::url_with_member('photo');?>" class="delete">
 				<input type="hidden" value="delete" name="_method" />
@@ -22,7 +24,7 @@
 <form enctype="multipart/form-data" target="upload_target" method="post" id="media_form" name="media_form" action="<?php echo Application::url_with_member('photos');?>">
 	<fieldset>
 		<legend>Photo Picker</legend>
-		<input type="hidden" name="MAX_FILE_SIZE" value="{$max_filesize}" />
+		<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $max_filesize;?>" />
 		<section>
 			<label for="photo" id="photo_label">Upload a photo</label>
 			<input type="file" name="photo" id="photo_upload_field" />

@@ -90,11 +90,11 @@ class Application{
 			$this->status = new HttpStatus(404);
 			return $resource->render_layout('default');
 		}elseif(strpos($e->getMessage(), 'No database selected') !== false || get_class($e) == 'DSException'){
-			Resource::setUserMessage($e->getMessage() . ' - You need to create the database first.');
+			Resource::set_user_message($e->getMessage() . ' - You need to create the database first.');
 			$resource->output = $resource->render('install/index', array('message'=>$e->getMessage()));
 			return $resource->render_layout('install');
 		}else{
-			Resource::setUserMessage('Exception has occured: ' . $e->getMessage());
+			Resource::set_user_message('Exception has occured: ' . $e->getMessage());
 			return $resource->render_layout('default');
 		}
 	}

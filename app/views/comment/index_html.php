@@ -6,10 +6,10 @@
 		<img src="<?php echo $author->profile->photo_url;?>" class="thumbnail" />
 		<aside rel="author">
 			<time>
-				<a href="http://<?php echo $post->source;?>" title="<?php echo $author->name;?>'s site"><?php echo $author->name;?></a> wrote <?php echo Date::time_since(time() - strtotime($post->post_date));?> ago.
+				<a href="<?php echo strlen($post->source) === 0 ? Application::url_with_member(null) : 'http://' . $post->source;?>" title="<?php echo $author->name;?>'s site"><?php echo $author->name;?></a> wrote <?php echo Date::time_since(time() - strtotime($post->post_date));?> ago.
 			</time>
 		</aside>
-		<a href="<?php echo Application::url_with_member('conversation/' . $post->id);?>" title="Show comments for this post" class="info"><?php echo count($post->conversation);?> Comments</a>
+		<?php echo count($post->conversation);?> Comments
 	</header>
 	<?php echo urldecode($post->body);?>
 </article>
@@ -25,12 +25,13 @@
 </form>
 <?php endif;?>
 <?php foreach($post->conversation as $comment):?>
+	<?php $comment->author->profile = unserialize($comment->author->profile);?>
 <article class="hentry">
 	<header>
 		<aside rel="author">
-			<img src="<?php echo $comment->author->photo_url;?>" class="thumbnail" />
+			<img src="<?php echo $comment->author->profile->photo_url;?>" class="thumbnail" />
 			<time>
-				<a href="<?php echo $comment->author->source !== null ? 'http://' . $comment->author->source : Application::url_with_member(null);?>" title="<?php echo $comment->author->name;?>'s comment"><?php echo $comment->author->name;?></a> <?php echo Date::time_since(time() - strtotime($comment->date));?> ago.
+				<a href="<?php echo $comment->author->source !== null ? 'http://' . $comment->author->source : Application::url_with_member(null);?>" title="<?php echo $comment->author->name;?>'s comment"><?php echo $comment->author->name;?></a> <?php echo Date::time_since(time() - strtotime($comment->created));?> ago.
 			</time>
 		</aside>
 	</header>

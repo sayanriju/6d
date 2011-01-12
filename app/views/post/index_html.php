@@ -5,8 +5,13 @@
 	</aside>
 <?php foreach($posts as $post):?>
 	<article class="hentry <?php echo $post->type;?>">
-		<time><span class="month"><?php echo date('M', strtotime($post->post_date));?></span><span class="day"><?php echo date('d', strtotime($post->post_date));?></span></time>
-	
+		<aside class="author_aside">
+			<time>
+				<span class="month"><?php echo date('M', strtotime($post->post_date));?></span> <span class="day"><?php echo date('d', strtotime($post->post_date));?></span>
+				<span class="year"><?php echo date('Y', strtotime($post->post_date));?></span>
+			</time>
+			<img src="<?php echo ProfileResource::getPhotoUrl(Application::$member->person);?>" alt="Profile picture" />
+		</aside>
 		<?php if($post->type === 'status'):?>
 		<header>
 			<h2><a href="<?php echo Application::url_with_member('blog/' . $post->custom_url);?>" rel="bookmark" title="<?php echo urldecode($post->title);?>"><?php echo urldecode($post->title);?></a></h2>

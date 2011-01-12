@@ -38,7 +38,7 @@ class FollowersResource extends AppResource{
 			error_log('finding the person by url = ' . $person->url);
 			$this->person = Person::findByUrlAndOwnerId($person->url, Application::$member->person_id);
 			error_log('request from ' . $this->person->name . ' is being processed');
-			$this->person->public_key = $person->public_key;
+			$this->person->public_key = base64_decode($person->public_key);
 			error_log('gonna save the public key = ' . $this->person->public_key);		
 			list($this->person, $errors) = Person::save($this->person);
 			if(count($errors) > 0){
@@ -55,11 +55,12 @@ class FollowersResource extends AppResource{
 	public function post(Person $person){
 		error_log('someone has sent a friend request from ' . $person->url);
 		$this->person = Person::findByUrlAndOwnerId($person->url, Application::$member->person_id);
+		self::notify('friend_request_has_been_posted', $this, $this->person);
 		$message = null;
 		if($this->person === null){
 			$friend_request = FriendRequest::findByUrlAndOwnerId($person->url, Application::$member->person_id);
 			if($friend_request === null){
-				$friend_request = new FriendRequest(array('name'=>$person->name, 'email'=>$person->email, 'public_key'=>$person->public_key, 'created'=>date('c'), 'url'=>$person->url, 'owner_id'=>Application::$member->person_id));
+				$friend_request = new FriendRequest(array('name'=>$person->name, 'email'=>$person->email, 'public_key'=>base64_decode($person->public_key), 'created'=>date('c'), 'url'=>$person->url, 'owner_id'=>Application::$member->person_id));
 				try{
 					$errors = FriendRequest::canSave($friend_request);
 					if(count($errors) > 0){

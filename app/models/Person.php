@@ -275,15 +275,16 @@
 		public static function save(Person $person){
 			$config = new AppConfiguration();
 			$db = Factory::get($config->db_type, $config);
-			$existing_person = Person::findByUrlAndOwnerId($person->url, $person->owner_id);
+			$existing_person = Person::findByUrlAndOwnerId($person->url, $person->owner_id);			
 			$errors = array();
 			if($existing_person !== null && $person->id !== $existing_person->id){
 				$errors = array("duplicate_entry"=>"There's already somebody in your address book with that web address. I can't have 2 people with the same web address since it's what really makes each person unique in the address book. Please either edit the existing person or use a different web address for this new person.");
 			}else{
+				$person->owner_id = (int)$person->owner_id;
 				if($person->owner_id == 0){
 					$pesron->owner_id = null;
 				}
-				$new_person = $db->save(null, $person);
+				$new_person = $db->save(null, $person);				
 				$person->id = $new_person->id;
 				self::notify('didSavePerson', $person, $person);				
 			}

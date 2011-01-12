@@ -1,6 +1,6 @@
 <form action="<?php echo App::url_for('login');?>" method="post" id="login_form">
 	<fieldset>
-		<legend>Sign in</legend>
+		<legend>Login</legend>
 		<p>
 			<label for="email">Email</label>
 			<input type="text" value="" id="email" name="email" />

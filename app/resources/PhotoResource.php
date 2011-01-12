@@ -17,7 +17,7 @@
 			$src = str_replace(App::url_for(null), '', $src);
 			$did_delete = Photo::delete($src);
 			if(!$did_delete){
-				self::setUserMessage(sprintf('failed to delete %s', $src));
+				self::set_user_message(sprintf('failed to delete %s', $src));
 			}
 			$this->redirect_to('photos');
 		}

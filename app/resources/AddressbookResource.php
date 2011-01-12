@@ -71,7 +71,7 @@ class AddressbookResource extends AppResource{
 		}
 		if(count($errors) > 0){
 			$message = $this->render('error/index', array('message'=>"The following errors occurred when saving groups. Please resolve and try again.", 'errors'=>$errors));
-			self::setUserMessage($message);				
+			self::set_user_message($message);				
 		}
 		$view = 'addressbook/show';
 		$this->output = $this->render($view);

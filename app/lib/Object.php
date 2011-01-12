@@ -57,7 +57,7 @@
 		public function __set($key, $val){
 			if(count(self::$observers) > 0){
 				foreach(self::$observers as $observer){
-					if(method_exists($observer->obj, 'observe_for_key_path') && $observer->publisher === $key){
+					if(method_exists($observer->obj, 'observe_for_key_path') && ($observer->publisher === null || $observer->publisher === $key)){
 						$val = $observer->obj->observe_for_key_path($key, $this, $val);
 					}
 				}

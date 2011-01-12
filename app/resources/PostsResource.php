@@ -50,12 +50,13 @@ class PostsResource extends AppResource{
 	}	
 	public function post(Post $post, $people = array(), $groups = array(), $make_home_page = false, $public_key = null, $photo_names = array()){
 		$errors = array();
+		error_log('public key from someone posting is ' . base64_decode($public_key));
 		if(AuthController::is_authorized()){
-			$post->source = Application::$current_user->url;
+			$post->source = Application::$current_user->person->url;
 			$this->save($post, $people, $groups, $make_home_page);
 			$this->redirect_to($post->custom_url);
 		}else if($public_key != null && strlen($public_key)>0){
-			$person = Person::findByPublicKeyAndUrl($public_key, $post->source);
+			$person = Person::findByPublicKeyAndUrl(base64_decode($public_key), urldecode($post->source));
 			$response = 'ok';
 			if($person != null && $person->is_approved){
 				// This block of code gets an existing post and updates that.
@@ -113,7 +114,7 @@ class PostsResource extends AppResource{
 				}else if($post->isHomePage($this->getHome_page_post_id())){
 					Setting::delete('home_page_post_id');
 				}
-				self::setUserMessage('Post was saved.');
+				self::set_user_message('Post was saved.');
 				$this->sendPostToGroups($groups, $post);
 				$this->sendPostToPeople($people, $post);
 			}else{
@@ -121,7 +122,7 @@ class PostsResource extends AppResource{
 				foreach($errors as $key=>$value){
 					$message .= "$key=$value";
 				}
-				self::setUserMessage($message);
+				self::set_user_message($message);
 			}
 		}
 	}
@@ -159,8 +160,8 @@ class PostsResource extends AppResource{
 		foreach($people as $person){
 			error_log($person->name . ' ' . $person->public_key);
 			if($person->id != Application::$current_user->person_id && $person->is_approved && $person->public_key !== null){
-				error_log(sprintf("sendToPeople -> person= %s, current user = %s",$person->name, Application::$current_user->name));
-				$datum[] = sprintf("person_post_id=%s&title=%s&body=%s&source=%s&is_published=%s&post_date=%s&public_key=%s&type=%s", urlencode($post->id), urlencode($post->title), urlencode($post->body), urlencode($post->source), $post->is_published, urlencode($post->post_date), urlencode($person->public_key), $post->type);
+				error_log(sprintf("sendToPeople -> person= %s, current user = %s",$person->name, Application::$current_user->person->name));
+				$datum[] = sprintf("person_post_id=%s&title=%s&body=%s&source=%s&is_published=%s&post_date=%s&public_key=%s&type=%s", urlencode($post->id), urlencode($post->title), urlencode($post->body), urlencode($post->source), $post->is_published, urlencode($post->post_date), base64_encode($person->public_key), $post->type);
 				$to[] = $person;
 				error_log($datum[count($datum)-1]);
 			}else{
@@ -173,11 +174,11 @@ class PostsResource extends AppResource{
 				$message = array();
 				foreach($responses as $key=>$response){
 					$person = $to[$key];
-					Resource::setUserMessage($person->name . ' responded with ' . $response);
+					Resource::set_user_message($person->name . ' responded with ' . $response);
 				}
 			}
 		}else{
-			Resource::setUserMessage("Could not send to anybody you picked because none of them have been confirmed as friends.");
+			Resource::set_user_message("Could not send to anybody you picked because none of them have been confirmed as friends.");
 		}
 		error_log(Resource::get_user_message());
 	}

@@ -14,11 +14,11 @@ class ContactResource extends AppResource{
 	}
 	public function post($from, $message = null){
 		if($from === null || $message === null){
-			self::setUserMessage("Did you want to say something?");
+			self::set_user_message("Did you want to say something?");
 			$this->output = $this->render('contact/index');
 			return $this->render_layout('default');
 		}
-		self::setUserMessage("Thanks for dropping a line. We'll get right on it dog gone it.");
+		self::set_user_message("Thanks for dropping a line. We'll get right on it dog gone it.");
 		return $this->render_layout('default');
 	}
 	

@@ -19,10 +19,17 @@ class IndexResource extends AppResource{
 	public $limit;
 	public $total;
 	public function get(){
+		$home_page = null;
+		$this->limit = 5;
+		if(file_exists(App::get_theme_path('HomePage.php'))){
+			require(App::get_theme_path('HomePage.php'));
+			$home_page = new HomePage();
+			$this->limit = $home_page->get_limit();
+		}
 		$this->page = 1;
 		$this->title = (Application::$member->person->profile !== null ? Application::$member->person->profile->site_name : Application::$member->name);
 		$this->total = Post::get_total_published_posts(Application::$member->person_id);
-		$this->posts = Post::findPublishedPosts(0, 5, array('post_date'=>'desc'), Application::$member->person_id);		
+		$this->posts = Post::findPublishedPosts(0, $this->limit, array('post_date'=>'desc'), Application::$member->person_id);		
 		$this->output = $this->render('index/index', null);
 		return $this->render_layout('home', null);
 	}

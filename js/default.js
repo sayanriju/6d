@@ -2142,13 +2142,10 @@ var post_controller = null;
 var app = null;
 sixd.main(function(e){
 	if(SDDom('photos_link') && SDDom.findFirst('.hentry', document)){
-		fs_controller = new sixd.controller.film_strip(new sixd.view.film_strip(null), {handle_id: 'photos_link', callback: 'fs_controller.uploader.did_upload'});
+		fs_controller = new sixd.controller.film_strip(new sixd.view.film_strip(null), {handle_id: 'photos_link', callback: 'fs_controller.did_upload'});
 		post_controller = new sixd.controller.post(new sixd.view.post('post_view', {tag: 'article'}), {handle_id: 'new_post_link'});
 		fs_controller.add_subscriber(post_controller, 'image_was_added');
 		fs_controller.add_subscriber(post_controller, 'image_was_removed');
 		app = new sixd.app([fs_controller, post_controller]);
-	}
-	if(SDDom.findFirst('label')){		
-		sixd.behaviors.label();
 	}
 });

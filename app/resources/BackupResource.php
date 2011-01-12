@@ -45,7 +45,7 @@ class BackupResource extends AppResource{
 			$this->restore($file_name);
 			$this->delete($temp_file);
 		}else{
-			self::setUserMessage("That backup doesn't exist.");
+			self::set_user_message("That backup doesn't exist.");
 		}
 		$this->output = $this->render('backup/index', null);
 		return $this->render_layout('default', null);
@@ -58,12 +58,12 @@ class BackupResource extends AppResource{
 		$archive = new ZipArchive();
 		$file_name = sprintf("%s_%s.zip", $prefix, date('Ymdh', time()));
 		if($archive->open($file_name, ZIPARCHIVE::CREATE) === false){
-			self::setUserMessage("Unable to create the archive. You need to give write permissions to the root folder.");
+			self::set_user_message("Unable to create the archive. You need to give write permissions to the root folder.");
 		}else{
 			foreach(self::$model_names as $name){
 				$this->archive($name, $archive);
 			}
-			self::setUserMessage($archive->status == ZIPARCHIVE::ER_OK ? sprintf('<a href="%s%s">Backup</a> has been created.', App::url_for(null), $file_name) : sprintf('Failed archiving your data: %s - %s', $archive->GetStatusString(), $archive->status));
+			self::set_user_message($archive->status == ZIPARCHIVE::ER_OK ? sprintf('<a href="%s%s">Backup</a> has been created.', App::url_for(null), $file_name) : sprintf('Failed archiving your data: %s - %s', $archive->GetStatusString(), $archive->status));
 			$archive->close();
 			$this->deleteFiles(self::$model_names);
 		}

@@ -38,7 +38,7 @@ class SettingsResource extends AppResource{
 				$photo_file_type = $matches[1];
 			}
 			if(!Application::isPhotoPublic()){
-				$person = Person::findByPublicKey(urldecode($person->public_key));
+				$person = Person::findByPublicKey(base64_decode($person->public_key));
 				if($person !== null && $person->is_approved){
 					$this->person = Application::$member;
 					$this->output = $this->render('profile/photo');
@@ -116,9 +116,9 @@ class SettingsResource extends AppResource{
 		$this->person->is_approved = true;
 		try{
 			list($this->person, $errors) = Person::save($this->person);
-			self::setUserMessage('Profile saved');
+			self::set_user_message('Profile saved');
 		}catch(Exception $e){
-			self::setUserMessage($e->getMessage());
+			self::set_user_message($e->getMessage());
 		}
 
 		$this->person->profile = unserialize($this->person->profile);

@@ -7,33 +7,22 @@
 	class_exists('NotificationCenter') || require('lib/NotificationCenter.php');
 	class_exists('Photo') || require('models/Photo.php');
 	class_exists('PluginController') || require('lib/PluginController.php');
+	class_exists('Context') || require('lib/Context.php');
 	class AppResource extends Resource{
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
+			$this->lang = Context::server('HTTP_ACCEPT_LANGUAGE');
+			$this->charset = 'utf-8';
 			$this->display_date = time();
 			Post::add_observer($this, 'will_return_value_for_key', 'Post');
 			$resource_name = strtolower(str_replace('Resource', '', $this->name));
 			$this->resource_css = $resource_name . '.css';
-			$this->resource_js = $resource_name . '.js';			
-			if(file_exists(App::get_theme_path('js/' . $this->resource_js))){
-				$this->resource_js = App::url_for_theme('js/' . $this->resource_js);
-				$this->resource_js = $this->to_script_tag('text/javascript', $this->resource_js);
-			}elseif(file_exists(App::get_root_path('/js/' . $this->resource_js))){
-				$this->resource_js = App::url_for('js/' . $this->resource_js);
-				$this->resource_js = $this->to_script_tag('text/javascript', $this->resource_js);
-			}else{
-				$this->resource_js = null;
-			}
-			if(file_exists(App::get_theme_path('css/' . $this->resource_css))){
-				$this->resource_css = App::url_for_theme('css/' . $this->resource_css);
-				$this->resource_css = $this->to_link_tag('stylesheet', 'text/css', $this->resource_css, 'screen,projection');
-			}elseif(file_exists(App::get_root_path('css/' . $this->resource_css))){
-				$this->resource_css = App::url_for('css/'. $this->resource_css);
-				$this->resource_css = $this->to_link_tag('stylesheet', 'text/css', $this->resource_css, 'screen,projection');
-			}else{
-				$this->resource_css = null;
-			}
-
+			$this->resource_js = $resource_name . '.js';
+			$admin_js = $resource_name . '_admin.js';
+			$this->resource_js = $this->get_resource_js($this->resource_js);
+			$this->resource_js .= AuthController::is_authorized() ? $this->get_resource_js($admin_js) : null;
+			
+			$this->resource_css = $this->get_resource_css($this->resource_css);
 			$theme_path = App::get_theme_path('/ThemeController.php');
 			if(file_exists($theme_path)){
 				class_exists('ThemeController') || require($theme_path);
@@ -67,6 +56,8 @@
 		public function __destruct(){
 			parent::__destruct();
 		}
+		public $lang;
+		public $charset;
 		public $member;
 		public $show_notes;
 		public $notes;
@@ -78,6 +69,29 @@
 		public $q;
 		public $current_user;
 		public $display_date;
+		protected function get_resource_css($file_name){
+			$output = null;
+			if(file_exists(App::get_theme_path('css/' . $file_name))){
+				$output = App::url_for_theme('css/' . $file_name);
+				$output = $this->to_link_tag('stylesheet', 'text/css', $output, 'screen,projection');
+			}elseif(file_exists(App::get_root_path('css/' . $file_name))){
+				$output = App::url_for('css/'. $file_name);
+				$output = $this->to_link_tag('stylesheet', 'text/css', $output, 'screen,projection');
+			}
+			return $output;
+		}
+		protected function get_resource_js($file_name){
+			$output = null;
+			if(file_exists(App::get_theme_path('js/' . $file_name))){
+				$output = App::url_for_theme('js/' . $file_name);
+				$output = $this->to_script_tag('text/javascript', $output);
+			}elseif(file_exists(App::get_root_path('/js/' . $file_name))){
+				$output = App::url_for('js/' . $file_name);
+				$output = $this->to_script_tag('text/javascript', $output);
+			}
+			return $output;
+		}
+		
 		protected function set_unauthorized(){
 			$this->status = new HttpStatus(401);
 			$this->headers[] = new HttpHeader(array('location'=>App::url_for('login')));

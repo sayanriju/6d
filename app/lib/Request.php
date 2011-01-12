@@ -98,7 +98,20 @@
 			curl_setopt_array($ch, $curl_options);
 			return $ch;
 		}
-		
+		public static function do_asynch($url, $path, $data, $method = 'get', $optional_headers = null, $getresponse = false) {
+			$params = array('http' => array('method' => strtoupper($method), 'content' => $data));
+			if ($optional_headers !== null) {
+				$params['http']['header'] = $optional_headers;
+			}
+			$ctx = stream_context_create($params);
+			$fp = @fopen($url, 'rb', false, $ctx);
+			if (!$fp) return false;
+			if ($getresponse){
+				$response = stream_get_contents($fp);
+				return $response;
+			}
+			return true;
+		}
 		public static function doRequest($url, $path, $data, $method = 'get', $optionalHeaders = null, $follow_redirect = true){
 			// create curl resource
 			if($path != null){

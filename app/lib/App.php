@@ -97,7 +97,7 @@ class App {
 		return round(memory_get_peak_usage() / 1024 / 1024, 2);
 	}
 	public static function add_request_time_to_footer($output, $start_time, $end_time){
-		return str_replace('</body>', sprintf("<small>Processed in %s seconds</small>
+		return str_replace('</body>', sprintf("<!-- Processed in %s seconds -->
 </body>", $end_time - $start_time), $output);
 	}
 	public static function dispatch($method, $url, $env) {		
@@ -157,11 +157,19 @@ class App {
 		self::$resource = null;
 		$first_part = $first_part === null ? 'index' : $first_part;
 		$class_name = ucwords($first_part) . 'Resource';
-		if(!file_exists(self::get_app_path('resources/' . $class_name . '.php'))){
-			return null;
+		$class_path = sprintf('resources/%s.php', $class_name);
+		$root_path = self::get_root_path($class_path);
+		$app_path = self::get_app_path($class_path);
+		$final_path = null;
+		if(file_exists($root_path)){
+			$final_path = $root_path;
 		}
+		if($final_path === null){
+			$final_path = $app_path;
+		}
+		if(!file_exists($final_path)) return null;
 		if(!class_exists($class_name)) {
-			require(self::get_app_path('resources/' . $class_name . '.php'));
+			require($final_path);
 		}
 		self::$resource = new $class_name(array('file_type'=>$file_type, 'url_parts'=>$parts));
 		return self::$resource;

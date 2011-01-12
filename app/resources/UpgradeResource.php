@@ -28,10 +28,10 @@
 			$errors = $this->createTables($db, $this->config);
 			if(count($errors) > 0){
 				$message = $this->render('install/error', array('message'=>"The following errors occurred when saving the configuration file. Please resolve and try again.", 'errors'=>$errors));					
-				self::setUserMessage($message);
+				self::set_user_message($message);
 				$this->redirect_to('upgrade/index');
 			}else{
-				self::setUserMessage('Upgrade was successful');
+				self::set_user_message('Upgrade was successful');
 				$this->redirect_to('install/done');
 			}
 		}

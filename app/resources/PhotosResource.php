@@ -6,10 +6,6 @@
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
 			$this->max_filesize = 2000000;
-			if(!AuthController::is_authorized()){
-				$this->set_unauthorized();
-				return;
-			}
 		}
 		public function __destruct(){
 			parent::__destruct();
@@ -18,13 +14,17 @@
 		public $photos;
 		public function get(){
 			$photo = new Photo();
-			$this->photos = $photo->findAll(sprintf("media/%s", Application::$current_user->member_name));
+			$this->photos = $photo->findAll(sprintf("media/%s", Application::$member->member_name));
 			$this->title = "Photo Wall";
 			$this->output = $this->render('photo/index', null);
 			return $this->render_layout('default', null);
 		}
 		
-		public function post($photo = null, $callback = null){
+		public function post($photo = null, $callback = 'photoDidUpload'){
+			if(AuthController::is_authorized()){
+				$this->set_unauthorized();
+				return;
+			}
 			$photo['error_message'] = null;
 			//console::log(json_encode($photo));
 			$path = $photo['type'];

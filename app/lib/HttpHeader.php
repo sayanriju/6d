@@ -11,6 +11,7 @@ class HttpHeader extends Object{
 	public $cache_control;
 	public $expires;
 	public $location;
+	public $content_location;
 	public function get_content_type(){
 		$content_type = null;
 		switch($this->file_type){
@@ -39,6 +40,10 @@ class HttpHeader extends Object{
 		if($this->location !== null){
 			$this->send_header('Location', $this->location);
 		}
+		if($this->content_location !== null){
+			$this->send_header('Content-Location', $this->content_location);
+		}
+		
 	}
 	private function send_header($key, $value){
 		header(sprintf("%s: %s", $key, $value));

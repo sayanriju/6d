@@ -547,14 +547,14 @@ class OpenidCommand{
 				$discovery_response = Request::doRequest($matches[1], null, null, 'get', null, false);
 			}
 			if(strpos($discovery_response->output, '<URI>' . $realm) === false){
-				Resource::setUserMessage("The realm doesn't match the site you came from.");
+				Resource::set_user_message("The realm doesn't match the site you came from.");
 				$request->return_to = App::url_for(null);
 				$this->sendIndirectErrorResponse($request, "The realm doesn't match the discovered endpoint.");
 				return false;
 			}
 
 			if(!$this->compareRealmWithReturnTo($request)){
-				Resource::setUserMessage("The realm doesn't match the site you came from.");
+				Resource::set_user_message("The realm doesn't match the site you came from.");
 				$request->return_to = App::url_for(null);
 				$this->sendIndirectErrorResponse($request, "The return_to url doesn't match the realm.");
 				return false;

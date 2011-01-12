@@ -9,9 +9,7 @@ class ConversationResource extends AppResource{
 	}
 	public function __destruct(){}
 	public $post;
-	public function get($post_id, $public_key = null){
-		array_shift($this->url_parts);
-		if(count($this->url_parts) > 0 && $post_id === null) $post_id = $this->url_parts[0];
+	public function get($post_id = 0, $public_key = null){
 		$view = 'comment/index';
 		$this->post = Post::findById($post_id, Application::$member->person_id);
 		if($this->post == null){			
@@ -20,7 +18,7 @@ class ConversationResource extends AppResource{
 		}
 		$requestor = Person::findByPublicKeyAndOwner($public_key, Application::$member->person_id);
 		if(!$this->has_access($this->post, $public_key, $requestor)){
-			$this->set_unauthorized();		
+			$this->set_unauthorized();
 			return null;
 		}
 		$this->post->conversation = PostResource::get_conversation_for($this->post);
@@ -32,7 +30,7 @@ class ConversationResource extends AppResource{
 			$this->post = Post::findById($comment->post_id, Application::$member->person_id);
 			$requestor = Person::findByPublicKeyAndOwner($public_key, Application::$member->person_id);
 			if($this->post !== null && $this->has_access($this->post, $public_key, $requestor)){
-				$comment->owner_id = Application::$member->person_id;
+				$comment->owner_id = Application::$current_user->person_id;
 				$author = PostResource::getAuthor(new Post(array('source'=>$comment->source)));
 				$comment->author = new Author(array('name'=>$requestor->name, 'source'=>$requestor->url, 'photo_url'=>$author->profile->photo_url));
 				if($this->post->conversation === null){
@@ -51,7 +49,7 @@ class ConversationResource extends AppResource{
 					foreach($errors as $key=>$value){
 						$message[] = $key . ': ' . $value;
 					}
-					self::setUserMessage(implode(', ', $message));
+					self::set_user_message(implode(', ', $message));
 				}else{
 					$this->status = new HttpStatus(201);
 				}
@@ -62,15 +60,8 @@ class ConversationResource extends AppResource{
 	}
 	private function has_access(Post $post, $public_key, $requestor){
 		
-		if($public_key !== null){
-			if($requestor !== null){
-				return true;
-			}
-		}
-		
-		if($this->post->is_published || (AuthController::is_authorized() && $this->post->owner_id == Application::$current_user->person_id)){
-			return true;
-		}
+		if($public_key !== null && $requestor !== null) return true;
+		if($this->post->is_published || (AuthController::is_authorized() && $this->post->owner_id == Application::$current_user->person_id)) return true;
 		return false;
 	}
 }

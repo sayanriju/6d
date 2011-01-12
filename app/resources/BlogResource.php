@@ -19,11 +19,11 @@ class BlogResource extends AppResource{
 	public $total;
 	public function get($page_or_title = null){
 		$this->limit = 5;
-		$view = 'index/index';
+		$view = 'post/index';
 		$this->sort_by = 'post_date';
 		$this->sort_by_direction = 'desc';
 		$this->start = 0;
-		if(is_numeric($page_or_title)){
+		if($page_or_title === null || is_numeric($page_or_title)){
 			$this->page =  $page_or_title;
 			if($this->page <= 0){
 				$this->page = 1;

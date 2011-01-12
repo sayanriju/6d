@@ -1,7 +1,7 @@
 <form action="<?php echo Application::url_with_member($post->id !== null ? 'post' : 'posts');?>" method="post" id="post_form">
 	<fieldset class="type">
     	<legend>What type of post do you want to create?</legend>
-		<ul id="post_type">
+		<ul id="post_type" class="horizontal">
 		<?php foreach(array('post'=>'Post', 'page'=>'Page', 'quote'=>'Quote', 'photo'=>'Photo', 'album'=>'Album', 'video'=>'Video', 'link'=>'Link') as $key=>$value):?>
             <li>
 				<input name="type" id="<?php echo $key;?>" type="radio" value="<?php echo $key;?>"<?php echo $post->type === $key ? ' checked="checked"' : '';?> />
