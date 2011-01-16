@@ -4,7 +4,7 @@
 			<ul></ul>
 		</nav>
 	</header>
-	<section id="groups" class="left">
+	<section id="groups" class="groups">
 		<h1>Groups</h1>
 		<ul>
 		<?php foreach($groups as $key=>$group):?>
@@ -23,7 +23,7 @@
 		<?php endforeach;?>
 		</ul>
 	</section>
-	<section id="people" class="right">
+	<section id="people" class="cards">
 		<h1>Name</h1>
 		<?php echo $this->render('person/index', null, 'phtml');?>
 	</section>

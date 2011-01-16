@@ -1,51 +1,18 @@
-<section class="list">
-	<aside>
-		<a href="<?php echo $page > 1 ? Application::url_with_member('blog/' . ($page - 1)) : null;?>">Previous</a>
-		<a href="<?php echo $page*$limit < $total->number ? Application::url_with_member('blog/' . ($page + 1)) : null;?>">Next</a>
-	</aside>
+<nav class="page">
+<?php if($page > 1):?>
+	<a href="<?php echo Application::url_with_member('blog/' . ($page - 1));?>"><span>&lt;</span></a>
+<?php else:?>
+	<a class="off" href="javascript:void(0);"><span>&lt;</span></a>
+<?php endif;?>
+
+<?php if($page*$limit < $total->number):?>
+	<a class="" href="<?php echo Application::url_with_member('blog/' . ($page + 1));?>"><span>&gt;</span></a>
+<?php else:?>
+	<a class="off" href="javascript:void(0);"><span>&gt;</span></a>
+<?php endif;?>
+</nav>
+<section class="posts">
 <?php foreach($posts as $post):?>
-	<article class="hentry <?php echo $post->type;?>">
-		<aside class="author_aside">
-			<time>
-				<span class="month"><?php echo date('M', strtotime($post->post_date));?></span> <span class="day"><?php echo date('d', strtotime($post->post_date));?></span>
-				<span class="year"><?php echo date('Y', strtotime($post->post_date));?></span>
-			</time>
-			<img src="<?php echo ProfileResource::getPhotoUrl(Application::$member->person);?>" alt="Profile picture" />
-		</aside>
-		<?php if($post->type === 'status'):?>
-		<header>
-			<h2><a href="<?php echo Application::url_with_member('blog/' . $post->custom_url);?>" rel="bookmark" title="<?php echo urldecode($post->title);?>"><?php echo urldecode($post->title);?></a></h2>
-		</header>
-		<section class="entry-content">
-			<p><?php echo urldecode($post->body);?></p>
-		</section>
-		<?php elseif($post->type === 'photo'):?>
-		<header>
-			<h2><a href="<?php echo Application::url_with_member('blog/' . $post->custom_url);?>" rel="bookmark" title="<?php echo urldecode($post->title);?>"><?php echo urldecode($post->title);?></a></h2>
-			<p><?php echo $post->description;?></p>
-		</header>
-		<section class="entry-content">
-			<img src="<?php echo urldecode($post->body);?>" alt="<?php echo $post->title;?>" />
-		</section>	
-		<?php elseif($post->type === 'video'):?>
-		<header>
-			<h2><a href="<?php echo Application::url_with_member('blog/' . $post->custom_url);?>" rel="bookmark" title="<?php echo urldecode($post->title);?>"><?php echo urldecode($post->title);?></a></h2>
-		<?php echo Post::get_excerpt($post);?>
-		</header>
-		<section class="entry-content">
-			<?php echo urldecode($post->body);?>
-		</section>	
-		<?php else:?>
-		<header>
-			<h2><a href="<?php echo Application::url_with_member('blog/' . $post->custom_url);?>" rel="bookmark" title="<?php echo urldecode($post->title);?>"><?php echo urldecode($post->title);?></a></h2>
-		</header>
-		<section class="entry-content">
-		<?php echo Post::get_excerpt($post);?>
-		</section>
-		<?php endif;?>
-		<footer>
-			<?php require('views/post/menu_html.php');?>
-		</footer>
-	</article>
+	<?php require('show_html.php');?>
 <?php endforeach;?>
 </section>

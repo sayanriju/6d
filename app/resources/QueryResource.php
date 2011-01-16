@@ -24,8 +24,8 @@ class QueryResource extends AppResource{
 	public function post($query, $db_name){
 		$query = str_replace('\\', '', $query);
 		$this->db->useDatabase($db_name);
-		$this->db->execute($query);
-		$rows = $this->db->getRows();
+		$query_id = $this->db->execute($query);
+		$rows = $this->db->getRows($query_id);
 		$this->output = $this->render('db/results', array('rows'=>$rows));
 		return $this->render_layout('db', null);
 	}	

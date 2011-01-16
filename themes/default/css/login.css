@@ -1,0 +1,50 @@
+form{
+	width: 615px;
+	height: 200px;
+	top: 50%;
+	left: 50%;
+	margin-left: -307px;
+	position: absolute;
+}
+form fieldset{
+	border: none;
+}
+form fieldset legend{
+	display: none;
+}
+form fieldset p{
+	float: left;
+}
+input{
+	margin: 0;
+	padding: 3px 0 3px 12px;
+	font-size: 22px;
+	color: #383838;
+	line-height: 24px;
+	width: 234px;
+	margin-right: 10px;
+}
+label{
+	position: absolute;
+	font-size: 22px;
+	line-height: 24px;
+	margin-left: 15px;
+	top: 10px;
+	color: #A2AFC2;
+}
+
+footer.layout{
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+}
+toolbar{
+	display: block;
+	position: absolute;
+	top: 2px;
+	right: 0;
+}
+toolbar button{
+	width: 85px;
+}

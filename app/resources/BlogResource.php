@@ -29,7 +29,7 @@ class BlogResource extends AppResource{
 				$this->page = 1;
 			}
 			$this->start = ($this->page-1) * $this->limit;
-			$this->title = 'Page ' . $this->page . ' Posts';
+			$this->title = Application::$member->person->profile->site_name . ':Page ' . $this->page;
 			$this->description = 'This is page ' . $this->page . ' of a list of Blog posts on ' . Application::$member->person->profile->site_name;
 			$this->posts = Post::findPublishedPosts($this->start, $this->limit, array($this->sort_by=>$this->sort_by_direction), Application::$member->person_id);
 			$this->total = Post::get_total_published_posts(Application::$member->person_id);

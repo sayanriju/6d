@@ -7,7 +7,7 @@ class HomePage{
 	}
 	public function __destruct(){}
 	private $limit;
-	public function getLimit(){
+	public function get_limit(){
 		return $this->limit;
 	}
 

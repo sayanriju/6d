@@ -2,7 +2,7 @@
 	<fieldset>
 		<legend>Login</legend>
 		<p>
-			<label for="email">Email</label>
+			<label for="email">name@example.com</label>
 			<input type="text" value="" id="email" name="email" />
 		</p>
 		
@@ -10,8 +10,9 @@
 			<label for="password">Password</label>
 			<input type="password" value="" id="password" name="password" />
 		</p>
-		<p>
-			<button type="submit">Login</button>
-		</p>
 	</fieldset>
+	<toolbar>
+		<button type="submit">Sign In</button>
+	</toolbar>
+	
 </form>

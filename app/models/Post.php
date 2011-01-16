@@ -166,6 +166,9 @@
 		}
 		private $conversation;
 		public function getConversation(){
+			if($this->conversation == null || strlen($this->conversation) == 0){
+				return array();
+			}
 			return $this->conversation;
 		}
 		public function setConversation($val){

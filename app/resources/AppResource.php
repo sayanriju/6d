@@ -20,8 +20,7 @@
 			$this->resource_js = $resource_name . '.js';
 			$admin_js = $resource_name . '_admin.js';
 			$this->resource_js = $this->get_resource_js($this->resource_js);
-			$this->resource_js .= AuthController::is_authorized() ? $this->get_resource_js($admin_js) : null;
-			
+			$this->resource_js .= AuthController::is_authorized() ? $this->get_resource_js($admin_js) : null;			
 			$this->resource_css = $this->get_resource_css($this->resource_css);
 			$theme_path = App::get_theme_path('/ThemeController.php');
 			if(file_exists($theme_path)){
