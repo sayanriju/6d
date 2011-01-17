@@ -13,7 +13,6 @@
 		<meta name="viewport" content="width=980"/>
 	</head>
 	<body class="<?php echo $this->name;?>">
-		<h1>I deploy via git.</h1>
 		<header class="layout">
 			<h1>
 				<a href="<?php echo Application::url_with_member(null);?>" title="Home">
