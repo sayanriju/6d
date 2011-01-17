@@ -97,7 +97,7 @@
 			return $errors;
 		}
 		
-		public function install(Configuration $config){
+		public function install($config){
 			$message = '';
 			$db = Factory::get($config->db_type, $config);
 			try{

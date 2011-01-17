@@ -55,7 +55,7 @@ class SuperAdmin extends Object{
 		return $super_admin;
 	}
 	
-	public function install(Configuration $config){
+	public function install($config){
 		$message = '';
 		$db = Factory::get($config->db_type, $config);
 		try{

@@ -89,29 +89,31 @@ class BackupResource extends AppResource{
 						$errors[] = $e;
 					}
 				}
-				foreach($list as $obj){
-					$obj = Model::map($obj, new $class_name());
-					$obj->id = null;
-					if(method_exists($obj, 'getOwner_id')){
-						$obj->owner_id = 1;
-					}
-					if(method_exists($obj, 'getUid') && $obj->uid == null){
-						$obj->uid = uniqid(null, true);
-					}
-					if(method_exists($obj, 'getSession_id') && $obj->session_id == null){
-						$obj->session_id = session_id();
-					}
+				if(is_array($list)){
+					foreach($list as $obj){
+						$obj = Model::map($obj, new $class_name());
+						$obj->id = null;
+						if(method_exists($obj, 'getOwner_id')){
+							$obj->owner_id = 1;
+						}
+						if(method_exists($obj, 'getUid') && $obj->uid == null){
+							$obj->uid = uniqid(null, true);
+						}
+						if(method_exists($obj, 'getSession_id') && $obj->session_id == null){
+							$obj->session_id = session_id();
+						}
 
-					$obj->install($this->config);
-					try{
-						call_user_func(array($class_name, 'save'), $obj);
-					}catch(Exception $e){
-						console::log($e);
+						$obj->install($this->config);
+						try{
+							call_user_func(array($class_name, 'save'), $obj);
+						}catch(Exception $e){
+							console::log($e);
+						}
 					}
 				}
 				
-				if(count($error_messages) > 0){
-					self::setUserMessgae(implode('<br />', $error_messages));
+				if(count($errors) > 0){
+					self::setUserMessgae(implode('<br />', $errors));
 				}
 			}
 			$this->deleteRecursively('b');

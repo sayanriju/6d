@@ -149,7 +149,7 @@
 				$output = $filter->execute($output);
 			}
 			if(count(console::$messages) > 0){
-				$output = str_replace('</body>', '<pre id="__6d_console">' . implode('', console::$messages) . '</pre></body>', $output);
+				$output = str_replace('</body>', '<pre id="__6d_console">' . json_encode(console::$messages) . '</pre></body>', $output);
 			}
 			return $output;
 		}

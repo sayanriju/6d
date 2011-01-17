@@ -7,11 +7,12 @@
 		<dl>
 		<?php if($post->conversation !== null):?>
 			<dt>No comments</dt>
-		<?php endif;?>
+		<?php else:?>
 		<?php foreach($post->conversation as $comment):?>
 			<dt><?php echo $comment->author->name;?></dt>
 			<dd><?php echo $comment->body;?></dd>
 		<?php endforeach;?>
+		<?php endif;?>
 		</dl>
 	</aside>
 	
