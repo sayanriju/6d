@@ -6,7 +6,7 @@
 	</form>
 	<aside class="toolbar" rel="action">
 		<button style="display: none;" class="cancel">cancel</button>
-        <button class="edit">edit</button>
+        <a class="edit" href="<?php echo Application::url_with_member('post/' . $post->id);?>" title="edit this post">edit</a>
     	<button class="info">info</button>
 	</aside>
 	

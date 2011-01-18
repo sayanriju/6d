@@ -1329,7 +1329,13 @@ sixd.array.find = function(item, ary, fn){
 };
 
 sixd.main = function(fn){
-	SDDom.addEventListener(window, 'load', fn);
+	// in the case where the code loads a javascript file after the page has loaded,
+	// i want to execute the function if it's trying to execute when the page loads.
+	if(document.body){
+		fn();
+	}else{
+		SDDom.addEventListener(window, 'load', fn);
+	}
 };
 sixd.get = function(url, fn, context){
 	(new SDAjax({method: 'get', DONE: [context, fn]})).send(url);

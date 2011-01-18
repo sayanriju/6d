@@ -35,6 +35,7 @@
 		<aside class="description">
 			<?php echo Post::get_excerpt($post);?>
 		</aside>
+
 	<?php elseif($post->type === 'video'):?>
 	
 		<header>
@@ -46,6 +47,19 @@
 			<?php echo Post::get_excerpt($post);?>
 		</aside>
 	
+		<?php elseif($post->type === 'link'):?>
+
+			<header>
+				<h2>
+					<a href="<?php echo $post->body;?>" title="<?php echo $post->title;?>">
+						<?php echo $post->description;?>
+					</a>
+				</h2>
+			</header>
+			<aside class="description">
+				<?php echo Post::get_excerpt($post);?>
+			</aside>
+
 	<?php else:?>
 
 		<header>
