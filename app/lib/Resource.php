@@ -56,7 +56,7 @@ class Resource extends Object{
 		if($file_type === null && $this->file_type !== null){
 			$file_type = $this->file_type;
 		}
-		$file_type = $file_type !== null ? $file_type : 'html';
+		$file_type = $file_type !== null ? $file_type : 'html';		
 		if($file != null){
 			$full_path = sprintf('%s_%s.php', $file, $file_type);
 			//TODO: This class should not care or know about the file types that can be handled.

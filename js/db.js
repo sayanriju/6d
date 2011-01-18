@@ -7,7 +7,7 @@ function onDbWasClicked(request){
 function dbDidClick(e){
 	db_name = this.text;
 	(new SDAjax({method: 'get', parameters: 'db_name=' + db_name
-		, DONE: [window, onDbWasClicked]})).send('tables');
+		, DONE: [window, onDbWasClicked]})).send(SDObject.rootUrl + 'tables.phtml');
 	
 	SDArray.each(SDDom.findAll('ul.horizontal li'), function(li){
 		li.className = 'closed';
@@ -43,7 +43,7 @@ function deleteTableWasClicked(e){
 	if(confirm('Are you sure you want to delete ' + table_name + '?')){
 		
 		(new SDAjax({method: 'post', parameters: SDDom.toQueryString(form_to_submit)
-			, DONE: [window, onDeleteTable]})).send('table');
+			, DONE: [window, onDeleteTable]})).send(SDObject.rootUrl + 'table.phtml');
 
 	}
 	return false;
@@ -57,7 +57,7 @@ function onQueryDidExecute(request){
 function executeLinkWasClicked(e){
 	var query = SDDom('query').value;
 	(new SDAjax({method: 'post', parameters: 'db_name=' + db_name + '&query=' + query
-		, DONE: [window, onQueryDidExecute]})).send('query');
+		, DONE: [window, onQueryDidExecute]})).send(SDObject.rootUrl + 'query.phtml');
 	
 	return false;
 }

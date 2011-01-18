@@ -43,17 +43,18 @@ button:active{
 	border-bottom: 1px solid #538C27;
 	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#76B347), to(#5E9E2E));
 }
+article.hentry .toolbar button{
+	font-size: 11px;
+	line-height: 2em;
+	border: none;
+}
 
 form.delete button
 , button.delete{
-	border: none;
 	color: #262106;
 	-webkit-background-clip: padding-box;
 	background: -webkit-gradient(linear, 0 0, 0 100%, from(#E8D776), color-stop(0.5, #E0C438), color-stop(0.5, #DEBE21), to(#DEA024));
-	font-size: 11px;
-	line-height: 2em;
 }
-
 .layout{
 	text-align: left;
 }
@@ -117,9 +118,22 @@ article.hentry section.entry-content aside.description{
 	margin-top: 2em;
 	padding: 1.5em;
 }
-footer form{
+article.hentry{
+	position: relative;
+}
+article.hentry .toolbar{
+	position: relative;
 	margin: 0 0 30px 0;
 	padding: 10px;
+	float: left;
+}
+article.hentry .meta{
+	display: none;
+}
+article.hentry footer{
+	position: absolute;
+	top:0;
+	right: 0;
 }
 footer.layout .description img{
 	width: 40px;

@@ -190,6 +190,7 @@ class PostResource extends AppResource{
 		}
 		$this->post->title = $post->title != null ? $post->title : $this->post->title;
 		$this->post->body = $post->body != null ? $post->body : $this->post->body;
+		$this->post->body = trim($this->post->body);
 		$this->post->type = $post->type != null ? $post->type : $this->post->type;
 		$this->post->source = $post->source != null ? $post->source : $this->post->source;
 		$this->post->url = $post->url != null ? $post->url : $this->post->url;

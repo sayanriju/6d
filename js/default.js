@@ -1221,7 +1221,7 @@ UIView.PhotoViewer.photoDidUpload = function(response){
 };
 
 
-function sixd(){
+function sixd(){	
 	var observers = [];
 	this.listen_for = function(elem, name, fn){
 		if (elem.addEventListener){
@@ -1234,11 +1234,11 @@ function sixd(){
 	this.add_subscriber = function(subscriber, notification){
 		observers.push({subscriber: subscriber, notification: notification});
 	};
-	this.publish = function(notification, info){
+	this.publish = function(notification, publisher, info){
 		var i = 0;
 		for(i = 0; i < observers.length; i++){
 			if(observers[i].notification === notification){
-				observers[i].subscriber[notification].apply(observers[i].subscriber, [observers[i].publisher, info]);
+				observers[i].subscriber[notification].apply(observers[i].subscriber, [publisher, info]);
 			}
 		}
 	};
@@ -1737,11 +1737,11 @@ sixd.model.images = function(list){
 	};
 	this.add = function(img){
 		images.push(img);
-		this.publish('image_was_added', img);
+		this.publish('image_was_added', this, img);
 	};
 	this.remove = function(img){
 		images = sixd.array.remove_from(img, images, function(item){return item.src == img.src;});
-		this.publish('image_was_removed', img);
+		this.publish('image_was_removed', this, img);
 	};
 	this.get_list = function(){
 		return images;
@@ -1767,11 +1767,11 @@ sixd.model.people = function(list){
 	};
 	this.add = function(id){
 		people.push(id);
-		this.publish('person_was_added', id);
+		this.publish('person_was_added', this, id);
 	};
 	this.remove = function(id){
 		people = sixd.array.remove_from(id, people, function(item){return item == id;});
-		this.publish('person_was_removed', id);
+		this.publish('person_was_removed', this, id);
 	};
 	this.get_list = function(){
 		return people;
@@ -1800,11 +1800,11 @@ sixd.model.groups = function(list){
 		return contains;
 	};
 	this.add = function(text){
-		this.publish('group_was_added', text);
+		this.publish('group_was_added', this, text);
 	};
 	this.remove = function(text){
 		groups = sixd.array.remove_from(text, groups, function(item){return item == text;});
-		this.publish('group_was_removed', text);
+		this.publish('group_was_removed', this, text);
 	};
 	this.get_list = function(){
 		return groups;
@@ -2013,10 +2013,10 @@ sixd.controller.film_strip = function(view, options){
 			image.src = e.target.src;
 			if(!this.get_view().is_selected(e.target)){
 				this.selected_images.add(image);
-				this.publish('image_was_added', image);
+				this.publish('image_was_added', self, image);
 			}else{
 				this.selected_images.remove(image);				
-				this.publish('image_was_removed', image);
+				this.publish('image_was_removed', self, image);
 			}
 		}
 		this.delegate.event_view_was_clicked(this.get_view());

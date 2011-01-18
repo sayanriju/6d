@@ -220,7 +220,7 @@
 		public static function get_excerpt($post, $include_html = true){
 			$p_start = '<p>';
 			$p_end = '</p>';
-			$include_tags = '<a>';
+			$include_tags = '<a>,<img>';
 			if(!$include_html){
 				$p_start = null;
 				$p_end = null;

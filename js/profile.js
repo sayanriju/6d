@@ -69,7 +69,6 @@ function photoWasDoubleClicked(photo, new_size){
 }
 
 function imageWasClicked(e){
-	SDDom.stop(e);
 	photo.src = e.target.src;
 }
 

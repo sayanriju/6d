@@ -56,7 +56,7 @@
 	</body>
 	<link rel="stylesheet" type="text/css" href="<?php echo App::url_for_theme('css/default.css');?>" media="screen" />	
 	<?php echo $resource_css;?>
-	
+	<script type="text/javascript" charset="utf-8" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 	<script type="text/javascript" charset="utf-8" src="<?php echo App::url_for('js/NotificationCenter.js');?>"></script>
 	<script type="text/javascript" charset="utf-8" src="<?php echo App::url_for('js/default.js');?>" id="default_script"></script>
 	<script type="text/javascript">
