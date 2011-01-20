@@ -1,7 +1,3 @@
-function ns(){
-	return this;
-}
-ns.default_center = new sixd();
 ns.view = function(){
 	ns.apply(this, [arguments]);
 	this.id = null;

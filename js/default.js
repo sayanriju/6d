@@ -2142,6 +2142,11 @@ sixd.behaviors.label = function(){
 	return this;
 }
 
+function ns(){
+	return this;
+}
+ns.default_center = new sixd();
+
 
 var fs_controller = null;
 var post_controller = null;
