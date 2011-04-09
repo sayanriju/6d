@@ -1,1 +1,0 @@
-<?php require('default_rss.php');?>

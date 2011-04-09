@@ -1,42 +1,43 @@
 <?php
-class_exists('AppResource') || require('AppResource.php');
+class_exists("AppResource") || require("AppResource.php");
+class_exists("AuthController") || require("controllers/AuthController.php");
+class_exists("Contact") || require("models/Contact.php");
 class ContactResource extends AppResource{
-	public function __construct($attributes = null){
-		parent::__construct($attributes);
-	}
-	public function __destruct(){
-		parent::__destruct();
-	}
-	public function get(){
-		$this->title = "Send us a message";
-		$this->output = $this->render('contact/index');
-		return $this->render_layout('default');
-	}
-	public function post($from, $message = null){
-		if($from === null || $message === null){
-			self::set_user_message("Did you want to say something?");
-			$this->output = $this->render('contact/index');
-			return $this->render_layout('default');
+	public function __construct(){
+		parent::__construct();
+		if(!AuthController::is_authed()){
+			$this->set_unauthed("Please signin.");
 		}
-		self::set_user_message("Thanks for dropping a line. We'll get right on it dog gone it.");
-		return $this->render_layout('default');
 	}
-	
-	private function send($emails, $message=null, $subject){
-		$to = implode($emails,",");
-		$headers = "MIME-Version: 1.0\r\nContent-Type: text/html; charset=iso-8859-1\r\nFrom: webmaster@get6d.com\r\nReply-To: webmaster@get6d.com\r\nX-Mailer: PHP/" . phpversion();
-
-		if($emails[0] !== null && strlen($emails[0]) > 0){
-			if(mail($to, $subject, $message, $headers))
-				return true;
-			else
-				return false;
+	public $contact;
+	public function get(Contact $contact){
+		$this->contact = find_one_by::execute("ROWID=:id and owner_id=:owner_id", new Contact(array("owner_id"=>AuthController::$current_user->id, "id"=>(int)$contact->id)));
+		$view = "contact/show";
+		$this->legend = "Edit this contact";
+		if($this->contact === null) $this->contact = new Contact(array("id"=>0, "name"=>"New contact"));
+		$this->title = $this->contact->name;
+		if(AuthController::is_authed()){
+			$view = "contact/edit";
+			$this->legend = $this->contact->id === 0 ? "Add a new contact" : "Edit this contact";			
 		}else{
-			return false;
-		}
+			$this->set_not_found();
+		}		
+		$this->output = View::render($view, $this);
+		return View::render_layout("default", $this);
 	}
-	
+	public function put(Contact $contact){
+		$this->contact = find_one_by::execute("ROWID=:id and owner_id=:owner_id", new Contact(array("owner_id"=>AuthController::$current_user->id, "id"=>(int)$contact->id)));
+		if($this->contact !== null){
+			$this->contact = new Contact(array("id"=>(int)$contact->id, "name"=>$contact->name, "owner_id"=>AuthController::$current_user->id, "email"=>$contact->email, "url"=>$contact->url));
+			save_object::execute($this->contact);
+			App::set_user_message("Contact was updated.");
+		}else{
+			App::set_user_message("Invalid credentials");
+			$this->set_not_found("Contact not found.");
+		}
+		$this->set_redirect_to(AuthController::$current_user->name . "/addressbook");
+		$this->output = View::render("contact/show", $this);
+		return View::render_layout("default", $this);
+	}
 	
 }
-
-?>

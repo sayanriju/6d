@@ -1,66 +1,32 @@
 <?php
-class_exists('AppResource') || require('AppResource.php');
-class_exists('DataStorage') || require('lib/DataStorage/DataStorage.php');
-class_exists('UserResource') || require('UserResource.php');
+class_exists("AppResource") || require("AppResource.php");
+class_exists("AuthController") || require("controllers/AuthController.php");
 class DbResource extends AppResource{
-	public function __construct($attributes = null){
-		parent::__construct($attributes);
-		if(!AuthController::is_authorized() || !Application::$current_user->person->is_owner){
-			$this->set_unauthorized();
-			return;
+	public function __construct(){
+		parent::__construct();
+		if(!AuthController::is_authed()){
+			$this->set_unauthed("Please signin.");
 		}
-		$this->db = Factory::get($this->config->db_type, $this->config);
-		$this->host = $this->config->host;
 	}
-	public function __destruct(){
-		parent::__destruct();
-	}
-	private $db;
-	public $databases;
 	public $tables;
-	public $field_name;
-	public $db_name;
-	public $host;
 	public function get(){
-		$this->databases = $this->db->getDatabases();
-		$this->title = $this->config->database;
-		$this->output = $this->render('db/index', null);
-		return $this->render_layout('db', null);
+		$output = array();
+		$db = new SQLite3(Settings::$storage_provider->path, SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
+		$table_query = <<<eos
+SELECT name FROM sqlite_master 
+WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%'
+UNION ALL 
+SELECT name FROM sqlite_temp_master 
+WHERE type IN ('table','view') 
+ORDER BY 1
+eos;
+		$result = $db->query($table_query);
+		$this->tables = array();
+		while($table = $result->fetchArray(SQLITE3_ASSOC)){
+			$this->tables[] = (object)$table;
+		}		
+		$view = "db/index";
+		$this->output = View::render($view, $this);
+		return View::render_layout("default", $this);
 	}
-	
-	public function get_db_tables($db_name){
-		$this->tables = $this->db->getTables($db_name);
-		$this->db_name= $db_name;
-		$this->field_name = "Tables_in_$db_name";
-		$this->output = $this->render('db/tables', null);
-		return $this->render_layout(null);
-	}
-	public function show($db_name){
-		if($db_name == null)
-			$this->db_name = $this->connectionArgs['databaseName'];
-		try{
-			$this->tables = $this->db->getTables($this->db_name);
-		}catch(Exception $e){
-			error_log($e->getMessage());
-		}
-		$this->title = "I'm mr. happy.";
-		$this->output = $this->render('db/tables', null);
-		return $this->render_layout('db', null);
-		
-	}
-	public function create($db_name){
-		$this->db->createDatabase($db_name);
-		$this->redirect_to('db');
-	}
-
-	protected function createFirstVersion(){
-		$factory = new DatabaseFactory();			
-		$db = $factory->get(Config::getInstance()->getDatabaseProvider(), $this->connectionArgs, Config::getInstance()->getLogPath());
-		if(!$db->exists(Config::getInstance()->getDatabase()))
-			$did_create = $db->createDatabase(Config::getInstance()->getDatabase());
-
-	}
-	
 }
-
-?>

@@ -1,80 +1,24 @@
 <?php
-class_exists('AppResource') || require('AppResource.php');
-class_exists('Person') || require('models/Person.php');
-class_exists('Profile') || require('models/Profile.php');
-class_exists('Tag') || require('models/Tag.php');
-
+class_exists("AppResource") || require("AppResource.php");
+class_exists("AuthController") || require("controllers/AuthController.php");
+class_exists("Contact") || require("models/Contact.php");
 class AddressbookResource extends AppResource{
-	public function __construct($attributes = null){
-		parent::__construct($attributes);
+	public function __construct(){
+		parent::__construct();
+		$this->contacts = array();
+		if(!AuthController::is_authed()){
+			$this->set_unauthed("Please signin to see your addressbook.");
+		}
 	}
-	public function __destruct(){
-		parent::__destruct();
-	}
-	public $people;
-	public $person;
-	public $groups;
-	public function get($mini = false){
-		if(!AuthController::is_authorized() || Application::$current_user->person_id != Application::$member->person_id){
-			$this->set_unauthorized();
-			return null;
-		}		
-		$this->title = 'Address Book';
-		$this->people = Person::findAllByOwner(Application::$current_user->person_id);
-		$layout = 'default';
-		if($this->people == null){
-			$this->people = array();
-		}else{
-			$this->people = Person::removeOwner(Application::$current_user->person_id, $this->people);
-			usort($this->people, array('Person', 'sort_by_name'));
-		}
-		$all_contacts = new Tag(array('id'=>-1, 'type'=>'group', 'text'=>'All Contacts'));
-		$friend_requests = new Tag(array('id'=>-2, 'type'=>'group', 'text'=>'Friend Requests'));
-		$this->groups = Tag::findAllTagsForGroups(Application::$current_user->person_id);
-		if($this->groups === null){
-			$this->groups = array();
-		}
-		$this->groups = array_merge(array($friend_requests), $this->groups);
-		$this->groups = array_merge(array($all_contacts), $this->groups);
-		$view = 'addressbook/index';
-		if($mini){
-			$view = 'addressbook/index_modal';
-		}
-		$this->output = $this->render($view);
-		return $this->render_layout($layout);
-	}
-	public function delete(Tag $group = null, Person $person = null){
-		if(!AuthController::is_authorized() || Application::$current_user->person_id != Application::$member->person_id){
-			$this->set_unauthorized();
-			return null;
-		}		
-		if($group != null){
-			Tag::delete($group);
-		}elseif($person != null){
-			Person::delete($person);
-		}
-		$this->redirect_to('addressbook');
-	}
-	public function post($name = null){
-		if(!AuthController::is_authorized() || Application::$current_user->person_id != Application::$member->person_id){
-			$this->set_unauthorized();
-			return null;
-		}		
-		$errors = array();
-		if($name != null){
-			$profile = new Profile(array('name'=>$name));
-			$this->person = new Person();
-			$this->person->profile = serialize($profile);
-			$this->person->owner_id = Application::$current_user->person_id;
-			list($person, $errors) = Person::save($this->person);
-			$this->person->id = $person->id;
-		}
-		if(count($errors) > 0){
-			$message = $this->render('error/index', array('message'=>"The following errors occurred when saving groups. Please resolve and try again.", 'errors'=>$errors));
-			self::set_user_message($message);				
-		}
-		$view = 'addressbook/show';
-		$this->output = $this->render($view);
-		return $this->render_layout('default');		
+	public $message;
+	public $contacts;
+	public $tags;
+	public function get(){		
+		$this->contacts = find_by::execute("owner_id=:owner_id", new Contact(array("owner_id"=>AuthController::$current_user->id)));
+		if(!$this->contacts) $this->contacts = array();
+		if(!is_array($this->contacts)) $this->contacts = array($this->contacts);
+		$this->title = "Your addressbook";
+		$this->output = View::render('addressbook/index', $this);
+		return View::render_layout('default', $this);
 	}
 }

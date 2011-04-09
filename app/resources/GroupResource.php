@@ -1,57 +1,37 @@
 <?php
-class_exists('AppResource') || require('AppResource.php');
-class_exists('Tag') || require('models/Tag.php');
-class_exists('Person') || require('models/Person.php');
-
+class_exists("AppResource") || require("AppResource.php");
+class_exists("AuthController") || require("controllers/AuthController.php");
+class_exists("Group") || require("models/Group.php");
 class GroupResource extends AppResource{
-	public function __construct($attributes = null){
-		parent::__construct($attributes);
-		if(! AuthController::is_authorized()){
-			Resource::redirect_to::setRequestedUrl('addressbook');
-			throw new Exception(Resource::redirect_to::UNAUTHORIZED, 401);
+	public function __construct(){
+		parent::__construct();
+		$this->contacts = array();
+		$this->groups = array();
+		if(!AuthController::is_authed()){
+			$this->set_unauthed("Please signin to edit groups.");
 		}
 	}
-	public function __destruct(){
-		parent::__destruct();
-	}
-	public $groups;
 	public $group;
-	public $people;
-	public function get($group_id){
-		$this->title = 'Address Book';
-		if(AuthController::is_super_admin()){
-			$this->people = Person::findAll();
+	public function get(Group $group){
+		$this->group = find_one_by::execute("ROWID=:id and owner_id=:owner_id", new Group(array("owner_id"=> AuthController::$current_user->id, "id"=>(int)$group->id)));
+		$view = "group/show";
+		$this->legend = "Edit this group";
+		if($this->group === null) $this->group = new Group(array("id"=>0, "name"=>"New group"));
+		$this->title = $this->group->name;
+		if(AuthController::is_authed()){
+			$view = "group/edit";
+			$this->legend = $this->group->id === 0 ? "Add a new group" : "Edit this group";			
 		}else{
-			$this->people = Person::findAllByOwner(Application::$current_user->person_id);
-		}
-		if($this->people == null){
-			$this->people = array();
-		}
-		$this->people = Person::removeOwner(Application::$current_user->person_id, $this->people);
-		$all_contacts = new Tag(array('id'=>-1, 'type'=>'group', 'text'=>'All Contacts'));
-		$this->groups = Tag::findAllTagsForGroups(Application::$current_user->person_id);
-		if($this->groups === null){
-			$this->groups = array();
-		}
-		$this->groups = array_merge(array($all_contacts), $this->groups);
-		$view = 'addressbook/index';
-		$this->output = $this->render($view);
-		return $this->render_layout('default');
+			$this->set_not_found();
+		}		
+		$this->output = View::render($view, $this);
+		return View::render_layout("default", $this);
 	}
-
-	public function delete(Tag $group = null){
-		if($group != null && strlen($group->text) > 0){
-			Tag::delete($group);
-		}
-		$all_contacts = new Tag(array('id'=>-1, 'type'=>'group', 'text'=>'All Contacts'));
-		$this->groups = Tag::findAllTagsForGroups(Application::$current_user->person_id);
-		if($this->groups === null){
-			$this->groups = array();
-		}
-		$this->groups = array_merge(array($all_contacts), $this->groups);
-		$view = 'addressbook/index';
-		$this->output = $this->render($view);
-		return $this->render_layout('default');
+	public function post(Group $group){
+		$this->group = new Group(array("name"=>$group->name, "owner_id"=>AuthController::$current_user->id));
+		save_object::execute($this->group);
+		$this->set_redirect_to(AuthController::$current_user->name . "/addressbook");
+		$this->output = View::render("group/show", $this);
+		return View::render_layout("default", $this);
 	}
-	
 }

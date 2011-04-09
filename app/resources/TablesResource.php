@@ -1,61 +1,27 @@
 <?php
-class_exists('AppResource') || require('AppResource.php');
-class_exists('DataStorage') || require('lib/DataStorage/DataStorage.php');
-class_exists('UserResource') || require('UserResource.php');
+class_exists("AppResource") || require("AppResource.php");
+class_exists("AuthController") || require("controllers/AuthController.php");
 class TablesResource extends AppResource{
-	public function __construct($attributes = null){
-		if(!AuthController::is_authorized() || !Application::$current_user->person->is_owner){
-			$this->set_unauthorized();
-			return;
+	public function __construct(){
+		parent::__construct();
+		if(!AuthController::is_authed()){
+			$this->set_unauthed("Please signin.");
 		}
-		parent::__construct($attributes);
-		$this->db = Factory::get($this->config->db_type, $this->config);
-		$this->host = $this->config->host;
 	}
-	public function __destruct(){
-		parent::__destruct();
-	}
-	private $db;
-	public $databases;
-	public $tables;
-	public $field_name;
-	public $db_name;
-	public $host;
+	public $table_name;
 	
-	public function get($db_name){
-		$this->tables = $this->db->getTables($db_name);
-		$this->db_name= $db_name;
-		$this->field_name = "Tables_in_$db_name";
-		$this->output = $this->render('db/tables', null);
-		return $this->render_layout('db', null);
-	}
-	
-	public function showColumnsFor($db_name, $table_name){
-		$col = $this->db->getColumns($db_name, $table_name);
-		$this->view->setColumns($col);
-		$this->view->setDb_name($db_name);
-		$this->view->setTable_name($table_name);
-		$this->view->addFileWithTheme('database/columns');
-		return $this->render_layout('db', null);
-	}
-	public function show($db_name){
-		if($db_name == null)
-			$this->db_name = $this->connectionArgs['databaseName'];
-		try{
-			$this->tables = $this->db->getTables($this->db_name);
-		}catch(Exception $e){
-			error_log($e->getMessage());
+	public function post($sql){
+		$sql = explode(";", $sql);
+		$query = new Query(null);
+		$db = Repo::get_provider();
+		$view = "db/index";
+		$result = array();
+		foreach($sql as $s){
+			$result[] = $query->execute($db, $s);
 		}
-		$this->title = "I'm mr. happy.";
-		$this->output = $this->render('db/tables', null);
-		return $this->render_layout('db', null);
-		
+		App::set_user_message(json_encode($result));
+		$this->set_redirect_to("db");
+		$this->output = View::render($view, $this);
+		return View::render_layout("default", $this);
 	}
-	public function create($db_name){
-		$this->db->createDatabase($db_name);
-		$this->redirect_to('db');
-	}
-
 }
-
-?>

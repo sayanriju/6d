@@ -1,1 +1,0 @@
-alert('<?php echo $message;?> was not found.');

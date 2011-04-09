@@ -1,63 +1,50 @@
 <?php
-class_exists('AppResource') || require('AppResource.php');
-class_exists('PostResource') || require('PostResource.php');
+class_exists("AppResource") || require("AppResource.php");
+class_exists("Post") || require("models/Post.php");
+class_exists("AuthController") || require("controllers/AuthController.php");
 class BlogResource extends AppResource{
-	public function __construct($attributes = null){
-		parent::__construct($attributes);
-		$this->total = 0;
-	}
-	public function __destruct(){
-		parent::__destruct();
+	public function __construct(){
+		parent::__construct();
 	}
 	public $posts;
 	public $post;
 	public $page;
-	public $sort_by;
-	public $sort_by_direction;
+	public $next_page;
+	public $previous_page;
+	public $total_pages;
+	public $post_count;
 	public $limit;
-	public $start;
-	public $total;
-	public function get($page_or_title = null){
-		$this->limit = 5;
-		$view = 'post/index';
-		$this->sort_by = 'post_date';
-		$this->sort_by_direction = 'desc';
-		$this->start = 0;
-		if($page_or_title === null || is_numeric($page_or_title)){
-			$this->page =  $page_or_title;
-			if($this->page <= 0){
-				$this->page = 1;
-			}
-			$this->start = ($this->page-1) * $this->limit;
-			$this->title = Application::$member->person->profile->site_name . ':Page ' . $this->page;
-			$this->description = 'This is page ' . $this->page . ' of a list of Blog posts on ' . Application::$member->person->profile->site_name;
-			$this->posts = Post::findPublishedPosts($this->start, $this->limit, array($this->sort_by=>$this->sort_by_direction), Application::$member->person_id);
-			$this->total = Post::get_total_published_posts(Application::$member->person_id);
+	public function get($id = null, $page = 1){
+		$view = "blog/index";
+		$this->page = (int)$page;
+		$this->page--;
+		$this->limit = 3;
+		if($id !== null){
+			$this->post = find_one_by::execute("ROWID=:id", new Post(array("id"=>(int)$id)));
+			$view = "post/show";
+			$this->title = $this->post->title;
 		}else{
-			$this->page = 0;
-			if(AuthController::is_authorized()){
-				$this->post = Post::findByAttribute('custom_url', $page_or_title, Application::$current_user->person_id);
-			}else{
-				$this->post = Post::findPublishedByCustomUrl($page_or_title, Application::$member->person_id);				
-			}
-			$this->title = ($this->post !== null ? $this->post->title : "Post not found");
-		}
-		if($this->post !== null){
-			$this->description = Post::get_excerpt($this->post, false);
-			$this->post->conversation = PostResource::get_conversation_for($this->post);
-			$view = 'post/show';
-			$this->display_date = strtotime($this->post->post_date);
-		}else{
+			$this->posts = find_by_with_limit::execute("status='public' and owner_id=:owner_id"
+				, new Post(array("owner_id"=>self::$member->id))
+				, $this->page * 3, $this->limit);
 			if(count($this->posts) === 0){
 				$this->set_not_found();
 				return;
 			}
-			for($i=0; $i<count($this->posts); $i++){
-				$this->posts[$i]->conversation = PostResource::get_conversation_for($this->posts[$i]);
+			$this->next_page = $this->page+2;
+			$this->post_count = find_count_by::execute("status='public' and owner_id=:owner_id", new Post(array("owner_id"=>self::$member->id)));
+			$this->total_pages = ceil($this->post_count->total / 3);
+			$this->previous_page = $this->next_page-2;
+			if($this->next_page > $this->total_pages){
+				$this->next_page = $this->total_pages;
 			}
+			if($this->previous_page < 0){
+				$this->previous_page = 0;
+			}
+			$this->title = !self::$member->is_owner ? self::$member->name . "'s Blog" : "Blog";
 		}
-		$this->keywords = implode(', ', String::getKeyWordsFromContent($this->output));
-		$this->output = $this->render($view);
-		return $this->render_layout('default');
+		
+		$this->output = View::render($view, $this);
+		return View::render_layout("default", $this);
 	}	
 }

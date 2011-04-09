@@ -1,17 +1,18 @@
-<div class="horizontal slider container">
-	<h1>Databases on <?php echo $host;?></h1>
-	<ul class="horizontal">
-	<?php foreach($databases as $db):?>
-		<li class="closed"><a href="javascript:void(0);" class="database"><span><?php echo $db->Database;?></span></a></li>
-	<?php endforeach;?>
-	</ul>
-</div>
-<div style="clear: both"></div>
-<div class="container">
-	<h1>Tables in <span id="db_name"></span>
-	<ul id="tables" class="horizontal" style="display: none;"></ul>
-</div>
-<div style="clear: both"></div>
-<textarea id="query" cols="100" rows="20"></textarea>
-<a href="javascript:void(0);" id="execute_link">execute!</a>
-<div id="query_results"></div>
+<dl>
+<?php foreach($tables as $table):?>
+	<dd>
+		<a href="<?php echo App::url_for("table/{$table->name}");?>"><?php echo $table->name;?></a>
+		<form action="<?php echo App::url_for("table");?>" method="post" onsubmit="return confirm('You sure you want to delete this table?');">
+			<input type="hidden" name="_method" value="delete" />
+			<input type="hidden" name="table_name" value="<?php echo $table->name;?>" />
+			<button type="submit">Delete</button>
+		</form>
+		
+	</dd>
+<?php endforeach;?>
+</dl>
+<form action="<?php echo App::url_for("table");?>" method="get">
+	<fieldset>
+		<button type="submit">Add</button>
+	</fieldset>
+</form>
