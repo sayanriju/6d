@@ -1,39 +1,21 @@
 <?php class_exists("AuthController") || require("controllers/AuthController.php");?>
+<section data-title="6d: Own your content. Your identity web app." id="index">
+	<h1>Own your content</h1>
 
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
-<h1>
-	Origin of Chinchilla, the RESTful framework
-</h1>
+	<p>You want to share your thoughts, ideas, opinions, photos, and videos. Social networks are not private enough and email is restrictive.</p>
 
-<p>
-	The underpinnings of the Chinchilla project began around 2004 out of a desire to learn and implement software design patterns and object oriented principles. PHP is an easy development environment, so that's what I used. It has morphed into a RESTful implementation with a Front Controller that maps HTTP requests to resource object methods.
-</p>
-
-<h2>
-	The Basic Idea
-</h2>
-
-<p>
-	The Front Controller processes HTTP requests except for javascript, stylesheet and image resources. It instantiates an object based on the URL. For instance, an HTTP GET request to /index/ results in an instance of the IndexResource class being instantiated and the method, "get", called on it. The output of that method is the response to the HTTP GET request. An HTTP POST request results in the method, "post", getting called on an instance of the IndexResource class. As with the DELETE HTTP method, "delete". However, the DELETE method is not handled consistently across browsers so I added logic and data to get the framework to call delete methods (posting a hidden field called "_method" which contains values like "delete" and "put").
-</p>
-
-<h2>
-	Handling the DELETE HTTP Method
-</h2>
-<p>
-	I added logic in the Front Controller to look for a key called _method in the PHP's $_POST parameters and determine the method to call based on that first. If it doesn't exist, then follow the normal mapping.
-</p>
-
-<h2>
-	What Next?
-</h2>
-<p>
-	I've created a public repository at <a href="http://github.com/ijoey/Chinchilla">(Chinchilla on) GitHub</a> so go get it and take a look. I'm actively developing it and would love ya'll to use it and give me your feedback, suggestions, comments, critics, complaints, etc. Please contact me via <a href="http://github.com/">GitHub</a>.
-</p>
-<?php if(AuthController::is_authed()):?>
-<form action="<?php echo AppResource::url_for_user("page");?>" method="post">
-	<input type="hidden" name="state" value="edit" />
-	<input type="hidden" name="name" value="index" />
-	<button type="submit">Edit</button>
-</form>
-<?php endif;?>
+	<p>You want to socialize and interact online, but some of that should be public, while the other very private.</p>
+	
+	<p>You should own your content and have a reasonable level of control over it. That's the goal of 6d.</p>
+	
+	<p>6d is an online identity building application. Its purpose is to allow you to centralize your online life, photos, thoughts, posts, etc, but still share them with friends, colleagues, and/or the world.</p>
+	
+	<p>We're working on 6d. There's just 2 of us and we're tackling challenging problems. You'll find us online at joeyguerra.com and erikbigelow.com. Share something with us. And, feel free to join our mailing list, or even contribute. We're more than willing to take on help.</p>
+	<form action="<?php echo AppResource::url_for_member("mailinglist");?>" method="post">
+		<fieldset>
+			<legend>Join the mailing list</legend>
+			<input type="text" name="email" value="" />
+			<button type="submit">Join</button>
+		</fieldset>
+	</form>
+</section>

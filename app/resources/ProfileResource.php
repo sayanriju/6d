@@ -1,6 +1,6 @@
 <?php
 class_exists("AppResource") || require("AppResource.php");
-class_exists("AuthController") || require("controlelrs/AuthController.php");
+class_exists("AuthController") || require("controllers/AuthController.php");
 class_exists("Member") || require("models/Member.php");
 class ProfileResource extends AppResource{
 	public function __construct(){

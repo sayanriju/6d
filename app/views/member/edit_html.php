@@ -13,6 +13,18 @@
 			<label for="member[in_directory]">In Directory?</label>
 			<input type="checkbox" value="true" name="member[in_directory]" id="in_directory"<?php echo $person->in_directory ? " checked" : null;?> />
 		</p>
+		<p>
+			<label for="member[signin]">Signin name</label>
+			<input type="text" name="member[signin]" value="<?php echo $person->signin;?>" id="member[signin]" />
+		</p>
+		<p>
+			<label for="member[display_name]">Display name</label>
+			<input type="text" name="member[display_name]" value="<?php echo $person->display_name;?>" id="member[dispaly_name]" />
+		</p>
+		<p>
+			<label for="member[email]">Email</label>
+			<input type="text" name="member[email]" value="<?php echo $person->email;?>" id="member[email]" />
+		</p>
 <?php if($person->id > 0):?>
 		<input type="hidden" value="<?php echo $person->id;?>" name="member[id]" />
 		<input type="hidden" value="put" name="_method" />

@@ -24,26 +24,6 @@ class Media extends ChinObject{
 			}while(is_numeric($name));
 		}
 	}
-	public static function delete($file_name_with_path){
-		$file_name_with_path = str_replace("/", DIRECTORY_SEPARATOR, $file_name_with_path);
-		self::notify('will_delete_file', new Media(), $file_name_with_path);
-		$did_delete = false;
-		
-		if(file_exists($file_name_with_path)){
-			$did_delete = unlink($file_name_with_path);
-		}
-		self::delete_empty_folder($file_name_with_path);
-		return $did_delete;
-	}
-	public static function find_all($path = null){
-		$root = ($path == null ? PATH : $path);
-		self::$images = array();
-		if(file_exists($root)){
-			self::traverse($root);
-		}
-		return self::$images;
-	}
-	
 	private static function traverse($path){
 		$root = ($path == null ? PATH : $path);
 		if(!file_exists($root)){
@@ -64,4 +44,27 @@ class Media extends ChinObject{
 			$folder->close();
 		}
 	}		
+	public static function delete($file_name_with_path){
+		$file_name_with_path = str_replace("/", DIRECTORY_SEPARATOR, $file_name_with_path);
+		self::notify('will_delete_file', new Media(), $file_name_with_path);
+		$did_delete = false;
+		
+		if(file_exists($file_name_with_path)){
+			$did_delete = unlink($file_name_with_path);
+		}
+		self::delete_empty_folder($file_name_with_path);
+		return $did_delete;
+	}
+	public static function find_all($path = null){
+		$root = ($path == null ? PATH : $path);
+		self::$images = array();
+		if(file_exists($root)){
+			self::traverse($root);
+		}
+		return self::$images;
+	}
+	public static function find_owned_by($owner_id){
+		return find_by::execute("owner_id=:owner_id", new Media(array("owner_id"=>(int)$owner_id)));
+	}
+	
 }

@@ -14,8 +14,8 @@
 					<input type="text" name="columns[<?php echo $key;?>][type]" id="columns_type_<?php echo $key;?>" value="<?php echo $column->type;?>" />
 				</dd>
 				<dd>
-					<label for="columns_notnull_<?php echo $key;?>">Nullable</label>
-					<input type="checkbox" name="columns[<?php echo $key;?>][notnull]" id="columns_notnull_<?php echo $key;?>" value="true"<?php echo $column->notnull ? " checked" : null;?> />
+					<label for="columns_notnull_<?php echo $key;?>">Not NULL</label>
+					<input type="checkbox" name="columns[<?php echo $key;?>][notnull]" id="columns_notnull_<?php echo $key;?>" value="true"<?php echo $column->notnull ? null : " checked";?> />
 				</dd>
 				<dd>
 					<label for="columns_dflt_value_<?php echo $key;?>">Default Value</label>
@@ -40,7 +40,11 @@
 <?php
 	if($results !== null){
 		$class = new ReflectionClass($results[0]);
-		$fields = $class->getProperties();
+		$properties = $class->getProperties();
+		$fields = array();
+		foreach($properties as $property){
+			if($property->isPublic()) $fields[] = $property;
+		}
 	}
 ?>
 
@@ -50,12 +54,20 @@
 		<?php foreach($fields as $field):?>
 			<th><?php echo $field->getName();?></th>
 		<?php endforeach;?>
+			<th>delete</th>
 		</tr>
 		<?php foreach($results as $obj):?>
 		<tr>
 			<?php foreach($fields as $field):?>
 			<td><?php echo $obj->{$field->getName()};?></td>	
 			<?php endforeach;?>
+			<td>
+			<form action="<?php echo App::url_for("table/$table_name");?>" method="post">
+				<input type="hidden" name="_method" value="delete" />
+				<input type="hidden" name="id" value="<?php echo $obj->id;?>" />
+				<button type="submit">del</button>
+			</form>
+			</td>
 		</tr>
 		<?php endforeach;?>
 	</table>

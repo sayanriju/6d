@@ -7,9 +7,9 @@ class AppResource extends Resource{
 			if(strpos($_REQUEST["r"], "members/") !== false){
 				$parts = explode("/", $_REQUEST["r"]);
 				$member_name = $parts[1];
-				self::$member = find_one_by::execute("name=:name", new Member(array("name"=>$member_name)));
+				self::$member = Member::find_by_name($member_name);
 			}else{
-				self::$member = find_one_by::execute("is_owner", new Member());
+				self::$member = Member::find_owner();
 			}
 		}
 		
@@ -39,7 +39,7 @@ class AppResource extends Resource{
 			$data['qop'] = str_replace('"', '', $data['qop']);
 			if(isset($data['username'])){
 				$user_name = $data['username'];
-				$user = find_one_by::execute("name=:name", new Member(array("name"=>$user_name)));				
+				$user = Member::find_by_name($user_name);				
 				$a1 = md5($data['username'] . ':' . $data['realm'] . ':' . $user->password);
 				$a2 = md5($_SERVER['REQUEST_METHOD'].':'.$data['uri']);
 				$encrypted_response = md5($a1.':'.$data['nonce'].':'.$data['nc'].':'.$data['cnonce'].':'.$data['qop'].':'.$a2);
@@ -54,12 +54,7 @@ class AppResource extends Resource{
 			}
 		}
 	}
-	public function get_page_content_for_member(){
-		class_exists("Post") || require("models/Post.php");
-		$post = find_one_by::execute("name=:name and owner_id=:owner_id and type='page'", new Post(array("owner_id"=>self::$member->id, "name"=>$this->resource_name)));
-		if($post !== null) return $post->body;
-		return null;
-	}
+
 	public static function url_for_member($url, $data = null){
 		return App::url_for(self::$member !== null  && !self::$member->is_owner ? self::$member->name . "/" . $url : $url, $data);
 	}
@@ -67,7 +62,7 @@ class AppResource extends Resource{
 		return App::url_for(AuthController::$current_user !== null  && !AuthController::$current_user->is_owner ? AuthController::$current_user->name . "/" . $url : $url, $data);
 	}
 	public static function begin_request($publisher, $info){
-		self::$member = find_one_by::execute("name=:name", new Member(array("name"=>$info->resource_name)));
+		self::$member = find_one_by::execute("name=:name", new Member(array("name"=>$info->resource_name)), new Member());
 		if(self::$member !== null){
 			if($info->path !== null){
 				$info->resource_name = array_shift($info->path);
@@ -75,7 +70,7 @@ class AppResource extends Resource{
 				$info->resource_name = "index";
 			}
 		}else{
-			self::$member = find_one_by::execute("is_owner", new Member());
+			self::$member = find_one_by::execute("is_owner", new Member(), new Member());
 		}
 	}
 	public function __destruct(){

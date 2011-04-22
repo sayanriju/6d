@@ -11,7 +11,7 @@ class PostResource extends AppResource{
 	public function get(Post $post){
 		$post->id = (int)$post->id;
 		if($post->id > 0){
-			$this->post = find_one_by::execute("ROWID=:id", new Post(array("id"=>(int)$post->id)));
+			$this->post = Post::find_by_id($post->id);
 		}
 		$this->title = "Chinchllalite Blog";
 		$view = "post/show";
@@ -31,12 +31,11 @@ class PostResource extends AppResource{
 			$this->set_unauthed();
 			return;
 		}
-		$this->post = find_one_by::execute("ROWID=:id", new Post(array("id"=>(int)$post->id)));
-		if(AuthController::$current_user->id != $this->post->owner_id){
-			$this->set_unauthed();
+		$this->post = Post::find_by_id_and_owned_by($post->id, AuthController::$current_user->id);
+		if($this->post === null){
+			$this->set_not_found();
 			return;
 		}
-		
 		delete_object::execute($this->post);
 		$this->set_redirect_to(AuthController::$current_user->name . '/posts');
 		$this->output = View::render("blog/index", $this);
@@ -48,9 +47,9 @@ class PostResource extends AppResource{
 			return;
 		}
 
-		$this->post = find_one_by::execute("ROWID=:id", new Post(array("id"=>(int)$post->id)));
-		if(AuthController::$current_user->id != $this->post->owner_id){
-			$this->set_unauthed();
+		$this->post = Post::find_by_id_and_owned_by($post->id, AuthController::$current_user->id);
+		if($this->post === null){
+			$this->set_not_found();
 			return;
 		}
 		$this->post->title = $post->title;

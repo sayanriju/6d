@@ -14,7 +14,7 @@ class ContactsResource extends AppResource{
 	public $legend;
 	
 	public function get(){		
-		$this->contacts = find_by::execute("owner_id=:owner_id", new Contact(array("owner_id"=>AuthController::$current_user->id)));
+		$this->contacts = Contact::find_owned_by(AuthController::$current_user->id);
 		if(!is_array($this->contacts)) $this->contacts = array($this->contacts);
 		$view = "contact/index";
 		$this->output = View::render($view, $this);

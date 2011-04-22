@@ -123,6 +123,10 @@ class DefaultPopulationStrategy{
 			if($value === "false") $value = false;
 			return $value;
 		}
+		if(count($this->request->path) > 0){
+			$value = urldecode($this->request->path[0]);
+			return $value;
+		}
 		return null;
 	}
 }
@@ -177,13 +181,70 @@ class PopulationStrategy{
 			$this->strategy = new ObjectPopulationStrategy($param, $request, $class);
 		}
 	}
+	private $strategy;
 	public function populate(){
 		return $this->strategy->populate();
 	}
 }
+class MessageStrategy{
+	public function __construct($message, $subject, Contact $contact, Member $from){
+		$this->strategy = new DefaultMessageStrategy($message, $subject, $contact, $from);
+		if(($contact->url === null || strlen($contact->url) === 0) && $contact->email !== null){
+			$this->strategy = new EmailMessageStrategy($message, $subject, $contact, $from);
+		}
+	}
+	private $strategy;
+	public $error;
+	public function send(){
+		$did_send = $this->strategy->send();
+		$this->error = $this->strategy->error;
+		return $did_send;
+	}
+}
+abstract class SendMessageStrategy{
+	public function __construct($message, $subject, Contact $contact, Member $from){
+		$this->message = $message;
+		$this->contact = $contact;
+		$this->subject = $subject;
+		$this->from = $from;
+	}
+	protected $message;
+	protected $contact;
+	protected $subject;
+	protected $from;
+	public $error;
+}
+class EmailMessageStrategy extends SendMessageStrategy{
+	public function __construct($message, $subject, Contact $contact, Member $from){
+		parent::__construct($message, $subject, $contact, $from);
+		class_exists("PHPMailer") || require("lib/phpmailer/class.phpmailer.php");
+		$this->mailer = new PHPMailer();
+	}
+	public function send(){
+		$this->mailer->AddReplyTo($this->from->email, $this->from->name);
+		$this->mailer->SetFrom($this->from->email, $this->from->name);
+		$this->mailer->AddAddress($this->contact->email, $this->contact->name);
+		$this->mailer->Subject = $this->subject;
+		$this->mailer->MsgHTML($this->message);
+		$did_send = $this->mailer->Send();
+		$this->error = strlen($this->mailer->ErrorInfo) > 0 ? $this->mailer->ErrorInfo : null;
+		return $did_send;
+	}
+}
+class DefaultMessageStrategy extends SendMessageStrategy{
+	public function __construct($message, $subject, Contact $contact, Member $from){
+		parent::__construct($message, $subject, $contact, $from);
+	}
+	public function send(){
+		$this->contact->url = trim($this->contact->url);
+		if(strlen($this->contact->url) === 0) throw new Exception("The contact's website address is empty.");
+		$this->message = urlencode($this->message);
+		return Request::send_asynch(new HttpRequest(array("url"=>"http://" . $this->contact->url . "/inbox", "method"=>"post", "data"=>"message=$this->message&subject=$this->subject&sender=" . AuthController::$current_user->name . "@" . App::$domain, null)));
+	}
+}
 class Resource{
 	public function __construct(){
-		$this->title = 'A Chinchilla lite website';
+		$this->title = 'A 6d website';
 		$class_name = get_class($this);
 		$this->resource_name = str_replace("resource", "", strtolower($class_name));
 		self::$reflector = new ReflectionClass($class_name);		
@@ -200,6 +261,8 @@ class Resource{
 	public $title;
 	public $resource_name;
 	public $status;
+	public $keywords;
+	public $description;
 	protected function get_resource_css($file_name){
 		$output = null;
 		if(file_exists(App::get_theme_path('css/' . $file_name))){
@@ -222,7 +285,6 @@ class Resource{
 		}
 		return $output;
 	}
-	
 	public function to_link_tag($rel, $type, $url, $media){
 		return sprintf('<link rel="%s" type="%s" href="%s" media="%s" />', $rel, $type, $url, $media);
 	}
@@ -616,9 +678,8 @@ class View{
 		$file_type = $file_type !== null ? $file_type : $resource->request->file_type;
 		$view_name = sprintf("%s_%s.php", $view, $file_type);
 		$file_name = sprintf(App::dirname() . "/views/%s", $view_name);
-		$theme_view_path = sprintf("%s/themes/%s/views/%s", App::dirname(), Settings::$theme, $view_name);
+		$theme_view_path = sprintf("%s/themes/%s/views/%s", str_replace("/app", "", App::dirname()), Settings::$theme, $view_name);
 		$root_view_path = str_replace("app/", "", $file_name);
-		
 		if($file_type == "phtml"){
 			$file_name = self::get_phtml_file_name($file_name, $theme_view_path, $root_view_path);
 		}else if(file_exists($theme_view_path)){
@@ -792,7 +853,6 @@ class String{
 		return $new_list;
 	}
 }
-
 class PluginController{
 	
 	public function begin_request($publisher, $request){

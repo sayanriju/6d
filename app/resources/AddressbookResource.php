@@ -13,10 +13,22 @@ class AddressbookResource extends AppResource{
 	public $message;
 	public $contacts;
 	public $tags;
-	public function get(){		
-		$this->contacts = find_by::execute("owner_id=:owner_id", new Contact(array("owner_id"=>AuthController::$current_user->id)));
+	public function get($tag = null){
+		if(strlen($tag) > 50) $tag = null;
+		if($tag !== null){
+			$matches = array();
+			preg_match_all("/\w+/", $tag, $matches);
+			$tag = implode(" ", $matches[0]);
+			$this->contacts = Contact::find_tagged($tag, AuthController::$current_user->id);
+		}else{
+			$this->contacts = Contact::find_owned_by(AuthController::$current_user->id);
+		}
+		class_exists("Tag") || require("models/Tag.php");
 		if(!$this->contacts) $this->contacts = array();
 		if(!is_array($this->contacts)) $this->contacts = array($this->contacts);
+		$this->tags = Tag::find_for_contacts(AuthController::$current_user->id);
+		if(!$this->tags) $this->tags = array();
+		if(!is_array($this->tags)) $this->tags = array($this->tags);
 		$this->title = "Your addressbook";
 		$this->output = View::render('addressbook/index', $this);
 		return View::render_layout('default', $this);

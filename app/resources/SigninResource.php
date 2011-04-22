@@ -16,7 +16,7 @@ class SigninResource extends AppResource{
 		return View::render_layout("default", $this);
 	}
 	public function post(Member $member){
-		$member = find_one_by::execute("name=:name and password=:password", new Member(array("name"=>$member->name, "password"=>$member->password)));
+		$member = Member::find_by_signin_and_password($member->signin, $member->password);
 		if($member !== null){
 			$expiry = time() + 60*60*24*30;
 			$hash = AuthController::get_chin_auth_hash($member->name, $expiry);

@@ -11,7 +11,7 @@ class ContactResource extends AppResource{
 	}
 	public $contact;
 	public function get(Contact $contact){
-		$this->contact = find_one_by::execute("ROWID=:id and owner_id=:owner_id", new Contact(array("owner_id"=>AuthController::$current_user->id, "id"=>(int)$contact->id)));
+		$this->contact = Contact::find_by_id((int)$contact->id, AuthController::$current_user->id);
 		$view = "contact/show";
 		$this->legend = "Edit this contact";
 		if($this->contact === null) $this->contact = new Contact(array("id"=>0, "name"=>"New contact"));
@@ -26,7 +26,7 @@ class ContactResource extends AppResource{
 		return View::render_layout("default", $this);
 	}
 	public function put(Contact $contact){
-		$this->contact = find_one_by::execute("ROWID=:id and owner_id=:owner_id", new Contact(array("owner_id"=>AuthController::$current_user->id, "id"=>(int)$contact->id)));
+		$this->contact = Contact::find_by_id((int)$contact->id, AuthController::$current_user->id);
 		if($this->contact !== null){
 			$this->contact = new Contact(array("id"=>(int)$contact->id, "name"=>$contact->name, "owner_id"=>AuthController::$current_user->id, "email"=>$contact->email, "url"=>$contact->url));
 			save_object::execute($this->contact);

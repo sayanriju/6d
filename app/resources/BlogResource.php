@@ -20,19 +20,17 @@ class BlogResource extends AppResource{
 		$this->page--;
 		$this->limit = 3;
 		if($id !== null){
-			$this->post = find_one_by::execute("ROWID=:id", new Post(array("id"=>(int)$id)));
+			$this->post = Post::find_by_id($id);
 			$view = "post/show";
 			$this->title = $this->post->title;
 		}else{
-			$this->posts = find_by_with_limit::execute("status='public' and owner_id=:owner_id"
-				, new Post(array("owner_id"=>self::$member->id))
-				, $this->page * 3, $this->limit);
+			$this->posts = Post::find_public_with_limit(self::$member->id, $this->page * 3, $this->limit);
 			if(count($this->posts) === 0){
 				$this->set_not_found();
 				return;
 			}
 			$this->next_page = $this->page+2;
-			$this->post_count = find_count_by::execute("status='public' and owner_id=:owner_id", new Post(array("owner_id"=>self::$member->id)));
+			$this->post_count = Post::find_public_count(self::$member->id);
 			$this->total_pages = ceil($this->post_count->total / 3);
 			$this->previous_page = $this->next_page-2;
 			if($this->next_page > $this->total_pages){

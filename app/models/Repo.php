@@ -11,6 +11,13 @@ class Repo{
 		return self::$db;
 	}
 }
+class RepoException extends Exception{
+	public function __construction($message, $code, $previous=null){
+		$this->code = $code;
+		$this->message = $message;
+		$this->previous = $previous;
+	}
+}
 
 class Query{
 	public function __construct($obj){
@@ -20,21 +27,25 @@ class Query{
 	public $error_info;
 	public function bind($cmd, $query, $properties){
 		foreach($properties as $property){
-			if($property->isPublic()){
-				$name = $property->getName();
-				if(strpos($query, ":$name") !== false){
-					$value = $this->obj->{$name};
-					if(is_bool($value)){
-						$value = $value ? 1 : 0;
-					}
-					// If an error occurred here, it's likely that a property is misspelled.
-					$cmd->bindValue(":$name", $value);						
+			$name = $property->getName();
+			if(strpos($query, ":$name") !== false){
+				$value = $this->obj->{$name};
+				if(is_bool($value)){
+					$value = $value ? 1 : 0;
 				}
+				// If an error occurred here, it's likely that a property is misspelled.
+				$cmd->bindValue(":$name", $value);						
 			}
 		}
 		return $cmd;
 	}
-	public function execute($db, $query = null){
+	public function public_properties_only($prop){
+		return $prop->isPublic();
+	}
+	public function to_property_name($prop){
+		return $prop->getName();
+	}
+	public function execute($db, $target, $query = null){
 		$class = null;
 		$properties = null;
 		$list = array();
@@ -44,26 +55,31 @@ class Query{
 			$properties = $class->getProperties();
 			$query = $query === null ? $this->build_query($properties, $table_name) : $query;
 			$cmd = $db->prepare($query);
-			$cmd = $this->bind($cmd, $query, $properties);
+			$this->error_info = $db->errorInfo();
+			if($cmd === false) throw new RepoException($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
+			$cmd = $this->bind($cmd, $query, $properties);			
+			$this->error_info = $db->errorInfo();
+			if($cmd === false) throw new RepoException($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
 			$result = $cmd->execute();
 			$this->error_info = $db->errorInfo();
-			if($this->error_info[0] !== "00000"){
-				throw new Exception($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
+			if(count($this->error_info) > 1 && $this->error_info[1] !== null){
+				throw new RepoException($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
 			}
-			if($class !== null){
+			if($target !== null){
+				$class = new ReflectionClass($target);
 				$class_name = $class->getName();
-				while($this->obj = $cmd->fetchObject()){
-					$list[] = ModelFactory::populate_single((object)$this->obj, new $class_name());
+				while($obj = $cmd->fetchObject()){
+					$list[] = ModelFactory::populate_single((object)$obj, $class->newInstance());
 				}
-			}		
+			}
 			$cmd = null;
 			return $list;
 		}
 		
 		$result = $db->query($query);
 		$this->error_info = $db->errorInfo();
-		if($this->error_info[0] !== "00000"){
-			throw new Exception($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
+		if(count($this->error_info) > 1 && $this->error_info[1] !== null){
+			throw new RepoException($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
 		}
 		while($row = $result->fetchObject()){
 			$list[] = $row;
@@ -92,6 +108,14 @@ class InsertQuery extends Query{
 	public function __construct($obj){
 		parent::__construct($obj);
 	}
+	public function execute($db, $query = null){
+		parent::execute($db, $query);		
+		$query = "select last_insert_rowid() as id";
+		$result = $db->query($query);
+		$row = $result->fetchObject();
+		$this->obj->id = (int)$row->id;
+		return $this->obj;
+	}
 	public function build_query($properties, $table_name){
 		$property = array_pop($properties);
 		$name = $property->getName();		
@@ -119,34 +143,41 @@ class DeleteQuery extends Query{
 }
 
 class FindQuery extends Query{
-	public function __construct($obj, $by){
+	public function __construct($by, $obj, $options = null){
 		parent::__construct($obj);
 		$this->by = $by;
+		$this->options = $options;
 	}
 	public $by;
+	public $options;
 	public function build_query($by, $table_name){
-		$query = "select ROWID as id, * from $table_name" . ($this->by != null ? " where " . $this->by : null);
+		$query = "select ROWID as id, * from $table_name" . ($by != null ? " where " . $by : null);
+		if($this->options !== null){
+			$query .= " {$this->options}";
+		}
 		return $query;
 	}
-	public function execute($db){
+	public function execute($db, $target){
 		$class = new ReflectionClass($this->obj);
 		$table_name = strtolower(String::pluralize($class->getName()));
-		$properties = $class->getProperties();
+		$properties = $class->getProperties();			
 		$query = $this->build_query($this->by, $table_name);
 		$cmd = $db->prepare($query);
 		if($cmd === false){
 			$cmd = NotificationCenter::post("query_failed", $this, (object)array("db"=>$db, "query"=>$query, "obj"=>$this->obj, "cmd"=>$cmd));
 		}
 		$cmd = $this->bind($cmd, $query, $properties);
+		$this->error_info = $db->errorInfo();
+		if($cmd === false) throw new RepoException($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
 		$result = $cmd->execute();
 		$this->error_info = $db->errorInfo();
-		if($this->error_info[0] !== "00000"){
-			throw new Exception($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
+		if(count($this->error_info) > 1 && $this->error_info[1] !== null){
+			throw new RepoException($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
 		}
 		$list = array();
-		$class_name = $class->getName();
-		while($this->obj = $cmd->fetchObject()){
-			$list[] = ModelFactory::populate_single((object)$this->obj, new $class_name());
+		while($obj = $cmd->fetchObject()){
+			$class = new ReflectionClass($target);
+			$list[] = ModelFactory::populate_single((object)$obj, $class->newInstance());
 		}
 		$cmd = null;
 		if(count($list) === 0) return null;
@@ -161,7 +192,7 @@ class FindQueryWithLimit extends Query{
 		$this->page = $page;
 		$this->limit = $limit;
 	}
-	private $find_query;	
+	public $find_query;	
 	private $page;
 	private $limit;
 	public function build_query($by, $table_name){
@@ -176,8 +207,8 @@ class FindQueryWithLimit extends Query{
 		$query = $this->build_query($this->find_query->by, $table_name);
 		$cmd = $db->prepare($query);		
 		$this->error_info = $db->errorInfo();
-		if($this->error_info[0] !== "00000"){
-			throw new Exception($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
+		if(count($this->error_info) > 1 && $this->error_info[1] !== null){
+			throw new RepoException($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
 		}
 		$cmd = $this->find_query->bind($cmd, $query, $properties);
 		$result = $cmd->execute();
@@ -195,13 +226,13 @@ class Count{
 	public $total;
 }
 class CountQuery extends Query{
-	public function __construct($obj, $by){
+	public function __construct($by, $obj){
 		parent::__construct($obj);
 		$this->by = $by;
 	}
 	public $by;
 	public function build_query($by, $table_name){
-		$query = "select count(1) as total from $table_name where " . $this->by;		
+		$query = "select count(1) as total from $table_name where " . $this->by;
 		return $query;
 	}
 	public function execute($db){
@@ -211,10 +242,12 @@ class CountQuery extends Query{
 		$query = $this->build_query($this->by, $table_name);
 		$cmd = $db->prepare($query);
 		$cmd = $this->bind($cmd, $query, $properties);
+		$this->error_info = $db->errorInfo();
+		if($cmd === false) throw new RepoException($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
 		$result = $cmd->execute();
 		$this->error_info = $db->errorInfo();
-		if($this->error_info[0] !== "00000"){
-			throw new Exception($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
+		if(count($this->error_info) > 1 && $this->error_info[1] !== null){
+			throw new RepoException($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
 		}
 		$list = array();
 		$class_name = $class->getName();
@@ -236,8 +269,8 @@ class save_object extends Repo{
 		}else{
 			$query = new InsertQuery($obj);
 		}
-		$result = $query->execute($db);
-		return $result;
+		$result = $query->execute($db, $obj);
+		return $obj;
 	}
 }
 
@@ -247,40 +280,40 @@ class delete_object extends Repo{
 		if($id == 0) return null;
 		$db = self::get_provider();
 		$query = new DeleteQuery($obj);
-		$result = $query->execute($db);
+		$result = $query->execute($db, $obj);
 		return $id;
 	}
 }
 class find_count_by extends Repo{
 	public static function execute($by, $obj){
 		$db = self::get_provider();
-		$query = new CountQuery($obj, $by);
-		$list = $query->execute($db);
+		$query = new CountQuery($by, $obj);
+		$list = $query->execute($db, $obj);
 		return $list;
 	}
 }
 class find_by_with_limit extends Repo{
-	public static function execute($by, $obj, $page, $limit){
+	public static function execute($by, $obj, $page, $limit, $options = null){
 		$db = self::get_provider();
-		$query = new FindQueryWithLimit(new FindQuery($obj, $by), $page, $limit);
-		$list = $query->execute($db);
+		$query = new FindQueryWithLimit(new FindQuery($by, $obj, $options), $page, $limit);
+		$list = $query->execute($db, $obj);
 		return $list;
 	}
 }
 class find_one_by extends Repo{
-	public static function execute($by, $obj){
+	public static function execute($by, $obj, $target = null){
 		$db = self::get_provider();
-		$query = new FindQuery($obj, $by);
-		$list = $query->execute($db);
+		$query = new FindQuery($by, $obj);
+		$list = $query->execute($db, $target === null ? $obj : $target);
 		if(count($list) === 0) return null;
 		if(count($list) >= 1) return $list[0];
 	}
 }
 class find_by extends Repo{
-	public static function execute($by, $obj){
+	public static function execute($by, $obj, $target = null){
 		$db = self::get_provider();
-		$query = new FindQuery($obj, $by);
-		$list = $query->execute($db);
+		$query = new FindQuery($by, $obj);
+		$list = $query->execute($db, $target === null ? $obj : $target);
 		return $list;
 	}
 }

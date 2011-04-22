@@ -1,7 +1,7 @@
 <?php
 class_exists("AppResource") || require("AppResource.php");
 class_exists("AuthController") || require("controllers/AuthController.php");
-class_exists("Media") || require("models/Media.php");
+class_exists("Post") || require("models/Post.php");
 class PhotosResource extends AppResource{
 	public function __construct(){
 		parent::__construct();
@@ -12,9 +12,8 @@ class PhotosResource extends AppResource{
 	public $media;
 	public function get(){
 		$this->title = "Your photos library";
-		$this->media = find_by::execute("owner_id=:owner_id", new Media(array("owner_id"=>AuthController::$current_user->id)));
+		$this->media = Post::find_public_attachments_owned_by(AuthController::$current_user->id, 0, 5);
 		if($this->media === null) $this->media = array();
-		if(!is_array($this->media)) $this->media = array($this->media);
 		$this->output = View::render('media/index', $this);
 		return View::render_layout('default', $this);
 	}

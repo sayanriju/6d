@@ -8,8 +8,9 @@ class MemberResource extends AppResource{
 	}
 	public $person;
 	public $legend;
+	public $errors;
 	public function get(Member $member){
-		$this->person = find_one_by::execute("ROWID=:id", new Member(array("id"=>(int)$member->id)));
+		$this->person = Member::find_by_id((int)$member->id);
 		$view = "member/show";
 		$this->legend = "Edit this member";
 		if($this->person === null) $this->person = new Member(array("id"=>0, "name"=>"New member"));
@@ -31,7 +32,7 @@ class MemberResource extends AppResource{
 		if($member->id == AuthController::$current_user->id && AuthController::$current_user->is_owner){
 			return "You don't want to delet the owner";
 		}
-		$this->person = find_one_by::execute("ROWID=:id", $member);
+		$this->person = Member::find_by_id((int)$member->id);
 		if($this->person !== null){
 			delete_object::execute($this->person);
 		}
@@ -43,15 +44,30 @@ class MemberResource extends AppResource{
 		if(!AuthController::is_authed() || !(bool)AuthController::$current_user->is_owner){
 			$this->set_unauthed();
 			return;
-		}		
-		$this->person = find_one_by::execute("ROWID=:id", new Member(array("id"=>(int)$member->id)));
+		}
+		$this->errors = array();
+		$member->signin = trim($member->signin);
+		$member->email = trim($member->email);
+		if(strlen($member->signin) === 0) $this->errors["signin"] = "Signin name is required. Please enter one.";
+		if(strlen($member->email) === 0) $this->errors["email"] = "Email is required. Please enter one.";
+		if(count($this->errors) === 0){
+			$existing_person_with_signin = Member::find_existing_by_signin($member->signin, $member->id);
+			if($existing_person_with_signin !== null){
+				$this->errors["signin"] = "{$member->signin} already exists. Please choose a different signin name.";
+			}
+		}
+		$this->person = Member::find_by_id($member->id);
 		if($this->person !== null){
 			$this->person->name = $member->name;
+			$this->person->display_name = $member->display_name;
+			$this->person->signin = (array_key_exists("signin", $this->errors) ? $this->person->signin : $member->signin);
+			$this->person->email = filter_var($member->email, FILTER_SANITIZE_EMAIL);
 			$this->person->password = (strlen($member->password) > 0 ? $member->password : $this->person->password);
 			$this->person->in_directory = $member->in_directory === null ? false : $member->in_directory;
 			$this->person->is_owner = $this->person->id == 1 ? true : false;
 			save_object::execute($this->person);
 		}
+		if(count($this->errors) > 0) App::set_user_message(View::render("error/list", $this));
 		$this->set_redirect_to("members");
 		$this->output = View::render("member/show", $this);
 		return View::render_layout("default", $this);

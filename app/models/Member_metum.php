@@ -1,6 +1,6 @@
 <?php
 class_exists("ModelFactory") || require("ModelFactory.php");
-class MemberMeta extends ChinObject{
+class Member_metum extends ChinObject{
 	public function __construct($values = array()){
 		$this->id = 0;
 		$this->owner_id = 0;

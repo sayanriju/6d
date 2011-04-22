@@ -14,7 +14,7 @@ class AuthController{
 		return self::$current_user;
 	}
 	public static function is_authed(){
-		return self::get_chin_auth() !== null;
+		return self::get_chin_auth() !== null && self::$current_user !== null;
 	}
 	public static function get_chin_auth_hash($name, $expiry){
 		return hash("sha256", $name . $_SERVER["REMOTE_ADDR"] . $expiry, false);

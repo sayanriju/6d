@@ -1,7 +1,6 @@
 <?php
 	class_exists("AppResource") || require("AppResource.php");
 	class_exists("AuthController") || require("controllers/AuthController.php");
-	class_exists("Media") || require("models/Media.php");
 	class_exists("PhotosResource") || require("PhotosResource.php");
 	class FilesResource extends AppResource{
 		public function __construct($attributes = null){

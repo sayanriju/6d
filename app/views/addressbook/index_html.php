@@ -1,5 +1,17 @@
 <ul>
+	<?php foreach($tags as $tag):?>
+		<li><a href="<?php echo AppResource::url_for_member("addressbook/{$tag->name}");?>"><?php echo $tag->name;?></a></li>
+	<?php endforeach;?>
 </ul>
+
+<form action="<?php echo AppResource::url_for_user("messages");?>" method="post">
+	<textarea name="message"></textarea>
+	<?php foreach($contacts as $contact):?>
+	<input type="hidden" name="contact_ids[]" value="<?php echo $contact->id;?>" />
+	<?php endforeach;?>
+	<button type="submit">Send</button>
+</form>
+
 <section id="contacts">
 	<dl>
 		<dt>Contacts</dt>

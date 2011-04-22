@@ -2,8 +2,8 @@
 	<fieldset>
 		<legend>Sign in</legend>
 		<p>
-			<label for="name">Name</label>
-			<input type="text" name="name" id="name" />
+			<label for="signin">Signin Name</label>
+			<input type="text" name="signin" id="signin" />
 		</p>
 		<p>
 			<label for="password">Password</label>

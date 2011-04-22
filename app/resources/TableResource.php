@@ -20,20 +20,55 @@ class TableResource extends AppResource{
 			$this->columns = $query->execute(Repo::get_provider(), "pragma table_info({$this->table_name})");
 			$sql = "select * from {$this->table_name}";
 			$class_name = ucwords(String::singularize($this->table_name));
-			class_exists($class_name) || require("models/$class_name.php");
+			if(!class_exists($class_name)){
+				$file_name = sprintf(App::dirname() . '/models/%s.php', $class_name);
+				if(file_exists($file_name)){
+					require($file_name);
+				}else{
+					$class_text = <<<eos
+<?php
+class $class_name extends ChinObject{
+	public function __construct(\$values = array()){
+		parent::__construct(\$values);
+	}
+	%s;
+}
+eos;
+					$field_def = array();
+					foreach($this->columns as $column){
+						$field_def[] = "public \${$column->name}";
+					}
+					$class_text = sprintf($class_text, implode(";", $field_def));
+					file_put_contents("app/models/temp/$class_name.php", $class_text);
+					require("app/models/temp/$class_name.php");
+					unlink("app/models/temp/$class_name.php");
+				}
+			}
 			$this->results = find_by::execute(null, new $class_name());
 		}else{
 			$view = "db/add_table";
 		}
+		$this->columns = array_map(function($col){
+			return (object)array("name"=>$col->name, "type"=>$col->type, "dflt_value"=>$col->dflt_value, "notnull"=>(int)$col->notnull === 0);
+		}, $this->columns);
 		$this->output = View::render($view, $this);
 		return View::render_layout("default", $this);
 	}
-	public function delete($table_name){
+	public function delete($table_name, $id = null){
 		$query = new Query(null);
-		$view = "db/index";
-		$query->execute(Repo::get_provider(), "drop table $table_name");
-		$this->set_redirect_to("db");
-		$this->output = View::render($view, $this);
+		if($this->request->path[0] !== null){
+			if($id !== null){
+				$table_name = $this->request->path[0];
+				$did_error = $query->execute(Repo::get_provider(), "delete from $table_name where ROWID=$id");
+				$this->set_redirect_to("table/$table_name");
+				return null;
+			}
+		}else{
+			$view = "db/index";
+			$query->execute(Repo::get_provider(), "drop table $table_name");
+			$this->set_redirect_to("db");
+			$this->output = View::render($view, $this);
+		}
 		return View::render_layout("default", $this);
 	}
 	public function put($table_name, $columns){
@@ -49,15 +84,15 @@ class TableResource extends AppResource{
 		$alter_sql .= "drop table {$table_name}_temp;commit;";
 		$column_definitions = array();
 		$this->columns = array_map(function($col){
-			return array("name"=>$col->name, "type"=>$col->type, "dflt_value"=>$col->dflt_value, "nullable"=>($col->notnull == "1" ? false : true));
+			return array("name"=>$col->name, "type"=>$col->type, "dflt_value"=>$col->dflt_value, "notnull"=>(int)$col->notnull === 1);
 		}, $this->columns);
 		
 		foreach($columns as $key=>$field){
 			$name = $field["name"];
 			$type = $field["type"];
 			$dflt_value = $field["dflt_value"];
-			$nullable = (array_key_exists("nullable", $field) && $field["nullable"] === "on" ? false : true);
-			$column_definitions[] = "$name $type " . ($nullable ? "null" : "not null") . (strlen($dflt_value) > 0 ? " default $dflt_value" : null);
+			$notnull = (array_key_exists("notnull", $field) && $field["notnull"] === "true" ? true : false);
+			$column_definitions[] = "$name $type " . ($notnull ? "not null" : "null") . (strlen($dflt_value) > 0 ? " default $dflt_value" : null);
 		}
 		$this->columns = array_filter($this->columns, function($value) use($columns){
 			$found = array();
@@ -70,7 +105,13 @@ class TableResource extends AppResource{
 			return $c["name"];
 		}, $this->columns);
 		$alter_sql = sprintf($alter_sql, implode(",", $column_definitions), implode(",", $this->columns), implode(",", $this->columns));
-		$did_error = $query->execute($db, $alter_sql);
+		$query->execute($db, "begin transaction");
+		$query->execute($db, "alter table $table_name rename to {$table_name}_temp");
+		$query->execute($db, sprintf("create table $table_name (%s)", implode(",", $column_definitions)));
+		$query->execute($db, sprintf("insert into $table_name (%s) select %s from {$table_name}_temp", implode(",", $this->columns), implode(",", $this->columns)));
+		$query->execute($db, "drop table {$table_name}_temp");
+		$did_error = $query->execute($db, "commit");
+		//$did_error = $query->execute($db, $alter_sql);
 		App::add_user_message($alter_sql);
 		App::add_user_message($did_error ? "Update succeeded" : "Update failed" . ": " . json_encode($db->error_info));
 		$this->set_redirect_to("table/$table_name");

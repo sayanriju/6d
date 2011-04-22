@@ -1,33 +1,34 @@
-ns.view = function(){
-	ns.apply(this, [arguments]);
+
+chin.view.post = function(){
+	chin.view.apply(this, [arguments]);
 	this.id = null;
 	var self = this;
 	this.edit_was_clicked = function(e){
 		e.preventDefault();
 		e.stopPropagation();
 		var view_id = self.get_parent(e.target).id;
-		ns.default_center.publish('edit_was_clicked', e.target, view_id);
+		chin.default_center.post('edit_was_clicked', e.target, view_id);
 	};
 	
 	this.cancel_was_clicked = function(e){
 		e.preventDefault();
 		e.stopPropagation();
 		var view_id = self.get_parent(e.target).id;
-		ns.default_center.publish('cancel_was_clicked', e.target, view_id);
+		chin.default_center.post('cancel_was_clicked', e.target, view_id);
 	};
 	
 	this.info_was_clicked = function(e){
 		e.preventDefault();
 		e.stopPropagation();
 		var view_id = self.get_parent(e.target).id;
-		ns.default_center.publish('info_was_clicked', e.target, view_id);
+		chin.default_center.post('info_was_clicked', e.target, view_id);
 	};
 	
 	this.cancel_info_was_clicked = function(e){
 		e.preventDefault();
 		e.stopPropagation();
 		var view_id = self.get_parent(e.target).id;
-		ns.default_center.publish('cancel_info_was_clicked', e.target, view_id);
+		chin.default_center.post('cancel_info_was_clicked', e.target, view_id);
 	};
 	this.save_info_was_clicked = function(e){
 		e.preventDefault();
@@ -40,7 +41,7 @@ ns.view = function(){
 		var tags = elem.find('.tags').val();
 		var is_published = elem.find('.is_published').attr('checked');
 		var post = {id: post_id, type: type, description: description, tags: tags, is_published: is_published};
-		ns.default_center.publish('save_info_was_clicked', e.target, post);
+		chin.default_center.post('save_info_was_clicked', e.target, post);
 	};
 	
 
@@ -50,31 +51,31 @@ ns.view = function(){
 	
 	return this;
 };
-ns.view.prototype.populate = function(elem, post){
+chin.view.post.prototype.populate = function(elem, post){
 	var parent = $(this.get_parent(elem));
 	parent.find('.title a').html(decodeURIComponent(post.title));
 	parent.find('.post_date').html(post.post_date);
 	parent.find('.tags').html(post.tags);
 	
 };
-ns.view.prototype.get_parent = function(elem){
+chin.view.post.prototype.get_parent = function(elem){
 	return $(elem).parents('.hentry')[0];
 };
-ns.view.prototype.toggle = function(button, id){
+chin.view.post.prototype.toggle = function(button, id){
 	var elem = $('#' + id + ' .body');
 	if($(button).html() === 'edit'){
 		this.switch_to_edit(button, id);
 	}else{
 		var textarea = $('#' + id + ' .body textarea');
 		var titlefield = $('#' + id + ' .title input');
-		ns.default_center.publish('save_was_clicked', button, {id: elem.parent('[post_id!=null]').attr('post_id'), body: textarea.val(), title: titlefield.val()});
+		chin.default_center.post('save_was_clicked', button, {id: elem.parent('[post_id!=null]').attr('post_id'), body: textarea.val(), title: titlefield.val()});
 		this.switch_to_display(button, id);
 	}
 };
-ns.view.prototype.stop_title_click = function(e){
+chin.view.post.prototype.stop_title_click = function(e){
 	e.preventDefault();
 };
-ns.view.prototype.switch_to_edit = function(button, id){
+chin.view.post.prototype.switch_to_edit = function(button, id){
 	var elem = $('#' + id + ' .body');
 	var textarea = elem.html('<textarea style="margin: 0;border: 0;width: 100%;height: ' + (elem.height()-7) + 'px;">' + elem.html() + '</textarea>');
 	$('#' + id + ' .cancel').show();
@@ -85,7 +86,7 @@ ns.view.prototype.switch_to_edit = function(button, id){
 	var titlefield = title.html('<input type="text" value="' + title.html() + ' " />');
 };
 
-ns.view.prototype.switch_to_display = function(button, id){
+chin.view.post.prototype.switch_to_display = function(button, id){
 	var elem = $('#' + id + ' .body');
 	var textarea = $('#' + id + ' .body textarea');
 	var html = textarea.val();
@@ -101,7 +102,7 @@ ns.view.prototype.switch_to_display = function(button, id){
 	textfield.remove();
 	title.html(title_html);
 };
-ns.view.prototype.toggle_info = function(button, id){
+chin.view.post.prototype.toggle_info = function(button, id){
 	var info_view = $('#info_' + id);
 	//var parent = $(this.get_parent(button));
 	if(info_view.length == 0){
@@ -123,7 +124,7 @@ ns.view.prototype.toggle_info = function(button, id){
 		info_view.slideDown(150);
 	}
 };
-ns.view.prototype.populate_info_view = function(info_view, post){
+chin.view.post.prototype.populate_info_view = function(info_view, post){
 	var elem = null;
 	for(p in post){
 		elem = info_view.find('.' + p);
@@ -133,7 +134,7 @@ ns.view.prototype.populate_info_view = function(info_view, post){
 	}
 	this.get_parent(info_view).className = 'hentry ' + post.type;
 };
-ns.view.prototype.create_info_view = function(info_view, id){
+chin.view.post.prototype.create_info_view = function(info_view, id){
 	var key = '#' + id + ' .meta';
 	var container = $(key);
 	info_view = $('<div class="info"></div>').attr('id', 'info_' + id);
@@ -156,28 +157,28 @@ ns.view.prototype.create_info_view = function(info_view, id){
 	return info_view;
 };
 
-ns.controller = function(view){
-	ns.apply(this, [arguments]);
+chin.controller.post = function(view){
+	chin.controller.apply(this, [arguments]);
 	this.view = view;
 	return this;
 }
-ns.controller.prototype.edit_was_clicked = function(publisher, info){
+chin.controller.post.prototype.edit_was_clicked = function(publisher, info){
 	this.view.toggle(publisher, info);
 };
-ns.controller.prototype.cancel_was_clicked = function(publisher, info){
+chin.controller.post.prototype.cancel_was_clicked = function(publisher, info){
 	this.view.switch_to_display(publisher, info);
 }
-ns.controller.prototype.info_was_clicked = function(publisher, info){
+chin.controller.post.prototype.info_was_clicked = function(publisher, info){
 	this.view.toggle_info(publisher, info);
 }
-ns.controller.prototype.cancel_info_was_clicked = function(publisher, info){
+chin.controller.post.prototype.cancel_info_was_clicked = function(publisher, info){
 	this.view.toggle_info(publisher, info);
 };
-ns.controller.prototype.save_info_was_clicked = function(publisher, info){
+chin.controller.post.prototype.save_info_was_clicked = function(publisher, info){
 	this.save_was_clicked(publisher, info);
 	this.view.toggle_info(publisher, $(this.view.get_parent(publisher)).attr('id'));
 };
-ns.controller.prototype.save_was_clicked = function(publisher, info){
+chin.controller.post.prototype.save_was_clicked = function(publisher, info){
 	var url = 'post.json';
 	var self = this;
 	var info_view = $(publisher).parents('.info');
@@ -195,11 +196,11 @@ ns.controller.prototype.save_was_clicked = function(publisher, info){
 }
 $(document).ready(function(){
 	
-	var view_controller = new ns.controller(new ns.view());
-	ns.default_center.add_subscriber(view_controller, 'edit_was_clicked');
-	ns.default_center.add_subscriber(view_controller, 'cancel_was_clicked');
-	ns.default_center.add_subscriber(view_controller, 'cancel_info_was_clicked');
-	ns.default_center.add_subscriber(view_controller, 'save_info_was_clicked');	
-	ns.default_center.add_subscriber(view_controller, 'save_was_clicked');	
-	ns.default_center.add_subscriber(view_controller, 'info_was_clicked');	
+	var view_controller = new chin.controller.post(new chin.view.post());
+	chin.default_center.subscribe('edit_was_clicked', view_controller, null);
+	chin.default_center.subscribe('cancel_was_clicked', view_controller, null);
+	chin.default_center.subscribe('cancel_info_was_clicked', view_controller, null);
+	chin.default_center.subscribe('save_info_was_clicked', view_controller, null);	
+	chin.default_center.subscribe('save_was_clicked', view_controller, null);
+	chin.default_center.subscribe('info_was_clicked', view_controller, null);	
 });

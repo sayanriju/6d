@@ -27,8 +27,10 @@
 		</footer>
 	</fieldset>
 </form>
+<?php if($post->id > 0):?>
 <form action="<?php echo AppResource::url_for_user("post");?>" method="post" onsubmit="return confirm('Are you sure you want to delete?');">
 	<input type="hidden" value="<?php echo $post->id;?>" name="post[id]" />
 	<input type="hidden" value="delete" name="_method" />
 	<button type="submit">delete</button>
 </form>
+<?php endif;?>

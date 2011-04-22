@@ -145,6 +145,9 @@ chin.stop = function(e){
 	}	
 	e.returnValue = false;
 }
+chin.view = function(){
+	return this;
+};
 chin.controller = function(){	
 	return this;
 };

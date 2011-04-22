@@ -27,11 +27,11 @@ class MembersResource extends AppResource{
 			return $resource->execute($this->request);
 		}
 		if(AuthController::is_authed() && AuthController::$current_user->is_owner){
-			$this->members = find_by::execute(null, new Member());
+			$this->members = Member::find_all(0, 5);
 		}else{
-			$this->members = find_by::execute("in_directory=:in_directory", new Member(array("in_directory"=>1)));	
+			$this->members = Member::find_in_directory(0, 5);
 		}
-		if(!is_array($this->members)) $this->members = array($this->members);
+
 		$view = "member/index";
 		$this->output = View::render($view, $this);
 		return View::render_layout('default', $this);

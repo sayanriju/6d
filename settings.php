@@ -9,7 +9,7 @@ class Settings{
 	}
 }
 Settings::$app_path = dirname(__FILE__) . "/app";
-Settings::$theme = "default";
+Settings::$theme = "dirtpit";
 Settings::$site_header = "Chinchillalite, a RESTful PHP Framework";
 Settings::$storage_provider = (object)array("type"=>"sqlite", "path"=>Settings::path_for("data/chinchillalite.db"));
 $logger = new Logger();

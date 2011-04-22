@@ -6,11 +6,16 @@ body{
 	padding: .3em 5em;
 	font: normal normal normal 75%/normal Helvetica, Arial, sans-serif;
 }
+h1{
+	font-size: 700%;
+}
 h1, h2, h3, h4, h5, h6{
 	margin: 0;
 	padding: 0;
+	font-family: 'Lobster', arial, serif;
 }
 p{
+	font-family: 'Cabin', arial, serif;
 	font-size: 1.1em;
 	line-height: 1.6363em;
 	margin: 0;
@@ -66,14 +71,12 @@ header.layout h1{
 	height: 6em;
 	overflow: hidden;
 	position: relative;
-	font-size: 1em;
 	margin: 0 0 1em 0;
 	padding: 0;
 	font-weight: bold;
 }
 header.layout h1 a{
 	color: #555;
-	font-size: 8em;
 	letter-spacing: -.1em;
 	line-height: 1em;
 	margin-left: -.06em;

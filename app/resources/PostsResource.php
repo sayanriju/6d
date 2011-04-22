@@ -16,8 +16,8 @@ class PostsResource extends AppResource{
 			return;
 		}
 		$this->post = new Post(array("owner_id"=>(int)AuthController::$current_user->id));
-		$this->posts = find_by::execute("owner_id=:owner_id order by post_date desc", $this->post);
-		if(!is_array($this->posts)) $this->posts = array($this->posts);
+		$this->posts = Post::find_owned_by(AuthController::$current_user->id, 0, 5);
+		if($this->posts === null) $this->posts = array();
 		$view = "post/index";
 		$this->output = View::render($view, $this);
 		return View::render_layout('default', $this);

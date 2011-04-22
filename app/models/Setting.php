@@ -10,4 +10,8 @@ class Setting extends ChinObject{
 	public $owner_id;
 	public $key;
 	public $value;
+
+	public static function find($key, $owner_id){
+		return find_one_by::execute("ROWID=:id", new Setting(array("key"=>$key, "owner_id"=>(int)$owner_id)));
+	}
 }

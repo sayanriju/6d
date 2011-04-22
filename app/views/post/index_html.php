@@ -3,6 +3,9 @@
 	<article>
 		<header>
 			<h2><?php echo $post->title;?></h2>
+			<aside>
+				<time><?php echo date("Y-m-d h:i:s", $post->post_date);?></time>
+			</aside>
 		</header>
 		<?php echo PostResource::add_p_tags($post->get_excerpt());?>
 		<footer>
