@@ -6,6 +6,6 @@ class Mailinglist_IndexResource extends AppResource{
 	}
 	public function get(){
 		$view = "widgets/mailinglist/views/index";
-		return View::render_absolute($view, $this){
+		return View::render_absolute($view, $this);
 	}
 }
