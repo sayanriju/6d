@@ -15,8 +15,8 @@ class Message extends ChinObject{
 	public $date;
 	public $sent;
 	public $delivered;
-	public static function find_owned_by($id){
-		$id = (int)$id;
-		return find_by::execute("owner_id=:owner_id", new Inbox(array("owner_id"=>$id)));
+	public static function find_owned_by($owner_id){
+		$messages = Repo::find("select ROWID as id, * from inbox where owner_id=:owner_id", (object)array("owner_id"=>(int)$owner_id)->to_list(new Message());
+		return $messages;
 	}
 }

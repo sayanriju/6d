@@ -17,7 +17,7 @@ class TableResource extends AppResource{
 		$this->columns = array();
 		if($this->request->path[0] !== null){
 			$this->table_name = $this->request->path[0];
-			$this->columns = $query->execute(Repo::get_provider(), "pragma table_info({$this->table_name})");
+			$this->columns = $query->execute(Repo::get_provider(), null, "pragma table_info({$this->table_name})");
 			$sql = "select * from {$this->table_name}";
 			$class_name = ucwords(String::singularize($this->table_name));
 			if(!class_exists($class_name)){

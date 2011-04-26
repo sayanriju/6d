@@ -10,6 +10,83 @@ class Repo{
 		self::$db = new PDO("sqlite:" . Settings::$storage_provider->path);
 		return self::$db;
 	}
+	public static function save($obj){
+		$db = self::get_provider();
+		$class = new ReflectionClass($obj);
+		$properties = $class->getProperties();
+		if((int)$obj->id > 0){
+			$query = new UpdateQuery($obj);
+		}else{
+			$query = new InsertQuery($obj);
+		}
+		$result = $query->execute($db, $obj);
+		return $obj;
+	}
+	public static function execute($query, $obj = null){
+		return self::find($query, $obj);
+	}
+	public static function find($query, $obj = null){
+		$cmd = self::get_provider()->prepare($query);
+		if($cmd === false) var_dump(self::get_provider()->errorInfo());		
+		$result = null;
+		if($obj !== null){
+			$properties = get_object_vars($obj);
+			foreach($properties as $key=>$value){
+				if(strpos($query, ":$key") !== false){
+					$value = $obj->$key;
+					if(is_bool($value)){
+						$value = $value ? 1 : 0;
+					}
+					$cmd->bindValue(":$key", $value);
+				}
+			}			
+			$result = $cmd->execute();
+			$result = new RepoPopulator($cmd);
+		}else{
+			$result = $cmd->execute();
+			$result = new RepoPopulator($cmd);
+		}
+		return $result;
+	}
+}
+class RepoPopulator{
+	public function __construct($cmd = null){
+		$this->cmd = $cmd;
+	}
+	private function populate($obj, $target){
+		$properties = get_object_vars($obj);
+		foreach($properties as $key=>$value){
+			$target->{$key} = $value;
+		}
+		return $target;
+	}
+	public function first($target = null){
+		if($this->cmd === null) return null;
+		$obj = $this->cmd->fetchObject();
+		if($obj === false) return null;
+		$obj = (object)$obj;
+		if($target !== null){
+			$obj = $this->populate($obj, $target);
+		}
+		return $obj;
+	}
+	public function to_list($target = null){
+		if($this->cmd === null) return null;
+		$list = array();
+		
+		if($target !== null){
+			$class = new ReflectionClass($target);
+			while($obj = $this->cmd->fetchObject()){
+				$list[] = $this->populate((object)$obj, $class->newInstance());
+			}
+		}else{
+			while($obj = $this->cmd->fetchObject()){
+				$list[] = (object)$obj;
+			}			
+		}
+		if(count($list) === 0) return null;
+		return $list;
+	}
 }
 class RepoException extends Exception{
 	public function __construction($message, $code, $previous=null){
@@ -39,12 +116,13 @@ class Query{
 		}
 		return $cmd;
 	}
-	public function public_properties_only($prop){
+	public function is_public($prop){
 		return $prop->isPublic();
 	}
 	public function to_property_name($prop){
 		return $prop->getName();
 	}
+	
 	public function execute($db, $target, $query = null){
 		$class = null;
 		$properties = null;
@@ -53,6 +131,7 @@ class Query{
 			$class = new ReflectionClass($this->obj);			
 			$table_name = strtolower(String::pluralize($class->getName()));
 			$properties = $class->getProperties();
+			$properties = array_filter($properties, array($this, "is_public"));
 			$query = $query === null ? $this->build_query($properties, $table_name) : $query;
 			$cmd = $db->prepare($query);
 			$this->error_info = $db->errorInfo();
@@ -65,6 +144,7 @@ class Query{
 			if(count($this->error_info) > 1 && $this->error_info[1] !== null){
 				throw new RepoException($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
 			}
+			$target = $target === null ? $this->obj : $target;
 			if($target !== null){
 				$class = new ReflectionClass($target);
 				$class_name = $class->getName();

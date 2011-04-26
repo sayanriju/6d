@@ -64,7 +64,8 @@ class Media extends ChinObject{
 		return self::$images;
 	}
 	public static function find_owned_by($owner_id){
-		return find_by::execute("owner_id=:owner_id", new Media(array("owner_id"=>(int)$owner_id)));
+		$medium = Repo::find("select ROWID as id, * from posts where type='attachment' and owner_id=:owner_id", (object)array("owner_id"=>(int)$owner_id)->to_list(new Media());
+		return $medium;
 	}
 	
 }

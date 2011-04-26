@@ -33,7 +33,7 @@ class App{
 	}
 	public static function add_user_message($message){
 		if(!array_key_exists("user_message", $_COOKIE)){
-			self::set_user_message($message);			
+			App::set_user_message($message);			
 		}else{
 			$_COOKIE["user_message"] .= $message;
 		}
@@ -346,7 +346,6 @@ class Resource{
 		$class_name = sprintf($template, ucfirst($name));
 		$file_name = sprintf(App::dirname() . '/resources/%s.php', $class_name);
 		if(class_exists($class_name)) return new $class_name();
-		
 		if(!file_exists($file_name)){
 			// Look at the root level for resources as a fallback.
 			$file_name = str_replace("app/", "", $file_name);

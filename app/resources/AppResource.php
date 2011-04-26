@@ -13,7 +13,6 @@ class AppResource extends Resource{
 			}
 		}
 		
-		
 		if (array_key_exists('PHP_AUTH_DIGEST', $_SERVER) && !AuthController::is_authed()){
 			$data = String::to_array($_SERVER['PHP_AUTH_DIGEST']);
 			/* My host runs PHP as a CGI and so I added:
@@ -39,7 +38,7 @@ class AppResource extends Resource{
 			$data['qop'] = str_replace('"', '', $data['qop']);
 			if(isset($data['username'])){
 				$user_name = $data['username'];
-				$user = Member::find_by_name($user_name);				
+				$user = Member::find_by_name($user_name);
 				$a1 = md5($data['username'] . ':' . $data['realm'] . ':' . $user->password);
 				$a2 = md5($_SERVER['REQUEST_METHOD'].':'.$data['uri']);
 				$encrypted_response = md5($a1.':'.$data['nonce'].':'.$data['nc'].':'.$data['cnonce'].':'.$data['qop'].':'.$a2);
@@ -53,8 +52,9 @@ class AppResource extends Resource{
 				}				
 			}
 		}
+		NotificationCenter::add($this, "file_not_found");
 	}
-
+	
 	public static function url_for_member($url, $data = null){
 		return App::url_for(self::$member !== null  && !self::$member->is_owner ? self::$member->name . "/" . $url : $url, $data);
 	}
@@ -62,15 +62,15 @@ class AppResource extends Resource{
 		return App::url_for(AuthController::$current_user !== null  && !AuthController::$current_user->is_owner ? AuthController::$current_user->name . "/" . $url : $url, $data);
 	}
 	public static function begin_request($publisher, $info){
-		self::$member = find_one_by::execute("name=:name", new Member(array("name"=>$info->resource_name)), new Member());
+		self::$member = Member::find_by_name($info->resource_name);
 		if(self::$member !== null){
 			if($info->path !== null){
 				$info->resource_name = array_shift($info->path);
 			}else{
 				$info->resource_name = "index";
 			}
-		}else{
-			self::$member = find_one_by::execute("is_owner", new Member(), new Member());
+		}else{			
+			self::$member = Member::find_owner();
 		}
 	}
 	public function __destruct(){
@@ -78,4 +78,5 @@ class AppResource extends Resource{
 	}
 
 	public static $member;
+	public $page;
 }

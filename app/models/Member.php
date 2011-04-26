@@ -19,24 +19,35 @@ class Member extends ChinObject{
 	public $display_name;
 	public $email;
 	public static function find_by_name($name){
-		return find_one_by::execute("name=:name", new Member(array("name"=>$name)));
+		$member = Repo::find("select ROWID as id, * from members where name=:name", (object)array("name"=>$name))->first(new Member());
+		return $member;
 	}
 	public static function find_owner(){
-		return find_one_by::execute("is_owner", new Member());
+		$member = Repo::find("select ROWID as id, * from members where is_owner", null)->first(new Member());
+		return $member;
 	}
 	public static function find_by_id($id){
-		return find_one_by::execute("ROWID=:id", new Member(array("id"=>(int)$id)));
+		$member = Repo::find("select ROWID as id, * from members where ROWID=:id", (object)array("id"=>(int)$id))->first(new Member());
+		return $member;
 	}
 	public static function find_existing_by_signin($signin, $id){
-		return find_one_by::execute("signin=:signin and ROWID != :id", new Member(array("signin"=>$signin, "id"=>(int)$id)));
+		$member = Repo::find("select ROWID as id, * from members where signin=:signin and ROWID != :id", (object)array("signin"=>$signin, "id"=>(int)$id))->first(new Member());
+		return $member;
 	}
 	public static function find_all($page, $limit){
-		return find_by_with_limit::execute(null, new Member(), $page, $limit, "order by members.name");
+		$members = Repo::find("select ROWID as id, * from members order by name limit :page, :limit", (object)array("page"=>(int)$page, "limit"=>(int)$limit))->to_list(new Member());
+		return $members;
 	}
 	public static function find_in_directory($page, $limit){
-		return find_by_with_limit::execute("in_directory=:in_directory", new Member(array("in_directory"=>1)), $page, $limit, "order by members.name");
+		$members = Repo::find("select ROWID as id, * from members where in_directory=1 order by name limit :page, :limit", (object)array("page"=>(int)$page, "limit"=>(int)$limit))->to_list(new Member());
+		return $members;
 	}
 	public static function find_by_signin_and_password($signin, $password){
-		return find_one_by::execute("signin=:signin and password=:password", new Member(array("signin"=>$signin, "password"=>$password)));
+		$member = Repo::find("select ROWID as id, * from members where signin=:signin and password=:password", (object)array("signin"=>$signin, "password"=>$password))->first(new Member());
+		return $member;
+	}
+	public static function find_signed_in($hash){
+		$member = Repo::find("select ROWID as id, * from members where hash=:hash and expiry>=:expiry", (object)array("hash"=>$hash, "expiry"=>time()))->first(new Member());
+		return $member;
 	}
 }
