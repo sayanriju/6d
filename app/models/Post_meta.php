@@ -16,12 +16,15 @@ class Post_meta extends ChinObject{
 		}
 		return $post;
 	}
-	public static function find_by_id($post_id){
-		$post_meta = Repo::find("select ROWID as post_id, * from post_meta where ROWID=:post_id", (object)array("post_id"=>(int)$post_id))->to_list(new Post_meta());
+	public static function find_by_id($post_id, $key = null){
+		$post_meta = Repo::find("select ROWID as id, * from post_metas where post_id=:post_id" . ($key === null ? null : " and key=:key"), (object)array("post_id"=>(int)$post_id, "key"=>$key))->first(new Post_meta());
 		return $post_meta;
 	}
 	public static function find_by_ids($ids){
-		$post_meta = Repo::find("select ROWID as post_id, * from post_meta where ROWID in (:ids)", (object)array("ids"=>implode(",", $ids)))->to_list(new Post_meta());
-		return $post_meta;
+		$list = Repo::find("select ROWID as id, * from post_metas where post_id in (:ids)", (object)array("ids"=>implode(",", $ids)))->to_list(new Post_meta());
+		return $list;
+	}
+	public static function save(Post_meta $meta){
+		return Repo::save($meta);
 	}
 }

@@ -12,7 +12,8 @@ class Setting extends ChinObject{
 	public $value;
 
 	public static function find($key, $owner_id){
-		$value = Repo::find("select value from settings where key=:key and owner_id=:owner_id", (object)array("owner_id"=>$owner_id, "key"=>$key))->first(new Setting())->value;
-		return $value;
+		$title = Repo::find("select value from settings where key=:key and owner_id=:owner_id", (object)array("owner_id"=>$owner_id, "key"=>$key))->first(new Setting());
+		if($title === null) return null;
+		return $title->value;
 	}
 }

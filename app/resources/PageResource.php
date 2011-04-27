@@ -13,8 +13,10 @@ class PageResource extends AppResource{
 	public $post;
 	public $legend;
 	public function get($name){
-		$this->title = "Edit a post";
+		$this->title = $name === null ? "Add a post" : "Edit a post";
 		$this->post = Post::find_public_page($name, AuthController::$current_user->id);
+		if($this->post === null) $this->post = new Post();
+		$this->legend = $this->title;
 		$this->output = View::render("page/edit", $this);
 		return View::render_layout("default", $this);			
 	}

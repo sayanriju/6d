@@ -52,9 +52,10 @@ class AppResource extends Resource{
 				}				
 			}
 		}
-		NotificationCenter::add($this, "file_not_found");
 	}
-	
+	public static function owns_content(){
+		return AuthController::is_authed() && AppResource::$member->id === AuthController::$current_user->id;
+	}
 	public static function url_for_member($url, $data = null){
 		return App::url_for(self::$member !== null  && !self::$member->is_owner ? self::$member->name . "/" . $url : $url, $data);
 	}

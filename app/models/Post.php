@@ -56,9 +56,7 @@ class Post extends ChinObject{
 		$post = Repo::find("select ROWID as id, * from posts where ROWID=:id", (object)array("id"=>(int)$id))->first(new Post());		
 		if($post === null) return null;
 		$meta = Post_meta::find_by_id($post->id);
-		if($meta !== null){
-			$meta->add_to_post($post);
-		}
+		$post->set_post_meta($meta);
 		return $post;
 	}
 	public static function find_owned_by($owner_id, $page, $limit){
@@ -67,11 +65,13 @@ class Post extends ChinObject{
 	}
 	public static function find_type_owned_by($owner_id, $type, $page, $limit){
 		$posts = Repo::find("select ROWID as id, * from posts where owner_id=:owner_id and type=:type order by post_date desc limit :page, :limit", (object)array("owner_id"=>$owner_id, "type"=>$type, "page"=>$page, "limit"=>$limit))->to_list(new Post());
-		$ids = array_map(array("Post", "extract_id"), $posts);
-		$meta = Post_meta::find_by_ids($ids);
-		if($meta !== null){
-			foreach($meta as $m){
-				array_map(array($m, "add_to_post"), $posts);
+		if($posts !== null){
+			$ids = array_map(array("Post", "extract_id"), $posts);
+			$meta = Post_meta::find_by_ids($ids);
+			if($meta !== null){
+				foreach($meta as $m){
+					array_map(array($m, "add_to_post"), $posts);
+				}
 			}
 		}
 		return $posts;
@@ -92,6 +92,10 @@ class Post extends ChinObject{
 	}
 	public static function find_public_page($name, $owner_id){
 		$page = Repo::find("select ROWID as id, * from posts where type='page' and status='public' and name=:name and owner_id=:owner_id and post_date<=:post_date", (object)array("name"=>$name, "owner_id"=>(int)$owner_id, "post_date"=>time()))->first(new Post());
+		return $page;
+	}
+	public static function find_public_pages($owner_id){
+		$page = Repo::find("select ROWID as id, * from posts where type='page' and status='public' and owner_id=:owner_id and post_date<=:post_date and name!='index'", (object)array("owner_id"=>(int)$owner_id, "post_date"=>time()))->to_list(new Post());
 		return $page;
 	}
 	public static function find_page_by_name($name, $owner_id){
