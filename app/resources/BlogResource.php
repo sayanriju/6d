@@ -24,7 +24,7 @@ class BlogResource extends AppResource{
 			$view = "post/show";
 			$this->title = $this->post->title;
 		}else{
-			$this->posts = Post::find_public_with_limit(self::$member->id, $this->page * 3, $this->limit);
+			$this->posts = Post::find_public_posts_with_limit(self::$member->id, $this->page * 3, $this->limit);
 			if(count($this->posts) === 0){
 				$this->set_not_found();
 				return;

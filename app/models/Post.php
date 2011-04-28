@@ -81,8 +81,8 @@ class Post extends ChinObject{
 		$post = Repo::find("select ROWID as id, * from posts where ROWID=:id and owner_id=:owner_id", (object)array("id"=>(int)$id, "owner_id"=>(int)$owner_id))->first(new Post);
 		return $post;
 	}
-	public static function find_public_with_limit($owner_id, $page, $limit){
-		$post = Repo::find("select ROWID as id, * from posts where owner_id=:owner_id order by post_date desc limit :page, :limit", (object)array("owner_id"=>(int)$owner_id, "page"=>(int)$page, "limit"=>(int)$limit))->to_list(new Post());
+	public static function find_public_posts_with_limit($owner_id, $page, $limit){
+		$post = Repo::find("select ROWID as id, * from posts where owner_id=:owner_id and type='post' order by post_date desc limit :page, :limit", (object)array("owner_id"=>(int)$owner_id, "page"=>(int)$page, "limit"=>(int)$limit))->to_list(new Post());
 		return $post;
 	}
 	

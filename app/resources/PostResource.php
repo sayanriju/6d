@@ -56,6 +56,7 @@ class PostResource extends AppResource{
 		$this->post->body = $post->body;
 		$this->post->status = $post->status;
 		$this->post->post_date = strtotime($post->post_date);
+		$this->post->type = $post->type;
 		save_object::execute($this->post);
 		$this->set_redirect_to(AuthController::$current_user->name . '/posts');
 		$this->output = View::render('blog/show', $this);

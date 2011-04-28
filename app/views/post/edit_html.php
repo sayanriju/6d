@@ -18,6 +18,10 @@
 		<p>
 			<input type="text" value="<?php echo date("Y-m-d g:i:s a", $post->post_date);?>" name="post[post_date]" />
 		</p>
+		<p>
+			<label for="post[type]">Type</label>
+			<input type="text" value="<?php echo $post->type;?>" name="post[type]" />
+		</p>
 <?php if($post->id > 0):?>
 		<input type="hidden" value="<?php echo $post->id;?>" name="post[id]" />
 		<input type="hidden" value="put" name="_method" />
