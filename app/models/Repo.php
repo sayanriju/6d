@@ -22,6 +22,13 @@ class Repo{
 		$result = $query->execute($db, $obj);
 		return $obj;
 	}
+	public static function delete($obj){
+		$id = (int)$obj->id;
+		if($id == 0) return null;
+		$query = new DeleteQuery($obj);
+		$result = $query->execute(self::$db, $obj);
+		return $id;
+	}
 	public static function execute($query, $obj = null){
 		return self::find($query, $obj);
 	}

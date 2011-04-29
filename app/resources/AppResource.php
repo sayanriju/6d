@@ -3,16 +3,13 @@ class_exists("Member") || require("models/Member.php");
 class AppResource extends Resource{	
 	public function __construct(){
 		parent::__construct();
-		if(self::$member === null){
-			if(strpos($_REQUEST["r"], "members/") !== false){
-				$parts = explode("/", $_REQUEST["r"]);
-				$member_name = $parts[1];
-				self::$member = Member::find_by_name($member_name);
-			}else{
-				self::$member = Member::find_owner();
-			}
+		if(strpos($_REQUEST["r"], "members/") !== false){
+			$parts = explode("/", $_REQUEST["r"]);
+			$signin = $parts[1];
+			self::$member = Member::find_by_signin($signin);
+		}else{
+			self::$member = Member::find_owner();
 		}
-		
 		if (array_key_exists('PHP_AUTH_DIGEST', $_SERVER) && !AuthController::is_authed()){
 			$data = String::to_array($_SERVER['PHP_AUTH_DIGEST']);
 			/* My host runs PHP as a CGI and so I added:
@@ -57,7 +54,7 @@ class AppResource extends Resource{
 		return AuthController::is_authed() && AppResource::$member->id === AuthController::$current_user->id;
 	}
 	public static function url_for_member($url, $data = null){
-		return App::url_for(self::$member !== null  && !self::$member->is_owner ? self::$member->name . "/" . $url : $url, $data);
+		return App::url_for(self::$member !== null  && !self::$member->is_owner ? "members/" . self::$member->signin . "/" . $url : $url, $data);
 	}
 	public static function url_for_user($url, $data = null){
 		return App::url_for(AuthController::$current_user !== null  && !AuthController::$current_user->is_owner ? AuthController::$current_user->name . "/" . $url : $url, $data);

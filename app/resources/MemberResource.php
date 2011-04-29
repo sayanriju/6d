@@ -9,11 +9,12 @@ class MemberResource extends AppResource{
 	public $person;
 	public $legend;
 	public $errors;
-	public function get(Member $member){
+	public function get(Member $member = null){
+		$member = $member === null ? new Member() : $member;
 		$this->person = Member::find_by_id((int)$member->id);
 		$view = "member/show";
 		$this->legend = "Edit this member";
-		if($this->person === null) $this->person = new Member(array("id"=>0, "name"=>"New member"));
+		if($this->person === null) $this->person = new Member(array("id"=>0));
 		$this->title = $this->person->name;
 		if(AuthController::is_authed() && (bool)AuthController::$current_user->is_owner){
 			$view = "member/edit";

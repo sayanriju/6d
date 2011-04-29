@@ -2,8 +2,8 @@
 	<article>
 		<header>
 			<h2>
-				<a href="<?php echo App::url_for($member->is_owner ? null : $member->name);?>" title="Visit <?php echo $member->name;?>'s site">
-					<?php echo $member->name;?>
+				<a href="<?php echo App::url_for($member->is_owner ? null : $member->signin);?>" title="Visit <?php echo $member->name;?>'s site">
+					<?php echo $member->display_name;?>
 				</a>
 			</h2>
 		</header>

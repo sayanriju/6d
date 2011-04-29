@@ -4,7 +4,7 @@
 		<header>
 			<h2><?php echo $post->title;?></h2>
 		</header>
-		<?php echo PostResource::add_p_tags($post->get_excerpt());?>
+		<?php echo PostResource::add_p_tags(Post::get_excerpt($post));?>
 		<footer>
 			<a href="<?php echo AppResource::url_for_member("blog", array("id"=>$post->id));?>">read more...</a>
 		</footer>

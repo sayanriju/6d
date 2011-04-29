@@ -43,15 +43,19 @@ class Post extends ChinObject{
 	public function set_post_meta($value){
 		$this->post_meta = $value;
 	}
-	public function get_excerpt(){
-		if($this->excerpt !== null) return $this->excerpt;
-		$lines = explode(PHP_EOL, $this->body);
+	public static function get_excerpt($post){
+		if($post->excerpt !== null) return $post->excerpt;
+		$lines = explode(PHP_EOL, $post->body);
 		if(count($lines) > 0) return $lines[0];
-		return $this->body;
+		return $post->body;
 	}
 	public function extract_id($post){
 		return $post->id;
 	}
+	public function owner(){
+		return Member::find_by_id($this->owner_id);
+	}
+	
 	public static function find_by_id($id){
 		$post = Repo::find("select ROWID as id, * from posts where ROWID=:id", (object)array("id"=>(int)$id))->first(new Post());		
 		if($post === null) return null;
@@ -74,7 +78,7 @@ class Post extends ChinObject{
 				}
 			}
 		}
-		return $posts;
+		return $posts === null ? array() : $posts;
 	}
 	
 	public static function find_by_id_and_owned_by($id, $owner_id){
@@ -102,12 +106,30 @@ class Post extends ChinObject{
 		$page = Repo::find("select ROWID as id, * from posts where name=:name and type='page' and owner_id=:owner_id", (object)array("name"=>$name, "owner_id"=>(int)$owner_id))->first(new Post());
 		return $page;
 	}
+	public static function find_by_name($name, $owner_id){
+		$post = Repo::find("select ROWID as id, * from posts where name=:name", (object)array("name"=>$name, "owner_id"=>(int)$owner_id))->first(new Post());		
+		return $post;
+	}
+	public static function find_by_title($title, $owner_id){
+		$name = String::string_for_url($title);
+		return self::find_by_name($name, $owner_id);
+	}
+	
 	public static function find_public_attachments_owned_by($owner_id, $page, $limit){
 		$attachments = Repo::find("select ROWID as id, * from posts where status='public' and owner_id=:owner_id and type='attachment' order by post_date desc limit :page, :limit", (object)array("owner_id"=>(int)$owner_id, "page"=>(int)$page, "limit"=>(int)$limit))->to_list(new Post());
 		return $attachments;
 	}
 	public static function can_save($post){
-		return array();
+		$message = array();
+		$duplicate_title = null;
+		if($post->title === null || strlen(trim($post->title)) === 0){
+			$message["title"] = "The title is required.";
+		}
+		if(count($message) === 0){
+			$duplicate_title = self::find_by_title($post->title, $owner_id);
+		}
+		if($duplicate_title !== null) $message["duplicate_title"] = "The title is the same as another ad you've posted. Please change the title or update the one that already exists.";
+		return $message;
 	}
 	public static function save($post){
 		return Repo::save($post);

@@ -34,6 +34,11 @@ class Member extends ChinObject{
 		$member = Repo::find("select ROWID as id, * from members where signin=:signin and ROWID != :id", (object)array("signin"=>$signin, "id"=>(int)$id))->first(new Member());
 		return $member;
 	}
+	public static function find_by_signin($signin){
+		$member = Repo::find("select ROWID as id, * from members where signin=:signin", (object)array("signin"=>$signin))->first(new Member());
+		return $member;
+	}
+	
 	public static function find_all($page, $limit){
 		$members = Repo::find("select ROWID as id, * from members order by name limit :page, :limit", (object)array("page"=>(int)$page, "limit"=>(int)$limit))->to_list(new Member());
 		return $members;
@@ -49,5 +54,16 @@ class Member extends ChinObject{
 	public static function find_signed_in($hash){
 		$member = Repo::find("select ROWID as id, * from members where hash=:hash and expiry>=:expiry", (object)array("hash"=>$hash, "expiry"=>time()))->first(new Member());
 		return $member;
+	}
+	public static function can_save(Member $member){
+		$message = array();
+		$existing = self::find_by_signin($member->signin);
+		if($existing !== null){
+			$message["existing"] = "That signin name is not available. Please try another.";
+		}
+		return $message;
+	}
+	public static function save(Member $member){
+		return Repo::save($member);
 	}
 }

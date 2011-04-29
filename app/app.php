@@ -144,11 +144,12 @@ class ObjectPopulationStrategy{
 		$key = $this->param->getName();
 		$arg = null;
 		$properties = $this->class->getProperties();
-		$arg = $this->class->newInstance();
+		$arg = null;
 		if(array_key_exists($key, $this->request->params) && is_array($this->request->params[$key])){
 			foreach($properties as $property){
 				$name = $property->getName();
 				if($property->isPublic() && array_key_exists($name, $this->request->params[$key])){
+					if($arg === null) $arg = $this->class->newInstance();
 					$value = $this->request->params[$key][$name];
 					if($value === "true") $value = true;
 					if($value === "false") $value = false;
@@ -156,18 +157,16 @@ class ObjectPopulationStrategy{
 				}
 			}
 		}else{
-			$should_arg_be_null = true;
 			foreach($properties as $property){
 				$name = $property->getName();
 				if(array_key_exists($name, $this->request->params)){
 					$value = $this->request->params[$name];
 					if($value === "true") $value = true;
 					if($value === "false") $value = false;
+					if($arg === null) $arg = $this->class->newInstance();
 					$property->setValue($arg, $value);
 				}
-				$should_arg_be_null = false;
 			}
-			if($should_arg_be_null) $arg = null;
 		}
 		return $arg;
 	}
@@ -244,7 +243,7 @@ class DefaultMessageStrategy extends SendMessageStrategy{
 }
 class Resource{
 	public function __construct(){
-		$this->title = 'A 6d website';
+		$this->title = 'A RESTful Chinchilla website';
 		$class_name = get_class($this);
 		$this->resource_name = str_replace("resource", "", strtolower($class_name));
 		self::$reflector = new ReflectionClass($class_name);		

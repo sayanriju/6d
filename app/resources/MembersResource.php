@@ -11,7 +11,7 @@ class MembersResource extends AppResource{
 	public $legend;
 	
 	public function get(){
-		if($this->request->path[0] !== null){
+		if(count($this->request->path) > 0 && $this->request->path[0] !== null){
 			$member_name = $this->request->path[0];
 			if(count($this->request->path) === 1){
 				$resource = new IndexResource();
@@ -22,9 +22,11 @@ class MembersResource extends AppResource{
 				return;
 			}
 			$resource_name = ucwords($this->request->path[1]) . "Resource";
-			if(!class_exists($resource_name)) require($resource_name . ".php");
+			if(!class_exists($resource_name)) require("resources/$resource_name.php");
 			$resource = new $resource_name();
-			return $resource->execute($this->request);
+			$this->output = $resource->execute($this->request);
+			$this->status = $resource->status;
+			return $this->output;
 		}
 		if(AuthController::is_authed() && AuthController::$current_user->is_owner){
 			$this->members = Member::find_all(0, 5);
@@ -41,10 +43,18 @@ class MembersResource extends AppResource{
 			$this->set_unauthed();
 			return;
 		}
-		$this->member = new Member(array("name"=>$member->name, "password"=>$member->password, "is_owner"=>false));
-		save_object::execute($this->member);
-		$this->set_redirect_to("members");
-		$this->output = View::render("member/show", $this);
-		return View::render_layout("default", $this);
+		$this->member = $member;
+		$message = Member::can_save($member, AuthController::$current_user->id);
+		if(count($message) === 0){
+			$member->owner_id = AuthController::$current_user->id;
+			$this->member = Member::save($member);			
+			$this->set_redirect_to(AuthController::$current_user->name . '/members');
+		}else{
+			App::set_user_message(implode(", ", $message));
+			$this->set_redirect_to(AuthController::$current_user->name . '/member');
+		}
+		$this->output = View::render('member/show', $this);
+		return View::render_layout('default', $this);
+		
 	}
 }

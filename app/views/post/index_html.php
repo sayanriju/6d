@@ -7,7 +7,7 @@
 				<time><?php echo date("Y-m-d h:i:s", $post->post_date);?></time>
 			</aside>
 		</header>
-		<?php echo PostResource::add_p_tags($post->get_excerpt());?>
+		<?php echo PostResource::add_p_tags(Post::get_excerpt($post));?>
 		<footer>
 			<a href="<?php echo AppResource::url_for_user("post", array("id"=>$post->id));?>">edit</a>
 		</footer>
