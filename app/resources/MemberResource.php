@@ -63,7 +63,7 @@ class MemberResource extends AppResource{
 			$this->person->display_name = $member->display_name;
 			$this->person->signin = (array_key_exists("signin", $this->errors) ? $this->person->signin : $member->signin);
 			$this->person->email = filter_var($member->email, FILTER_SANITIZE_EMAIL);
-			$this->person->password = (strlen($member->password) > 0 ? $member->password : $this->person->password);
+			$this->person->password = (strlen($member->password) > 0 ? String::encrypt($member->password) : $this->person->password);
 			$this->person->in_directory = $member->in_directory === null ? false : $member->in_directory;
 			$this->person->is_owner = $this->person->id == 1 ? true : false;
 			save_object::execute($this->person);

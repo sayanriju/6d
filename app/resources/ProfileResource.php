@@ -24,6 +24,7 @@ class ProfileResource extends AppResource{
 			$view = "profile/index";
 		}
 		$this->owner = AuthController::$current_user;
+		$this->owner->set_member_meta(Member_meta::find_by_id($this->owner->id, null));
 		$this->title = self::$member->name . "'s profile";
 		$this->output = View::render($view, $this);
 		return View::render_layout("default", $this);

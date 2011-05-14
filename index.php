@@ -10,6 +10,7 @@ require("settings.php");
 require("resources/AppResource.php");
 require("controllers/InstallController.php");
 NotificationCenter::add("AppResource", "begin_request");
+NotificationCenter::add("AppResource", "resource_not_found");
 NotificationCenter::add(new PluginController(), "begin_request");
 NotificationCenter::add(new InstallController(), "query_failed");
 echo FrontController::execute(new Request($_REQUEST, $_FILES, $_SERVER));

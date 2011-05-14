@@ -35,7 +35,7 @@ class ContactResource extends AppResource{
 			App::set_user_message("Invalid credentials");
 			$this->set_not_found("Contact not found.");
 		}
-		$this->set_redirect_to(AuthController::$current_user->name . "/addressbook");
+		$this->set_redirect_to(AuthController::$current_user->signin . "/addressbook");
 		$this->output = View::render("contact/show", $this);
 		return View::render_layout("default", $this);
 	}

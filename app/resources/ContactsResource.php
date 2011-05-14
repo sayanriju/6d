@@ -25,7 +25,7 @@ class ContactsResource extends AppResource{
 		$this->contact = new Contact(array("name"=>$contact->name, "owner_id"=>AuthController::$current_user->id
 			, "email"=>$contact->email, "url"=>$contact->url));
 		save_object::execute($this->contact);
-		$this->set_redirect_to(AuthController::$current_user->name . "/addressbook");
+		$this->set_redirect_to(AuthController::$current_user->signin . "/addressbook");
 		$this->output = View::render("contact/show", $this);
 		return View::render_layout("default", $this);
 	}

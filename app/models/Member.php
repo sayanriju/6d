@@ -1,5 +1,6 @@
 <?php
 class_exists("ModelFactory") || require("ModelFactory.php");
+class_exists("Member_meta") || require("Member_meta.php");
 class Member extends ChinObject{
 	public function __construct($values = array()){
 		$this->id = 0;
@@ -18,6 +19,19 @@ class Member extends ChinObject{
 	public $expiry;
 	public $display_name;
 	public $email;
+	private $member_meta;
+	public function member_meta(){
+		return $this->member_meta;
+	}
+	public function set_member_meta($value){
+		if($value !== null){
+			foreach($value as $key=>$val){
+				$this[$key] = $val;
+			}
+		}
+		$this->member_meta = $value;
+	}
+	
 	public static function find_by_name($name){
 		$member = Repo::find("select ROWID as id, * from members where name=:name", (object)array("name"=>$name))->first(new Member());
 		return $member;
@@ -28,6 +42,8 @@ class Member extends ChinObject{
 	}
 	public static function find_by_id($id){
 		$member = Repo::find("select ROWID as id, * from members where ROWID=:id", (object)array("id"=>(int)$id))->first(new Member());
+		$meta = Member_meta::find_by_id($member->id);
+		$member->set_member_meta($meta);
 		return $member;
 	}
 	public static function find_existing_by_signin($signin, $id){
@@ -64,6 +80,7 @@ class Member extends ChinObject{
 		return $message;
 	}
 	public static function save(Member $member){
-		return Repo::save($member);
+		$member = Repo::save($member);
+		return $member;
 	}
 }

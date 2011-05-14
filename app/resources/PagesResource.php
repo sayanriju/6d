@@ -34,7 +34,7 @@ class PagesResource extends AppResource{
 			save_object::execute($this->post);
 		}
 				
-		$this->set_redirect_to("post/{$this->post->name}");
+		$this->set_redirect_to(AuthController::$current_user->signin . "/posts");
 		$view = "page/edit";
 		$this->output = View::render($view, $this);
 		return View::render_layout("default");

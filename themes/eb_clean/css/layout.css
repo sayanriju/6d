@@ -1,0 +1,336 @@
+/* Layout for desktop version */
+
+body {
+	background:#fff;
+	color:#516064;
+}
+a:link, a:visited {
+	text-decoration:none;
+	color:#FF8A00;
+}
+a:hover {
+	color: #FEB925;
+}
+ul {
+	padding:0;
+	margin:0;
+	list-style:none;
+}
+header {
+	padding-top: 70px;
+	background: #fff;
+	border-bottom: 3px solid #D1D9DC;
+}
+header h1 {
+	font-size: 60px;
+}
+header h1 a:link, header h1 a:visited {
+	color:#D1D9DC;
+}
+header h1 a:hover {
+	color:#FF8A00;
+}
+header p {
+	font-size:17px;
+}
+footer {
+	background: #333; /* fallback for older/unsupporting browsers */  
+    background: -moz-linear-gradient(top, #404040, #333 8%);  
+    background: -webkit-gradient(linear, 0 0, 0 8%, from(#404040), to(#333333)); 
+	color:#fff; 
+}
+#admin_menu {
+   	background: #fff; /* fallback for older/unsupporting browsers */ 
+	height:35px;
+	margin-bottom:0px;
+	line-height:30px;
+	position:fixed;
+	z-index:1000;
+	width:100%;
+	border-bottom: 1px solid #D1D9DC;
+}
+#admin_menu li {
+	float:left;
+	padding-right:20px;
+	margin-right:20px;
+	height:25px;
+}
+#admin_menu .row .eightcol ul li a:link, #admin_menu .row .eightcol ul li a:visited {
+	text-decoration:none;
+	color:#516064;
+	font-size:16px;
+	font-weight:normal;
+}
+#admin_menu .row .eightcol ul li a:hover {
+	color:#FF8A00;
+}
+ul#pages_menu li {
+	float:left;
+	margin:0 20px 0 0;
+}
+.btn {
+	background: white; /* fallback for older/unsupporting browsers */  
+    background: -moz-linear-gradient(top, #dedede, white 8%);  
+    background: -webkit-gradient(linear, 0 0, 0 8%, from(#dedede), to(white));  
+    border-top: 1px solid white;	
+}
+#pages_nav {
+	border-bottom: 1px solid #D1D9DC;	
+}
+#pages_nav li {
+	float:left;
+	padding-right:20px;
+	margin-right:20px;
+}
+#pages_nav li a {
+	color:#525252;
+	font-weight:normal;	
+}
+.author_aside {
+	float:left;
+	padding:0px;
+	margin:0px 0px 0px 0px;
+	color:#999;
+	font-size:18px;
+}
+.hentry header {
+	padding-top:0;
+	border-bottom:none;
+	float:left;
+	width:30%;
+	margin-right:10%;
+}
+.hentry header h2 a:link, .hentry header h2 a:visited {
+	color:#959EA1;
+}
+.hentry header h2 a:hover {
+	color:#FF8A00;
+}
+.hentry header p {
+	font-size:15px;
+}
+.hentry .entry-content {
+	width:60%;
+	float:left;
+}
+.hentry .entry-content:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+.hentry footer {
+	background:#fff;
+	border-top:1px dashed #D1D9DC;
+}
+.hentry .post_type {
+	background: #D1D9DC;
+	font-weight:bold;
+	padding:0px 4px;
+	float:left;
+	margin:-1px 5px 0 0;
+}
+.hentry .post_type a:link, .hentry .post_type a:visited {
+	color:#fff;
+}
+.hentry .post_type a:hover {
+	color:#feb925;
+}
+.hentry .post_tags {
+	float:left;
+	color:#959ea1;
+}
+.hentry .post_tags ul {
+	float:right;
+}
+.hentry .post_tags ul li {
+	float:left;
+	margin:0 0 0 4px;
+}
+.hentry .post tags ul li:first-child {
+	margin-left:0;
+}
+.hentry .post_tags ul li a {
+	background: #eee;
+	padding:0 4px;
+	border: 1px solid #eee;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+}
+.hentry .post_tags:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+img.article_author_icon {
+	margin-bottom:0px;
+}
+#profile_column {
+	border-right: 1px dashed #D1D9DC;
+	padding-top:40px;
+	position: fixed;
+}
+#profile_column h3 {
+	font-size: 20px;
+	margin:20px 0 6px;	/* Changing this will break the baseline grid. */
+}
+#profile_column h1 {
+	font-size: 45px;
+	line-height: 48px;		/* Changing this will break the baseline grid. */
+	margin-bottom: 14px;	/* Changing this will break the baseline grid. */
+	margin:10px;
+}
+#profile_column img {
+	margin:0 10px;
+}
+#profile_column h3 {
+	margin:20px 10px 10px;
+	width:92%;
+	border-bottom:1px dotted #777;
+	padding-bottom:10px;
+}
+#profile_column ul {
+	margin:0 10px;
+}
+#profile_column p {
+	margin:10px;
+}
+.ninecol {
+	padding-top:50px;
+}
+.ninecol h3 {
+	width:100%;
+	margin:20px 0 10px 0;
+	font-size:12px;
+}
+.hentry {
+	border-top:1px dotted #D1D9DC;
+	padding:30px 0 40px 0;
+	min-height:125px;
+}
+.hentry:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+h2 a {
+	text-decoration:none;
+	font-size:27px;
+	font-weight:normal;
+}
+.content textarea {
+	width:400px;
+	height:300px;
+}
+#login_form {
+	width:300px;
+	height:200px;
+	background:#eee;
+	margin:50px auto;
+	padding:20px;
+	border:#D1D9DC 1px solid;
+	border-radius:10px;
+	-moz-border-radius:10px;
+	color:#333;
+}
+#login-form legend {
+	font-size:16px;
+}
+#list-of-photos {
+	width:260px;
+	height:500px;
+	overflow:auto;
+	float:left;
+}
+#show-photo {
+	float:left;
+	max-width:519px;
+	margin-right:20px;
+}
+#list-of-photos li {
+	width:100px;
+	float:left;
+	margin-left:20px;
+}
+#list-of-photos:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+#groups, #people, #detail {
+	float:left;
+	width:200px;
+}
+form.delete {
+	width:20px;
+}
+button {
+	border:#666 2px solid;
+	border-radius:3px;
+	-moz-border-radius:3px;
+}
+#body_content {
+	background: #fff;
+}
+.single .content:after {
+	content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+#content_6d .single {
+	border:none;
+}
+#all_photos {
+	background:#eee;
+}
+#all_photos ul li {
+	float:left;
+	width:30%;
+	margin-right:5%; 
+}
+#all_photos ul a:hover {
+	-webkit-transform: scale(1.25);
+	-moz-transform: scale(1.25);
+	position: relative;
+	z-index: 5;
+}
+
+/* Layout for mobile version */
+
+@media handheld, only screen and (max-width: 767px) {
+
+.examplecontainer {
+
+body {
+
+}
+
+}
+
+
+/* Provide higher res assets for iPhone 4 */
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2) { 
+
+/* An example of how to override an image with one twice the size for iPhone 4. Specify the original pixel size with background-size.
+.download {
+background: url(../img/downarrow@2x.png) no-repeat;
+background-size: 27px 28px;
+}
+*/
+#profile_column {
+	position: static;
+}
+
+}
+

@@ -5,22 +5,25 @@ class_exists("Post") || require("models/Post.php");
 class PageResource extends AppResource{
 	public function __construct(){
 		parent::__construct();
-		if(!AuthController::is_authed()){
-			$this->set_unauthed("Unauthorized");
-		}
 	}
 	public $state;
-	public $post;
+	public $page;
 	public $legend;
-	public function get($name){
-		$this->title = $name === null ? "Add a post" : "Edit a post";
-		$this->post = Post::find_public_page($name, AuthController::$current_user->id);
-		if($this->post === null) $this->post = new Post();
+	public function get($name = null){
+		if($name === null){
+			$name = $this->request->resource_name;			
+		}
+		$this->page = Post::find_public_page($name, self::$member->id);
+		if($this->page === null) $this->page = new Post();
 		$this->legend = $this->title;
-		$this->output = View::render("page/edit", $this);
+		$this->output = View::render("page/index", $this);
 		return View::render_layout("default", $this);			
 	}
 	public function post($state = "show", $name){
+		if(!AuthController::is_authed()){
+			$this->set_unauthed();
+			return;
+		}
 		$this->legend = "Create a new page";
 		$name = preg_replace("/[^a-zA-Z0-9-]?/", "", $name);
 		$this->title = "Create a new page called $name";
@@ -55,7 +58,7 @@ class PageResource extends AppResource{
 			}else{
 				App::set_user_message(implode(",", $errors));
 			}
-			$this->set_redirect_to(AuthController::$current_user->name . '/page/' . $this->post->name);
+			$this->set_redirect_to(AuthController::$current_user->signin . '/' . $this->post->name);
 		}		
 		$this->output = View::render('page/edit', $this);
 		return View::render_layout('default', $this);

@@ -94,6 +94,10 @@ class Post extends ChinObject{
 		$count = Repo::find("select count(1) as total from posts where status='public' and owner_id=:owner_id", (object)array("owner_id"=>(int)$owner_id))->first(new Post());
 		return $count;
 	}
+	public static function find_total($owner_id){
+		$count = Repo::find("select count(1) as total from posts where owner_id=:owner_id", (object)array("owner_id"=>(int)$owner_id))->first(new Post());
+		return (int)$count->total;
+	}
 	public static function find_public_page($name, $owner_id){
 		$page = Repo::find("select ROWID as id, * from posts where type='page' and status='public' and name=:name and owner_id=:owner_id and post_date<=:post_date", (object)array("name"=>$name, "owner_id"=>(int)$owner_id, "post_date"=>time()))->first(new Post());
 		return $page;

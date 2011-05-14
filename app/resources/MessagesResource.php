@@ -51,7 +51,7 @@ class MessagesResource extends AppResource{
 					App::set_user_message("Message was sent");
 				}
 			}
-			$this->set_redirect_to(AuthController::$current_user->name . "/message");
+			$this->set_redirect_to(AuthController::$current_user->signin . "/message");
 			$this->output = View::render("message/index", $this);
 			return View::render_layout("default", $this);
 		}

@@ -7,7 +7,7 @@ class Header_OpenId{
 <link rel="openid2.provider" href="%s/">
 </head>	
 eos;
-		$url = App::url_for(Application::$member->member_name);
+		$url = App::url_for(AppResource::$member->signin);
 		$head = sprintf($head, App::url_for('openid.txt'));
 		$output = str_replace('</head>', $head, $output);
 		return $output;

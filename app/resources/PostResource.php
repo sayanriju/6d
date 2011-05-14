@@ -8,7 +8,8 @@ class PostResource extends AppResource{
 	}
 	public $post;
 	public $legend;
-	public function get(Post $post){
+	public function get(Post $post = null){
+		$post = $post === null ? new Post() : $post;
 		$post->id = (int)$post->id;
 		if($post->id > 0){
 			$this->post = Post::find_by_id($post->id);
@@ -37,7 +38,7 @@ class PostResource extends AppResource{
 			return;
 		}
 		delete_object::execute($this->post);
-		$this->set_redirect_to(AuthController::$current_user->name . '/posts');
+		$this->set_redirect_to(AuthController::$current_user->signin . '/posts');
 		$this->output = View::render("blog/index", $this);
 		return View::render_layout("default", $this);
 	}
@@ -57,8 +58,11 @@ class PostResource extends AppResource{
 		$this->post->status = $post->status;
 		$this->post->post_date = strtotime($post->post_date);
 		$this->post->type = $post->type;
-		save_object::execute($this->post);
-		$this->set_redirect_to(AuthController::$current_user->name . '/posts');
+		$errors = Post::can_save($this->post);
+		if(count($errors) === 0){
+			Post::save($this->post);
+		}
+		$this->set_redirect_to(AuthController::$current_user->signin . '/posts');
 		$this->output = View::render('blog/show', $this);
 		return View::render_layout('default', $this);
 	}

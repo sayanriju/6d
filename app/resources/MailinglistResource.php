@@ -25,7 +25,7 @@ class MailinglistResource extends AppResource{
 			$query = new Query(new Contact(array("email"=>$email, "owner_id"=>AppResource::$member->id)));
 			$sql = "select c.* from contacts c inner join tags t on t.object_id=c.ROWID and t.object_type='contact' where c.email=:email and t.name = 'mailing list' and c.owner_id=:owner_id limit 0, 1";
 			
-			$contact = $query->execute(Repo::get_provider(), $sql);
+			$contact = $query->execute(Repo::get_provider(), new Contact(), $sql);
 			if(count($contact) > 0) return "You're already in our mailing list";
 			$contact = save_object::execute(new Contact(array("name"=>$email, "email"=>$email, "owner_id"=>(int)AppResource::$member->id)));
 			$tag = new Tag(array("name"=>"mailing list", "object_id"=>$contact->id, "object_type"=>"contact", "owner_id"=>AppResource::$member->id));

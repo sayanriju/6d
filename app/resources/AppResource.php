@@ -1,65 +1,44 @@
 <?php
 class_exists("Member") || require("models/Member.php");
+class_exists("AuthController") || require("controllers/AuthController.php");
 class AppResource extends Resource{	
 	public function __construct(){
 		parent::__construct();
-		if(strpos($_REQUEST["r"], "members/") !== false){
-			$parts = explode("/", $_REQUEST["r"]);
-			$signin = $parts[1];
-			self::$member = Member::find_by_signin($signin);
-		}else{
-			self::$member = Member::find_owner();
-		}
-		if (array_key_exists('PHP_AUTH_DIGEST', $_SERVER) && !AuthController::is_authed()){
-			$data = String::to_array($_SERVER['PHP_AUTH_DIGEST']);
-			/* My host runs PHP as a CGI and so I added:
-				
-				RewriteCond %{HTTP:Authorization} !^$
-				RewriteRule .* - [E=PHP_AUTH_DIGEST:%{HTTP:Authorization},L]
-				
-				to the .htaccess file and when I did that, PHP_AUTH_DIGEST was set
-				but the username key in the array was now "Digest username".
-			*/
-			if(array_key_exists('Digest username', $data)){
-				$data['username'] = $data['Digest username'];
-			}
-
-			$data['username'] = str_replace('"', '', $data['username']);
-			$data['response'] = str_replace('"', '', $data['response']);
-			$data['realm'] = str_replace('"', '', $data['realm']);
-			$data['nonce'] = str_replace('"', '', $data['nonce']);
-			$data['uri'] = str_replace('"', '', $data['uri']);
-			$data['opaque'] = str_replace('"', '', $data['opaque']);
-			$data['cnonce'] = str_replace('"', '', $data['cnonce']);
-			$data['nc'] = str_replace('"', '', $data['nc']);
-			$data['qop'] = str_replace('"', '', $data['qop']);
-			if(isset($data['username'])){
-				$user_name = $data['username'];
-				$user = Member::find_by_name($user_name);
-				$a1 = md5($data['username'] . ':' . $data['realm'] . ':' . $user->password);
-				$a2 = md5($_SERVER['REQUEST_METHOD'].':'.$data['uri']);
-				$encrypted_response = md5($a1.':'.$data['nonce'].':'.$data['nc'].':'.$data['cnonce'].':'.$data['qop'].':'.$a2);
-				if ($data['response'] === $encrypted_response){
-					$expiry = time() + 60*60*24*30;
-					$hash = AuthController::get_chin_auth_hash($user->name, $expiry);
-					AuthController::set_chin_auth($hash, $expiry);
-					$user->hash = $hash;
-					$user->expiry = $expiry;
-					save_object::execute($user);
-				}				
-			}
-		}
 	}
 	public static function owns_content(){
 		return AuthController::is_authed() && AppResource::$member->id === AuthController::$current_user->id;
 	}
 	public static function url_for_member($url, $data = null){
-		return App::url_for(self::$member !== null  && !self::$member->is_owner ? "members/" . self::$member->signin . "/" . $url : $url, $data);
+		return App::url_for(self::$member !== null  && !self::$member->is_owner ? self::$member->signin . "/" . $url : $url, $data);
 	}
 	public static function url_for_user($url, $data = null){
-		return App::url_for(AuthController::$current_user !== null  && !AuthController::$current_user->is_owner ? AuthController::$current_user->name . "/" . $url : $url, $data);
+		return App::url_for(AuthController::$current_user !== null  && !AuthController::$current_user->is_owner ? AuthController::$current_user->signin . "/" . $url : $url, $data);
+	}
+	public static function resource_not_found($publisher, $info){
+		$page_name = $info->resource_name;
+		$resource = null;
+		$member = Member::find_by_signin($page_name);
+		if($member !== null){
+			self::$member = $member;
+			if($info->path === null) $info->path = array("index");
+			$resource = Resource::get_instance($info->path[0]);
+			//if($info->path !== null) array_shift($info->path);
+			if($resource !== null) return $resource;
+			$page_name = $info->path[0];
+		}
+		$post = Post::find_page_by_name($page_name, self::$member->id);
+		if($post !== null){
+			class_exists("PageResource") || require("resources/PageResource.php");
+			$resource = new PageResource();
+			return $resource;
+		}
+
+		return $resource;
 	}
 	public static function begin_request($publisher, $info){
+		if(AuthController::get_chin_auth() !== null){
+			AuthController::set_current_user();
+		}
 		self::$member = Member::find_by_name($info->resource_name);
 		if(self::$member !== null){
 			if($info->path !== null){

@@ -12,7 +12,7 @@ class Header_DFRN{
 <link rel="dfrn-poll" href="%s/dfrn_poll" />
 </head>	
 eos;
-		$url = App::url_for(Application::$member->member_name);
+		$url = App::url_for(AppResource::$member->signin);
 		$head = sprintf($head, App::url_for(null) . '%s/profile', $url, $url, $url, $url, $url);
 		$output = str_replace('</head>', $head, $output);
 		return $output;

@@ -11,7 +11,6 @@
     <div>Upload files</div>
 </form>
 <table id="files"></table>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/jquery-ui.min.js"></script>
 <script src="<?php echo App::url_for("plugins/jquery-file-upload/jquery.fileupload.js");?>"></script>
 <script src="<?php echo App::url_for("plugins/jquery-file-upload/jquery.fileupload-ui.js");?>"></script>

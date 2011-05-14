@@ -6,7 +6,7 @@ class SignoutResource extends AppResource{
 		parent::__construct();
 	}
 	public function get(){
-		AuthController::set_chin_auth(null, time()-3600);
+		AuthController::set_chin_auth(false, time()-3600);
 		$this->set_redirect_to(null);
 	}
 }

@@ -344,13 +344,13 @@ class OpenidCommand{
 	public function get($openid_mode){
 		$assoc_handle = self::request('openid_assoc_handle');
 		$assoc_handle = $assoc_handle !== null ? $assoc_handle : uniqid();
-		$request = new OpenidRequest(array('ns'=>$this->ns, 'mode'=>'checkid_setup', 'identity'=>self::request('openid_identity'), 'claimed_id'=>self::request('openid_claimed_id'), 'assoc_handle'=>$assoc_handle, 'return_to'=>self::request('openid_return_to'), 'realm'=>self::request('openid_realm'), 'expires_in'=>$this->expires_in, 'owner_id'=>Application::$member->person_id));
+		$request = new OpenidRequest(array('ns'=>$this->ns, 'mode'=>'checkid_setup', 'identity'=>self::request('openid_identity'), 'claimed_id'=>self::request('openid_claimed_id'), 'assoc_handle'=>$assoc_handle, 'return_to'=>self::request('openid_return_to'), 'realm'=>self::request('openid_realm'), 'expires_in'=>$this->expires_in, 'owner_id'=>AppResource::$member->id));
 		$request = $this->findExistingAssociation($assoc_handle, $request);
 		$request = $this->applyDefaultValueRules($request);		
 		$does_realm_match = $this->doRealmCheck($request);
 		if($does_realm_match){
 			OpenidRequest::save($request);
-			if(AuthController::is_authorized() && $request->return_to !== null){
+			if(AuthController::is_authed() && $request->return_to !== null){
 				$data = $this->makePositiveAssertion($request);
 				$url = $this->buildUrl($request->return_to, $data);
 				Resource::redirect_to::setNeedsToRedirectRaw($url);
@@ -364,7 +364,7 @@ class OpenidCommand{
 		$email = self::request('email');
 		$password = self::request('password');
 		$user = null;
-		if(!AuthController::is_authorized()){
+		if(!AuthController::is_authed()){
 			if(empty($email) || empty($password)){
 				$isAuthed = false;
 			}else{
@@ -377,7 +377,7 @@ class OpenidCommand{
 		
 		$assoc_handle = self::request('openid_assoc_handle');
 		$request = $this->findExistingAssociation($assoc_handle, $request);
-		if(AuthController::is_authorized()){
+		if(AuthController::is_authed()){
 			$data = $this->makePositiveAssertion($request);
 			$url = $this->buildUrl($request->return_to, $data);
 			Resource::redirect_to::setNeedsToRedirectRaw($url);
@@ -626,11 +626,11 @@ class Openid_checkid_immediate extends OpenidCommand{
 	public function get($openid_mode){
 		$assoc_handle = self::request('openid_assoc_handle');
 		$assoc_handle = $assoc_handle !== null ? $assoc_handle : uniqid();
-		$request = new OpenidRequest(array('ns'=>$this->ns, 'mode'=>'checkid_immediate', 'identity'=>self::request('openid_identity'), 'claimed_id'=>self::request('openid_claimed_id'), 'assoc_handle'=>$assoc_handle, 'return_to'=>self::request('openid_return_to'), 'realm'=>self::request('openid_realm'), 'expires_in'=>$this->expires_in, 'owner_id'=>Application::$member->person_id));
+		$request = new OpenidRequest(array('ns'=>$this->ns, 'mode'=>'checkid_immediate', 'identity'=>self::request('openid_identity'), 'claimed_id'=>self::request('openid_claimed_id'), 'assoc_handle'=>$assoc_handle, 'return_to'=>self::request('openid_return_to'), 'realm'=>self::request('openid_realm'), 'expires_in'=>$this->expires_in, 'owner_id'=>AppResource::$member->id));
 		$request = $this->findExistingAssociation($assoc_handle, $request);
 		$request = $this->applyDefaultValueRules($request);	
 		$does_realm_match = $this->doRealmCheck($request);
-		if($does_realm_match && AuthController::is_authorized()){
+		if($does_realm_match && AuthController::is_authed()){
 			OpenidRequest::save($request);
 			$data = $this->makePositiveAssertion($request);
 			$url = $this->buildUrl($request->return_to, $data);
@@ -647,7 +647,7 @@ class Openid_check_authentication extends OpenidCommand{
 	}
 	public function get($openid_mode){
 		$assoc_handle = self::request('openid_assoc_handle');
-		$request = new OpenidRequest(array('ns'=>$this->ns, 'mode'=>'check_authentication', 'identity'=>self::request('openid_identity'), 'claimed_id'=>self::request('openid_claimed_id'), 'assoc_handle'=>$assoc_handle, 'return_to'=>self::request('openid_return_to'), 'realm'=>self::request('openid_realm'), 'expires_in'=>$this->expires_in, 'owner_id'=>Application::$member->person_id, 'is_valid'=>false));
+		$request = new OpenidRequest(array('ns'=>$this->ns, 'mode'=>'check_authentication', 'identity'=>self::request('openid_identity'), 'claimed_id'=>self::request('openid_claimed_id'), 'assoc_handle'=>$assoc_handle, 'return_to'=>self::request('openid_return_to'), 'realm'=>self::request('openid_realm'), 'expires_in'=>$this->expires_in, 'owner_id'=>AppResource::$member->id, 'is_valid'=>false));
 		$request = $this->findExistingAssociation($assoc_handle, $request);
 		if($assoc_handle !== null && $request->id === null){
 			$request->invalidate_handle = $assoc_handle;
@@ -695,7 +695,7 @@ class Openid_associate extends OpenidCommand{
 		return $this->sendDirectResponseForAssociation($request);
 	}
 	private function doNoEncryption($session_type){
-		$request = new OpenidRequest(array('ns'=>$this->ns, 'mode'=>'id_res', 'assoc_handle'=>uniqid(), 'session_type'=>$session_type, 'assoc_type'=>self::request('openid_assoc_type'), 'expires_in'=>$this->expires_in, 'owner_id'=>Application::$member->person_id));
+		$request = new OpenidRequest(array('ns'=>$this->ns, 'mode'=>'id_res', 'assoc_handle'=>uniqid(), 'session_type'=>$session_type, 'assoc_type'=>self::request('openid_assoc_type'), 'expires_in'=>$this->expires_in, 'owner_id'=>AppResource::$member->id));
 		if(array_key_exists('HTTPS', $_SERVER)){
 			$request = $this->applyDefaultValueRules($request);
 			$request->mac_key = self::generateSharedKey($request);
@@ -709,7 +709,7 @@ class Openid_associate extends OpenidCommand{
 		return $this->sendDirectResponseForAssociation($request);
 	}
 	private function doSha1($session_type){
-		$request = new OpenidRequest(array('ns'=>$this->ns, 'mode'=>'id_res', 'assoc_handle'=>uniqid(), 'session_type'=>$session_type, 'assoc_type'=>self::request('openid_assoc_type'), 'expires_in'=>$this->expires_in, 'dh_modulus'=>base64_decode(self::request('openid_dh_modulus')), 'dh_gen'=>base64_decode(self::request('openid_dh_gen')), 'dh_consumer_public'=>base64_decode(self::request('openid_dh_consumer_public')), 'owner_id'=>Application::$member->person_id));
+		$request = new OpenidRequest(array('ns'=>$this->ns, 'mode'=>'id_res', 'assoc_handle'=>uniqid(), 'session_type'=>$session_type, 'assoc_type'=>self::request('openid_assoc_type'), 'expires_in'=>$this->expires_in, 'dh_modulus'=>base64_decode(self::request('openid_dh_modulus')), 'dh_gen'=>base64_decode(self::request('openid_dh_gen')), 'dh_consumer_public'=>base64_decode(self::request('openid_dh_consumer_public')), 'owner_id'=>AppResource::$member->id));
 		$request = $this->applyDefaultValueRules($request);
 		$request->enc_mac_key = self::generateEncryptedSharedKey($request);
 		$request->dh_server_public = self::generatePublicKey($request);

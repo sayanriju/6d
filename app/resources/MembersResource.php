@@ -47,11 +47,12 @@ class MembersResource extends AppResource{
 		$message = Member::can_save($member, AuthController::$current_user->id);
 		if(count($message) === 0){
 			$member->owner_id = AuthController::$current_user->id;
+			$member->password = String::encrypt($member->password);
 			$this->member = Member::save($member);			
-			$this->set_redirect_to(AuthController::$current_user->name . '/members');
+			$this->set_redirect_to(AuthController::$current_user->signin . '/members');
 		}else{
 			App::set_user_message(implode(", ", $message));
-			$this->set_redirect_to(AuthController::$current_user->name . '/member');
+			$this->set_redirect_to(AuthController::$current_user->signin . '/member');
 		}
 		$this->output = View::render('member/show', $this);
 		return View::render_layout('default', $this);

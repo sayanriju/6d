@@ -15,13 +15,13 @@ class AddressbookResource extends AppResource{
 	public $tags;
 	public function get($tag = null){
 		if(strlen($tag) > 50) $tag = null;
-		if($tag !== null){
+		if($tag !== null && $tag !== "addressbook"){
 			$matches = array();
 			preg_match_all("/\w+/", $tag, $matches);
 			$tag = implode(" ", $matches[0]);
-			$this->contacts = Contact::find_tagged($tag, AuthController::$current_user->id);
+			$this->contacts = Contact::find_tagged($tag, self::$member->id);
 		}else{
-			$this->contacts = Contact::find_owned_by(AuthController::$current_user->id);
+			$this->contacts = Contact::find_owned_by(self::$member->id);
 		}
 		class_exists("Tag") || require("models/Tag.php");
 		if(!$this->contacts) $this->contacts = array();

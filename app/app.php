@@ -62,6 +62,9 @@ class FrontController{
 		NotificationCenter::post("begin_request", null, $request);
 		$resource = Resource::get_instance($request->resource_name);
 		if($resource === null){
+			$resource = NotificationCenter::post("resource_not_found", null, $request);
+		}
+		if($resource === null){
 			$resource = new Resource();
 			$resource->set_not_found();
 		}
@@ -308,7 +311,7 @@ class Resource{
 		if($this->status == null){
 			$result = $this->send_message($request);
 		}else{
-			$resutl = $this->status->message;
+			$result = $this->status->message;
 		}
 		NotificationCenter::post("request_has_finished", $this, $result);
 		if($this->header === null){
@@ -819,7 +822,9 @@ class String{
 
         return $string;
     }
-    
+    public static function encrypt($value){
+		return sha1($value);
+	}
 	public static function strip_whitespace($text){
 		$lines = preg_split('/\n/', $text);
 		$upper_bounds = count($lines);
