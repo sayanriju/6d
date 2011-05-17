@@ -5,6 +5,7 @@ class Settings{
 	public static $theme;
 	public static $site_header;
 	public static $storage_provider;
+	public static $max_filesize;
 	public static function virtual_path($file){
 		return dirname(__FILE__) . "/" . $file;
 	}
@@ -17,6 +18,7 @@ class Settings{
 		return $title->value;
 	}
 }
+Settings::$max_filesize = 2000000;
 Settings::$app_path = dirname(__FILE__) . "/app";
 Settings::$theme = "eb_clean";
 Settings::$site_header = "Chinchillalite, a RESTful PHP Framework";

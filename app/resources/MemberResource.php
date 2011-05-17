@@ -8,7 +8,6 @@ class MemberResource extends AppResource{
 	}
 	public $person;
 	public $legend;
-	public $errors;
 	public function get(Member $member = null){
 		$member = $member === null ? new Member() : $member;
 		$this->person = Member::find_by_id((int)$member->id);
@@ -51,12 +50,7 @@ class MemberResource extends AppResource{
 		$member->email = trim($member->email);
 		if(strlen($member->signin) === 0) $this->errors["signin"] = "Signin name is required. Please enter one.";
 		if(strlen($member->email) === 0) $this->errors["email"] = "Email is required. Please enter one.";
-		if(count($this->errors) === 0){
-			$existing_person_with_signin = Member::find_existing_by_signin($member->signin, $member->id);
-			if($existing_person_with_signin !== null){
-				$this->errors["signin"] = "{$member->signin} already exists. Please choose a different signin name.";
-			}
-		}
+		$this->errors = Member::can_save($member);
 		$this->person = Member::find_by_id($member->id);
 		if($this->person !== null){
 			$this->person->name = $member->name;
@@ -66,7 +60,8 @@ class MemberResource extends AppResource{
 			$this->person->password = (strlen($member->password) > 0 ? String::encrypt($member->password) : $this->person->password);
 			$this->person->in_directory = $member->in_directory === null ? false : $member->in_directory;
 			$this->person->is_owner = $this->person->id == 1 ? true : false;
-			save_object::execute($this->person);
+			$this->person = Member::save($this->person);
+			App::set_user_message("{$this->person->name}'s info was saved.");
 		}
 		if(count($this->errors) > 0) App::set_user_message(View::render("error/list", $this));
 		$this->set_redirect_to("members");

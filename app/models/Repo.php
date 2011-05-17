@@ -11,15 +11,12 @@ class Repo{
 		return self::$db;
 	}
 	public static function save($obj){
-		$db = self::get_provider();
-		$class = new ReflectionClass($obj);
-		$properties = $class->getProperties();
 		if((int)$obj->id > 0){
 			$query = new UpdateQuery($obj);
 		}else{
 			$query = new InsertQuery($obj);
 		}
-		$result = $query->execute($db, $obj);
+		$result = $query->execute(self::get_provider(), $obj);
 		return $obj;
 	}
 	public static function delete($obj){
@@ -133,7 +130,7 @@ class Query{
 	public function execute($db, $target, $query = null){
 		$class = null;
 		$properties = null;
-		$list = array();
+		$list = array();		
 		if($this->obj !== null){
 			$class = new ReflectionClass($this->obj);			
 			$table_name = strtolower(String::pluralize($class->getName()));
@@ -146,7 +143,7 @@ class Query{
 			$cmd = $this->bind($cmd, $query, $properties);			
 			$this->error_info = $db->errorInfo();
 			if($cmd === false) throw new RepoException($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
-			$result = $cmd->execute();
+			$result = $cmd->execute();			
 			$this->error_info = $db->errorInfo();
 			if(count($this->error_info) > 1 && $this->error_info[1] !== null){
 				throw new RepoException($this->error_info[0] . ":" . $this->error_info[2], $this->error_info[1]);
@@ -154,10 +151,10 @@ class Query{
 			$target = $target === null ? $this->obj : $target;
 			if($target !== null){
 				$class = new ReflectionClass($target);
-				$class_name = $class->getName();
+				$class_name = $class->getName();				
 				while($obj = $cmd->fetchObject()){
 					$list[] = ModelFactory::populate_single((object)$obj, $class->newInstance());
-				}
+				}				
 			}
 			$cmd = null;
 			return $list;

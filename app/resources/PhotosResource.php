@@ -32,6 +32,7 @@ class PhotosResource extends AppResource{
 			$image = imagecreatefromgif($file);
 			$fn_name = "imagegif";
 		}else{
+			error_log("tried to upload $file and it's not supported");
 			throw new Exception("File type isn't supported. Only jpg, png and gif.");
 		}
 		$width = imagesx($image);

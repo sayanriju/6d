@@ -59,13 +59,13 @@ eos;
 		if($this->request->path[0] !== null){
 			if($id !== null){
 				$table_name = $this->request->path[0];
-				$did_error = $query->execute(Repo::get_provider(), "delete from $table_name where ROWID=$id");
+				$did_error = $query->execute(Repo::get_provider(), null, "delete from $table_name where ROWID=$id");
 				$this->set_redirect_to("table/$table_name");
 				return null;
 			}
 		}else{
 			$view = "db/index";
-			$query->execute(Repo::get_provider(), "drop table $table_name");
+			$query->execute(Repo::get_provider(), null, "drop table $table_name");
 			$this->set_redirect_to("db");
 			$this->output = View::render($view, $this);
 		}
@@ -77,7 +77,7 @@ eos;
 		$db = Repo::get_provider();
 		$did_error = false;
 		$column_query = new Query((object)array("name"=>""));
-		$this->columns = $column_query->execute($db, "pragma table_info({$table_name})");
+		$this->columns = $column_query->execute($db, null, "pragma table_info({$table_name})");
 		$alter_sql = "alter table $table_name rename to {$table_name}_temp;";
 		$alter_sql .= "create table $table_name (%s);";
 		$alter_sql .= "insert into $table_name (%s) select %s from {$table_name}_temp;";
@@ -105,12 +105,12 @@ eos;
 			return $c["name"];
 		}, $this->columns);
 		$alter_sql = sprintf($alter_sql, implode(",", $column_definitions), implode(",", $this->columns), implode(",", $this->columns));
-		$query->execute($db, "begin transaction");
-		$query->execute($db, "alter table $table_name rename to {$table_name}_temp");
-		$query->execute($db, sprintf("create table $table_name (%s)", implode(",", $column_definitions)));
-		$query->execute($db, sprintf("insert into $table_name (%s) select %s from {$table_name}_temp", implode(",", $this->columns), implode(",", $this->columns)));
-		$query->execute($db, "drop table {$table_name}_temp");
-		$did_error = $query->execute($db, "commit");
+		$query->execute($db, null, "begin transaction");
+		$query->execute($db, null, "alter table $table_name rename to {$table_name}_temp");
+		$query->execute($db, null, sprintf("create table $table_name (%s)", implode(",", $column_definitions)));
+		$query->execute($db, null, sprintf("insert into $table_name (%s) select %s from {$table_name}_temp", implode(",", $this->columns), implode(",", $this->columns)));
+		$query->execute($db, null, "drop table {$table_name}_temp");
+		$did_error = $query->execute($db, null, "commit");
 		//$did_error = $query->execute($db, $alter_sql);
 		App::add_user_message($alter_sql);
 		App::add_user_message($did_error ? "Update succeeded" : "Update failed" . ": " . json_encode($db->error_info));
@@ -118,7 +118,7 @@ eos;
 		if(!$did_error){
 			$query = new Query((object)array("cid"=>0, "name"=>null, "type"=>null, "notnull"=>null, "dflt_value"=>null, "pk"=>null));
 			$this->table_name = $table_name;
-			$this->columns = $query->execute($db, "pragma table_info({$this->table_name})");
+			$this->columns = $query->execute($db, null, "pragma table_info({$this->table_name})");
 		}
 		$this->output = View::render($view, $this);
 		return View::render_layout("default", $this);

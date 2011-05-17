@@ -56,4 +56,5 @@ class AppResource extends Resource{
 
 	public static $member;
 	public $page;
+	public $errors;
 }

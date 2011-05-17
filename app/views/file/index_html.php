@@ -5,7 +5,7 @@
 	
 ?>
 <form id="file_upload" action="<?php echo AppResource::url_for_user("files.json");?>" method="post" enctype="multipart/form-data">
-	<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $max_filesize;?>" />
+	<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo Settings::$max_filesize;?>" />
     <input type="file" name="files[]" multiple />
     <button>Upload</button>
     <div>Upload files</div>

@@ -2,7 +2,7 @@
 <form enctype="multipart/form-data" target="upload_target" method="post" id="media_form" name="media_form" action="<?php echo AppResource::url_for_member('links');?>">
 	<fieldset>
 		<legend>Photo Picker</legend>
-		<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $max_filesize;?>" />
+		<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo Settings::$max_filesize;?>" />
 		<section>
 			<label for="photo" id="photo_label">Upload a photo</label>
 			<input type="file" name="photo" id="photo_upload_field" />

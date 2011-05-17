@@ -5,7 +5,6 @@
 	class FilesResource extends AppResource{
 		public function __construct($attributes = null){
 			parent::__construct($attributes);
-			$this->max_filesize = 2000000;
 			if(!AuthController::is_authed()){
 				$this->set_unauthed("Please signin.");
 			}
@@ -14,7 +13,6 @@
 			parent::__destruct();
 		}
 		public static $ALLOWED = array("image/jpg", "image/jpeg", "image/gif", "image/png");
-		public $max_filesize;
 		public $files;
 		public $result;
 		public function get(){
@@ -84,7 +82,7 @@
 			return $file_type;
 		}
 		private function get_upload_folder(){
-			return sprintf("media/%s/%s", AuthController::$current_user->name, date("Y"));
+			return sprintf("media/%s/%s", AuthController::$current_user->signin, date("Y"));
 		}
 		private function create_and_get_file_path($file, $file_type){
 			$file_name = preg_replace("/\.*/", "", uniqid(null, true));

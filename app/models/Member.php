@@ -19,7 +19,14 @@ class Member extends ChinObject{
 	public $expiry;
 	public $display_name;
 	public $email;
+	public $photo_url;
 	private $member_meta;
+	public function __get($key){
+		return $this->{$key};
+	}
+	public function __set($key, $value){
+		$this->{$key} = $value;
+	}
 	public function member_meta(){
 		return $this->member_meta;
 	}
@@ -42,8 +49,10 @@ class Member extends ChinObject{
 	}
 	public static function find_by_id($id){
 		$member = Repo::find("select ROWID as id, * from members where ROWID=:id", (object)array("id"=>(int)$id))->first(new Member());
-		$meta = Member_meta::find_by_id($member->id);
-		$member->set_member_meta($meta);
+		if($member !== null){
+			$meta = Member_meta::find_by_id($member->id);
+			$member->set_member_meta($meta);
+		}
 		return $member;
 	}
 	public static function find_existing_by_signin($signin, $id){
@@ -69,18 +78,26 @@ class Member extends ChinObject{
 	}
 	public static function find_signed_in($hash){
 		$member = Repo::find("select ROWID as id, * from members where hash=:hash and expiry>=:expiry", (object)array("hash"=>$hash, "expiry"=>time()))->first(new Member());
+		$meta = Member_meta::find_by_id($member->id);
+		$member->set_member_meta($meta);
 		return $member;
 	}
 	public static function can_save(Member $member){
 		$message = array();
-		$existing = self::find_by_signin($member->signin);
+		$existing = self::find_existing_by_signin($member->signin, $member->id);
 		if($existing !== null){
 			$message["existing"] = "That signin name is not available. Please try another.";
 		}
 		return $message;
 	}
-	public static function save(Member $member){
+	public static function save(Member $member, $meta = array()){
 		$member = Repo::save($member);
+		if(count($meta) > 0){
+			foreach($meta as $m){
+				$m->owner_id = $member->id;
+				Member_meta::save($m);
+			}
+		}
 		return $member;
 	}
 }

@@ -19,17 +19,18 @@
 				<div class="twocol">&nbsp;</div>
 				<div class="eightcol">
 					<ul>
-		            	<li><a href="<?php echo App::url_for(null);?>" title="Go home">Home</a></li>
-		            	<li><a href="<?php echo App::url_for('profile');?>" title="View your profile">Profile</a></li>
+		            	<li><a href="<?php echo AppResource::url_for_member(null);?>" title="Go home">Home</a></li>
+	            		<li><a href="<?php echo AppResource::url_for_member('blog');?>" title="My blog">Blog</a></li>
+		            	<li><a href="<?php echo AppResource::url_for_member('profile');?>" title="View your profile">Profile</a></li>
 		                <?php if(AuthController::is_authed()):?>
-		                	<li><a href="<?php echo App::url_for('post');?>" title="Create a new post">New Post</a></li>
+	                	<li><a href="<?php echo AppResource::url_for_member('post');?>" title="Create a new post">New Post</a></li>
+	                	<li><a href="<?php echo AppResource::url_for_member('posts');?>" title="See all your posts">Posts</a></li>
 		                <?php endif;?>
-		                <li><a href="<?php echo App::url_for('posts');?>" title="See all your posts">Posts</a></li>
-		                <li><a href="<?php echo App::url_for('photos');?>" title="See your photo library">Photo</a></li>
-		                <li><a href="<?php echo App::url_for(AuthController::is_authed() ? 'signout' : 'signin');?>" title="Logout"><?php echo AuthController::is_authed() ? 'Sign Out' : 'Sign In';?></a>
+		                <li><a href="<?php echo AppResource::url_for_member('photos');?>" title="See your photo library">Photo</a></li>
+		                <li><a href="<?php echo AppResource::url_for_member(AuthController::is_authed() ? 'signout' : 'signin');?>" title="Logout"><?php echo AuthController::is_authed() ? 'Sign Out' : 'Sign In';?></a>
 		                <?php if(AuthController::is_authed()):?>
 		                	<ul id="user_menu" style="display:none">
-		                		<li><a href="<?php echo App::url_for('addressbook');?>" title="Your addressbook">Addressbook</a></li>
+		                		<li><a href="<?php echo AppResource::url_for_member('addressbook');?>" title="Your addressbook">Addressbook</a></li>
 		                	</ul>
 		                <?php endif;?>
 		                </li>
@@ -54,7 +55,9 @@
 					<?php
 						$pages = Post::find_public_pages(AppResource::$member->id);
 						$pages = $pages === null ? array() : $pages;
+						
 						foreach($pages as $page):?>
+						<?php if($page->name === "profile") continue;?>
 						<li<?php echo count($request->path) > 0 && $page->name === $request->path[0] ? ' class="current_page_item"' : null;?>>
 							<a href="<?php echo AppResource::url_for_member($page->name === "index" ? null : $page->name);?>">
 								<?php echo $page->title;?>
