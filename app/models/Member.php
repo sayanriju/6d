@@ -78,6 +78,7 @@ class Member extends ChinObject{
 	}
 	public static function find_signed_in($hash){
 		$member = Repo::find("select ROWID as id, * from members where hash=:hash and expiry>=:expiry", (object)array("hash"=>$hash, "expiry"=>time()))->first(new Member());
+		if($member === null) return null;
 		$meta = Member_meta::find_by_id($member->id);
 		$member->set_member_meta($meta);
 		return $member;

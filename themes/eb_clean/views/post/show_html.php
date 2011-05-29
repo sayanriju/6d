@@ -1,11 +1,10 @@
-<?php class_exists('Date') || require('lib/Date.php');?>
 <?php class_exists('PostResource') || require('resources/PostResource.php');?>
 <?php if($post == null):?>
 <article class="hentry single">
 	<p>Sorry, the page you're looking for doesn't exist.</p>
 </article>
 <?php else:?>
-<?php $author = PostResource::getAuthor($post);?>
+<?php $author = Member::find_by_id($post->owner_id);?>
 <article class="hentry single <?php echo $post->type;?>">
 	<section class="content">
 		<header>
@@ -65,36 +64,10 @@
 			break;
 		}?>
 	</section>
-	<aside class="reaction">
-		<?php if($post->conversation !== null && count($post->conversation) > 0):?>
-		<ol>
-		<?php $counter = 0;?>
-		<?php foreach($post->conversation as $comment):?>
-			<li class="author"<?php echo $counter > 1 ? ' style="display: none;"' : null;?>>
-				<img src="<?php echo $comment->author->photo_url;?>" class="small" />
-				<p><?php echo $comment->body;?></p>
-			</li>
-			<?php $counter++;?>
-		<?php endforeach;?>
-		</ol>
-		<?php else:?>
-		<p class="hint">No comments yet.</p>
-		<?php endif;?>
-		<?php if(AuthController::is_authed()):?>
-		<form method="post" action="<?php echo AppResource::url_for_member('conversations');?>" class="comment">
-			<fieldset>
-				<legend>Add a comment</legend>
-				<label for="comment_for_<?php echo $post->id;?>">Write a comment on <?php echo $author->name;?>'s post</label>
-				<input type="hidden" name="post_id" value="<?php echo $post->id;?>" />
-				<input id="comment_for_<?php echo $post->id;?>" type="text" name="body" value="" />
-				<button type="submit">Comment</button>
-			</fieldset>
-		</form>
-		<?php endif;?>
-	</aside>
+	<aside class="reaction"></aside>
 	<footer class="post-info">
 		<aside rel="tags">
-			<?php foreach(String::explodeAndTrim($post->tags) as $text):?>
+			<?php foreach(String::explode_and_trim($post->tags) as $text):?>
 			<a href="<?php echo AppResource::url_for_member('posts/'. $text, array('limit'=>0));?>"><?php echo $text;?></a>
 			<?php endforeach;?>
 		</aside>

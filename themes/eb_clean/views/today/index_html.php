@@ -121,7 +121,7 @@
 		</aside>
 		<footer class="post-info">
 			<aside rel="tags">
-				<?php foreach(String::explodeAndTrim($post->tags) as $text):?>
+				<?php foreach(String::explode_and_trim($post->tags) as $text):?>
 				<a href="<?php echo AppResource::url_for_member('posts/'. urldecode($text), array('limit'=>0));?>"><?php echo urldecode($text);?></a>
 				<?php endforeach;?>
 			</aside>

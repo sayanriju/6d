@@ -40,38 +40,37 @@
 			</div>
 		</div>
 		<div class="container">
-		<div class="row">
-		<div class="twocol">&nbsp;</div>
-			<div class="eightcol">
-				<header>
-					<h1><a href="<?php echo AppResource::url_for_member(null);?>" title="<?php echo AppResource::$member->display_name;?>">
-							<span>
-								<?php echo Setting::find("title", AppResource::$member->id)->value;?>
-							</span>
-						</a></h1>
-					<p>This site is built on 6d. <a href="http://www.get6d.com">Read more &#187;</a></p>
-					<ul id="pages_menu">
-					
-					<?php
-						$pages = Post::find_public_pages(AppResource::$member->id);
-						$pages = $pages === null ? array() : $pages;
-						
-						foreach($pages as $page):?>
-						<?php if($page->name === "profile") continue;?>
-						<li<?php echo count($request->path) > 0 && $page->name === $request->path[0] ? ' class="current_page_item"' : null;?>>
-							<a href="<?php echo AppResource::url_for_member($page->name === "index" ? null : $page->name);?>">
-								<?php echo $page->title;?>
+			<div class="row">
+				<div class="twocol">&nbsp;</div>
+				<div class="eightcol">
+					<header>
+						<h1><a href="<?php echo AppResource::url_for_member(null);?>" title="<?php echo AppResource::$member->display_name;?>">
+								<span>
+									<?php echo Setting::find("title", AppResource::$member->id)->value;?>
+								</span>
 							</a>
-						</li>
-					<?php endforeach;?>
-					</ul>
-					<div style="clear:both;"></div>
-				</header>
-			</div
-		<div class="twocol">&nbsp;</div>
-		</div>
-		</div>
-		
+						</h1>
+						<p>This site is built on 6d. <a href="http://www.get6d.com">Read more &#187;</a></p>
+						<ul id="pages_menu">
+						<?php
+							$pages = Post::find_public_pages(AppResource::$member->id);
+							$pages = $pages === null ? array() : $pages;
+						
+							foreach($pages as $page):?>
+							<?php if($page->name === "profile") continue;?>
+							<li<?php echo count($request->path) > 0 && $page->name === $request->path[0] ? ' class="current_page_item"' : null;?>>
+								<a href="<?php echo AppResource::url_for_member($page->name === "index" ? null : $page->name);?>">
+									<?php echo $page->title;?>
+								</a>
+							</li>
+						<?php endforeach;?>
+						</ul>
+						<div style="clear:both;"></div>
+					</header>
+				</div
+				<div class="twocol">&nbsp;</div>
+			</div>
+		</div>		
 		<div class="container">
 			<div class="row">
 				<div class="twocol">&nbsp;</div>

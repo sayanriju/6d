@@ -22,8 +22,10 @@ class AppResource extends Resource{
 			self::$member = $member;
 			if($info->path === null) $info->path = array("index");
 			$resource = Resource::get_instance($info->path[0]);
-			//if($info->path !== null) array_shift($info->path);
-			if($resource !== null) return $resource;
+			if($resource !== null){
+				$resource->request = $info;
+				return $resource;
+			}
 			$page_name = $info->path[0];
 		}
 		$post = Post::find_page_by_name($page_name, self::$member->id);

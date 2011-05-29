@@ -109,12 +109,11 @@
 		<?php endif;?>
 	</article>
 <?php endforeach;?>
-	<nav class="pages">
-		<a href="<?php echo $previous_page < 0 ? "javascript:void(0);" : AppResource::url_for_member("posts", array("page"=>$previous_page));?>" title="Go to the previous page">
-			<span>-</span>
-		</a>
-		<a href="<?php echo $next_page === $total_pages ? "javascript:void(0);" : AppResource::url_for_member("posts", array("page"=>$next_page));?>" title="Go to the next page">
-			<span>+</span>
-		</a>
-	</nav>
-</section>
+<nav class="pages">
+	<a href="<?php echo $previous_page === 0 ? "javascript:void(0);" : AppResource::url_for_member("blog", array("page"=>$previous_page));?>" title="Go to the previous page">
+		<span>-</span>
+	</a>
+	<a href="<?php echo $next_page === $total_pages ? "javascript:void(0);" : AppResource::url_for_member("blog", array("page"=>$next_page));?>" title="Go to the next page">
+		<span>+</span>
+	</a>
+</nav></section>

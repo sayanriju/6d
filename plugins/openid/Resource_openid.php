@@ -490,7 +490,7 @@ class OpenidCommand{
 	}
 	protected function generateMessageSignature($signed, $request){
 		$data = null;
-		$signed = String::explodeAndTrim($signed);
+		$signed = String::explode_and_trim($signed);
 		foreach($signed as $key){
 			$data .= self::keyValueFormEncode($key, $request->$key);
 		}
