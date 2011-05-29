@@ -1,4 +1,10 @@
 <?php class_exists("AuthController") || require("controllers/AuthController.php");?>
+<?php if($post !== null):?>
+<article>
+	<h1><?php echo $post->title;?></h1>
+	<?php echo $post->body;?>
+</article>
+<?php else:?>
 <section data-title="6d: Own your content. Your identity web app." id="index">
 	<h1>Own your content</h1>
 
@@ -19,3 +25,4 @@
 		</fieldset>
 	</form>
 </section>
+<?php endif;?>

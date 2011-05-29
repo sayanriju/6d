@@ -110,6 +110,7 @@ class Post extends ChinObject{
 		$page = Repo::find("select ROWID as id, * from posts where name=:name and type='page' and owner_id=:owner_id", (object)array("name"=>$name, "owner_id"=>(int)$owner_id))->first(new Post());
 		return $page;
 	}
+	
 	public static function find_by_name($name, $owner_id){
 		$post = Repo::find("select ROWID as id, * from posts where name=:name", (object)array("name"=>$name, "owner_id"=>(int)$owner_id))->first(new Post());		
 		return $post;
@@ -123,15 +124,16 @@ class Post extends ChinObject{
 		$attachments = Repo::find("select ROWID as id, * from posts where status='public' and owner_id=:owner_id and type='attachment' order by post_date desc limit :page, :limit", (object)array("owner_id"=>(int)$owner_id, "page"=>(int)$page, "limit"=>(int)$limit))->to_list(new Post());
 		return $attachments;
 	}
-	public static function can_save($post){
+	public static function can_save($post, $owner_id){
 		$message = array();
 		$duplicate_title = null;
 		if($post->title === null || strlen(trim($post->title)) === 0){
 			$message["title"] = "The title is required.";
 		}
 		if(count($message) === 0){
-			$duplicate_title = self::find_by_title($post->title, $owner_id);
+			$duplicate_title = self::find_by_id_and_owned_by($post->title, $owner_id);
 		}
+		
 		if($duplicate_title !== null) $message["duplicate_title"] = "The title is the same as another ad you've posted. Please change the title or update the one that already exists.";
 		return $message;
 	}

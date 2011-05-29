@@ -39,28 +39,39 @@ class PageResource extends AppResource{
 		$post->id = (int)$post->id;
 		$post->name = preg_replace("/[^a-zA-Z0-9-]?/", "", $post->name);
 		$this->post = Post::find_by_id_and_owned_by($post->id, AuthController::$current_user->id);
-		$same_name = Post::find_page_by_name($post->name, AuthController::$current_user->id);
 		if($this->post === null){
 			$this->set_unauthed("Unauthorized");
 			return;
 		}
-		if($same_name !== null && $same_name->id !== $this->post->id){
-			App::set_user_message("The name already exists for a page. Please enter a unique name.");
+		$this->post->title = $post->title;
+		$this->post->body = $post->body;
+		$this->post->status = $post->status;
+		$this->post->name = $post->name;
+		$this->post->post_date = strtotime($post->post_date);
+		$errors = Post::can_save($this->post, AuthController::$current_user->id);
+		if(count($errors) === 0){
+			Post::save($this->post);
 		}else{
-			$this->post->title = $post->title;
-			$this->post->body = $post->body;
-			$this->post->status = $post->status;
-			$this->post->name = $post->name;
-			$this->post->post_date = strtotime($post->post_date);
-			$errors = Post::can_save($this->post);
-			if(count($errors) === 0){
-				Post::save($this->post);
-			}else{
-				App::set_user_message(implode(",", $errors));
-			}
-			$this->set_redirect_to(AuthController::$current_user->signin . '/' . $this->post->name);
-		}		
+			App::set_user_message(implode(",", $errors));
+		}
+		$this->set_redirect_to(AuthController::$current_user->signin . '/' . $this->post->name);
 		$this->output = View::render('page/edit', $this);
 		return View::render_layout('default', $this);
 	}
+	public function delete(Post $post){
+		if(!AuthController::is_authed()){
+			$this->set_unauthed();
+			return;
+		}
+		$this->post = Post::find_by_id_and_owned_by($post->id, AuthController::$current_user->id);
+		if($this->post === null){
+			$this->set_not_found();
+			return;
+		}
+		delete_object::execute($this->post);
+		$this->set_redirect_to(AuthController::$current_user->signin . '/posts');
+		$this->output = View::render("post/index", $this);
+		return View::render_layout("default", $this);
+	}
+	
 }

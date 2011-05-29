@@ -13,7 +13,6 @@ class IndexResource extends AppResource{
 		$view = "index/index";
 		$this->post = Post::find_public_page("index", self::$member->id);
 		if($this->post !== null){
-			$this->output = $this->post->body;
 			$this->title = $this->post->title;
 		}else{
 			$setting = Setting::find("home_page_title", self::$member->id);
