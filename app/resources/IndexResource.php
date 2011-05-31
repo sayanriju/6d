@@ -22,6 +22,7 @@ class IndexResource extends AppResource{
 				$this->title = "Another 6d site.";
 			}
 			$blog_resource = new BlogResource();
+			$blog_resource->title = $this->title;
 			$blog_resource->request = $this->request;
 			return $blog_resource->get();
 		}

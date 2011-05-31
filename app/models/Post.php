@@ -115,6 +115,10 @@ class Post extends ChinObject{
 		$post = Repo::find("select ROWID as id, * from posts where name=:name", (object)array("name"=>$name, "owner_id"=>(int)$owner_id))->first(new Post());		
 		return $post;
 	}
+	public static function find_by_keyword($q){
+		$posts = Repo::find("select ROWID as id, * from posts where name like '%" . $q . "%' or title like '%" . $q . "%' or body like '%" . $q . "%' and status='public'", (object)array("q"=>$q))->to_list(new Post());		
+		return $posts;
+	}
 	public static function find_by_title($title, $owner_id){
 		$name = String::string_for_url($title);
 		return self::find_by_name($name, $owner_id);

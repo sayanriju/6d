@@ -14,6 +14,8 @@ class Setting extends ChinObject{
 	public static function find($key, $owner_id){
 		$owner_id = (int)$owner_id;
 		$setting = Repo::find("select ROWID as id, * from settings where key=:key and owner_id=:owner_id", (object)array("owner_id"=>$owner_id, "key"=>$key))->first(new Setting());
+		// Return an instance if it's null so views don't have to check for null, they can just reference
+		// the value of the setting object. Just a convenience.
 		if($setting === null) return new Setting(array("key"=>$key, "value"=>null));
 		return $setting;
 	}

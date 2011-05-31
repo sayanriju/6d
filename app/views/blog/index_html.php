@@ -10,6 +10,7 @@
 		</footer>
 	</article>
 <?php endforeach;?>
+<?php if($post->count > 0):?>
 <nav class="pages">
 	<a href="<?php echo $previous_page === 0 ? "javascript:void(0);" : AppResource::url_for_member("blog", array("page"=>$previous_page));?>" title="Go to the previous page">
 		<span>-</span>
@@ -18,3 +19,4 @@
 		<span>+</span>
 	</a>
 </nav>
+<?php endif;?>
