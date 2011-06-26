@@ -20,7 +20,7 @@ class Settings{
 }
 Settings::$max_filesize = 2000000;
 Settings::$app_path = dirname(__FILE__) . "/app";
-Settings::$theme = "eb_clean";
+Settings::$theme = "default";
 Settings::$site_header = "Chinchillalite, a RESTful PHP Framework";
 Settings::$storage_provider = (object)array("type"=>"sqlite", "path"=>Settings::virtual_path("data/chinchillalite.db"));
 $logger = new Logger();
