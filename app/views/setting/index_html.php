@@ -8,4 +8,7 @@
 		</form>
 	</li>
 <?php endforeach;?>
+	<li>
+		<a href="<?php echo AppResource::url_for_user("setting");?>" title="Add a new setting">add a new setting</a>
+	</li>
 </ul>

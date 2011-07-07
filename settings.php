@@ -20,8 +20,8 @@ class Settings{
 }
 Settings::$max_filesize = 2000000;
 Settings::$app_path = dirname(__FILE__) . "/app";
-Settings::$theme = "default";
-Settings::$site_header = "Chinchillalite, a RESTful PHP Framework";
-Settings::$storage_provider = (object)array("type"=>"sqlite", "path"=>Settings::virtual_path("data/chinchillalite.db"));
+Settings::$theme = "html5";
+Settings::$site_header = "6d, an online identity building web app. Own your online identity. Own your content.";
+Settings::$storage_provider = (object)array("type"=>"sqlite", "path"=>Settings::virtual_path("data/6d.db"));
 $logger = new Logger();
 //NotificationCenter::add($logger, "request_was_made");

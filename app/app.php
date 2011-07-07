@@ -246,7 +246,7 @@ class DefaultMessageStrategy extends SendMessageStrategy{
 }
 class Resource{
 	public function __construct(){
-		$this->title = 'A RESTful Chinchilla website';
+		$this->title = '6d, an online identity building web app. Own your online identity. Own your content.';
 		$class_name = get_class($this);
 		$this->resource_name = str_replace("resource", "", strtolower($class_name));
 		self::$reflector = new ReflectionClass($class_name);		

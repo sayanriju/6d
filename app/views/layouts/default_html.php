@@ -30,8 +30,16 @@
 			<h1 id="logo"><a href="<?php echo AppResource::url_for_member(null);?>" title="6d online"><span>6d</span></a></h1>
 			<aside>an online identity framework</aside>
 			<nav>
-				<a href="<?php echo AppResource::url_for_user("blog");?>" id="blog" title="<?php echo AppResource::$member->is_owner ? "Chinchillalite blog" : AppResource::$member->name;?>'s blog">blog</a>
-				<a href="<?php echo App::url_for("members");?>" title="Network directory">members</a>
+			<?php
+				$pages = Post::find_public_pages(AppResource::$member->id);
+				$pages = $pages === null ? array() : $pages;
+				foreach($pages as $page):?>
+				<a<?php echo count($request->path) > 0 && $page->name === $request->path[0] ? ' class="selected"' : null;?> href="<?php echo AppResource::url_for_member($page->name === "index" ? null : $page->name);?>">
+						<?php echo $page->title;?>
+				</a>
+			<?php endforeach;?>			
+				<a href="<?php echo AppResource::url_for_user("blog");?>" id="blog" title="<?php echo AppResource::$member->name;?>'s blog">Blog</a>
+				<a href="<?php echo App::url_for("members");?>" title="Network directory">Members</a>
 			</nav>
 		</header>
 		<section>

@@ -11,7 +11,7 @@ class SigninResource extends AppResource{
 			$this->set_redirect_to(null);
 			return;
 		}
-		$this->title = "Chinchllalite Sign in Page";
+		$this->title = "Sign in";
 		$this->output = View::render("signin/index", $this);
 		return View::render_layout("default", $this);
 	}

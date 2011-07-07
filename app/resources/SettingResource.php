@@ -15,7 +15,7 @@ class SettingResource extends AppResource{
 	public $errors;
 	public function get(Setting $setting = null){
 		$setting = $setting === null ? new Setting() : $setting;
-		$this->setting = Setting::find_by_id((int)$setting->id);
+		$this->setting = Setting::find($setting->key, self::$member->id);
 		$view = "setting/show";
 		$this->legend = "Edit this setting";
 		if($this->setting === null) $this->setting = new Setting(array("id"=>0));
@@ -39,13 +39,15 @@ class SettingResource extends AppResource{
 		return View::render_layout("default", $this);
 	}
 	public function post($state = "show", $key){
-		$this->legend = "Create a new setting";
+		$this->legend = $key === null ? "Create a new setting" : "Edit setting " . $key;
 		$key = preg_replace("/[^a-zA-Z0-9-]?/", "", $key);
-		$this->title = "Create a new setting called $key";
 		$this->state = $state == "edit" ? "edit" : "show";
 		$this->setting = Setting::find($key, AuthController::$current_user->id);
 		if($this->setting === null){
+			$this->title = "Create a new setting called $key";
 			$this->setting = new Setting(array("key"=>$key));
+		}else{
+			$this->title = "Edit setting $key";
 		}
 		$this->output = View::render("setting/{$this->state}", $this);
 		return View::render_layout("default", $this);

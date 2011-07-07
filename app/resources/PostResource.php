@@ -14,7 +14,7 @@ class PostResource extends AppResource{
 		if($post->id > 0){
 			$this->post = Post::find_by_id($post->id);
 		}
-		$this->title = "Chinchllalite Blog";
+		$this->title = "Blog";
 		$view = "post/show";
 		$this->legend = "Edit this post";
 		if($this->post === null) $this->post = new Post();
