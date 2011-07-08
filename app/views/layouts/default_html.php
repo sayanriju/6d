@@ -33,6 +33,9 @@
 			<?php
 				$pages = Post::find_public_pages(AppResource::$member->id);
 				$pages = $pages === null ? array() : $pages;
+			?>
+			<?php echo "page count = " .count($pages);?>
+			<?php
 				foreach($pages as $page):?>
 				<a<?php echo count($request->path) > 0 && $page->name === $request->path[0] ? ' class="selected"' : null;?> href="<?php echo AppResource::url_for_member($page->name === "index" ? null : $page->name);?>">
 						<?php echo $page->title;?>
@@ -47,17 +50,26 @@
 			<?php echo $output;?>
 		</section>
 		<footer id="footer">
-<?php if(AuthController::is_authed()):?>
-			<nav>
-				<a href="<?php echo AppResource::url_for_user("post");?>">add a post</a>
-				<a href="<?php echo AppResource::url_for_user("posts");?>">posts</a>
-				<a href="<?php echo AppResource::url_for_user("addressbook");?>" title="Addressbook">addressbook</a>
-				<a href="<?php echo AppResource::url_for_user("files");?>" title="Upload files">upload files</a>
-				<a href="<?php echo AppResource::url_for_user("photos");?>" title="Photos">photos</a>
-				<a href="<?php echo App::url_for("signout");?>">sign out</a> <?php echo AuthController::$current_user->name;?>
-			</nav>
-<?php endif;?>
-			<p><small>Chinchilla</small>: <?php echo round(memory_get_peak_usage(true) / 1024 / 1024, 2);?> megabytes of memory</p>
+		<?php if(AuthController::is_authed()):?>
+					<nav>
+						<a href="<?php echo AppResource::url_for_user("post");?>">add a post</a>
+						<a href="<?php echo AppResource::url_for_user("posts");?>">posts</a>
+						<a href="<?php echo AppResource::url_for_user("addressbook");?>" title="Addressbook">addressbook</a>
+						<a href="<?php echo AppResource::url_for_user("files");?>" title="Upload files">upload files</a>
+						<a href="<?php echo AppResource::url_for_user("photos");?>" title="Photos">photos</a>
+						<a href="<?php echo App::url_for("signout");?>">sign out</a> <?php echo AuthController::$current_user->name;?>
+					</nav>
+		<?php endif;?>
+			<address id="about" class="vcard body">
+				<span class="primary">
+					<strong><a href="#" class="fn url">6d</a></strong>
+					<span class="role">The web is the network. 6d makes it social.</span>
+				</span>
+				<img src="http://www.get6d.com/images/6d_small_logo.png" alt="6d Logo" class="photo" />
+				<span class="bio">6d is a web application that offers people the ability to create a decentralized social network while keeping a blog.</span>
+			</address>
+			<p>&copy;2011 <a href="http://www.get6d.com/" title="6d website">6d Incorporated</a>.</p>
+			<p><small><?php echo round(memory_get_peak_usage(true) / 1024 / 1024, 2);?> megabytes of memory used to process this request</small></p>
 		</footer>
     </body>
 </html>

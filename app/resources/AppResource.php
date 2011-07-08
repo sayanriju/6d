@@ -32,6 +32,7 @@ class AppResource extends Resource{
 		if($post !== null){
 			class_exists("PageResource") || require("resources/PageResource.php");
 			$resource = new PageResource();
+			$resource->title = $post->title;
 			return $resource;
 		}
 

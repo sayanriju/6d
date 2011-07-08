@@ -34,6 +34,6 @@ class MailinglistResource extends AppResource{
 			var_dump($e);
 		}
 				
-		return "Thank you {$matches[0]} for your interest.";
+		return "Thank you for your interest. We've added you to our address book and will send you updates when we can.";
 	}
 }

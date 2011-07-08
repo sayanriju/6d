@@ -86,12 +86,12 @@ class Post extends ChinObject{
 		return $post;
 	}
 	public static function find_public_posts_with_limit($owner_id, $page, $limit){
-		$post = Repo::find("select ROWID as id, * from posts where owner_id=:owner_id and status='public' order by post_date desc limit :page, :limit", (object)array("owner_id"=>(int)$owner_id, "page"=>(int)$page, "limit"=>(int)$limit))->to_list(new Post());
+		$post = Repo::find("select ROWID as id, * from posts where owner_id=:owner_id and status='public' and type!='page' order by post_date desc limit :page, :limit", (object)array("owner_id"=>(int)$owner_id, "page"=>(int)$page, "limit"=>(int)$limit))->to_list(new Post());
 		return $post;
 	}
 	
 	public static function find_public_count($owner_id){
-		$count = Repo::find("select count(1) as total from posts where status='public' and owner_id=:owner_id", (object)array("owner_id"=>(int)$owner_id))->first(new Post());
+		$count = Repo::find("select count(1) as total from posts where status='public' and type!='page' and owner_id=:owner_id", (object)array("owner_id"=>(int)$owner_id))->first(new Post());
 		return $count;
 	}
 	public static function find_total($owner_id){
@@ -103,8 +103,8 @@ class Post extends ChinObject{
 		return $page;
 	}
 	public static function find_public_pages($owner_id){
-		$page = Repo::find("select ROWID as id, * from posts where type='page' and status='public' and owner_id=:owner_id and post_date<=:post_date and name!='index'", (object)array("owner_id"=>(int)$owner_id, "post_date"=>time()))->to_list(new Post());
-		return $page;
+		$pages = Repo::find("select ROWID as id, * from posts where type='page' and status='public' and owner_id=:owner_id and post_date<=:post_date and name!='index'", (object)array("owner_id"=>(int)$owner_id, "post_date"=>time()))->to_list(new Post());
+		return $pages;
 	}
 	public static function find_page_by_name($name, $owner_id){
 		$page = Repo::find("select ROWID as id, * from posts where name=:name and type='page' and owner_id=:owner_id", (object)array("name"=>$name, "owner_id"=>(int)$owner_id))->first(new Post());

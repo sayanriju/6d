@@ -20,7 +20,7 @@ class SettingResource extends AppResource{
 		$this->legend = "Edit this setting";
 		if($this->setting === null) $this->setting = new Setting(array("id"=>0));
 		$this->title = $this->setting->key;
-		if(AuthController::is_authed() && (bool)AuthController::$current_user->is_owner){
+		if(AuthController::is_authed()){
 			$view = "setting/edit";
 			$this->legend = $this->setting->id === 0 ? "Add a new setting" : "Edit this setting";			
 		}else{
@@ -40,7 +40,7 @@ class SettingResource extends AppResource{
 	}
 	public function post($state = "show", $key){
 		$this->legend = $key === null ? "Create a new setting" : "Edit setting " . $key;
-		$key = preg_replace("/[^a-zA-Z0-9-]?/", "", $key);
+		$key = preg_replace("/[^a-zA-Z0-9-_]?/", "", $key);
 		$this->state = $state == "edit" ? "edit" : "show";
 		$this->setting = Setting::find($key, AuthController::$current_user->id);
 		if($this->setting === null){

@@ -33,7 +33,7 @@ class MembersResource extends AppResource{
 		}else{
 			$this->members = Member::find_in_directory(0, 5);
 		}
-
+		$this->title = "Members on " . AppResource::$member->display_name . "'s 6d Network";
 		$view = "member/index";
 		$this->output = View::render($view, $this);
 		return View::render_layout('default', $this);

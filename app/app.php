@@ -627,15 +627,15 @@ class Request{
 }
 
 class View{
-	private static function render_from_file($file_name, $resource){
-		extract(get_object_vars($resource));
+	private static function render_from_file($file_name, $obj, $file_type){
+		extract(get_object_vars($obj));
 		ob_start();
 		if(file_exists($file_name)){
 			require($file_name);
 		}else{
-			switch($resource->request->file_type){
+			switch($file_type){
 				case("json"):
-					echo json_encode($resource);
+					echo json_encode($obj);
 					break;
 				case("phtml"):
 					$file_name = str_replace('_phtml', '_html', $file_name);
@@ -649,8 +649,9 @@ class View{
 		return ob_get_clean();
 	}
 	public static function render_absolute($path, $resource, $file_type = null){
-		$view_name = sprintf("%s_%s.php", $path, $file_type !== null ? $file_type : $resource->request->file_type);
-		return self::render_from_file($view_name, $resource);
+		$file_type = $file_type !== null ? $file_type : $resource->request->file_type;
+		$view_name = sprintf("%s_%s.php", $path, $file_type);
+		return self::render_from_file($view_name, $resource, $file_type);
 	}
 	private static function get_phtml_file_name($file_name, $theme_view_path, $root_view_path){
 		if(file_exists($theme_view_path)){
@@ -688,7 +689,7 @@ class View{
 		}else if(file_exists($root_view_path)){
 			$file_name = $root_view_path;
 		}
-		return self::render_from_file($file_name, $resource);
+		return self::render_from_file($file_name, $resource, $file_type);
 	}
 	public static function render_layout($layout, $resource){
 		if(!in_array($resource->request->file_type, array("html", "xml", "atom", "rss"))) return $resource->output;

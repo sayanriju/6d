@@ -24,7 +24,7 @@ class MessagesResource extends AppResource{
 		if($this->contacts === null) $this->contacts = array();
 		$this->messages = Message::find_owned_by(AuthController::$current_user->id);
 		if($this->messages === null) $this->messages = array();
-		$this->title = "Messages";
+		$this->title = AppResource::$member->display_name . "'s Messages";
 		$this->output = View::render('message/index', $this);
 		return View::render_layout('default', $this);
 	}

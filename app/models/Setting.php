@@ -21,7 +21,7 @@ class Setting extends ChinObject{
 	}
 	public static function find_all($page, $limit, $owner_id){
 		$owner_id = (int)$owner_id;
-		$settings = Repo::find("select ROWID as id, * from settings order by key limit :page, :limit", (object)array("page"=>(int)$page, "limit"=>(int)$limit))->to_list(new Setting());
+		$settings = Repo::find("select ROWID as id, * from settings where owner_id=:owner_id order by key limit :page, :limit", (object)array("page"=>(int)$page, "owner_id"=>$owner_id, "limit"=>(int)$limit))->to_list(new Setting());
 		return $settings;
 	}
 	public static function can_save(Setting $setting){

@@ -32,7 +32,7 @@ class BlogResource extends AppResource{
 			$this->posts = Post::find_public_posts_with_limit(self::$member->id, $this->page * $this->limit, $this->limit);
 			if(count($this->posts) > 0){
 				$this->next_page = $this->page+2;
-				$this->post_count = Post::find_public_count(self::$member->id);			
+				$this->post_count = Post::find_public_count(self::$member->id);
 				$this->total_pages = ceil($this->post_count->total / $this->limit);
 				$this->previous_page = $this->next_page-2;
 				if($this->next_page > $this->total_pages){
@@ -44,10 +44,9 @@ class BlogResource extends AppResource{
 			}else{
 				$this->posts = array();
 			}
-			$this->title = !self::$member->is_owner ? self::$member->name . "'s Blog" : "Blog";
+			$this->title = self::$member->name . "'s Blog";
 		}
-		
 		$this->output = View::render($view, $this);
 		return View::render_layout("default", $this);
-	}	
+	}
 }

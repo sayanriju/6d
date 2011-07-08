@@ -25,7 +25,7 @@ class PageResource extends AppResource{
 			return;
 		}
 		$this->legend = "Create a new page";
-		$name = preg_replace("/[^a-zA-Z0-9-]?/", "", $name);
+		$name = preg_replace("/[^a-zA-Z0-9-_]?/", "", $name);
 		$this->title = "Create a new page called $name";
 		$this->state = $state == "edit" ? "edit" : "show";
 		$this->post = Post::find_page_by_name($name, AuthController::$current_user->id);
@@ -37,7 +37,7 @@ class PageResource extends AppResource{
 	}
 	public function put(Post $post){
 		$post->id = (int)$post->id;
-		$post->name = preg_replace("/[^a-zA-Z0-9-]?/", "", $post->name);
+		$post->name = preg_replace("/[^a-zA-Z0-9-_]?/", "", $post->name);
 		$this->post = Post::find_by_id_and_owned_by($post->id, AuthController::$current_user->id);
 		if($this->post === null){
 			$this->set_unauthed("Unauthorized");

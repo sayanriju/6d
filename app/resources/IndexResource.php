@@ -15,7 +15,7 @@ class IndexResource extends AppResource{
 		if($this->post !== null){
 			$this->title = $this->post->title;
 		}else{
-			$setting = Setting::find("home_page_title", self::$member->id);
+			$setting = Setting::find("title", self::$member->id);
 			$use_blog_for_home_page = Setting::find("use_blog_for_home_page", self::$member->id);
 			if($setting !== null && $setting->value !== null){
 				$this->title = $setting->value;

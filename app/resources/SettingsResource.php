@@ -14,6 +14,7 @@ class SettingsResource extends AppResource{
 	
 	public function get(){
 		$this->settings = Setting::find_all(0, 5, AuthController::$current_user->id);
+		$this->settings = $this->settings == null ? array() : $this->settings;
 		$view = "setting/index";
 		$this->output = View::render($view, $this);
 		return View::render_layout('default', $this);

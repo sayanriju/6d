@@ -11,14 +11,14 @@ class PagesResource extends AppResource{
 	}
 	public $post;
 	public function get($name){
-		$name = preg_replace("/[^a-zA-Z0-9-]?/", "", $name);
+		$name = preg_replace("/[^a-zA-Z0-9-_]?/", "", $name);
 		$this->post = Post::find_page_by_name($name, AuthController::$current_user->id);
 		$view = "page/index";
 		$this->output = View::render($view, $this);
 		return View::render_layout("default", $this);
 	}
 	public function post(Post $post){
-		$post->name = preg_replace("/[^a-zA-Z0-9-]?/", "", $post->name);
+		$post->name = preg_replace("/[^a-zA-Z0-9-_]?/", "", $post->name);
 		$this->post = Post::find_page_by_name($name, AuthController::$current_user->id);
 		if($this->post !== null){
 			AppResource::set_user_message("That page already exists. Enter a different name.");
