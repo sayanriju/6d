@@ -266,7 +266,7 @@ section article
 .social a[href*='twitter.com'] {background-image: url("../images/icons/twitter.png");}
  
 #about{
-	background: #fff;
+	background: #ffffff url("../images/6d_logo_no_motto.png") 120px center no-repeat;
 	font-style: none;
 	margin-bottom: 2em;
 	overflow: hidden;
@@ -277,11 +277,11 @@ section article
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 }
-#about .primary{float: left; width: 165px;}
+#about .primary{float: left; width: 130px;}
 #about .primary strong{color: #c64350; display: block;font-size: 1.286em;}
 #about .photo{float: left; margin: -10px 0 0 35px;}
 #about .url:link, #about .url:visited{text-decoration: none;}
-#about .bio{float: right; width: 480px;}
+#about .bio{float: right; width: 455px;}
 #contentinfo{padding-bottom: 2em; text-align: right;}
  
 .hentry{

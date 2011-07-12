@@ -39,5 +39,18 @@ class ContactResource extends AppResource{
 		$this->output = View::render("contact/show", $this);
 		return View::render_layout("default", $this);
 	}
-	
+	public function delete(Contact $contact){
+		if(!AuthController::is_authed() || !(bool)AuthController::$current_user->is_owner){
+			$this->set_unauthed();
+			return;
+		}
+
+		$this->contact = Contact::find_by_id_and_owned_by((int)$contact->id, AuthController::$current_user->id);
+		if($this->contact !== null){
+			delete_object::execute($this->contact);
+		}
+		$this->set_redirect_to("addressbook");
+		$this->output = View::render("addressbook/index", $this);
+		return View::render_layout("default", $this);
+	}
 }

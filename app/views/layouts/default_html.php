@@ -61,14 +61,12 @@
 					</nav>
 		<?php endif;?>
 			<address id="about" class="vcard body">
-				<span class="primary">
-					<strong><a href="#" class="fn url">6d</a></strong>
-					<span class="role">The web is the network. 6d makes it social.</span>
-				</span>
-				<img src="http://www.get6d.com/images/6d_small_logo.png" alt="6d Logo" class="photo" />
-				<span class="bio">6d is a web application that offers people the ability to create a decentralized social network while keeping a blog.</span>
+				<p class="primary">
+					<span class="role">The web is the network. <a href="<?php echo App::url_for(null);?>" class="fn url">6d</a> makes it social.</span>
+				</p>
+				<p class="bio">6d is a web app that allows you to own your content. It gives you the ability to create a decentralized social network whith your website.</p>
 			</address>
-			<p>&copy;2011 <a href="http://www.get6d.com/" title="6d website">6d Incorporated</a>.</p>
+			<p>&copy;2011 <a href="http://www.get6d.com/" title="Get 6d website">Get 6d Incorporated</a>.</p>
 			<p><small><?php echo round(memory_get_peak_usage(true) / 1024 / 1024, 2);?> megabytes of memory used to process this request</small></p>
 		</footer>
     </body>

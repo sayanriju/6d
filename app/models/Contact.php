@@ -22,6 +22,11 @@ class Contact extends ChinObject{
 		$contacts = Repo::find("select ROWID as id, * from contacts where owner_id=:owner_id", (object)array("owner_id"=>(int)$owner_id))->to_list(new Contact());
 		return $contacts;
 	}
+	public static function find_by_id_and_owned_by($id, $owner_id){
+		$contact = Repo::find("select ROWID as id, * from contacts where ROWID=:id and owner_id=:owner_id", (object)array("id"=>(int)$id, "owner_id"=>(int)$owner_id))->first(new Contact);
+		return $contact;
+	}
+	
 	public static function find_by_id($id, $owner_id){
 		$contact = Repo::find("select ROWID as id, * from contacts where ROWID=:id and owner_id=:owner_id", (object)array("owner_id"=>(int)$owner_id, "id"=>(int)$id))->first(new Contact());
 		return $contact;
