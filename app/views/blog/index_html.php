@@ -12,10 +12,10 @@
 <?php endforeach;?>
 <?php if($post_count !== null && $post_count->total > 0):?>
 <nav class="pages">
-	<a href="<?php echo $previous_page === 0 ? "javascript:void(0);" : AppResource::url_for_member("blog", array("page"=>$previous_page));?>" title="Go to the previous page">
+	<a href="<?php echo $previous_page === 0 ? "javascript:void(0);" : AppResource::url_for_member("blog", array("page"=>$previous_page));?>" title="Go to the previous page" class="<?php echo $previous_page === 0 ? "disabled" : "";?>">
 		<span>-</span>
 	</a>
-	<a href="<?php echo $next_page === $total_pages ? "javascript:void(0);" : AppResource::url_for_member("blog", array("page"=>$next_page));?>" title="Go to the next page">
+	<a href="<?php echo $next_page === $total_pages ? "javascript:void(0);" : AppResource::url_for_member("blog", array("page"=>$next_page));?>" title="Go to the next page" class="<?php echo $next_page === $total_pages ? "disabled" : "";?>">
 		<span>+</span>
 	</a>
 </nav>
