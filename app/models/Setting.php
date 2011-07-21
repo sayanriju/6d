@@ -10,6 +10,12 @@ class Setting extends ChinObject{
 	public $owner_id;
 	public $key;
 	public $value;
+	public static function install(){
+		$query = "create table if not exists settings (owner_id int, key text, value text)";
+		$db = Repo::get_provider();
+		$result = $db->query($query);
+		return $result;
+	}
 
 	public static function find($key, $owner_id){
 		$owner_id = (int)$owner_id;

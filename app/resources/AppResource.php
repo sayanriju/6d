@@ -39,8 +39,16 @@ class AppResource extends Resource{
 		return $resource;
 	}
 	public static function begin_request($publisher, $info){
-		if(AuthController::get_chin_auth() !== null){
-			AuthController::set_current_user();
+		try{
+			if(AuthController::get_chin_auth() !== null){
+				AuthController::set_current_user();
+			}			
+		}catch(RepoException $e){
+			if(strpos("HY000:no such table", $e->getMessage()) !== -1){
+				$header = new HttpHeader(array("location"=>App::url_for("install/index.php"), "file_type"=>"html"));
+				$header->send();
+				die;
+			}
 		}
 		self::$member = Member::find_by_name($info->resource_name);
 		if(self::$member !== null){

@@ -31,8 +31,11 @@ class Repo{
 	}
 	public static function find($query, $obj = null){
 		$cmd = self::get_provider()->prepare($query);
-		if($cmd === false) var_dump(self::get_provider()->errorInfo());		
-		$result = null;
+		if($cmd === false){
+			$error_info = self::get_provider()->errorInfo();
+			if($cmd === false) throw new RepoException($error_info[0] . ":" . $error_info[2], $error_info[1]);
+		}
+		$result = null;		
 		if($obj !== null){
 			$properties = get_object_vars($obj);
 			foreach($properties as $key=>$value){

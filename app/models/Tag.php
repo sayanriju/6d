@@ -12,6 +12,13 @@ class Tag extends ChinObject{
 	public $object_id;
 	public $object_type;
 	public $owner_id;
+	public static function install(){
+		$query = "create table if not exists tags (name text, object_id integer, object_type text, owner_id integer)";
+		$db = Repo::get_provider();
+		$result = $db->query($query);
+		return $result;
+	}
+	
 	public static function find_for_contacts($owner_id){		
 		$list = Repo::find("select tags.*, tags.ROWID as id from tags where tags.object_type='contact' and tags.owner_id=:owner_id group by tags.name", (object)array("owner_id"=>(int)$owner_id))->to_list(new Contact());
 		return $list;

@@ -39,6 +39,13 @@ class Member extends ChinObject{
 		$this->member_meta = $value;
 	}
 	
+	public static function install(){
+		$query = "create table if not exists members (signin text, in_directory integer, name text, password text, is_owner integer, hash text, expiry integer, display_name text, email text, photo_url text)";
+		$db = Repo::get_provider();
+		$result = $db->query($query);
+		return $result;
+	}
+
 	public static function find_by_name($name){
 		$member = Repo::find("select ROWID as id, * from members where name=:name", (object)array("name"=>$name))->first(new Member());
 		return $member;

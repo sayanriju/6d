@@ -22,20 +22,22 @@ class Post extends ChinObject{
 	public $excerpt;
 	public $status;
 	public $comment_status;
-	public $ping_status;
 	public $password;
 	public $name;
-	public $to_ping;
-	public $pinged;
 	public $modified;
 	public $modified_gmt;
-	public $content_filtered;
 	public $parent;
 	public $url;
 	public $type;
 	public $mime_type;
 	public $comment_count;
 	
+	public static function install(){
+		$query = "create table if not exists posts (title text, body text, owner_id int, post_date integer, post_date_gmt integer, excerpt text, status text, comment_status text, password text, name text, modified integer, modified_gmt integer, parent integer, url text, type text, mime_type text, comment_count integer)";
+		$db = Repo::get_provider();
+		$result = $db->query($query);
+		return $result;
+	}
 	private $post_meta;
 	public function post_meta(){
 		return $this->post_meta;

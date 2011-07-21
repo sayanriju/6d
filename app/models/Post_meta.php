@@ -16,6 +16,13 @@ class Post_meta extends ChinObject{
 		}
 		return $post;
 	}
+	public static function install(){
+		$query = "create table if not exists post_metas (post_id integer, key text, value text)";
+		$db = Repo::get_provider();
+		$result = $db->query($query);
+		return $result;
+	}
+	
 	public static function find_by_id($post_id, $key = null){
 		$post_meta = Repo::find("select ROWID as id, * from post_metas where post_id=:post_id" . ($key === null ? null : " and key=:key"), (object)array("post_id"=>(int)$post_id, "key"=>$key))->first(new Post_meta());
 		return $post_meta;

@@ -11,6 +11,13 @@ class Member_meta extends ChinObject{
 	public $key;
 	public $value;
 	
+	public static function install(){
+		$query = "create table if not exists member_metas (owner_id integer, key text, value text)";
+		$db = Repo::get_provider();
+		$result = $db->query($query);
+		return $result;
+	}
+	
 	public static function find_by_id($id, $key = null){
 		$member_meta = Repo::find("select ROWID as id, * from member_metas where owner_id=:owner_id" . ($key === null ? null : " and key=:key"), (object)array("owner_id"=>(int)$id, "key"=>$key))->first(new Member_meta());
 		return $member_meta;

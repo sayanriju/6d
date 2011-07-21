@@ -13,7 +13,12 @@ class Contact extends ChinObject{
 	public $photo_url;
 	public $email;
 	public $json;
-	
+	public static function install(){
+		$query = "create table if not exists contacts (name text, owner_id int, url text, photo_url text, email text, json text)";
+		$db = Repo::get_provider();
+		$result = $db->query($query);
+		return $result;
+	}
 	public static function find_tagged($tag, $owner_id){
 		$contacts = Repo::find("select contacts.ROWID as id, contacts.* from contacts inner join tags on tags.object_id = contacts.ROWID and tags.object_type='contact' where tags.name=:tag and contacts.owner_id=:owner_id", (object)array("tag"=>$tag, "owner_id"=>(int)$owner_id))->to_list(new Contact());
 		return $contacts;

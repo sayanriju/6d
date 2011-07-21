@@ -22,4 +22,11 @@ class Comment extends ChinObject{
 	public $approved;
 	public $parent;
 	public $member_id;
+	public static function install(){
+		$query = "create table if not exists comments (owner_id integer, post_id integer, date integer, date_gmt integer, karma integer, approved integer, parent integer, member_id integer)";
+		$db = Repo::get_provider();
+		$result = $db->query($query);
+		return $result;
+	}
+	
 }
